@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "CommonJS",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "strict": true,
+    "types": ["jest"],  
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+
+  },
+  "include": ["src","tests", "src/modules/auth/infrastructure/models/StudentModel.ts"],
+  "exclude": ["node_modules", "dist","tests"]
+}
