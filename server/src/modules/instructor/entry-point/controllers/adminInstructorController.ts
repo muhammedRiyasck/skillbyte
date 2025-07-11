@@ -2,9 +2,9 @@ import { Request,Response } from "express";
 import { ListPendingInstructorsUseCase } from "../../application/use-cases/ListPendingInstructors";
 import { ApproveInstructorUseCase } from "../../application/use-cases/ApproveInstructor";
 import { DeclineInstructorUseCase } from "../../application/use-cases/DeclineInstructor";
-import { ListApprovedInstructorsUseCase } from "../../application/use-cases/listApprovedInstructors";
+import { ListApprovedInstructorsUseCase } from "../../application/use-cases/ListApprovedInstructors";
 import { ChangeInstructorStatusUseCase } from "../../application/use-cases/changeAccountStatus";
-import { error } from "console";
+
 
 export class AdminInstructorController {
   constructor(
@@ -15,31 +15,31 @@ export class AdminInstructorController {
     private changeStatusUC: ChangeInstructorStatusUseCase
   ) {}
 
-   async getPending (req: Request, res: Response) {
+    getPending = async (req: Request, res: Response)=> {
     const instructors = await this.listPendingUC.execute();
     res.json(instructors);
   };
 
-   async approve (req: Request, res: Response) {
+    approve = async (req: Request, res: Response)=>{
     const { id } = req.params;
     const adminId = (req.user as { id: string }).id;
     await this.approveUC.execute(id, adminId);
     res.json({ message: "Instructor approved" });
   };
 
-   async decline  (req: Request, res: Response)  {
+    decline = async  (req: Request, res: Response)=> {
     const { id } = req.params;
     const { reason } = req.body;
     await this.declineUC.execute(id, reason);
     res.json({ message: "Instructor declined", note: reason });
   };
 
-   async  listApproved (req: Request, res: Response) {
+    listApproved = async (req: Request, res: Response)=> {
     const instructors = await this.listApprovedUC.execute();
     res.json(instructors);
   };
 
-  async changeStatus(req: Request, res: Response)  {
+   changeStatus = async(req: Request, res: Response) => {
   const { id } = req.params;
   const { status } = req.body;
   if (!["active", "suspended"].includes(status)){

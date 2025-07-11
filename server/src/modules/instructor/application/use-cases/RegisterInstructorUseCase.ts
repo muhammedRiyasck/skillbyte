@@ -45,6 +45,7 @@ export class RegisterInstructorUseCase {
       dto.qualifications ?? [], // qualifications
       'pending', // accountStatus
       false, // not approved
+      false,
       null, // approvalNotes
       null, // approvedBy
       null, // approvedAt

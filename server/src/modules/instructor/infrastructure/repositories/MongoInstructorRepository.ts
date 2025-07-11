@@ -29,6 +29,7 @@ export class MongoInstructorRepository implements IInstructorRepository {
 
 async approve(id: string, adminId: string): Promise<void> {
   await InstructorModel.findByIdAndUpdate(id, {
+    accountStatus: "active",
     approved: true,
     approvedBy: adminId,
     approvedAt: new Date()
@@ -37,6 +38,7 @@ async approve(id: string, adminId: string): Promise<void> {
 
 async decline(id: string, note: string): Promise<void> {
   await InstructorModel.findByIdAndUpdate(id, {
+    accountStatus: "rejected",
     approvalNotes: note,
     rejected: true
   });

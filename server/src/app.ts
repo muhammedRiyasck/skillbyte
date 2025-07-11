@@ -25,13 +25,17 @@ import StudentauthRoutes from "./modules/student/entry-points/routes/auth.routes
 import InstructorauthRoutes from "./modules/instructor/entry-point/routes/auth.route";
 import AdminInstructorRoutes from './modules/instructor/entry-point/routes/adminInstructor.routes'
 import AdminauthRoutes from "./modules/admin/entry-points/routes/auth.routes";
+import CourseRoutes from "./modules/course/entry-point/routes/course.routes";
 // Load auth routes
 app.use("/api/auth", AuthRoutes);
 
 app.use("/api/student", StudentauthRoutes);
 
 app.use("/api/instructor", InstructorauthRoutes);
-app.use("/api/instructor/instructors", AdminInstructorRoutes)
+
+app.use("/api/instructors/", AdminInstructorRoutes)
+
+app.use("/api/course", CourseRoutes);
 
 app.use("/api/admin", AdminauthRoutes);
 

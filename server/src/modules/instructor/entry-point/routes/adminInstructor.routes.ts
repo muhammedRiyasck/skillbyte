@@ -5,34 +5,34 @@ import { adminInstructorController } from '../dependencyInjection/adminInstructo
 import { authenticate } from '../../../../shared/middlewares/authMiddleware';
 import { requireRole } from '../../../../shared/middlewares/requireRole';
 router.get(
-  '/instructors/pending',
+  '/pending',
   authenticate,
   requireRole('admin'),
-  adminInstructorController.getPending,
+  adminInstructorController.getPending
 );
 router.patch(
-  '/instructors/:id/approve',
+  '/:id/approve',
   authenticate,
   requireRole('admin'),
-  adminInstructorController.approve,
+  adminInstructorController.approve
 );
 router.patch(
-  '/instructors/:id/decline',
+  '/:id/decline',
   authenticate,
   requireRole('admin'),
-  adminInstructorController.decline,
+  adminInstructorController.decline
 );
 router.get(
-  '/instructors/approved',
+  '/approved',
   authenticate,
   requireRole('admin'),
-  adminInstructorController.listApproved,
+  adminInstructorController.listApproved
 );
 router.patch(
-  '/instructors/:id/status',
+  '/:id/status',
   authenticate,
   requireRole('admin'),
-  adminInstructorController.changeStatus,
+  adminInstructorController.changeStatus
 );
 
 export default router;

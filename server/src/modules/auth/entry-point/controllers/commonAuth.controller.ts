@@ -14,7 +14,7 @@ export class CommonAuthController {
     private readonly resendOtpUseCase: ResendOtpUseCase
   ) {}
 
-  async login(req: Request, res: Response): Promise<void> {
+   login = async(req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
     const { role } = req.query;
     if (!email || !password || !role) {
@@ -68,8 +68,8 @@ export class CommonAuthController {
     }
   }
 
-    refreshToken (req: Request, res: Response)  {
-    try {
+    refreshToken =  (req: Request, res: Response):void=>{
+    
       const refreshToken = req.cookies.refresh_token;
 
       const newAccessToken = this.accessTokenUseCase.execute(refreshToken);
@@ -82,21 +82,19 @@ export class CommonAuthController {
       });
 
        res.status(200).json({ message: "Access token refreshed" });
-    } catch (err) {
-       res.status(403).json({ error: "Invalid or expired refresh token" });
-    }
+    
   };
 
 
-  async resendOtp  (req: Request, res: Response) {
-  const { email } = req.body;
-  const {role} = req.body
-  await this.resendOtpUseCase.execute(email, role); 
-  res.json({ message: "OTP resent successfully" });
-};
+    resendOtp = async (req: Request, res: Response): Promise<void> => {
+      const { email } = req.body;
+      const {role} = req.body
+      await this.resendOtpUseCase.execute(email, role); 
+      res.json({ message: "OTP resent successfully" });
+    };
 
 
-   logout(req: Request, res: Response) {
+   logout=(req: Request, res: Response)=> {
     res.clearCookie('access_token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

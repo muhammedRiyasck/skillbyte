@@ -20,7 +20,7 @@ const instructorLoginUC = new LoginInstructorUseCase(instructorRepo);
 const accessTokenUC = new AccessTokenUseCase()
 const resendOtpUC = new ResendOtpUseCase(new RedisOtpService(),studentRepo,instructorRepo,new OtpRateLimiter())
 
-export const authContainer = new CommonAuthController(
+export const commonAuthController = new CommonAuthController(
     studentLoginUC,
     instructorLoginUC,
     accessTokenUC,

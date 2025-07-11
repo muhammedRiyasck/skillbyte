@@ -20,7 +20,7 @@ const InstructorSchema = new mongoose.Schema({
     year: { type: Number, required: true },
     photoUrl: { type: String, default: null }
   }],
-  accountStatus: { type: String, enum: ["active", "suspended"], default: "active"},
+  accountStatus: { type: String, enum: ["pending","active", "suspended", "rejected"], default: "pending" }, // Pending, Active, Suspended, Rejected
   approved: { type: Boolean, default: false},
   rejected:{type:Boolean, default:false},
   approvalNotes: { type: String, default: null },

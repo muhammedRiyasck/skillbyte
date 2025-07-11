@@ -22,7 +22,7 @@ export class Instructor {
     public expertise: string[],
     public isEmailVerified: boolean,
     public qualifications: Qualification[],
-    public accountStatus:  "active" | "suspended" ,
+    public accountStatus: "pending" | "active" | "suspended" | "rejected" ,
     public approved: boolean,
     public rejected: boolean,
     public approvalNotes: string | null,

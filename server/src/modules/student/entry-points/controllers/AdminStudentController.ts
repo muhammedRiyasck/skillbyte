@@ -6,7 +6,7 @@ export class AdminStudentController {
   constructor(private listAllUC: ListAllStudentsUseCase,
     private changeStatusUC: ChangeStudentStatusUseCase) {}
 
-   async listAll (req: Request, res: Response)  {
+    listAll =async (req: Request, res: Response)=>  {
     const students = await this.listAllUC.execute();
     res.json(students);
   };
