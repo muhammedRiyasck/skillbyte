@@ -2,6 +2,9 @@ import express from "express";
 import session from "express-session";
 import passport from "passport";
 
+import { config } from "dotenv";
+config();
+
 import "./shared/config/passport/googleStartegy"; //  this is imported to initialize
 import "./shared/config/passport/facebookStrategy"
 

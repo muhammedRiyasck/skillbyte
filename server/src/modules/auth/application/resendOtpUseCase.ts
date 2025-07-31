@@ -1,4 +1,4 @@
-import { IOtpService } from "../../../shared/services/otp/IOtpService";
+import { IOtpService } from "../../../shared/services/otp/interfaces/IOtpService";
 import { OtpRateLimiter } from "../../../shared/services/otp/OtpRateLimiter";
 import { IInstructorRepository } from "../../instructor/domain/IRepositories/IInstructorRepository";
 import { IStudentRepository } from "../../student/domain/IRepositories/IStudentRepository";
