@@ -7,7 +7,7 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-   const handleEmailLogin = async (e: React.FormEvent) => {
+  const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
@@ -19,45 +19,34 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleGoogleLogin = async() => {
+  const handleGoogleLogin = async () => {
     // TODO: Add Google OAuth logic
-     setLoading(true);
-     try {
+    setLoading(true);
+    try {
       await new Promise((res) => setTimeout(res, 1200));
-
-     } catch (error) {
-      
-     }finally {
+    } catch (error) {
+    } finally {
       setLoading(false);
     }
   };
 
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 dark:bg-gray-900 ">
-
+    <div className="min-h-screen flex items-center justify-center bg-gray-50  px-4  dark:bg-gray-900 ">
       <motion.div
         initial={{ opacity: -2, scale: 1 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.3 }}
-        className="w-full max-w-md bg-white p-8 rounded-lg shadow-2xl dark:bg-gray-800 text-black dark:text-white">
-        <h2 className="text-2xl font-semibold text-center mb-1">
-          Welcome Back to Skillbyte
-        </h2>
-        <p className="text-gray-500 text-center mb-6 text-sm">
-          Sign in to continue your learning journey.
-        </p>
+        className="w-full max-w-md bg-white p-8 rounded-lg shadow-2xl dark:bg-gray-800 text-black dark:text-white"
+      >
+        <h2 className="text-2xl font-semibold text-center mb-1">Welcome Back to Skillbyte</h2>
+        <p className="text-gray-500 text-center mb-6 text-sm">Sign in to continue your learning journey.</p>
 
         <button
           onClick={handleGoogleLogin}
           className="w-full flex items-center justify-center border border-gray-300 rounded-md py-2 text-sm font-medium  hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
         >
-          <img
-            src="https://www.svgrepo.com/show/475656/google-color.svg"
-            alt="Google"
-            className="h-5 w-5 mr-2"
-          />
+          <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="h-5 w-5 mr-2" />
           {loading ? "Signing In..." : "Continue with Google"}
         </button>
 
@@ -98,7 +87,7 @@ const Login: React.FC = () => {
             />
           </div>
 
-           <button
+          <button
             type="submit"
             disabled={loading}
             className={`w-full bg-indigo-500 text-white rounded-md py-2 font-medium hover:bg-indigo-600 transition disabled:opacity-50`}
@@ -109,25 +98,25 @@ const Login: React.FC = () => {
 
         <div className="mt-4 text-sm text-center space-y-1">
           <p>
-            {/* <Link to="/forgot-password" className="text-indigo-600 hover:underline">
+            {/* <Link to="/auth/forgot-password" className="text-indigo-600 hover:underline">
               Forgot password?
             </Link> */}
-             <Link to="#" className="text-indigo-600 hover:underline">
+            <Link to="#" className="text-indigo-600 hover:underline">
               Forgot password?
             </Link>
           </p>
           <p>
-            New to Skillbyte?{" "}
-            <Link to="/signup" className="text-indigo-600 hover:underline">
+            New to Skillbyte? &nbsp;
+            <Link to="/auth/signup" className="text-indigo-600 hover:underline">
               Create an account
             </Link>
           </p>
           <p>
-            Want to become an Instructor?
-            {/* <Link to="/instructor-signup" className="text-indigo-600 hover:underline">
+            Want to become an Instructor? &nbsp;
+            {/* <Link to="/auth/instructor-signup" className="text-indigo-600 hover:underline">
               Create an account
             </Link> */}
-             <Link to="#" className="text-indigo-600 hover:underline">
+            <Link to="#" className="text-indigo-600 hover:underline">
               Create an account
             </Link>
           </p>
@@ -138,4 +127,3 @@ const Login: React.FC = () => {
 };
 
 export default Login;
-

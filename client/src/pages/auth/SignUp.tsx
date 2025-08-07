@@ -95,7 +95,7 @@ export default function SignupForm() {
             />
             <label className="text-sm">
               By signing up, I agree with the{" "}
-              <Link to='#' className="text-indigo-600 hover:underline">
+              <Link to="#" className="text-indigo-600 hover:underline">
                 Terms of Use
               </Link>{" "}
               &{" "}
@@ -105,14 +105,17 @@ export default function SignupForm() {
             </label>
           </div>
 
-          <button type="submit" className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition hover:cursor-pointer">
+          <button
+            type="submit"
+            className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition hover:cursor-pointer"
+          >
             Sign up
           </button>
         </form>
 
         <p className="text-center text-sm text-gray-600 mt-4">
           Already have an account?{" "}
-          <Link to="/signin" className="text-indigo-600 hover:underline">
+          <Link to="/auth/signin" className="text-indigo-600 hover:underline">
             Sign in
           </Link>
         </p>

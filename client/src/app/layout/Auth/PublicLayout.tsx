@@ -1,7 +1,6 @@
-
-import { Outlet } from "react-router-dom"
-import Header from "./header"  
-import Footer from "./footer"
+import { Outlet } from "react-router-dom";
+import Header from "./Header";
+import Footer from "./Footer";
 const AuthMain = () => {
   return (
     <div>
@@ -9,8 +8,7 @@ const AuthMain = () => {
       <Outlet />
       <Footer />
     </div>
-  )
-}
+  );
+};
 
-export default AuthMain
-
+export default AuthMain;

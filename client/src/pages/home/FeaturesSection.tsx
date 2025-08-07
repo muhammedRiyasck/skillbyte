@@ -1,9 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import FeaturesSection from "./FeaturesSection";
-import StepsSection from "./StepsSection";
-import HeroSection from "./HeroSection";
 
 const features = [
   {
@@ -38,21 +33,24 @@ const features = [
   },
 ];
 
-const LandingPage: React.FC = () => {
+const FeaturesSection: React.FC = () => {
   return (
-    <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100">
-      <motion.div
-        initial={{ opacity: -1, scale: 1 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        transition={{ duration: 0.3 }}
-      >
-        <HeroSection />
-        <FeaturesSection />
-        <StepsSection />
-      </motion.div>
-    </div>
+    <section className="px-4 md:px-8 py-12 bg-gray-50 dark:bg-gray-800">
+      <h2 className="text-2xl font-bold text-center mb-8">Why Choose Skillbyte?</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {features.map((item) => (
+          <div
+            key={item.title}
+            className="p-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md shadow-sm"
+          >
+            <div className="text-2xl mb-2">{item.icon}</div>
+            <h3 className="font-semibold text-lg mb-1">{item.title}</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{item.description}</p>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 };
 
-export default LandingPage;
+export default FeaturesSection;

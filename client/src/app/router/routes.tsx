@@ -1,28 +1,31 @@
 import {createBrowserRouter} from 'react-router-dom';
 
+import PublicLayout from '../layout/Auth/PublicLayout.tsx';
 import SignIn from '../../pages/auth/SignIn.tsx';
 import Signup from '../../pages/auth/SignUp.tsx';
-import PublicLayout from '../layout/Auth/PublicLayout.tsx';
+import LandingPage from '../../pages/home/Landing.tsx';
+import StudentLayout from '../layout/Student/StudentLayout.tsx';
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: '/auth',
     element: <PublicLayout />,
     children: [
-      // { index: true, element: <Home /> },
       { path: 'signin', element: <SignIn /> },
       { path: 'signup', element: <Signup /> },
     ],
   },
-  // {
-  //   path: '/user',
-  //   element: <UserLayout />,
-  //   children: [
-  //     { path: 'courses', element: <Courses /> },
-  //     { path: 'profile', element: <Profile /> },
-  //     { path: 'chat', element: <Chat /> },
-  //   ],
-  // },
+  {
+    path: '/',
+    element: <StudentLayout />,
+    children: [
+      
+      { index: true, element: <LandingPage /> },
+      // { path: 'courses', element: <Courses /> },
+      // { path: 'profile', element: <Profile /> },
+      // { path: 'chat', element: <Chat /> },
+    ],
+  },
   // {
   //   path: '/instructor',
   //   element: <InstructorLayout />,
