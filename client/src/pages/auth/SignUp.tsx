@@ -95,7 +95,7 @@ export default function SignupForm() {
             />
             <label className="text-sm">
               By signing up, I agree with the{" "}
-              <Link to='/signin' className="text-indigo-600 hover:underline">
+              <Link to='#' className="text-indigo-600 hover:underline">
                 Terms of Use
               </Link>{" "}
               &{" "}
