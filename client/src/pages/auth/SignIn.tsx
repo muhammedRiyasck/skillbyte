@@ -19,24 +19,11 @@ const Login: React.FC = () => {
     console.log("Login with Google");
   };
 
-//   const ThemeToggle = () => {
-//   const { theme, toggleTheme } = useTheme();
-
-//   return (
-//     <button
-//       onClick={toggleTheme}
-//       className=" m-7 p-2 px-6 rounded cursor-pointer border bg-gray-100 dark:bg-gray-800 dark:text-white "
-//     >
-//       {theme === "light" ? "🌙 Dark" : "☀️ Light"}
-//     </button>
-//   );
-// };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50  ">
-        {/* <ThemeToggle  /> */}
-       
-      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-2xl ">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dar dark:bg-gray-900 ">
+
+      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-2xl dark:bg-gray-800 text-black dark:text-white">
         <h2 className="text-2xl font-semibold text-center mb-1">
           Welcome Back to Skillbyte
         </h2>
@@ -46,7 +33,7 @@ const Login: React.FC = () => {
 
         <button
           onClick={handleGoogleLogin}
-          className="w-full flex items-center justify-center border border-gray-300 rounded-md py-2 text-sm font-medium hover:bg-gray-100"
+          className="w-full flex items-center justify-center border border-gray-300 rounded-md py-2 text-sm font-medium hover:bg-gray-600 hover:cursor-pointer"
         >
           <img
             src="https://www.svgrepo.com/show/475656/google-color.svg"
@@ -95,7 +82,7 @@ const Login: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full bg-indigo-500 text-white rounded-md py-2 font-medium hover:bg-indigo-600"
+            className="w-full bg-indigo-500 text-white rounded-md py-2 font-medium hover:bg-indigo-600 hover:cursor-pointer"
           >
             Sign In With Email
           </button>

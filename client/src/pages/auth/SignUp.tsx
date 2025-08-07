@@ -23,8 +23,8 @@ export default function SignupForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="bg-white p-6 rounded-lg shadow-2xl w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 dark:bg-gray-900">
+      <div className="bg-white p-6 rounded-lg shadow-2xl w-full max-w-md dark:bg-gray-800 text-black dark:text-white">
         <h2 className="text-center text-2xl font-bold mb-2">Create Your Skillbyte Account</h2>
         <p className="text-center text-gray-500 mb-6 text-sm">
           Fill out the form below to start as a member on skillbyte
@@ -105,7 +105,7 @@ export default function SignupForm() {
             </label>
           </div>
 
-          <button type="submit" className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition">
+          <button type="submit" className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition hover:cursor-pointer">
             Sign up
           </button>
         </form>
