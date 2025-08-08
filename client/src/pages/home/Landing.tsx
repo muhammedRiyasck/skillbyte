@@ -1,42 +1,10 @@
 import React from "react";
-import { Link } from "react-router-dom";
+
 import { motion } from "framer-motion";
 import FeaturesSection from "./FeaturesSection";
 import StepsSection from "./StepsSection";
 import HeroSection from "./HeroSection";
 
-const features = [
-  {
-    title: "Minimalist Design",
-    description: "A clean, uncluttered interface focused on core functionality.",
-    icon: "📐",
-  },
-  {
-    title: "Blazing Fast",
-    description: "Optimized for speed and efficiency, reducing load times.",
-    icon: "⚡",
-  },
-  {
-    title: "User-Centric",
-    description: "Designed with the user journey in mind for ease of use.",
-    icon: "👤",
-  },
-  {
-    title: "Flexible Setup",
-    description: "Easily integrate into existing workflows.",
-    icon: "⚙️",
-  },
-  {
-    title: "Detailed Documentation",
-    description: "Comprehensive guides and resources available.",
-    icon: "📘",
-  },
-  {
-    title: "Secure Authentication",
-    description: "Robust security features to protect user data.",
-    icon: "🔒",
-  },
-];
 
 const LandingPage: React.FC = () => {
   return (

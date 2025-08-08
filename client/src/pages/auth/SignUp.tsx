@@ -1,5 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+
+import TextInput from "../../shared/ui/TextInput";
+import ErrorMessage from "../../shared/ui/ErrorMessage";
+
+import isNameValid from "../../shared/validation/Name";
+import isEmailValid from "../../shared/validation/Email";
+import isPasswordValid from "../../shared/validation/Password";
+import isConfirmPasswordValid from "../../shared/validation/ConfirmPassword";
+
+
 export default function SignupForm() {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -9,6 +19,13 @@ export default function SignupForm() {
     agree: false,
   });
 
+  const [error, setError] = useState({
+    fullNameError: "",
+    emailError: "",
+    passwordError: "",
+    confirmPasswordError: "",
+  });
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -16,10 +33,28 @@ export default function SignupForm() {
       [name]: type === "checkbox" ? checked : value,
     });
   };
-
+  
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(formData);
+    const nameValidation = isNameValid(formData.fullName);
+    const emailValidation = isEmailValid(formData.email);
+    const passwordValidation = isPasswordValid(formData.password);
+    const confirmPasswordValidation = isConfirmPasswordValid(
+      formData.password,
+      formData.confirmPassword
+    );
+
+    setError({
+      fullNameError: nameValidation.success ? "" : nameValidation.message ,
+      emailError: emailValidation.success ? "" : emailValidation.message ,
+      passwordError: passwordValidation.success ? "" : passwordValidation.message ,
+      confirmPasswordError: confirmPasswordValidation.success
+        ? ""
+        : confirmPasswordValidation.message ,
+    });
+
+
+
   };
 
   return (
@@ -33,54 +68,59 @@ export default function SignupForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">Full Name</label>
-            <input
+          
+
+            <TextInput
               type="text"
-              name="fullName"
+              id="fullName"
               value={formData.fullName}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="Full Name"
-              required
+              setValue={(value) => setFormData({ ...formData, fullName: value })} 
+              error={error.fullNameError}
             />
+            < ErrorMessage error={error.fullNameError} />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1">Email Address</label>
-            <input
+           
+            <TextInput
               type="email"
-              name="email"
+              id="email"
               value={formData.email}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               placeholder="Email Address"
-              required
+              setValue={(value) => setFormData({ ...formData, email: value })}
+              error={error.emailError}
             />
+            <ErrorMessage error={error.emailError} />
           </div>
 
           <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-4 sm:space-y-0">
             <div className="w-full">
               <label className="block text-sm font-medium mb-1">Password</label>
-              <input
+         
+              <TextInput
                 type="password"
-                name="password"
+                id="password"
                 value={formData.password}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="Password"
-                required
+                setValue={(value) => setFormData({ ...formData, password: value })}
+              error={error.passwordError}
               />
+              <ErrorMessage error={error.passwordError} />
             </div>
             <div className="w-full">
               <label className="block text-sm font-medium mb-1">Confirm Password</label>
-              <input
+           
+              <TextInput
                 type="password"
-                name="confirmPassword"
+                id="confirmPassword"
                 value={formData.confirmPassword}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="Confirm Password"
-                required
+                setValue={(value) => setFormData({ ...formData, confirmPassword: value })}
+                error={error.confirmPasswordError}
               />
+              <ErrorMessage error={error.confirmPasswordError} />
             </div>
           </div>
 
@@ -93,12 +133,13 @@ export default function SignupForm() {
               className="mt-1"
               required
             />
-            <label className="text-sm">
-              By signing up, I agree with the{" "}
+         
+            <label className="text-sm text-gray-400">
+              By signing up, I agree with the&nbsp;
               <Link to="#" className="text-indigo-600 hover:underline">
                 Terms of Use
-              </Link>{" "}
-              &{" "}
+              </Link>
+              &nbsp;and&nbsp;
               <a href="#" className="text-indigo-600 hover:underline">
                 Privacy Policy
               </a>
@@ -113,8 +154,8 @@ export default function SignupForm() {
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-600 mt-4">
-          Already have an account?{" "}
+        <p className="text-center text-sm text-gray-400 mt-4">
+          Already have an account?&nbsp;
           <Link to="/auth/signin" className="text-indigo-600 hover:underline">
             Sign in
           </Link>

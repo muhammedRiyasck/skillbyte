@@ -21,14 +21,15 @@ const Header = () => {
             <Link to="#">Support</Link>
           </nav>
         </div>
-        <div className="flex items-center gap-4">
+        
+        <div className="flex gap-4">
           {/* search bar */}
           {/* <input
             type="text"
             placeholder="Search"
             className="hidden md:block px-2 py-1 border rounded-md text-sm dark:bg-gray-800 dark:border-gray-700"
           /> */}
-          <div className="hidden md:flex gap-4 text-xl">
+          <div className="hidden md:flex items-center gap-4 text-xl">
             <Link to="#">🔔</Link>
             <Link to="#">❤️</Link>
             <Link to="#">👤</Link>

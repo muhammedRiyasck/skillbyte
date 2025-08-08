@@ -2,17 +2,35 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
+import {toast} from "sonner";
+
+import TextInput from "../../shared/ui/TextInput";
+import ErrorMessage from "../../shared/ui/ErrorMessage";
+
+import isEmailValid from "../../shared/validation/Email";
+
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState({emailError: ""});
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     try {
-      // Simulate API
+      const emailValidation = isEmailValid(email);
+
+      setError({
+        emailError: emailValidation.success ? "" : emailValidation.message,
+        // passwordError: passwordValidation.success ? "" : passwordValidation.message,
+      });
+
+      if(!emailValidation.success ) return;
+      
+      setLoading(true);
       await new Promise((res) => setTimeout(res, 1200));
+      toast.success("Comming Soon! Our team is working hard to bring this feature to you.")
+      
     } catch (error) {
     } finally {
       setLoading(false);
@@ -21,9 +39,11 @@ const Login: React.FC = () => {
 
   const handleGoogleLogin = async () => {
     // TODO: Add Google OAuth logic
-    setLoading(true);
+    // setLoading(true);
+    toast("Comming Soon! Our team is working hard to bring this feature to you.");
     try {
       await new Promise((res) => setTimeout(res, 1200));
+
     } catch (error) {
     } finally {
       setLoading(false);
@@ -47,7 +67,7 @@ const Login: React.FC = () => {
           className="w-full flex items-center justify-center border border-gray-300 rounded-md py-2 text-sm font-medium  hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
         >
           <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" className="h-5 w-5 mr-2" />
-          {loading ? "Signing In..." : "Continue with Google"}
+          Continue with Google
         </button>
 
         <div className="flex items-center my-4">
@@ -61,36 +81,25 @@ const Login: React.FC = () => {
             <label htmlFor="email" className="block text-sm font-medium">
               Email
             </label>
-            <input
-              type="email"
-              id="email"
-              placeholder="your.email@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
+
+            < TextInput type={'email'} id="email" placeholder="your.email@example.com" value={email} setValue={setEmail} error={error.emailError} />
+            {error.emailError && <ErrorMessage error={error.emailError} />} 
+            {/* <p className="text-red-800 text-center">error</p> */}
           </div>
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium">
               Password
             </label>
-            <input
-              type="password"
-              id="password"
-              placeholder="********"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
+
+            < TextInput type="password" id="password" placeholder="********" value={password} setValue={setPassword} error={''}/>
+            {/* {error.passwordError && <ErrorMessage error={error.passwordError} />} */}
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className={`w-full bg-indigo-500 text-white rounded-md py-2 font-medium hover:bg-indigo-600 transition disabled:opacity-50`}
+            className={`w-full bg-indigo-600 cursor-pointer text-white rounded-md py-2 font-medium hover:bg-indigo-700 transition disabled:opacity-50`}
           >
             {loading ? "Signing In..." : "Sign In With Email"}
           </button>
