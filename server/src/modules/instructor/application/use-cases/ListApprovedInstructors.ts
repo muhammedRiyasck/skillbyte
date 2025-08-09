@@ -1,4 +1,4 @@
-import { IInstructorRepository } from "../../domain/IRepositories/IInstructorRepository"; 
+import { IInstructorRepository } from "../../domain/IRepositories/IinstructorRepository"; 
 import { Instructor } from "../../domain/entities/Instructor";
 
 export class ListApprovedInstructorsUseCase {

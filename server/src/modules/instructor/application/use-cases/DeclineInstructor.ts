@@ -1,6 +1,6 @@
 import { IMailerService } from "../../../../shared/services/mail/IMailerService";
-import { IInstructorRepository } from "../../domain/IRepositories/IInstructorRepository";
-import { declinedInstructorEmailTemplate } from "../../../../shared/templates/declinedInstructor";
+import { IInstructorRepository } from "../../domain/IRepositories/IinstructorRepository";
+import { declinedInstructorEmailTemplate } from "../../../../shared/templates/DeclinedInstructor";
 export class DeclineInstructorUseCase {
   constructor(private repo: IInstructorRepository,private mailer:IMailerService) {}
 

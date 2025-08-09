@@ -1,7 +1,7 @@
 
 import { generateRefreshToken } from "../../../../shared/utils/RefreshToken";
 import { generateAccessToken } from "../../../../shared/utils/AccessToken";
-import { IInstructorRepository} from "../../domain/IRepositories/IInstructorRepository";
+import { IInstructorRepository} from "../../domain/IRepositories/IinstructorRepository";
 import { Instructor } from "../../domain/entities/Instructor";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";

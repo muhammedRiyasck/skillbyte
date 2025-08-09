@@ -1,5 +1,5 @@
 import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
-import { CreateCourseDTO } from "../dtos/createBaseDTO";
+import { CreateCourseDTO } from "../dtos/CreateBaseDTO";
 import { Course } from "../../domain/entities/Course";
 
 

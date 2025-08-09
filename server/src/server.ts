@@ -1,6 +1,6 @@
 import app from "./app";
 
-import connectToMongoDB from "./config/mongodb";
+import connectToMongoDB from "./shared/config/db/Mongodb";
 connectToMongoDB();
 
 const PORT = process.env.PORT || 5000;

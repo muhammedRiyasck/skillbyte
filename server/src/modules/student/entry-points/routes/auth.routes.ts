@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { studentAuthController } from "../dependencyInjection/studentauthContainer";
+import { studentAuthController } from "../dependencyInjection/StudentauthContainer";
 
 const router = Router();
 

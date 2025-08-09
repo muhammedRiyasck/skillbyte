@@ -2,7 +2,7 @@ import { IOtpService } from "./interfaces/IOtpService";
 import {TempInstructorData} from './interfaces/ITempInstructorData '
 import { TempStudentData } from "./interfaces/ITempStudentData";
 import { NodeMailerService} from '../mail/NodeMailerService'
-import { otpVerificationEmailTemplate } from "../../templates/otpVerification";
+import { otpVerificationEmailTemplate } from "../../templates/OtpVerification";
 import Redis from "ioredis";
 
 import redisClient from "../../../shared/utils/Redis"; 
@@ -24,7 +24,7 @@ export class RedisOtpService implements IOtpService {
     await nodemailer.sendMail(email,subject = "Your SkillByte OTP Code",otpVerificationEmailTemplate(name,otp)); 
     return 
   }
-
+  
   async verifyOtp(email: string, otp: string): Promise<boolean> {
     const stored = await this.redis.get(`otp:${email}`);
     if (!stored || stored !== otp) return false;

@@ -4,7 +4,7 @@ import { Request, Response } from 'express';
 import { LoginStudentUseCase } from '../../../student/application/use-cases/LoginStudentUseCase';
 import { LoginInstructorUseCase } from '../../../instructor/application/use-cases/LoginInstructorUseCase';
 import { AccessTokenUseCase   } from '../../application/AccessTokenUseCase';
-import { ResendOtpUseCase } from '../../application/resendOtpUseCase';
+import { ResendOtpUseCase } from '../../application/ResendOtpUseCase';
 
 export class CommonAuthController {
   constructor(

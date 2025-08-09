@@ -4,8 +4,8 @@ const router = Router();
 import { courseController } from "../dependencyInjection/CourseBaseContiner";
 import { moduleWithLessonController } from "../dependencyInjection/ModuleWithLessonContiner";
 import { lessonController } from "../dependencyInjection/LessonContiner";
-import {authenticate} from "../../../../shared/middlewares/authMiddleware";
-import { requireRole } from "../../../../shared/middlewares/requireRole";
+import {authenticate} from "../../../../shared/middlewares/AuthMiddleware";
+import { requireRole } from "../../../../shared/middlewares/RequireRole";
 
 
 

@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRepository';
+import { IInstructorRepository } from '../../domain/IRepositories/IinstructorRepository';
 import { Instructor } from '../../domain/entities/Instructor';
 import { IOtpService } from '../../../../shared/services/otp/interfaces/IOtpService';
 import { Email } from '../../../../shared/validation/Email';

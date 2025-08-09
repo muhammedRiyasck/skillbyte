@@ -1,8 +1,8 @@
 
 import { IMailerService } from "../../../../shared/services/mail/IMailerService";
-import { IInstructorRepository } from "../../domain/IRepositories/IInstructorRepository";
+import { IInstructorRepository } from "../../domain/IRepositories/IinstructorRepository";
 
-import { approvedInstructorEmailTemplate } from "../../../../shared/templates/approvedInstructor";
+import { approvedInstructorEmailTemplate } from "../../../../shared/templates/ApprovedInstructor";
 
 export class ApproveInstructorUseCase {
   constructor(

@@ -1,6 +1,6 @@
 import { IOtpService } from "../../../shared/services/otp/interfaces/IOtpService";
 import { OtpRateLimiter } from "../../../shared/services/otp/OtpRateLimiter";
-import { IInstructorRepository } from "../../instructor/domain/IRepositories/IInstructorRepository";
+import { IInstructorRepository } from "../../instructor/domain/IRepositories/IinstructorRepository";
 import { IStudentRepository } from "../../student/domain/IRepositories/IStudentRepository";
 
 export class ResendOtpUseCase {

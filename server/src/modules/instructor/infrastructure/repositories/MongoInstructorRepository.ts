@@ -1,5 +1,5 @@
 import { InstructorModel } from "../models/InstructorModel";
-import { IInstructorRepository } from "../../domain/IRepositories/IInstructorRepository";
+import { IInstructorRepository } from "../../domain/IRepositories/IinstructorRepository";
 import { Instructor } from "../../domain/entities/Instructor";
 import { InstructorMapper } from "../../mappers/InstructorMapper";
 
