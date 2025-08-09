@@ -75,7 +75,7 @@ export default function SignupForm() {
               value={formData.fullName}
               placeholder="Full Name"
               setValue={(value) => setFormData({ ...formData, fullName: value })} 
-              error={error.fullNameError}
+              
             />
             < ErrorMessage error={error.fullNameError} />
           </div>
@@ -89,7 +89,7 @@ export default function SignupForm() {
               value={formData.email}
               placeholder="Email Address"
               setValue={(value) => setFormData({ ...formData, email: value })}
-              error={error.emailError}
+              
             />
             <ErrorMessage error={error.emailError} />
           </div>
@@ -104,7 +104,6 @@ export default function SignupForm() {
                 value={formData.password}
                 placeholder="Password"
                 setValue={(value) => setFormData({ ...formData, password: value })}
-              error={error.passwordError}
               />
               <ErrorMessage error={error.passwordError} />
             </div>
@@ -117,7 +116,6 @@ export default function SignupForm() {
                 value={formData.confirmPassword}
                 placeholder="Confirm Password"
                 setValue={(value) => setFormData({ ...formData, confirmPassword: value })}
-                error={error.confirmPasswordError}
               />
               <ErrorMessage error={error.confirmPasswordError} />
             </div>

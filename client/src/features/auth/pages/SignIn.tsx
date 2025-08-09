@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { googleSignIn } from "../services/authService";
 
 import {toast} from "sonner";
 
@@ -16,6 +18,8 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState({emailError: "", passwordError: ""});
+
+  const navigate = useNavigate();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,13 +44,20 @@ const Login: React.FC = () => {
   };
 
   const handleGoogleLogin = async () => {
-    // TODO: Add Google OAuth logic
-    // setLoading(true);
-    toast("Comming Soon! Our team is working hard to bring this feature to you.");
+
     try {
-      await new Promise((res) => setTimeout(res, 1200));
+
+      setLoading(true);
+      const response = await googleSignIn();
+      if (response) {
+        toast.success("Google login successful!");
+        console.log("Google login response:", response);
+        navigate("/");
+      }
 
     } catch (error) {
+      toast.error("Google login failed. Please try again.");
+      console.error("Google login error:", error);
     } finally {
       setLoading(false);
     }
@@ -84,7 +95,7 @@ const Login: React.FC = () => {
               Email
             </label>
 
-            < TextInput type={'email'} id="email" placeholder="your.email@example.com" value={email} setValue={setEmail} error={error.emailError} />
+            < TextInput type={'email'} id="email" placeholder="your.email@example.com" value={email} setValue={setEmail}  />
             {error.emailError && <ErrorMessage error={error.emailError} />} 
             
           </div>
@@ -94,8 +105,8 @@ const Login: React.FC = () => {
               Password
             </label>
 
-            < TextInput type="password" id="password" placeholder="********" value={password} setValue={setPassword} error={''}/>
-             {error.emailError && <ErrorMessage error={error.emailError} />} 
+            < TextInput type="password" id="password" placeholder="********" value={password} setValue={setPassword} />
+             {error.emailError && <ErrorMessage error={error.passwordError} />} 
           </div>
 
           <button
