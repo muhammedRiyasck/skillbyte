@@ -1,0 +1,24 @@
+{
+  "name": "skillbyte",
+  "version": "1.0.0",
+  "description": "A Platform to build Any Perticular Skill",
+  "main": "server.ts",
+  "scripts": {
+    "start": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"", 
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/muhammedRiyasck/skillbyte.git"
+  },
+  "author": "Muhammed Riyas Ck",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/muhammedRiyasck/skillbyte/issues"
+  },
+  "homepage": "https://github.com/muhammedRiyasck/skillbyte#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.0"
+  }
+   
+}

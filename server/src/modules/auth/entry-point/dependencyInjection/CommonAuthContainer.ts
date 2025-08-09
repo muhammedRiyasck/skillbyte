@@ -1,5 +1,5 @@
 
-import {CommonAuthController} from '../controllers/CommonAuth.Controller'
+import {CommonAuthController} from '../controllers/CommonAuth.controller'
 
 import {LoginStudentUseCase} from '../../../student/application/use-cases/LoginStudentUseCase'
 import {LoginInstructorUseCase} from '../../../instructor/application/use-cases/LoginInstructorUseCase'
