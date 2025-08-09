@@ -1,4 +1,4 @@
-import { AdminInstructorController } from "../controllers/adminInstructorController";
+import { AdminInstructorController } from "../controllers/AdminInstructorController";
 
 import { ListPendingInstructorsUseCase } from "../../application/use-cases/ListPendingInstructors";
 import { ApproveInstructorUseCase } from "../../application/use-cases/ApproveInstructor";

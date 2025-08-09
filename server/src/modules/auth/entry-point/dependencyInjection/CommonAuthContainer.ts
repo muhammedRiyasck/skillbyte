@@ -1,5 +1,5 @@
 
-import {CommonAuthController} from '../controllers/commonAuth.controller'
+import {CommonAuthController} from '../controllers/CommonAuth.Controller'
 
 import {LoginStudentUseCase} from '../../../student/application/use-cases/LoginStudentUseCase'
 import {LoginInstructorUseCase} from '../../../instructor/application/use-cases/LoginInstructorUseCase'
@@ -10,7 +10,7 @@ import { RedisOtpService } from '../../../../shared/services/otp/OtpService'
 import {MongoStudentRepository} from '../../../student/infrastructure/repositories/MongoStudentRepository'
 import {MongoInstructorRepository} from '../../../instructor/infrastructure/repositories/MongoInstructorRepository'
 import { AccessTokenUseCase } from '../../application/AccessTokenUseCase'
-import { ResendOtpUseCase } from '../../application/resendOtpUseCase'
+import { ResendOtpUseCase } from '../../application/ResendOtpUseCase'
 
 const studentRepo = new MongoStudentRepository();   
 const instructorRepo = new MongoInstructorRepository();

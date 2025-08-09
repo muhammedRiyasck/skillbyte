@@ -1,6 +1,6 @@
 import { Request,Response } from "express";
 import { ListAllStudentsUseCase } from "../../application/use-cases/ListAllStudents";
-import { ChangeStudentStatusUseCase } from "../../application/use-cases/changeAccountStatus";
+import { ChangeStudentStatusUseCase } from "../../application/use-cases/ChangeAccountStatus";
 
 export class AdminStudentController {
   constructor(private listAllUC: ListAllStudentsUseCase,

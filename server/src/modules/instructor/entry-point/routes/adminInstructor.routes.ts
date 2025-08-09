@@ -1,9 +1,9 @@
 import { Router } from 'express';
 const router = Router();
 
-import { adminInstructorController } from '../dependencyInjection/adminInstructorContainer';
-import { authenticate } from '../../../../shared/middlewares/authMiddleware';
-import { requireRole } from '../../../../shared/middlewares/requireRole';
+import { adminInstructorController } from '../dependencyInjection/AdminInstructorContainer';
+import { authenticate } from '../../../../shared/middlewares/AuthMiddleware';
+import { requireRole } from '../../../../shared/middlewares/RequireRole';
 router.get(
   '/pending',
   authenticate,

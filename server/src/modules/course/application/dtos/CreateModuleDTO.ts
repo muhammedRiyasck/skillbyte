@@ -1,5 +1,5 @@
 
-import { LessonInput } from "./createLessionDTO";
+import { LessonInput } from "./CreateLessionDTO";
 
  export interface CreateModuleDTO {
   courseId: string;

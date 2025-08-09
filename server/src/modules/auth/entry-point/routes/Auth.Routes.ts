@@ -1,9 +1,9 @@
 import { Router } from "express";
 const router = Router();
 
-import { GoogleController } from "../controllers/google.controller";
-import {commonAuthController} from '../dependencyInjection/commonAuthContainer'
-import { facebookController } from "../controllers/facebook.controller";
+import { GoogleController } from "../controllers/Google.Controller";
+import {commonAuthController} from '../dependencyInjection/CommonAuthContainer'
+import { facebookController } from "../controllers/Facebook.Controller";
 
 router.post("/login",commonAuthController.login);
 router.get("/google",GoogleController.googleAuth);

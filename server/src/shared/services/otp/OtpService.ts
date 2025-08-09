@@ -1,9 +1,11 @@
-import { IOtpService } from "./IOtpService";
-import {TempInstructorData} from './ITempInstructorData '
-import { TempStudentData } from "./ITempStudentData";
+import { IOtpService } from "./interfaces/IOtpService";
+import {TempInstructorData} from './interfaces/ITempInstructorData '
+import { TempStudentData } from "./interfaces/ITempStudentData";
 import { NodeMailerService} from '../mail/NodeMailerService'
-import { otpVerificationEmailTemplate } from "../../templates/otpVerification";
+import { otpVerificationEmailTemplate } from "../../templates/OtpVerification";
 import Redis from "ioredis";
+
+import redisClient from "../../../shared/utils/Redis"; 
 
 export class RedisOtpService implements IOtpService {
   private redis: Redis;
@@ -11,7 +13,7 @@ export class RedisOtpService implements IOtpService {
   private DATA_EXPIRE = 10 * 60; // 10 minutes
 
   constructor() {
-    this.redis = new Redis(); // uses default localhost:6379
+    this.redis = redisClient; // Use the shared Redis instance
   }
   
   async sendOtp(email: string,name: string,subject:string|undefined): Promise<void> {
@@ -22,7 +24,7 @@ export class RedisOtpService implements IOtpService {
     await nodemailer.sendMail(email,subject = "Your SkillByte OTP Code",otpVerificationEmailTemplate(name,otp)); 
     return 
   }
-
+  
   async verifyOtp(email: string, otp: string): Promise<boolean> {
     const stored = await this.redis.get(`otp:${email}`);
     if (!stored || stored !== otp) return false;

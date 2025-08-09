@@ -2,8 +2,11 @@ import express from "express";
 import session from "express-session";
 import passport from "passport";
 
-import "./shared/config/passport/googleStartegy"; //  this is imported to initialize
-import "./shared/config/passport/facebookStrategy"
+import { config } from "dotenv";
+config();
+
+import "./shared/config/passport/GoogleStartegy"; //  this is imported to initialize
+import "./shared/config/passport/FacebookStrategy"
 
 const app = express();
 
@@ -20,12 +23,12 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-import AuthRoutes from "./modules/auth/entry-point/routes/auth.route";
-import StudentauthRoutes from "./modules/student/entry-points/routes/auth.routes";
-import InstructorauthRoutes from "./modules/instructor/entry-point/routes/auth.route";
-import AdminInstructorRoutes from './modules/instructor/entry-point/routes/adminInstructor.routes'
-import AdminauthRoutes from "./modules/admin/entry-points/routes/auth.routes";
-import CourseRoutes from "./modules/course/entry-point/routes/course.routes";
+import AuthRoutes from "./modules/auth/entry-point/routes/Auth.Routes";
+import StudentauthRoutes from "./modules/student/entry-points/routes/Auth.routes";
+import InstructorauthRoutes from "./modules/instructor/entry-point/routes/Auth.Routes";
+import AdminInstructorRoutes from './modules/instructor/entry-point/routes/AdminInstructor.Routes'
+import AdminauthRoutes from "./modules/admin/entry-points/routes/Auth.Routes";
+import CourseRoutes from "./modules/course/entry-point/routes/Course.Routes";
 // Load auth routes
 app.use("/api/auth", AuthRoutes);
 

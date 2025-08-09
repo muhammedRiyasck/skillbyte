@@ -1,13 +1,14 @@
 import Redis from "ioredis";
 
+import redisClient from "../../../shared/utils/Redis"; 
 
 export class OtpRateLimiter {
-  constructor(private readonly keyPrefix: string = "otp:rate_limit" , private readonly redis:any = new Redis()) {}
+  constructor(private readonly keyPrefix: string = "otp:rate_limit" , private readonly redis:Redis = redisClient) {}
   
 
   async isBlocked(email: string): Promise<number | null> {
     const key = `${this.keyPrefix}:${email}`;
-    const ttl = await this.redis.ttl(key);k
+    const ttl = await this.redis.ttl(key);
     return ttl > 0 ? ttl : null;
   }
 

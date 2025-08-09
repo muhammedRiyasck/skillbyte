@@ -1,7 +1,7 @@
 import { IMailerService } from "../../../../shared/services/mail/IMailerService";
-import { accountReactivatedEmailTemplate } from "../../../../shared/templates/accountReactivated";
-import { accountSuspendedEmailTemplate } from "../../../../shared/templates/accountSuspended";
-import { IInstructorRepository } from "../../domain/IRepositories/IInstructorRepository";
+import { accountReactivatedEmailTemplate } from "../../../../shared/templates/AccountReactivated";
+import { accountSuspendedEmailTemplate } from "../../../../shared/templates/AccountSuspended";
+import { IInstructorRepository } from "../../domain/IRepositories/IinstructorRepository";
 
 export class ChangeInstructorStatusUseCase {
   constructor(private repo: IInstructorRepository,
