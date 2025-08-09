@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-import TextInput from "../../shared/ui/TextInput";
-import ErrorMessage from "../../shared/ui/ErrorMessage";
+import TextInput from "../../../shared/ui/TextInput";
+import ErrorMessage from "../../../shared/ui/ErrorMessage";
 
-import isNameValid from "../../shared/validation/Name";
-import isEmailValid from "../../shared/validation/Email";
-import isPasswordValid from "../../shared/validation/Password";
-import isConfirmPasswordValid from "../../shared/validation/ConfirmPassword";
-
+import isNameValid from "../../../shared/validation/Name";
+import isEmailValid from "../../../shared/validation/Email";
+import isPasswordValid from "../../../shared/validation/Password";
+import isConfirmPasswordValid from "../../../shared/validation/ConfirmPassword";
 
 export default function SignupForm() {
   const [formData, setFormData] = useState({

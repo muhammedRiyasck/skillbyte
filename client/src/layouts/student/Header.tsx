@@ -1,8 +1,8 @@
-import ThemeToggle from "../../../shared/ui/ThemeToggle";
+import ThemeToggle from "../../shared/ui/ThemeToggle";
 import { useState } from "react";
 import { Menu, X } from "lucide-react"; // For hamburger icons
 
-import orginalLogo from "../../../assets/orginal_logo.png";
+import orginalLogo from "../../assets/orginal_logo.png";
 import { Link } from "react-router-dom";
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);

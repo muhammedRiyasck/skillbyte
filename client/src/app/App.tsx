@@ -1,7 +1,7 @@
 
 
 import { RouterProvider } from 'react-router-dom';
-import router from './router/routes.tsx';
+import router from '../core/router/routes.tsx';
 import { ThemeProvider } from '../shared/lib/theme-context.tsx';
 import { Toaster } from 'sonner';
 

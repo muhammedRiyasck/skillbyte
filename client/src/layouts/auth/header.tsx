@@ -1,5 +1,5 @@
-import ThemeToggle from "../../../shared/ui/ThemeToggle";
-import logo from "../../../assets/orginal_logo.png";
+import ThemeToggle from "../../shared/ui/ThemeToggle";
+import logo from "../../assets/orginal_logo.png";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";

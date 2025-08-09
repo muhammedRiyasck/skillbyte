@@ -39,6 +39,13 @@
            
     }
 
+export function isPasswordEntered(password: string): {success: boolean, message: string} {
+    if (password.trim() === "") {
+        return {success: false, message: "Password is required"};
+    }
+    return {success: true, message: ""};
+}
+
 
 
 

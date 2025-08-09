@@ -1,10 +1,10 @@
 import {createBrowserRouter} from 'react-router-dom';
 
-import PublicLayout from '../layout/Auth/PublicLayout.tsx';
-import SignIn from '../../pages/auth/SignIn.tsx';
-import Signup from '../../pages/auth/SignUp.tsx';
-import LandingPage from '../../pages/home/Landing.tsx';
-import StudentLayout from '../layout/Student/StudentLayout.tsx';
+import PublicLayout from '../../layouts/auth/PublicLayout.tsx';
+import SignIn from '../../features/auth/pages/SignIn.tsx';
+import Signup from '../../features/auth/pages/SignUp.tsx';
+import LandingPage from '../../features/home/pages/Landing.tsx';
+import StudentLayout from '../../layouts/student/StudentLayout.tsx';
 
 const router = createBrowserRouter([
   {

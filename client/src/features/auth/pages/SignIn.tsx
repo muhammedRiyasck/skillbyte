@@ -4,25 +4,27 @@ import { motion } from "framer-motion";
 
 import {toast} from "sonner";
 
-import TextInput from "../../shared/ui/TextInput";
-import ErrorMessage from "../../shared/ui/ErrorMessage";
+import TextInput from "../../../shared/ui/TextInput";
+import ErrorMessage from "../../../shared/ui/ErrorMessage";
 
-import isEmailValid from "../../shared/validation/Email";
+
+import isEmailValid from "../../../shared/validation/Email";
+import { isPasswordEntered } from "../../../shared/validation/Password";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState({emailError: ""});
+  const [error, setError] = useState({emailError: "", passwordError: ""});
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const emailValidation = isEmailValid(email);
-
+      const passwordValidation = isPasswordEntered(password);
       setError({
         emailError: emailValidation.success ? "" : emailValidation.message,
-        // passwordError: passwordValidation.success ? "" : passwordValidation.message,
+        passwordError: passwordValidation.success ? "" : passwordValidation.message,
       });
 
       if(!emailValidation.success ) return;
@@ -84,7 +86,7 @@ const Login: React.FC = () => {
 
             < TextInput type={'email'} id="email" placeholder="your.email@example.com" value={email} setValue={setEmail} error={error.emailError} />
             {error.emailError && <ErrorMessage error={error.emailError} />} 
-            {/* <p className="text-red-800 text-center">error</p> */}
+            
           </div>
 
           <div>
@@ -93,7 +95,7 @@ const Login: React.FC = () => {
             </label>
 
             < TextInput type="password" id="password" placeholder="********" value={password} setValue={setPassword} error={''}/>
-            {/* {error.passwordError && <ErrorMessage error={error.passwordError} />} */}
+             {error.emailError && <ErrorMessage error={error.emailError} />} 
           </div>
 
           <button

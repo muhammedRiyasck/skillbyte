@@ -1,9 +1,9 @@
 import React from "react";
 
 import { motion } from "framer-motion";
-import FeaturesSection from "./FeaturesSection";
-import StepsSection from "./StepsSection";
-import HeroSection from "./HeroSection";
+import FeaturesSection from "../components/FeaturesSection";
+import StepsSection from "../components/StepsSection";
+import HeroSection from "../components/HeroSection";
 
 
 const LandingPage: React.FC = () => {
