@@ -1,10 +1,12 @@
 import { Router } from "express";
 import { studentAuthController } from "../dependencyInjection/StudentauthContainer";
 
+import asyncHandler from "../../../../shared/utils/asyncHandler";
+
 const router = Router();
 
-router.post("/register", studentAuthController.registerStudent);
-router.post("/verify-otp", studentAuthController.verifyOtp);
+router.post("/register", asyncHandler(studentAuthController.registerStudent));
+router.post("/verify-otp", asyncHandler(studentAuthController.verifyOtp));
 
 // router.post("/resend-otp", studentAuthController.resendOtp);
 // router.post("/forgot-password", studentAuthController.forgotPassword);

@@ -12,22 +12,27 @@ export class StudentAuthController {
 
   // 🧑‍🎓 Student Registration
    registerStudent = async(req: Request, res: Response)=> {
-    const { name, email, password } = req.body;
+    const { fullName, email, password,confirmPassword } = req.body;
+    if(password!==confirmPassword){
+      res.status(400).json({message:'Confirm Password MisMatched'})
+      return
+    }
+
     const isUserExists = await this.registerStudentUseCase.isUserExists(email);
     if (!isUserExists) {
-      await this.generateOtpUseCase.storeTempData(email, { name, email, password });
-      await this.generateOtpUseCase.sendOtp(email,name,'student registration');
-      res.status(201).json({ message: "Student registered. OTP sent to email." });
+      await this.generateOtpUseCase.storeTempData(email, { fullName, email, password });
+      await this.generateOtpUseCase.sendOtp(email,fullName,'student registration');
+      res.status(201).json({ message: "An OTP Sented To Your Mail." });
     }else {
     res.status(400).json({ message: "Email already exists" });
     }
   }
 
    verifyOtp = async(req: Request, res: Response) => {
-    const { otp } = req.body;
-    const email = req.query.email as string; 
+    const { otp,email } = req.body;    
+    console.log(req.body)
     await this.registerStudentUseCase.execute(email,otp);
-    res.status(201).json({ message: "Instructor registered successfully." });
+    res.status(201).json({ message: "Student Registration Successfull." });
   }
   
 

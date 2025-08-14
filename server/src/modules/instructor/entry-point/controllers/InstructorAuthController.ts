@@ -13,19 +13,19 @@ export class InstructorAuthController {
 
   // 🧑‍🏫 Instructor Registration
    async registerInstructor(req: Request, res: Response) {
-    const { name,email,password,bio,profile,socialLinks,expertise,qualifications,otp} = req.body;
+    const { fullName,email,password,bio,profile,socialLinks,expertise,qualifications,otp} = req.body;
     const isUserExists = await this.registerInstructorUseCase.isUserExists(email);
     if (!isUserExists) {
-      await this.generateOtpUseCase.storeTempData(email, {name, email, password, bio, profilePictureUrl:profile, socialLinks, expertise, qualifications });
-      await this.generateOtpUseCase.generateOtp(email,name);
+      await this.generateOtpUseCase.storeTempData(email, {fullName, email, password, bio, profilePictureUrl:profile, socialLinks, expertise, qualifications });
+      await this.generateOtpUseCase.sendOtp(email,fullName,'Instructor Registration OTP');
       res.status(201).json({ message: "Instructor registered. OTP sent to email." });
     }else {
       res.status(400).json({ message: "Email already exists" });
     }
   }
   async verifyOtp(req: Request, res: Response) {
-    const { otp } = req.body;
-    const email = req.query.email as string; 
+    const { otp,email } = req.body;
+    
     await this.registerInstructorUseCase.execute(email,otp);
     res.status(201).json({ message: "Instructor registered successfully." });
   }

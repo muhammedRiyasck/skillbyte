@@ -14,9 +14,15 @@ export class CommonAuthController {
     private readonly resendOtpUseCase: ResendOtpUseCase
   ) {}
 
+   amILoggedIn = (req: Request, res: Response): void => {
+    const user = req.user;
+    res.status(200).json({message: 'User is logged in', user});
+  }
+
    login = async(req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
-    const { role } = req.query;
+    // const { role } = req.query;
+    let role = 'student'
     if (!email || !password || !role) {
       res
         .status(400)

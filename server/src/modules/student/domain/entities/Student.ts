@@ -4,6 +4,7 @@ export class Student  {
     public email: string,
     public passwordHash: string,
     public isEmailVerified?: boolean ,
+    public registeredVia: 'google' | 'local' = 'local',
     public profilePictureUrl?:string | null,
     public accountStatus: string = 'active',
     public _id?: string

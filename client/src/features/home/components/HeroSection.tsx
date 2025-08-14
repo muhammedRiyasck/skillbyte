@@ -17,7 +17,7 @@ const HeroSection: React.FC = () => {
             <Link to='/auth/signup' className="bg-gray-600 text-white px-5 py-2 rounded-md text-sm hover:opacity-90">
               Get Started
             </Link>
-            <Link to='/auth/signin'  className="border border-gray-400 dark:border-gray-500 text-sm px-5 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+            <Link to='/auth/login'  className="border border-gray-400 dark:border-gray-500 text-sm px-5 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
               Sign In
             </Link>
           </div>

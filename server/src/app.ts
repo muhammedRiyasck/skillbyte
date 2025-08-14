@@ -1,38 +1,37 @@
 import express from "express";
 import session from "express-session";
 import passport from "passport";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 
 import { config } from "dotenv";
 config();
-import cors from "cors";
 
 const app = express();
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-const corsOptions = {
-  origin: ['http://localhost:3000', 'https://mywebsite.com'], // allowed origins
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  credentials: true // allow cookies or authorization headers
-};
-
-app.use(cors(corsOptions));
-
-import "./shared/config/passport/GoogleStartegy"; //  this is imported to initialize
-import "./shared/config/passport/FacebookStrategy"
-
-import Logger from "./shared/middlewares/Logger";
-app.use(Logger);
-
 app.use(session({
-    secret: "some_secret_key", // store securely in .env in production
-    resave: false,
-    saveUninitialized: true
+  secret: "some_secret_key", 
+  resave: false,
+  saveUninitialized: true
 }));
+
 
 app.use(passport.initialize());
 app.use(passport.session());
+
+import "./shared/config/passport/GoogleStrategy"; 
+import "./shared/config/passport/FacebookStrategy"
+
+import errorHandler from "./shared/middlewares/GlobalErrorMiddleware";
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+const corsOptions = {
+  origin: ['http://localhost:5173','http://192.168.1.2:5173'], // allowed origins
+  methods: ['GET', 'get', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  credentials: true // allow cookies or authorization headers
+};
+app.use(cors(corsOptions));
+app.use(cookieParser())
 
 
 import AuthRoutes from "./modules/auth/entry-point/routes/Auth.Routes";
@@ -56,4 +55,6 @@ app.use("/api/course", CourseRoutes);
 
 app.use("/api/admin", AdminAuthRoutes);
 
+app.use(errorHandler)
 export default app;
+

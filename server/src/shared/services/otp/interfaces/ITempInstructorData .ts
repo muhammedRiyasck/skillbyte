@@ -1,6 +1,6 @@
  
 export interface TempInstructorData {
-  name: string;
+  fullName: string;
   email: string;
   password: string;
   bio?: string;

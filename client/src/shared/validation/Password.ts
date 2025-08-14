@@ -11,7 +11,6 @@
 
         password = password.trim();
 
-        console.log(password, 'checking password validation');
 
         if (password === "") {
             return {success: false, message: 'Password is required'};

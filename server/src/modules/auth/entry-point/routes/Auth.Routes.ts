@@ -2,10 +2,14 @@ import { Router } from "express";
 const router = Router();
 
 import { GoogleController } from "../controllers/Google.Controller";
+import { authenticate } from "../../../../shared/middlewares/AuthMiddleware";
 import {commonAuthController} from '../dependencyInjection/CommonAuthContainer'
 import { facebookController } from "../controllers/Facebook.Controller";
 
-router.post("/login",commonAuthController.login);
+import asyncHandler from "../../../../shared/utils/asyncHandler";
+
+router.post("/login",asyncHandler(commonAuthController.login));
+router.get("/me",authenticate,commonAuthController.amILoggedIn);
 router.get("/google",GoogleController.googleAuth);
 router.get("/google/callback", GoogleController.googleCallback);
 router.get("/facebook",facebookController.facebookAuth)

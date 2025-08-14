@@ -11,3 +11,8 @@ export interface signUpPayload {
   confirmPassword: string;
   agree: boolean;
 }
+
+export interface otpPayload{
+  otp: string;
+  email:string
+}

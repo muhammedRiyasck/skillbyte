@@ -3,17 +3,28 @@ import {createBrowserRouter} from 'react-router-dom';
 import PublicLayout from '../../layouts/auth/PublicLayout.tsx';
 import SignIn from '../../features/auth/pages/SignIn.tsx';
 import Signup from '../../features/auth/pages/SignUp.tsx';
+import Otp from '../../features/auth/pages/Otp.tsx';
+import NotFound from '../../shared/ui/NotFound.tsx';
 import LandingPage from '../../features/home/pages/Landing.tsx';
 import StudentLayout from '../../layouts/student/StudentLayout.tsx';
+import OAuthSuccess from '../../features/auth/components/OAuthSuccess.tsx';
+
 
 const router = createBrowserRouter([
   {
     path: '/auth',
     element: <PublicLayout />,
     children: [
-      { path: 'signin', element: <SignIn /> },
-      { path: 'signup', element: <Signup /> },
+      { path: 'login', element: <SignIn /> },
+      { path: 'register', element: <Signup /> },
+      { path: 'oauth-success', element: <OAuthSuccess /> }
     ],
+    errorElement: <NotFound />,
+  },
+  {
+    path:'/auth/otp',
+    element: <Otp />,
+    errorElement: <NotFound />,
   },
   {
     path: '/',
@@ -25,7 +36,9 @@ const router = createBrowserRouter([
       // { path: 'profile', element: <Profile /> },
       // { path: 'chat', element: <Chat /> },
     ],
+    errorElement: <NotFound />,
   },
+
   // {
   //   path: '/instructor',
   //   element: <InstructorLayout />,
@@ -40,6 +53,10 @@ const router = createBrowserRouter([
   //   children: [
   //     { path: 'dashboard', element: <AdminDashboard /> },
   //   ],
+  // },
+  // {
+  //   path: '*',
+  //   element: <NotFound />,
   // },
 ]);
 

@@ -13,16 +13,18 @@ export class NodeMailerService implements IMailerService {
 
   async sendMail(email: string, subject: string, html: string): Promise<void> {
     try {
-      await this.transporter.verify();
+     const result = await this.transporter.verify();
+     console.log('result of verification',result)
+      await this.transporter.sendMail({
+        from: 'SkillByte" <no-reply@skillbyte.com>',
+        to: email,
+        subject,
+        html,
+      });
     } catch (error) {
       console.error('Error verifying email transporter:', error);
+      console.log(process.env.EMAIL,process.env.EMAIL_PASSWORD,)
       throw new Error('Email service is not configured properly.');
     }
-    await this.transporter.sendMail({
-      from: 'SkillByte" <no-reply@skillbyte.com>',
-      to: email,
-      subject,
-      html,
-    });
   }
 }

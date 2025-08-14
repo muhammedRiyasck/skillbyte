@@ -1,12 +1,33 @@
-import axiosInstance from "../../../shared/utils/axiosInstance";
+import axiosInstance from "../../../shared/utils/AxiosInstance";
 import { toast } from "sonner";
 
-import type { singInPayload } from "../types/auth";
-import type { signUpPayload } from "../types/auth";
+import type { singInPayload } from "../types/Auth";
+import type { signUpPayload } from "../types/Auth";
+import type { otpPayload } from "../types/Auth";
 
-export const signIn = async (payload: singInPayload) => {
+export const register = async (payload: signUpPayload) => {
   try {
-    const response = await axiosInstance.post("/auth/signin", payload);
+    const response = await axiosInstance.post("/student/register", payload);
+    return response.data;
+  } catch (error:any) {
+    toast.error(error.message);
+    throw error;
+  }
+};
+
+export const verifyOtp = async (payload: otpPayload)=>{
+   try {
+    const response = await axiosInstance.post('/student/verify-otp',payload)
+    return response.data
+   } catch (error:any) {
+     toast.error(error.message)
+     throw error(error)
+   }
+}
+
+export const login = async (payload: singInPayload) => {
+  try {
+    const response = await axiosInstance.post("/auth/login", payload);
     return response.data;
   } catch (error) {
     toast.error("Login failed. Please check your credentials.");
@@ -14,27 +35,9 @@ export const signIn = async (payload: singInPayload) => {
   }
 };
 
-export const googleSignIn = async () => {
-  try {
-    const response = await axiosInstance.get("/auth/google");
-    return response.data;
-  } catch (error) {
-    toast.error("Google login failed. Please try again.");
-    throw error;
-  }
-}
 
-export const signUp = async (payload: signUpPayload) => {
-  try {
-    const response = await axiosInstance.post("/auth/signup", payload);
-    return response.data;
-  } catch (error) {
-    toast.error("Registration failed. Please check your details.");
-    throw error;
-  }
-};
 
-export const signOut = async () => {
+export const logout = async () => {
   try {
     const response = await axiosInstance.post("/auth/signout");
     return response.data;

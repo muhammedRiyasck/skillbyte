@@ -10,20 +10,24 @@ export class GoogleController {
       scope: ['profile', 'email'],
       state: state,
     })(req, res, next);
+    console.log(1)
   }
 
-  static googleCallback(req: any, res: any) {
+  static googleCallback(req: any, res: any,next: NextFunction) {
+    console.log(2);
     passport.authenticate(
       'google',
-      { failureRedirect: '/login', session: false },
-      (err, user, info) => {
-        if (err || !user) {
-          return res
-            .status(400)
-            .json({ error: info.message || 'Authentication failed' });
+      { failureRedirect: '/auth/signin'},
+      (err, userr, info) => {
+        if (err || !userr) {
+          // return res
+          //   .status(400)
+          //   .json({ error: info.message || 'Authentication failed' });
+          res.status(400).redirect('http://localhost:5173/auth/login');
+          return;
         }
-        async (req: any, res: Response) => {
-          const { user, role } = req.user;
+          console.log(5)
+          const { user, role } = userr;
 
           const accessToken = generateAccessToken({ id: user._id, role });
           const refreshToken = generateRefreshToken({ id: user._id, role });
@@ -31,7 +35,7 @@ export class GoogleController {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'strict',
-            maxAge: 15 * 60 * 1000,
+            maxAge: 15 * 60 * 1000, // 15 minutes
           });
 
           res.cookie('refresh_token', refreshToken, {
@@ -41,17 +45,18 @@ export class GoogleController {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
           });
 
-          res.status(200).json({
-            message: `${role} login successful via Google`,
-            user: {
-              name: user.name,
-              email: user.email,
-              role,
-              profilePicture: user.profilePictureUrl ?? null,
-            },
-          });
-        };
+          res.redirect("http://localhost:5173/auth/oauth-success");
+          // res.status(200).json({
+          //   message: `${role} login successful via Google`,
+          //   user: {
+          //     name: user.name,
+          //     email: user.email,
+          //     role,
+          //     profilePicture: user.profilePictureUrl ?? null,
+          //   },
+          // });
+        
       },
-    )(req, res);
+    )(req, res , next);
   }
 }

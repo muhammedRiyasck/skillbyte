@@ -1,25 +1,23 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { googleSignIn } from "../services/authService";
-
-import {toast} from "sonner";
+// import Spiner from "../../../shared/ui/Spiner";
+import { toast } from "sonner";
 
 import TextInput from "../../../shared/ui/TextInput";
 import ErrorMessage from "../../../shared/ui/ErrorMessage";
 
-
 import isEmailValid from "../../../shared/validation/Email";
 import { isPasswordEntered } from "../../../shared/validation/Password";
+import ShowPassword from "../components/ShowPassword";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState({emailError: "", passwordError: ""});
+  const [error, setError] = useState({ emailError: "", passwordError: "" });
+  const [showPassword,setShowPassword] = useState(false)
 
-  const navigate = useNavigate();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,12 +29,11 @@ const Login: React.FC = () => {
         passwordError: passwordValidation.success ? "" : passwordValidation.message,
       });
 
-      if(!emailValidation.success ) return;
-      
+      if (!emailValidation.success) return;
+
       setLoading(true);
       await new Promise((res) => setTimeout(res, 1200));
-      toast.success("Comming Soon! Our team is working hard to bring this feature to you.")
-      
+      toast.success("Comming Soon! Our team is working hard to bring this feature to you.");
     } catch (error) {
     } finally {
       setLoading(false);
@@ -44,23 +41,7 @@ const Login: React.FC = () => {
   };
 
   const handleGoogleLogin = async () => {
-
-    try {
-
-      setLoading(true);
-      const response = await googleSignIn();
-      if (response) {
-        toast.success("Google login successful!");
-        console.log("Google login response:", response);
-        navigate("/");
-      }
-
-    } catch (error) {
-      toast.error("Google login failed. Please try again.");
-      console.error("Google login error:", error);
-    } finally {
-      setLoading(false);
-    }
+    window.location.href = "http://localhost:4000/api/auth/google";
   };
 
   return (
@@ -95,9 +76,15 @@ const Login: React.FC = () => {
               Email
             </label>
 
-            < TextInput type={'email'} id="email" placeholder="your.email@example.com" value={email} setValue={setEmail}  />
-            {error.emailError && <ErrorMessage error={error.emailError} />} 
-            
+            <TextInput
+              type={"email"}
+              id="email"
+              placeholder="your.email@example.com"
+              value={email}
+              setValue={setEmail}
+              
+              />
+            {error.emailError && <ErrorMessage error={error.emailError} />}
           </div>
 
           <div>
@@ -105,8 +92,15 @@ const Login: React.FC = () => {
               Password
             </label>
 
-            < TextInput type="password" id="password" placeholder="********" value={password} setValue={setPassword} />
-             {error.emailError && <ErrorMessage error={error.passwordError} />} 
+            <TextInput type="password" 
+            id="password" placeholder="********" 
+            value={password} 
+            setValue={setPassword}
+            showPassword={showPassword}
+            icon={()=><ShowPassword  showPassword={showPassword} setShowPassword={(value:boolean)=>setShowPassword(value)} />}
+
+             />
+            {error.emailError && <ErrorMessage error={error.passwordError} />}
           </div>
 
           <button
@@ -129,7 +123,7 @@ const Login: React.FC = () => {
           </p>
           <p>
             New to Skillbyte? &nbsp;
-            <Link to="/auth/signup" className="text-indigo-600 hover:underline">
+            <Link to="/auth/register" className="text-indigo-600 hover:underline">
               Create an account
             </Link>
           </p>

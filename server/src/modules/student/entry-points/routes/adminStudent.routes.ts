@@ -2,10 +2,10 @@ import Router from 'express'
 import { adminStudentController } from "../dependencyInjection/AdminStudentContainer";
 import { authenticate } from '../../../../shared/middlewares/AuthMiddleware';
 import { requireRole } from '../../../../shared/middlewares/RequireRole';
-import e from 'express';
-
 const router = Router()
 
-router.get('/allStudents',authenticate,requireRole('admin'),adminStudentController.listAll)
+import asyncHandler from '../../../../shared/utils/asyncHandler';
+
+router.get('/allStudents',authenticate,requireRole('admin'),asyncHandler(adminStudentController.listAll))
 
 export default router;
