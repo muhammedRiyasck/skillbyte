@@ -70,9 +70,9 @@ const Login: React.FC = () => {
           <div className="flex-grow border-t border-gray-200"></div>
         </div>
 
-        <form onSubmit={handleEmailLogin} className="space-y-4">
+        <form onSubmit={handleEmailLogin} className="space-y-3">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium">
+            <label htmlFor="email" className="block text-sm font-medium mb-2">
               Email
             </label>
 
@@ -88,7 +88,7 @@ const Login: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium">
+            <label htmlFor="password" className="block text-sm font-medium mb-2">
               Password
             </label>
 
@@ -106,7 +106,7 @@ const Login: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className={`w-full bg-indigo-600 cursor-pointer text-white rounded-md py-2 font-medium hover:bg-indigo-700 transition disabled:opacity-50`}
+            className={`w-full bg-indigo-600 cursor-pointer text-white rounded-md py-2 mt-2 font-medium hover:bg-indigo-700 transition disabled:opacity-50`}
           >
             {loading ? "Signing In..." : "Sign In With Email"}
           </button>

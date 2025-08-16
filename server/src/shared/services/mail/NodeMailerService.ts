@@ -14,7 +14,7 @@ export class NodeMailerService implements IMailerService {
   async sendMail(email: string, subject: string, html: string): Promise<void> {
     try {
      const result = await this.transporter.verify();
-     console.log('result of verification',result)
+     console.log('send mail verify',result,email,' email')
       await this.transporter.sendMail({
         from: 'SkillByte" <no-reply@skillbyte.com>',
         to: email,

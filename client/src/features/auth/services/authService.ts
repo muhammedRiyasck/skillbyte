@@ -16,6 +16,7 @@ export const register = async (payload: signUpPayload) => {
 };
 
 export const verifyOtp = async (payload: otpPayload)=>{
+  console.log(payload)
    try {
     const response = await axiosInstance.post('/student/verify-otp',payload)
     return response.data
@@ -23,6 +24,16 @@ export const verifyOtp = async (payload: otpPayload)=>{
      toast.error(error.message)
      throw error(error)
    }
+}
+
+export const resendOtp = async(email:string)=>{
+  try {
+    const response = await axiosInstance.post('/auth/resend-otp',{email})
+    return response.data
+    
+  } catch (error:any) {
+    toast.error(error.message)
+  }
 }
 
 export const login = async (payload: singInPayload) => {

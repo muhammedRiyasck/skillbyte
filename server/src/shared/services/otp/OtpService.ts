@@ -2,6 +2,7 @@ import { IOtpService } from "./interfaces/IOtpService";
 import {TempInstructorData} from './interfaces/ITempInstructorData '
 import { TempStudentData } from "./interfaces/ITempStudentData";
 import { NodeMailerService} from '../mail/NodeMailerService'
+import {OtpRateLimiter} from './OtpRateLimiter'
 import { otpVerificationEmailTemplate } from "../../templates/OtpVerification";
 import Redis from "ioredis";
 
@@ -9,21 +10,34 @@ import redisClient from "../../../shared/utils/Redis";
 
 export class RedisOtpService implements IOtpService {
   private redis: Redis;
-  private OTP_EXPIRE = 1 * 60; // 5 minutes
-  private DATA_EXPIRE = 5 * 60; // 5 minutes
+  private rateLimiter:OtpRateLimiter;
+  private OTP_EXPIRE // 2 minute , 1 minute for resend
+  private DATA_EXPIRE = 6 * 60  
+ 
 
-  constructor() {
+  constructor(time?:number) {
     this.redis = redisClient; // Use the shared Redis instance
+    this.rateLimiter = new OtpRateLimiter()
+    this.OTP_EXPIRE = time ?? 2 * 60
   }
   
-  async sendOtp(email: string,name: string,subject:string|undefined): Promise<void> {
+  async sendOtp(email: string,name: string,subject:string): Promise<void> {
+    const ttl = await this.rateLimiter.isBlocked(email);
+    if (ttl){
+      console.log(this.OTP_EXPIRE,'otp time for expire',subject)
+      const time = ttl*1000 
+      const minutes = Math.floor(time/ 60000);
+      const seconds = Math.floor((time % 60000) / 1000)
+      throw new Error(`Please wait ${minutes}:${seconds} sec for next OTP.`);
+    } 
+    
     const otp = Math.floor(100000 + Math.random() * 900000).toString().slice(0, 4);
-    console.log(`Generated OTP for ${email}: ${otp}`); 
     await this.redis.set(`otp:${email}`, otp, "EX", this.OTP_EXPIRE);
+    console.log(`Generated OTP for ${email}: ${otp}`); 
     
     let nodemailer = new NodeMailerService()
-    await nodemailer.sendMail(email,subject = "Your SkillByte OTP Code",otpVerificationEmailTemplate(name,otp)); 
-    return 
+    await nodemailer.sendMail(email,subject ,otpVerificationEmailTemplate(name,otp,subject)); 
+    await this.rateLimiter.block(email, this.OTP_EXPIRE); // 🔒 Block for 2 mins
   }
   
   async verifyOtp(email: string, otp: string): Promise<boolean> {

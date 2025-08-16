@@ -22,7 +22,7 @@ export class RegisterStudentUseCase {
     if(otp.length!==4) throw new Error('OTP Should be 4 digit')
 
     const dto = await this.otpService.getTempData(email);
-    if (!dto) throw new Error("No data found");
+    if (!dto) throw new Error("No data found or Your Current Data Expired");
     
     const valid = await this.otpService.verifyOtp(email, otp);
     if (!valid) throw new Error("Invalid or expired OTP");

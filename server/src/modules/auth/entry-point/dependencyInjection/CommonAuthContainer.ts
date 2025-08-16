@@ -18,7 +18,7 @@ const instructorRepo = new MongoInstructorRepository();
 const studentLoginUC = new LoginStudentUseCase(studentRepo);
 const instructorLoginUC = new LoginInstructorUseCase(instructorRepo);
 const accessTokenUC = new AccessTokenUseCase()
-const resendOtpUC = new ResendOtpUseCase(new RedisOtpService(),studentRepo,instructorRepo,new OtpRateLimiter())
+const resendOtpUC = new ResendOtpUseCase(new RedisOtpService(60),new OtpRateLimiter())
 
 export const commonAuthController = new CommonAuthController(
     studentLoginUC,

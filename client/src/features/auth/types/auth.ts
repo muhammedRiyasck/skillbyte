@@ -13,6 +13,6 @@ export interface signUpPayload {
 }
 
 export interface otpPayload{
-  otp: string;
+  Otp: string;
   email:string
 }

@@ -93,9 +93,9 @@ export class CommonAuthController {
 
 
     resendOtp = async (req: Request, res: Response): Promise<void> => {
-      const { email } = req.body;
-      const {role} = req.body
-      await this.resendOtpUseCase.execute(email, role); 
+      const { email } = req.body
+      console.log(email)
+      await this.resendOtpUseCase.execute(email); 
       res.json({ message: "OTP resent successfully" });
     };
 

@@ -7,7 +7,6 @@ export class StudentAuthController {
   constructor(
     private readonly registerStudentUseCase: RegisterStudentUseCase,
     private readonly generateOtpUseCase: RedisOtpService,
-    private readonly loginUseCase: LoginStudentUseCase,
   ) {}
 
   // 🧑‍🎓 Student Registration
@@ -29,9 +28,9 @@ export class StudentAuthController {
   }
 
    verifyOtp = async(req: Request, res: Response) => {
-    const { otp,email } = req.body;    
+    const { Otp,email } = req.body;    
     console.log(req.body)
-    await this.registerStudentUseCase.execute(email,otp);
+    await this.registerStudentUseCase.execute(email,Otp);
     res.status(201).json({ message: "Student Registration Successfull." });
   }
   

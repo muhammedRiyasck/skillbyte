@@ -70,12 +70,13 @@ export default function SignupForm() {
         const response = await register(formData)
         console.log(response,'response')
         sessionStorage.setItem("emailForOtp", formData.email);
+        const expiryTime = Date.now() + 2 * 60 * 1000; // 2 minutes from now
+        localStorage.setItem("otpExpiry", expiryTime.toString());
         navigate('/auth/otp')
         setLoading(false)
         toast.success(response.message)
         
       } catch (error:any) {
-        console.log(error,'error')
       } finally{
         setLoading(false)
       }
@@ -92,7 +93,7 @@ export default function SignupForm() {
           Fill out the form below to start as a member on skillbyte
         </p>
         {loading&&<Spiner/>}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-2">
           <div>
             <label className="block text-sm font-medium mb-1">Full Name</label>
           
