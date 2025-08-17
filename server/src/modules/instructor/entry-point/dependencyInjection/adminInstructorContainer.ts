@@ -8,7 +8,7 @@ import { ListApprovedInstructorsUseCase } from "../../application/use-cases/List
 import { NodeMailerService } from "../../../../shared/services/mail/NodeMailerService";
 
 import { MongoInstructorRepository } from "../../infrastructure/repositories/MongoInstructorRepository";
-import { ChangeInstructorStatusUseCase } from "../../application/use-cases/changeAccountStatus";
+import { ChangeInstructorStatusUseCase } from "../../application/use-cases/ChangeAccountStatus";
 const instructorRepo = new MongoInstructorRepository();
 
 const nodeMalierUc = new NodeMailerService()

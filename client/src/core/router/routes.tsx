@@ -4,6 +4,8 @@ import PublicLayout from '../../layouts/auth/PublicLayout.tsx';
 import SignIn from '../../features/auth/pages/SignIn.tsx';
 import Signup from '../../features/auth/pages/SignUp.tsx';
 import Otp from '../../features/auth/pages/Otp.tsx';
+import ForgotPassword from '../../features/auth/pages/ForgotPassword.tsx';
+import ResetPassword from '../../features/auth/pages/ResetPassword.tsx'
 import NotFound from '../../shared/ui/NotFound.tsx';
 import LandingPage from '../../features/home/pages/Landing.tsx';
 import StudentLayout from '../../layouts/student/StudentLayout.tsx';
@@ -17,7 +19,9 @@ const router = createBrowserRouter([
     children: [
       { path: 'login', element: <SignIn /> },
       { path: 'register', element: <Signup /> },
-      { path: 'oauth-success', element: <OAuthSuccess /> }
+      { path: 'oauth-success', element: <OAuthSuccess /> },
+      { path: 'forgot-password', element: <ForgotPassword/>}
+
     ],
     errorElement: <NotFound />,
   },
@@ -26,6 +30,14 @@ const router = createBrowserRouter([
     element: <Otp />,
     errorElement: <NotFound />,
   },
+  {
+    path:'/auth/reset-password',
+    element: <ResetPassword/>
+  },
+  // {
+  //   path:'/auth/forgot-password',
+  //   element: <ForgotPassword/>
+  // },
   {
     path: '/',
     element: <StudentLayout />,

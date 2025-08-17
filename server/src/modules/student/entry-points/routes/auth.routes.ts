@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { studentAuthController } from "../dependencyInjection/StudentauthContainer";
 
-import asyncHandler from "../../../../shared/utils/asyncHandler";
+import asyncHandler from "../../../../shared/utils/AsyncHandler";
 
 const router = Router();
 

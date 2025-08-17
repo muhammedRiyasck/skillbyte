@@ -1,4 +1,4 @@
-import { AdminStudentController } from "../controllers/adminStudentController";
+import { AdminStudentController } from "../controllers/AdminStudentController";
 import { ListAllStudentsUseCase } from "../../application/use-cases/ListAllStudents";
 import { MongoStudentRepository } from "../../infrastructure/repositories/MongoStudentRepository"; 
 import { ChangeStudentStatusUseCase } from "../../application/use-cases/ChangeAccountStatus";

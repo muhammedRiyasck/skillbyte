@@ -3,7 +3,7 @@ import { ListPendingInstructorsUseCase } from "../../application/use-cases/ListP
 import { ApproveInstructorUseCase } from "../../application/use-cases/ApproveInstructor";
 import { DeclineInstructorUseCase } from "../../application/use-cases/DeclineInstructor";
 import { ListApprovedInstructorsUseCase } from "../../application/use-cases/ListApprovedInstructors";
-import { ChangeInstructorStatusUseCase } from "../../application/use-cases/changeAccountStatus";
+import { ChangeInstructorStatusUseCase } from "../../application/use-cases/ChangeAccountStatus";
 
 
 export class AdminInstructorController {

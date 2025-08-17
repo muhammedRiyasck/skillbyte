@@ -93,7 +93,7 @@ export default function SignupForm() {
           Fill out the form below to start as a member on skillbyte
         </p>
         {loading&&<Spiner/>}
-        <form onSubmit={handleSubmit} className="space-y-2">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">Full Name</label>
           

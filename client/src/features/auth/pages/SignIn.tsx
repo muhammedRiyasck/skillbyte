@@ -114,12 +114,10 @@ const Login: React.FC = () => {
 
         <div className="mt-4 text-sm text-center space-y-1">
           <p>
-            {/* <Link to="/auth/forgot-password" className="text-indigo-600 hover:underline">
-              Forgot password?
-            </Link> */}
-            <Link to="#" className="text-indigo-600 hover:underline">
+            <Link to="/auth/forgot-password" className="text-indigo-600 hover:underline">
               Forgot password?
             </Link>
+          
           </p>
           <p>
             New to Skillbyte? &nbsp;

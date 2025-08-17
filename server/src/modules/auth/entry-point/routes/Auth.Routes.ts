@@ -6,7 +6,7 @@ import { authenticate } from "../../../../shared/middlewares/AuthMiddleware";
 import {commonAuthController} from '../dependencyInjection/CommonAuthContainer'
 import { facebookController } from "../controllers/Facebook.Controller";
 
-import asyncHandler from "../../../../shared/utils/asyncHandler";
+import asyncHandler from "../../../../shared/utils/AsyncHandler";
 
 router.post("/login",asyncHandler(commonAuthController.login));
 router.get("/me",authenticate,commonAuthController.amILoggedIn);
@@ -16,7 +16,9 @@ router.get("/facebook",facebookController.facebookAuth)
 router.get("/facebook/callback",facebookController.facebookCallback)
 
 router.post('/access-token',commonAuthController.refreshToken)
-router.post('/resend-otp',commonAuthController.resendOtp)
+router.post('/resend-otp',asyncHandler(commonAuthController.resendOtp))
+router.post('/forgot-password',asyncHandler(commonAuthController.forgotPassword))
+router.post('/reset-password',asyncHandler(commonAuthController.resetPassword))
 router.post('/logout',commonAuthController.logout)
 
 export default router;

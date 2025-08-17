@@ -1,10 +1,10 @@
 
-export type singInPayload = {
+export interface IsingInPayload  {
   email: string;
   password: string;
 }
 
-export interface signUpPayload {
+export interface IsignUpPayload {
   fullName: string;
   email: string;
   password: string;
@@ -12,7 +12,18 @@ export interface signUpPayload {
   agree: boolean;
 }
 
-export interface otpPayload{
+export interface IotpPayload{
   Otp: string;
   email:string
+}
+
+export interface IforgotPassword {
+  email:string
+  role:string
+}
+
+export interface IresetPassword {
+  role:string
+  token:string
+  password:string
 }

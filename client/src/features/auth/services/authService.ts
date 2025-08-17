@@ -1,11 +1,9 @@
 import axiosInstance from "../../../shared/utils/AxiosInstance";
 import { toast } from "sonner";
 
-import type { singInPayload } from "../types/Auth";
-import type { signUpPayload } from "../types/Auth";
-import type { otpPayload } from "../types/Auth";
+import type { IresetPassword, IsingInPayload,IsignUpPayload,IforgotPassword,IotpPayload} from "../types/Auth";
 
-export const register = async (payload: signUpPayload) => {
+export const register = async (payload: IsignUpPayload) => {
   try {
     const response = await axiosInstance.post("/student/register", payload);
     return response.data;
@@ -15,7 +13,7 @@ export const register = async (payload: signUpPayload) => {
   }
 };
 
-export const verifyOtp = async (payload: otpPayload)=>{
+export const verifyOtp = async (payload: IotpPayload)=>{
   console.log(payload)
    try {
     const response = await axiosInstance.post('/student/verify-otp',payload)
@@ -36,7 +34,7 @@ export const resendOtp = async(email:string)=>{
   }
 }
 
-export const login = async (payload: singInPayload) => {
+export const login = async (payload: IsingInPayload) => {
   try {
     const response = await axiosInstance.post("/auth/login", payload);
     return response.data;
@@ -46,7 +44,25 @@ export const login = async (payload: singInPayload) => {
   }
 };
 
+export const forgotPassword = async(playload:IforgotPassword)=>{
+  try {
+    const response = await axiosInstance.post('/auth/forgot-password',playload)
+    return response.data  
+  } catch (error:any) {
+    toast.error(error.message)
+  }
+}
 
+export const resetPassword  = async(playload:IresetPassword)=>{
+  try {
+    const response = await axiosInstance.post('/auth/reset-password',playload)
+    return response.data  
+  } catch (error:any) {
+    toast.error(error.message)
+    throw error(error)
+  }
+
+}
 
 export const logout = async () => {
   try {

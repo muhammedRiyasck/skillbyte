@@ -25,6 +25,7 @@ export class MongoStudentRepository implements IStudentRepository {
       doc.registeredVia,
       doc.profilePictureUrl,
       doc.accountStatus,
+      doc._id.toString()
     );
   }
 
@@ -37,7 +38,20 @@ export class MongoStudentRepository implements IStudentRepository {
       doc.email,
       doc.passwordHash,
       doc.isEmailVerified,
+      
     );
+  }
+
+  async findByIdAndUpdatePassword(id: string, passwordHash: string): Promise<{name:string,email:string}|void> {
+    try {
+      
+      const doc = await StudentModel.findByIdAndUpdate({_id:id},{passwordHash})
+      if(doc) return {name:doc.name,email:doc.email}
+      else return 
+    } catch (error) {
+      console.error("Error saving student:", error);
+      throw new Error('Failed to resent password student');
+    }
   }
 
   async findAll(): Promise<Student[]> {

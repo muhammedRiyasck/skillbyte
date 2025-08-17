@@ -11,12 +11,13 @@ import redisClient from "../../../shared/utils/Redis";
 export class RedisOtpService implements IOtpService {
   private redis: Redis;
   private rateLimiter:OtpRateLimiter;
+  private NodeMailer 
   private OTP_EXPIRE // 2 minute , 1 minute for resend
   private DATA_EXPIRE = 6 * 60  
- 
 
   constructor(time?:number) {
     this.redis = redisClient; // Use the shared Redis instance
+    this.NodeMailer = new NodeMailerService()
     this.rateLimiter = new OtpRateLimiter()
     this.OTP_EXPIRE = time ?? 2 * 60
   }
@@ -35,8 +36,7 @@ export class RedisOtpService implements IOtpService {
     await this.redis.set(`otp:${email}`, otp, "EX", this.OTP_EXPIRE);
     console.log(`Generated OTP for ${email}: ${otp}`); 
     
-    let nodemailer = new NodeMailerService()
-    await nodemailer.sendMail(email,subject ,otpVerificationEmailTemplate(name,otp,subject)); 
+    await this.NodeMailer.sendMail(email,subject ,otpVerificationEmailTemplate(name,otp,subject)); 
     await this.rateLimiter.block(email, this.OTP_EXPIRE); // 🔒 Block for 2 mins
   }
   

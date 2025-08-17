@@ -12,12 +12,11 @@ const studentRepo = new MongoStudentRepository();
 // Instantiate use cases
 const registerStudentUC = new RegisterStudentUseCase(studentRepo, new RedisOtpService());
 
-const loginUC = new LoginStudentUseCase(studentRepo); 
+// const loginUC = new LoginStudentUseCase(studentRepo); 
 const generateOtpUC = new RedisOtpService();
 
 // Final controller
 export const studentAuthController = new StudentAuthController(
   registerStudentUC,
   generateOtpUC,
-  loginUC,
 );

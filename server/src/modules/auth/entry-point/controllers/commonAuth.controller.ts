@@ -5,13 +5,17 @@ import { LoginStudentUseCase } from '../../../student/application/use-cases/Logi
 import { LoginInstructorUseCase } from '../../../instructor/application/use-cases/LoginInstructorUseCase';
 import { AccessTokenUseCase   } from '../../application/AccessTokenUseCase';
 import { ResendOtpUseCase } from '../../application/ResendOtpUseCase';
+import { ForgotPasswordUseCase } from '../../application/ForgotPassword';
+import { ResetPassword } from '../../application/ResetPassword';
 
 export class CommonAuthController {
   constructor(
     private readonly studentLoginUC: LoginStudentUseCase,
     private readonly instructorLoginUC: LoginInstructorUseCase,
     private readonly accessTokenUseCase: AccessTokenUseCase,
-    private readonly resendOtpUseCase: ResendOtpUseCase
+    private readonly resendOtpUseCase: ResendOtpUseCase,
+    private readonly forgotPasswordUseCase : ForgotPasswordUseCase,
+    private readonly resetPasswordUseCase : ResetPassword
   ) {}
 
    amILoggedIn = (req: Request, res: Response): void => {
@@ -98,6 +102,40 @@ export class CommonAuthController {
       await this.resendOtpUseCase.execute(email); 
       res.json({ message: "OTP resent successfully" });
     };
+
+    forgotPassword = async (req:Request,res:Response): Promise<void> =>{
+      const {email,role} = req.body
+      console.log(email,role)
+      const genericMsg = { message: 'If the email exists, a reset link has been sent.' };
+      if(!['student','instructor'].includes(role)){
+        res.status(400).json({message:'Invalid Role, Please Check It Properly'})
+      }
+      if(!email&&!role) {
+        res.status(400).json({message:'Email and User Role is Required'})
+        return
+      }
+      const user = await this.forgotPasswordUseCase.execute(email,role)
+      res.status(200).json(genericMsg) 
+
+    }
+
+    resetPassword = async(req:Request,res:Response): Promise<void> =>{
+      const {token , password, role} = req.body
+      
+       if(!['student','instructor'].includes(role)){
+        res.status(400).json({message:'Invalid Role, Please Check It Properly'})
+      }
+      if(!password){
+        res.status(400).json({message:'Reset Password is Required'}) 
+        return
+      }
+      if(!role&&!token){
+        res.status(400).json({message:'Token and Role is Required'}) 
+        return
+      }
+      await this.resetPasswordUseCase.execute(token,password,role)
+      res.status(200).json({message:'Password Reseted Successfully'})
+    }
 
 
    logout=(req: Request, res: Response)=> {

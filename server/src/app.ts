@@ -1,4 +1,5 @@
 import express from "express";
+import path from 'path'
 import session from "express-session";
 import passport from "passport";
 import cors from "cors";
@@ -33,13 +34,14 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(cookieParser())
 
-
+app.use("/assets", express.static(path.join(__dirname, "../assets")));
+console.log(__dirname)
 import AuthRoutes from "./modules/auth/entry-point/routes/Auth.Routes";
 import AdminAuthRoutes from "./modules/admin/entry-points/routes/Auth.Routes";
 import StudentauthRoutes from "./modules/student/entry-points/routes/Auth.Routes";
-import AdminStudentRoutes from "./modules/student/entry-points/routes/AdminStudent.routes";
+import AdminStudentRoutes from "./modules/student/entry-points/routes/AdminStudent.Routes";
 import InstructorauthRoutes from "./modules/instructor/entry-point/routes/Auth.Routes";
-import AdminInstructorRoutes from './modules/instructor/entry-point/routes/AdminInstructor.routes'
+import AdminInstructorRoutes from './modules/instructor/entry-point/routes/AdminInstructor.Routes'
 import CourseRoutes from "./modules/course/entry-point/routes/Course.Routes";
 // import AdminCourseRoutes from "./modules/course/entry-point/routes/AdminCourse.Routes";
 // Load auth routes

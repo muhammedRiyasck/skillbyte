@@ -21,6 +21,18 @@ export class MongoInstructorRepository implements IInstructorRepository {
     return InstructorMapper.toEntity(doc);
   }
 
+  async findByIdAndUpdatePassword(id: string, passwordHash: string): Promise<{name:string,email:string}|void> {
+      try {
+        
+        const doc = await InstructorModel.findByIdAndUpdate({_id:id},{passwordHash})
+        if(doc) return {name:doc.name,email:doc.email}
+        else return 
+      } catch (error) {
+        console.error("Error saving student:", error);
+        throw new Error('Failed to resent password student');
+      }
+    }
+
   async listPending(): Promise<Instructor[] | null> {
     const docs = await InstructorModel.find({ approved: false });
     if (!docs || docs.length === 0) return null;
