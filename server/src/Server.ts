@@ -1,4 +1,4 @@
-import app from "./app";
+import app from "./App";
 
 import connectToMongoDB from "./shared/config/db/Mongodb";
 connectToMongoDB();

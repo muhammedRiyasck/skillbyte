@@ -14,7 +14,7 @@ import ShowPassword from "../components/ShowPassword";
 
 import { useDispatch } from "react-redux";
 import { setUser } from "../AuthSlice";
-import type { AppDispatch } from "../../../core/store";
+import type { AppDispatch } from "../../../core/store/Index";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
