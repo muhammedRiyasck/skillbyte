@@ -1,4 +1,5 @@
-import React from "react";
+import React,{ useRef, useState} from "react";
+
 
 import { motion } from "framer-motion";
 import FeaturesSection from "../components/FeaturesSection";
@@ -7,6 +8,16 @@ import HeroSection from "../components/HeroSection";
 
 
 const LandingPage: React.FC = () => {
+  const [highlight,setHighlight] = useState(false)
+  
+  const divRef = useRef<HTMLDivElement>(null)
+
+  const handleClick = () => {
+     divRef?.current?.scrollIntoView({ behavior: "smooth" });
+     setHighlight(true);
+     setTimeout(() => setHighlight(false), 1500);
+  };
+
   return (
     <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100">
       <motion.div
@@ -15,9 +26,9 @@ const LandingPage: React.FC = () => {
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.3 }}
       >
-        <HeroSection />
+        <HeroSection steps={handleClick} />
         <FeaturesSection />
-        <StepsSection />
+        <StepsSection ref={divRef} highlight={highlight} />
       </motion.div>
     </div>
   );

@@ -2,6 +2,7 @@
 export interface IsingInPayload  {
   email: string;
   password: string;
+  role:string
 }
 
 export interface IsignUpPayload {

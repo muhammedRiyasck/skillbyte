@@ -200,6 +200,12 @@ export default function SignupForm() {
             Sign in
           </Link>
         </p>
+          <p className="text-center text-sm text-gray-400 mt-2">
+            Want to become an Instructor? &nbsp;
+            <Link to="/auth/instructor-signup" className="text-indigo-600 hover:underline">
+              Create an account
+            </Link>
+           </p>
       </div>
     </div>
   );

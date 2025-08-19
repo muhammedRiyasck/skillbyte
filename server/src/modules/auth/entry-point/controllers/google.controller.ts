@@ -28,7 +28,7 @@ export class GoogleController {
         }
           console.log(5)
           const { user, role } = userr;
-
+          req.user = user
           const accessToken = generateAccessToken({ id: user._id, role });
           const refreshToken = generateRefreshToken({ id: user._id, role });
           res.cookie('access_token', accessToken, {
@@ -45,7 +45,7 @@ export class GoogleController {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
           });
 
-          res.redirect("http://localhost:5173/auth/oauth-success");
+          res.status(302).redirect("http://localhost:5173/auth/oauth-success");
           // res.status(200).json({
           //   message: `${role} login successful via Google`,
           //   user: {

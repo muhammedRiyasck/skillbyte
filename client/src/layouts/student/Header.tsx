@@ -1,13 +1,31 @@
 import ThemeToggle from "../../shared/ui/ThemeToggle";
 import { useState } from "react";
-import { Menu, X } from "lucide-react"; // For hamburger icons
+import { useDispatch, useSelector } from "react-redux";
+import type{ RootState } from "../../core/store";
+import { Menu, X } from "lucide-react"; 
+
+import {logout} from '../../features/auth/services/AuthService'
+
+import AuthHeader from "../auth/Header";
 
 import orginalLogo from "../../assets/orginal_logo.png";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
+import { clearUser } from "../../features/auth/AuthSlice";
 const Header = () => {
+  
+  const user = useSelector((store:RootState)=>store.auth.user)
+  const dispatch = useDispatch()
+  const handleLogout = async ()=>{
+    const response = await logout()
+    dispatch(clearUser())
+    toast.success(response.message)
+  }
+
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <header>
+    <>
+    {user?<header>
       <div className="flex items-center justify-between  md:px-8  bg-gray-50 border-b border-gray-200 px-4 dark:bg-gray-900 shadow-2xl dark:border-b dark:border-gray-700 dark:text-white">
         <div className="flex items-center text-2xl font-bold">
           <Link to="/">
@@ -34,6 +52,9 @@ const Header = () => {
             <Link to="#">❤️</Link>
             <Link to="#">👤</Link>
           </div>
+          <button onClick={handleLogout}  className="border border-gray-400 dark:border-gray-500 text-sm px-5 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 hover:cursor-pointer">
+                Sign Out
+            </button>
           <ThemeToggle />
           <button className="md:hidden focus:outline-none" onClick={() => setIsOpen(!isOpen)}>
             {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -67,45 +88,11 @@ const Header = () => {
           </div>
         </div>
       )}
-    </header>
+    </header>:<AuthHeader/>}
+    </>
   );
 };
 
-// export  function Header() {
-//   const [isOpen, setIsOpen] = useState(false);
 
-//   return (
-//     <nav className="w-full bg-white dark:bg-black shadow-md border">
-//       <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-//         {/* Logo */}
-//         <div className="text-xl font-bold">SkillByte</div>
-
-//         {/* Desktop Nav Links */}
-//         <div className="hidden md:flex space-x-6 ">
-//           <a href="#" className="hover:text-primary dark:text-white">Home</a>
-//           <a href="#" className="hover:text-primary">Courses</a>
-//           <a href="#" className="hover:text-primary">About</a>
-//         </div>
-//         <ThemeToggle />
-//         {/* Mobile Hamburger */}
-//         <button
-//           className="md:hidden focus:outline-none"
-//           onClick={() => setIsOpen(!isOpen)}
-//         >
-//           {isOpen ? <X size={24} /> : <Menu size={24} />}
-//         </button>
-//       </div>
-
-//       {/* Mobile Menu Dropdown */}
-//       {isOpen && (
-//         <div className="md:hidden bg-white dark:bg-black px-4 pb-4">
-//           <a href="#" className="block py-2">Home</a>
-//           <a href="#" className="block py-2">Courses</a>
-//           <a href="#" className="block py-2">About</a>
-//         </div>
-//       )}
-//     </nav>
-//   );
-// }
 
 export default Header;

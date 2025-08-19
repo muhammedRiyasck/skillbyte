@@ -1,23 +1,30 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState,   } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-// import Spiner from "../../../shared/ui/Spiner";
+import Spiner from "../../../shared/ui/Spiner";
 import { toast } from "sonner";
 
 import TextInput from "../../../shared/ui/TextInput";
 import ErrorMessage from "../../../shared/ui/ErrorMessage";
 
+import { login } from "../services/AuthService";
 import isEmailValid from "../../../shared/validation/Email";
 import { isPasswordEntered } from "../../../shared/validation/Password";
 import ShowPassword from "../components/ShowPassword";
 
+import { useDispatch } from "react-redux";
+import { setUser } from "../AuthSlice";
+import type { AppDispatch } from "../../../core/store";
+
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState({ emailError: "", passwordError: "" });
-  const [showPassword,setShowPassword] = useState(false)
-
+  const [error, setError] = useState({ emailError: "", passwordError: "", roleError: "" });
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate()
+  const dispatch = useDispatch<AppDispatch>()
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,13 +34,17 @@ const Login: React.FC = () => {
       setError({
         emailError: emailValidation.success ? "" : emailValidation.message,
         passwordError: passwordValidation.success ? "" : passwordValidation.message,
+        roleError: role ? "" : "Role is Required",
       });
 
-      if (!emailValidation.success) return;
+      if (emailValidation.success && passwordValidation.success && role){
+        setLoading(true);
+          const response = await login({email,password,role})
+          dispatch(setUser(response.userData))
+          navigate('/')
+          toast.success(response.message)
+      }
 
-      setLoading(true);
-      await new Promise((res) => setTimeout(res, 1200));
-      toast.success("Comming Soon! Our team is working hard to bring this feature to you.");
     } catch (error) {
     } finally {
       setLoading(false);
@@ -46,6 +57,7 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50  px-4  dark:bg-gray-900 ">
+      {loading && <Spiner/>}
       <motion.div
         initial={{ opacity: -2, scale: 1 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -82,8 +94,7 @@ const Login: React.FC = () => {
               placeholder="your.email@example.com"
               value={email}
               setValue={setEmail}
-              
-              />
+            />
             {error.emailError && <ErrorMessage error={error.emailError} />}
           </div>
 
@@ -92,16 +103,51 @@ const Login: React.FC = () => {
               Password
             </label>
 
-            <TextInput type="password" 
-            id="password" placeholder="********" 
-            value={password} 
-            setValue={setPassword}
-            showPassword={showPassword}
-            icon={()=><ShowPassword  showPassword={showPassword} setShowPassword={(value:boolean)=>setShowPassword(value)} />}
-
-             />
-            {error.emailError && <ErrorMessage error={error.passwordError} />}
+            <TextInput
+              type="password"
+              id="password"
+              placeholder="********"
+              value={password}
+              setValue={setPassword}
+              showPassword={showPassword}
+              icon={() => (
+                <ShowPassword
+                  showPassword={showPassword}
+                  setShowPassword={(value: boolean) => setShowPassword(value)}
+                />
+              )}
+            />
+            {error.passwordError && <ErrorMessage error={error.passwordError} />}
           </div>
+
+          <label htmlFor="role" className="block text-sm font-medium mb-2">
+            Role
+          </label>
+          <div className="flex justify-center">
+            <div className="flex  dark:text-white text-sm font-medium mx-4">
+              <input
+                type="radio"
+                name="role"
+                value="student"
+                id="student_role"
+                className=" w-full px-4 py-2 hover:cursor-pointer dark:bg-gray-700 dark:text-white"
+                onChange={(e) => setRole(e.target.value)}
+              />
+              <label className="mx-2 text-gray-700 dark:text-gray-400">Learner</label>
+            </div>
+            <div className="flex  dark:text-white text-sm font-medium mx-4">
+              <input
+                type="radio"
+                name="role"
+                id="instructor_role"
+                value="instructor"
+                className=" w-full px-4 py-2 hover:cursor-pointer  dark:text-white "
+                onChange={(e) => setRole(e.target.value)}
+              />
+              <label className="mx-2 text-gray-700 dark:text-gray-400">Instructor</label>
+            </div>
+          </div>
+          <ErrorMessage error={error.roleError} />
 
           <button
             type="submit"
@@ -117,15 +163,14 @@ const Login: React.FC = () => {
             <Link to="/auth/forgot-password" className="text-indigo-600 hover:underline">
               Forgot password?
             </Link>
-          
           </p>
-          <p>
+          <p className="text-center text-sm text-gray-400 mt-2">
             New to Skillbyte? &nbsp;
             <Link to="/auth/register" className="text-indigo-600 hover:underline">
               Create an account
             </Link>
           </p>
-          <p>
+          <p className="text-center text-sm text-gray-400 mt-2">
             Want to become an Instructor? &nbsp;
             {/* <Link to="/auth/instructor-signup" className="text-indigo-600 hover:underline">
               Create an account

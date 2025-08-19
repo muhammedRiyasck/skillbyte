@@ -2,7 +2,7 @@
 
 import { RouterProvider } from 'react-router-dom';
 import router from '../core/router/Routes.tsx';
-import { ThemeProvider } from '../core/store/Theme-Context.tsx';
+import { ThemeProvider } from '../core/store/Theme-context.tsx';
 import { Toaster } from 'sonner';
 
 function App() {

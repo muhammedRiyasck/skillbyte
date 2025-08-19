@@ -1,14 +1,14 @@
-import React from "react";
+import {forwardRef} from "react";
 const steps = [
   {
     step: "1",
     title: "Create Account",
-    desc: "Sign up with your email and secure password.",
+    desc: "Sign up with your email and password or Google.",
   },
   {
     step: "2",
     title: "Verify Email",
-    desc: "Confirm your email address via a verification link.",
+    desc: "Confirm your email address via OTP",
   },
   {
     step: "3",
@@ -16,9 +16,9 @@ const steps = [
     desc: "Access your account with validated credentials.",
   },
 ];
-const StepsSection: React.FC = () => {
+const StepsSection = forwardRef <HTMLElement,{highlight:boolean}>(({highlight},ref) => {
   return (
-    <section className="px-4 md:px-8 py-12 text-center">
+    <section ref={ref} className={`px-4 md:px-8 py-12 text-center ${highlight?"border":'' }`}>
       <h2 className="text-2xl font-bold mb-6">Simple Steps to Get Started</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
         {steps.map((item) => (
@@ -31,6 +31,6 @@ const StepsSection: React.FC = () => {
       </div>
     </section>
   );
-};
+});
 
 export default StepsSection;

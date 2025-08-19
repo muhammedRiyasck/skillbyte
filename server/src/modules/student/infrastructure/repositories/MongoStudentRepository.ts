@@ -15,7 +15,7 @@ export class MongoStudentRepository implements IStudentRepository {
   }
 
   async findByEmail(email: string): Promise<Student | null> {
-    const doc = await StudentModel.findOne({ email }).select('-passwordHash');
+    const doc = await StudentModel.findOne({ email })
     if (!doc) return null;
     return new Student(
       doc.name,
@@ -31,14 +31,15 @@ export class MongoStudentRepository implements IStudentRepository {
 
   async findById(id: string): Promise<Student | null> {
             
-    const doc = await StudentModel.findById(id);
+    const doc = await StudentModel.findById(id).select('-passwordHash');
     if (!doc) return null;
     return new Student(
       doc.name,
       doc.email,
       doc.passwordHash,
       doc.isEmailVerified,
-      
+      doc.registeredVia,
+      doc.profilePictureUrl,
     );
   }
 

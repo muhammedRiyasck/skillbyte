@@ -1,5 +1,6 @@
-import{ useState,useEffect } from 'react'
+import{ useState } from 'react'
 import { useNavigate, useSearchParams  } from 'react-router-dom'
+import Spiner from '../../../shared/ui/Spiner'
 import ErrorMessage from '../../../shared/ui/ErrorMessage'
 import TextInput from '../../../shared/ui/TextInput'
 import logo from '../../../assets/orginal_logo.png'
@@ -14,13 +15,15 @@ const ResetPassword = () => {
   const [confirmPassword,setConfirmPassword] = useState('')
   const [error,setErorr] = useState({password:'',confirmPassword:''})
   const [showPassword,setShowPassword] = useState(false)
+  const [loading,setLoading] = useState(false)
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
   const role = searchParams.get('role')
   const navigate = useNavigate()
+  
   const handleSubmit = async (e:React.FormEvent)=>{
       e.preventDefault()
-      console.log(role)
+
       if(!role){
        toast.error('Role is required,Please fill the forgot password again')
         return
@@ -36,15 +39,19 @@ const ResetPassword = () => {
       setErorr({password:isPasswordValid.message,confirmPassword:isPasswordConfirmed.message})
 
       if(isPasswordValid.success&&isPasswordConfirmed.success){
-        
-      const response  = await resetPassword({role,token,password})
-      navigate('/auth/login')
-      toast.success(response.message)
+       setLoading(true)
+      try {
+        const response  = await resetPassword({role,token,password})
+        navigate('/auth/login')
+        toast.success(response.message)
+      } finally  {
+        setLoading(false)
+      }
       }
   }
   return (
       <div className="h-screen overflow-hidden bg-gray-50 dark:bg-gray-900 px-4 md:px-8">
-
+        {loading&&<Spiner/>}
       <img className="w-30 h-20 " src={logo} alt="" />
   <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
 

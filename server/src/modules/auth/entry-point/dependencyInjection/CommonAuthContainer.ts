@@ -6,7 +6,8 @@ import {LoginInstructorUseCase} from '../../../instructor/application/use-cases/
 import { AccessTokenUseCase } from '../../application/AccessTokenUseCase'
 import { ResendOtpUseCase } from '../../application/ResendOtpUseCase'
 import { ForgotPasswordUseCase } from '../../application/ForgotPassword'
-import { ResetPassword} from '../../application/ResetPassword'
+import { ResetPasswordUseCase} from '../../application/ResetPassword'
+import { GoogleLoginUseCase } from '../../application/GoogleLogin'
 
 import { OtpRateLimiter } from '../../../../shared/services/otp/OtpRateLimiter'
 import { RedisOtpService } from '../../../../shared/services/otp/OtpService'
@@ -22,7 +23,8 @@ const instructorLoginUC = new LoginInstructorUseCase(instructorRepo);
 const accessTokenUC = new AccessTokenUseCase()
 const resendOtpUC = new ResendOtpUseCase(new RedisOtpService(60),new OtpRateLimiter())
 const forgotPasswordUc = new ForgotPasswordUseCase(studentRepo,instructorRepo)
-const resetPasswordUc = new ResetPassword(studentRepo,instructorRepo)
+const resetPasswordUc = new ResetPasswordUseCase(studentRepo,instructorRepo)
+const googleLoginUc = new GoogleLoginUseCase(studentRepo,instructorRepo)
 
 export const commonAuthController = new CommonAuthController(
     studentLoginUC,
@@ -30,5 +32,6 @@ export const commonAuthController = new CommonAuthController(
     accessTokenUC,
     resendOtpUC,
     forgotPasswordUc,
-    resetPasswordUc
+    resetPasswordUc,
+    googleLoginUc
  );

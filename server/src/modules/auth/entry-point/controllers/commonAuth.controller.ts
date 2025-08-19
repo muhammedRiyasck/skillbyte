@@ -6,7 +6,8 @@ import { LoginInstructorUseCase } from '../../../instructor/application/use-case
 import { AccessTokenUseCase   } from '../../application/AccessTokenUseCase';
 import { ResendOtpUseCase } from '../../application/ResendOtpUseCase';
 import { ForgotPasswordUseCase } from '../../application/ForgotPassword';
-import { ResetPassword } from '../../application/ResetPassword';
+import { ResetPasswordUseCase } from '../../application/ResetPassword';
+import { GoogleLoginUseCase } from '../../application/GoogleLogin';
 
 export class CommonAuthController {
   constructor(
@@ -15,18 +16,19 @@ export class CommonAuthController {
     private readonly accessTokenUseCase: AccessTokenUseCase,
     private readonly resendOtpUseCase: ResendOtpUseCase,
     private readonly forgotPasswordUseCase : ForgotPasswordUseCase,
-    private readonly resetPasswordUseCase : ResetPassword
+    private readonly resetPasswordUseCase : ResetPasswordUseCase,
+    private readonly googleLoginUseCase : GoogleLoginUseCase
   ) {}
 
-   amILoggedIn = (req: Request, res: Response): void => {
-    const user = req.user;
-    res.status(200).json({message: 'User is logged in', user});
+   amILoggedIn =  async(req: any, res: Response): Promise<void> => {
+    const decodedUserData = req.user;
+    const user = await this.googleLoginUseCase.execute(decodedUserData.id,decodedUserData.role)
+    res.status(200).json({message: 'User is logged in', userData:{name:user?.name,email:user?.email,profilePicture:user?.profilePictureUrl,role:decodedUserData.role}});
   }
 
    login = async(req: Request, res: Response): Promise<void> => {
-    const { email, password } = req.body;
-    // const { role } = req.query;
-    let role = 'student'
+    const { email, password, role } = req.body;
+    
     if (!email || !password || !role) {
       res
         .status(400)
@@ -66,11 +68,11 @@ export class CommonAuthController {
 
       res.status(200).json({
         message: 'Login successful',
-        user: {
+        userData: {
           name: user.name,
           email: user.email,
           role,
-          profilePicture: user.profilePictureUrl,
+          profilePicture: user.profilePictureUrl
         },
       });
     } catch (error: any) {
@@ -98,14 +100,12 @@ export class CommonAuthController {
 
     resendOtp = async (req: Request, res: Response): Promise<void> => {
       const { email } = req.body
-      console.log(email)
       await this.resendOtpUseCase.execute(email); 
       res.json({ message: "OTP resent successfully" });
     };
 
     forgotPassword = async (req:Request,res:Response): Promise<void> =>{
       const {email,role} = req.body
-      console.log(email,role)
       const genericMsg = { message: 'If the email exists, a reset link has been sent.' };
       if(!['student','instructor'].includes(role)){
         res.status(400).json({message:'Invalid Role, Please Check It Properly'})
@@ -115,6 +115,10 @@ export class CommonAuthController {
         return
       }
       const user = await this.forgotPasswordUseCase.execute(email,role)
+      if(user === false){
+        console.log(true)
+        await new Promise((res) => setTimeout(res, 5000));
+      }
       res.status(200).json(genericMsg) 
 
     }
@@ -150,7 +154,7 @@ export class CommonAuthController {
       sameSite: 'strict',
     });
 
-    res.status(200).json({ message: 'Logout successful' });
+    res.status(200).json({ message: 'Logout successfull' });
   }
 
   

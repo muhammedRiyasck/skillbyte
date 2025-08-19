@@ -9,9 +9,9 @@ const header = () => {
   const [isNav, setIsNav] = useState(true);
   return (
     <header>
-      <div className=" bg-gray-50 border-b border-gray-200 px-4 md:px-8 dark:bg-gray-900 shadow-2xl dark:border-b dark:border-gray-700">
+      <div className=" bg-gray-50 border-b border-gray-200 px-4 md:px-8 dark:bg-gray-900 shadow-2xl dark:border-b dark:border-gray-700 dark:text-white">
         <div className="container min-w-full flex justify-between items-center ">
-          <div className="flex items-center dark:text-white">
+          <div className="flex items-center ">
           <Link to="/" className="text-gray-600 dark:text-white text-lg font-bold">
             <img className="w-30 h-20 " src={logo} alt="" />
           </Link>
@@ -24,6 +24,9 @@ const header = () => {
           </nav>}
           </div>
           <div className="flex gap-4">
+           <Link to='/auth/login'  className="border border-gray-400 dark:border-gray-500 text-sm px-5 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+                Sign In
+            </Link>
               <ThemeToggle />
            <button className="md:hidden focus:outline-none dark:text-white " onClick={() => setIsOpen(!isOpen)}>
             {isOpen && isNav ? <X size={24} /> : <Menu size={24} />}

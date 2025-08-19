@@ -8,8 +8,8 @@ const api = axios.create({
 api.interceptors.response.use(
   res => res,
   err => {
-    if (err.response?.data?.message) {
-      err.message = err.response.data.message; // Replace Axios's generic text
+    if (err.response?.data?.message|| err.response?.data?.error) {
+      err.message = err.response.data.message || err.response.data.error ; // Replace Axios's generic text
     }
     return Promise.reject(err);
   }

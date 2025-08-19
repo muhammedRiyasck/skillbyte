@@ -14,7 +14,6 @@ export const register = async (payload: IsignUpPayload) => {
 };
 
 export const verifyOtp = async (payload: IotpPayload)=>{
-  console.log(payload)
    try {
     const response = await axiosInstance.post('/student/verify-otp',payload)
     return response.data
@@ -38,8 +37,9 @@ export const login = async (payload: IsingInPayload) => {
   try {
     const response = await axiosInstance.post("/auth/login", payload);
     return response.data;
-  } catch (error) {
-    toast.error("Login failed. Please check your credentials.");
+  } catch (error:any) {
+    
+    toast.error(error.message);
     throw error;
   }
 };
@@ -66,9 +66,11 @@ export const resetPassword  = async(playload:IresetPassword)=>{
 
 export const logout = async () => {
   try {
-    const response = await axiosInstance.post("/auth/signout");
+
+    const response = await axiosInstance.post("/auth/logout");
     return response.data;
   } catch (error) {
+  
     toast.error("Logout failed. Please try again.");
     throw error;
   }

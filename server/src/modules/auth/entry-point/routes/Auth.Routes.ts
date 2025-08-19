@@ -7,8 +7,9 @@ import {commonAuthController} from '../dependencyInjection/CommonAuthContainer'
 import { facebookController } from "../controllers/Facebook.Controller";
 
 import asyncHandler from "../../../../shared/utils/AsyncHandler";
+import { requireRole } from "../../../../shared/middlewares/RequireRole";
 
-router.post("/login",asyncHandler(commonAuthController.login));
+router.post("/login",requireRole('student','instructor'),asyncHandler(commonAuthController.login));
 router.get("/me",authenticate,commonAuthController.amILoggedIn);
 router.get("/google",GoogleController.googleAuth);
 router.get("/google/callback", GoogleController.googleCallback);

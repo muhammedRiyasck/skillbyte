@@ -12,16 +12,20 @@ export class LoginStudentUseCase {
 
     async execute(email: string, password: string): Promise<{user:Student,accessToken:string,refreshToken:string}> {
         const student = await this.studentRepo.findByEmail(email);
+
         if (!student) throw new Error("Invalid credentials");
-    
+
         const isMatch = await bcrypt.compare(password, student.passwordHash);
         if (!isMatch) throw new Error("Invalid credentials");
-
-        const isActive = student.accountStatus === 'blocked';
-        if (!isActive) throw new Error("Account is Blocked. Please contact support.");
+    
+        
+        const isBlocked = student.accountStatus === 'blocked';
+        if (isBlocked) throw new Error("Account is Blocked. Please contact support.");
         const accessToken = generateAccessToken({ id: student._id, role:'student' });
         const refreshToken = generateRefreshToken({ id: student._id, role:'student' });
         return {user:student,accessToken,refreshToken};
     }
+
+    // async
 
 }

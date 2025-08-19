@@ -23,7 +23,7 @@ const TextInput = ({type,id,value,placeholder,setValue,showPassword,icon}:TextIn
                 //   className="w-full border-gray-300 rounded-lg py-2 px-4  focus:outline-none focus:ring-1 focus:ring-indigo-600 dark:bg-gray-700 dark:text-white"
                   // required
                 className=" w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
-
+                autoComplete='new-password'
               />
               {icon && (
                   <span className="absolute right-3">

@@ -6,7 +6,7 @@ import {IInstructorRepository} from '../../instructor/domain/IRepositories/Iinst
 import {NodeMailerService} from '../../../shared/services/mail/NodeMailerService'
 import { SuccessResetPasswordTemplate } from "../../../shared/templates/SuccessResetPassword";
 
-export class ResetPassword{
+export class ResetPasswordUseCase{
     private NodeMailer
     constructor(
         private readonly studentRepo:IStudentRepository,
