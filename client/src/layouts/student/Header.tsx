@@ -8,7 +8,7 @@ import {logout} from '../../features/auth/services/AuthService'
 
 import AuthHeader from "../auth/Header";
 
-import orginalLogo from "../../assets/orginal_logo.png";
+import orginalLogo from "../../assets/OrginalLogo.png";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { clearUser } from "../../features/auth/AuthSlice";
@@ -52,6 +52,7 @@ const Header = () => {
             <Link to="#">❤️</Link>
             <Link to="#">👤</Link>
           </div>
+          <p>{user&&user.name}</p>
           <button onClick={handleLogout}  className="border border-gray-400 dark:border-gray-500 text-sm px-5 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 hover:cursor-pointer">
                 Sign Out
             </button>

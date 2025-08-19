@@ -1,5 +1,5 @@
-import closed_eye from '../../../assets/eye-close.svg'
-import opened_eye from '../../../assets/eye-open.svg'
+import closed_eye from '../../../assets/EyeClose.svg'
+import opened_eye from '../../../assets/EyeOpen.svg'
 
 type ShowPasswordProps = {
   showPassword: boolean;

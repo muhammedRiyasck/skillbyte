@@ -17,7 +17,7 @@ export class GoogleController {
     console.log(2);
     passport.authenticate(
       'google',
-      { failureRedirect: '/auth/signin'},
+      { failureRedirect: '/auth/login'},
       (err, userr, info) => {
         if (err || !userr) {
           // return res

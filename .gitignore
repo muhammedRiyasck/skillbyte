@@ -30,5 +30,5 @@ client/.vite/
 pnpm-lock.yaml
 yarn.lock
 >>>>>>> frontend/dev
-
+.fix-filenames.sh
 server/tests/

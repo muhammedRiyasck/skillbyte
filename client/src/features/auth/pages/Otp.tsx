@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import logo from "../../../assets/orginal_logo.png";
+import logo from "../../../assets/OrginalLogo.png";
 import { useNavigate } from "react-router-dom";
 
 import { verifyOtp, resendOtp } from "../services/AuthService";

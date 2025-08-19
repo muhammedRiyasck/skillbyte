@@ -19,7 +19,8 @@ const OAuthSuccess = () => {
         navigate("/");
       })
       .catch(() => {
-        navigate("/auth/signin");
+        toast.success("Learner Registration Successfull Via Google")
+        navigate("/auth/login");
       });
   }, [navigate]);
 
