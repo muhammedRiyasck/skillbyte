@@ -4,6 +4,8 @@ import session from "express-session";
 import passport from "passport";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import rateLimit from "express-rate-limit";
+
 
 import { config } from "dotenv";
 config();
@@ -35,7 +37,16 @@ app.use(cors(corsOptions));
 app.use(cookieParser())
 
 app.use("/assets", express.static(path.join(__dirname, "../assets")));
-console.log(__dirname)
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100,                 // Limit each IP to 100 requests per window
+  message: "Too many requests, please try again later.",
+  standardHeaders: true,    // Return rate limit info in the `RateLimit-*` headers
+});
+
+app.use(limiter);
+
 import AuthRoutes from "./modules/auth/entry-point/routes/Auth.Routes";
 import AdminAuthRoutes from "./modules/admin/entry-points/routes/Auth.routes";
 import StudentauthRoutes from "./modules/student/entry-points/routes/Auth.routes";
