@@ -1,4 +1,4 @@
-import { useDebounce } from "../hooks/useDebounce"
+
 
 type TextInputProps = {
     id:string;
@@ -19,8 +19,8 @@ const TextInput = ({id,type,placeholder,value,setValue,showPassword,icon}:TextIn
                   type={showPassword ? 'text' : type}
                   placeholder={placeholder}
                   value={value}
-                  onChange={(e) => setValue(useDebounce(e.target.value,300))}
-                  //   className="w-full border-gray-300 rounded-lg py-2 px-4  focus:outline-none focus:ring-1 focus:ring-indigo-600 dark:bg-gray-700 dark:text-white"
+                  onChange={(e) => setValue(e.target.value)}
+                //   className="w-full border-gray-300 rounded-lg py-2 px-4  focus:outline-none focus:ring-1 focus:ring-indigo-600 dark:bg-gray-700 dark:text-white"
                   // required
                 className=" w-full mt-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
                 autoComplete='new-password'
