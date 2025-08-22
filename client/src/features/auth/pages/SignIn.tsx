@@ -1,6 +1,5 @@
 import React, { useState,   } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import Spiner from "../../../shared/ui/Spiner";
 import { toast } from "sonner";
 
@@ -15,6 +14,7 @@ import ShowPassword from "../components/ShowPassword";
 import { useDispatch } from "react-redux";
 import { setUser } from "../AuthSlice";
 import type { AppDispatch } from "../../../core/store/Index";
+import MotionDiv from "../../../shared/ui/MotionDiv";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -58,12 +58,8 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50  px-4  dark:bg-gray-900 ">
       {loading && <Spiner/>}
-      <motion.div
-        initial={{ opacity: -2, scale: 1 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        transition={{ duration: 0.3 }}
-        className="w-full max-w-md bg-white p-8 rounded-lg shadow-2xl dark:bg-gray-800 text-black dark:text-white"
+      <MotionDiv
+        className="w-full max-w-lg bg-white p-8 rounded-lg shadow-2xl dark:bg-gray-800 text-black dark:text-white"
       >
         <h2 className="text-2xl font-semibold text-center mb-1">Welcome Back to Skillbyte</h2>
         <p className="text-gray-500 text-center mb-6 text-sm">Sign in to continue your learning journey.</p>
@@ -89,8 +85,8 @@ const Login: React.FC = () => {
             </label>
 
             <TextInput
-              type={"email"}
               id="email"
+              type={"email"}
               placeholder="your.email@example.com"
               value={email}
               setValue={setEmail}
@@ -104,8 +100,8 @@ const Login: React.FC = () => {
             </label>
 
             <TextInput
-              type="password"
               id="password"
+              type="password"
               placeholder="********"
               value={password}
               setValue={setPassword}
@@ -158,29 +154,27 @@ const Login: React.FC = () => {
           </button>
         </form>
 
-        <div className="mt-4 text-sm text-center space-y-1">
+        <div className="mt-4 text-sm text-center space-y-1 ">
           <p>
-            <Link to="/auth/forgot-password" className="text-indigo-600 hover:underline">
+            <Link to="/auth/forgot-password" className="text-indigo-600  dark:text-indigo-400  hover:text-indigo-500">
               Forgot password?
             </Link>
           </p>
           <p className="text-center text-sm text-gray-400 mt-2">
             New to Skillbyte? &nbsp;
-            <Link to="/auth/register" className="text-indigo-600 hover:underline">
+            <Link to="/auth/learner-register" className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
               Create an account
             </Link>
           </p>
           <p className="text-center text-sm text-gray-400 mt-2">
             Want to become an Instructor? &nbsp;
-            {/* <Link to="/auth/instructor-signup" className="text-indigo-600 hover:underline">
-              Create an account
-            </Link> */}
-            <Link to="#" className="text-indigo-600 hover:underline">
+            <Link to="/auth/instructor-register" className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
               Create an account
             </Link>
+          
           </p>
         </div>
-      </motion.div>
+      </MotionDiv>
     </div>
   );
 };

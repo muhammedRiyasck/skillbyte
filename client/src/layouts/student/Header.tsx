@@ -1,7 +1,7 @@
 import ThemeToggle from "../../shared/ui/ThemeToggle";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import type{ RootState } from "../../core/store";
+import type{ RootState } from "../../core/store/Index";
 import { Menu, X } from "lucide-react"; 
 
 import {logout} from '../../features/auth/services/AuthService'

@@ -74,8 +74,8 @@ const ResetPassword = () => {
               New Password
             </label>
             <TextInput
-              type="password"
               id="password"
+              type="password"
               value={password}
               placeholder="************"
               setValue={setPassword}
@@ -91,8 +91,8 @@ const ResetPassword = () => {
             </label>
 
             <TextInput 
-            type='password'
             id='confirmPassword'
+            type='password'
             value={confirmPassword}
             placeholder="************"
             setValue={setConfirmPassword}

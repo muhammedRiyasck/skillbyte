@@ -14,8 +14,9 @@ import isConfirmPasswordValid from "../../../shared/validation/ConfirmPassword";
 import { toast } from "sonner";
 
 import ShowPassword from "../components/ShowPassword";
+import MotionDiv from "../../../shared/ui/MotionDiv";
 
-export default function SignupForm() {
+export default function StudentSignUp () {
 
   const [loading,setLoading] = useState(false)
   const [showPassword,setShowPassword] = useState(false)
@@ -35,16 +36,10 @@ export default function SignupForm() {
     confirmPasswordError: "",
   });
 
+  const [agree,setAgree] = useState(false)
+  console.log(agree)
   const navigate = useNavigate()
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === "checkbox" ? checked : value,
-    });
-  };
-  
   const  handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const nameValidation = isNameValid(formData.fullName);
@@ -87,20 +82,20 @@ export default function SignupForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 dark:bg-gray-900">
-      <div className="bg-white p-6 rounded-lg shadow-2xl w-full max-w-md dark:bg-gray-800 text-black dark:text-white">
+      <MotionDiv className="bg-white p-6 rounded-lg shadow-2xl w-full max-w-lg dark:bg-gray-800 text-black dark:text-white">
         <h2 className="text-center text-2xl font-bold mb-2">Create Your Skillbyte Account</h2>
         <p className="text-center text-gray-500 mb-6 text-sm">
           Fill out the form below to start as a member on skillbyte
         </p>
         {loading&&<Spiner/>}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium mb-1">Full Name</label>
           
 
             <TextInput
-              type="text"
               id="fullName"
+              type="text"
               value={formData.fullName}
               placeholder="Full Name"
               setValue={(value) => setFormData({ ...formData, fullName: value })} 
@@ -113,8 +108,8 @@ export default function SignupForm() {
             <label className="block text-sm font-medium mb-1">Email Address</label>
            
             <TextInput
-              type="email"
               id="email"
+              type="email"
               value={formData.email}
               placeholder="Email Address"
               setValue={(value) => setFormData({ ...formData, email: value })}
@@ -127,8 +122,8 @@ export default function SignupForm() {
               <label className="block text-sm font-medium mb-1">Password</label>
               </div>
               <TextInput
-                type="password"
                 id="password"
+                type="password"
                 value={formData.password}
                 placeholder="Password"
                 setValue={(value) => setFormData({ ...formData, password: value })}
@@ -143,8 +138,8 @@ export default function SignupForm() {
               <label className="block text-sm font-medium mb-1">Confirm Password</label>
               </div>
               <TextInput
-                type="password"
                 id="confirmPassword"
+                type="password"
                 value={formData.confirmPassword}
                 placeholder="Confirm Password"
                 setValue={(value) => setFormData({ ...formData, confirmPassword: value })}
@@ -160,53 +155,53 @@ export default function SignupForm() {
             <input
               type="checkbox"
               name="agree"
-              checked={formData.agree}
-              onChange={handleChange}
+              checked={agree}
+              onChange={() => setAgree(!agree)}
               className="mt-1"
               required
               />
          
             <label className="text-sm text-gray-400">
               By signing up, I agree with the&nbsp;
-              <Link to="#" className="text-indigo-600 hover:underline">
+              <Link to="#" className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
                 Terms of Use
               </Link>
               &nbsp;and&nbsp;
-              <a href="#" className="text-indigo-600 hover:underline">
+              <a href="#" className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
                 Privacy Policy
               </a>
             </label>
           </div>
               
 
-          {/* <button
-            type="submit"
-            className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition hover:cursor-pointer"
-          >
-            Sign up
-          </button> */}
+          
             <button
             type="submit"
-            disabled={loading}
-            className={`w-full bg-indigo-600 cursor-pointer text-white rounded-md py-2 font-medium hover:bg-indigo-700 transition disabled:opacity-50`}
+            disabled={loading||!agree}
+            className={`w-full  text-white rounded-md py-2 font-medium transition disabled:opacity-50 ${
+              agree
+                ? "bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
+                : "bg-gray-400 cursor-not-allowed text-gray-200"
+            } `}
           >
             {loading ? "Signing Up..." : "Sign Up"}
           </button>
+
         </form>
 
         <p className="text-center text-sm text-gray-400 mt-4">
           Already have an account?&nbsp;
-          <Link to="/auth/login" className="text-indigo-600 hover:underline">
+          <Link to="/auth/login" className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
             Sign in
           </Link>
         </p>
           <p className="text-center text-sm text-gray-400 mt-2">
             Want to become an Instructor? &nbsp;
-            <Link to="/auth/instructor-signup" className="text-indigo-600 hover:underline">
+            <Link to="/auth/instructor-register" className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
               Create an account
             </Link>
            </p>
-      </div>
+      </MotionDiv>
     </div>
   );
 }

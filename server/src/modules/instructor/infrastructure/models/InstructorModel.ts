@@ -6,20 +6,9 @@ const InstructorSchema = new mongoose.Schema({
   passwordHash: { type: String, required: true },
   bio: { type: String,default: null },
   profilePictureUrl: { type: String, default: null },
-  socialLinks: {
-    linkedin:{ type: String, default: null },
-    twitter: { type: String, default: null },
-    github: { type: String, default: null },
-    website: { type: String, default: null },
-    youtube: { type: String, default: null }
-  },
-  expertise: [{ type: String }],
+  SocialProfile:{ type: String, default: null },
+  experience:{type:Number , require:true},
   isEmailVerified: { type: Boolean, default: false },
-  qualifications: [{
-    title: { type: String, required: true },
-    year: { type: Number, required: true },
-    photoUrl: { type: String, default: null }
-  }],
   accountStatus: { type: String, enum: ["pending","active", "suspended", "rejected"], default: "pending" }, // Pending, Active, Suspended, Rejected
   approved: { type: Boolean, default: false},
   rejected:{type:Boolean, default:false},

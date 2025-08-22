@@ -2,10 +2,13 @@ import {createBrowserRouter} from 'react-router-dom';
 
 import PublicLayout from '../../layouts/auth/PublicLayout.tsx';
 import SignIn from '../../features/auth/pages/SignIn.tsx';
-import Signup from '../../features/auth/pages/SignUp.tsx';
+import StudentSignup from '../../features/auth/pages/StudentSignUp.tsx';
 import Otp from '../../features/auth/pages/Otp.tsx';
 import ForgotPassword from '../../features/auth/pages/ForgotPassword.tsx';
 import ResetPassword from '../../features/auth/pages/ResetPassword.tsx'
+
+import InstructorSignup from '../../features/auth/pages/InstructorSignUp.tsx';
+
 import NotFound from '../../shared/ui/NotFound.tsx';
 import LandingPage from '../../features/home/pages/Landing.tsx';
 import StudentLayout from '../../layouts/student/StudentLayout.tsx';
@@ -22,11 +25,18 @@ const router = createBrowserRouter([
         <PublicRoute>
          <SignIn /> 
          </PublicRoute>)},
-      { path: 'register', element:
+      { path: 'learner-register', element:
          <PublicRoute>
-          <Signup />
+          <StudentSignup />
          </PublicRoute>
          },
+
+      {
+        path:'instructor-register', element:
+        <PublicRoute>
+          <InstructorSignup/>
+        </PublicRoute>
+      },
       { path: 'oauth-success', element: 
         <PublicRoute>
         <OAuthSuccess />
@@ -72,13 +82,14 @@ const router = createBrowserRouter([
     ],
     errorElement: <NotFound />,
   },
-
+  
   // {
   //   path: '/instructor',
-  //   element: <InstructorLayout />,
+  //   element: <StudentLayout />,
+  //   // element: <InstructorLayout />,
   //   children: [
-  //     { path: 'dashboard', element: <InstructorDashboard /> },
-  //     { path: 'create-course', element: <CreateCourse /> },
+  //     // { path: 'dashboard', element: <InstructorDashboard /> },
+  //     // { path: 'create-course', element: <CreateCourse /> },
   //   ],
   // },
   // {

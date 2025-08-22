@@ -5,6 +5,7 @@ import { forgotPassword } from "../services/AuthService";
 import { toast } from "sonner";
 import ErrorMessage from "../../../shared/ui/ErrorMessage";
 import Spiner from "../../../shared/ui/Spiner";
+import MotionDiv from "../../../shared/ui/MotionDiv";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -32,7 +33,7 @@ const ForgotPassword = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
       {loading && <Spiner />}
-      <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
+      <MotionDiv className="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
         {/* Logo / Title */}
         <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100">Forgot Password</h2>
         <p className="mt-2 text-sm text-center text-gray-600 dark:text-gray-400">
@@ -85,7 +86,7 @@ const ForgotPassword = () => {
           <ErrorMessage error={error.role} />
           <button
             type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-700 hover:cursor-pointer text-white font-semibold py-2 px-4 mt-4 rounded-lg transition"
+            className="w-full bg-indigo-600 hover:bg-indigo-700 hover:cursor-pointer text-white font-semibold py-2 px-4 mt-4 rounded-md transition"
           >
             Send Reset Link
           </button>
@@ -94,11 +95,11 @@ const ForgotPassword = () => {
         {/* Back to login */}
         <div className="flex mt-6 text-sm text-gray-600 dark:text-gray-400 text-center">
           <p className=" text-center ">Remember your password?&nbsp;</p>
-          <Link to="/auth/login" className="text-indigo-600 hover:text-indigo-700 font-medium hover:underline">
+          <Link to="/auth/login" className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-200  ">
             Sign in
           </Link>
         </div>
-      </div>
+      </MotionDiv>
     </div>
   );
 };

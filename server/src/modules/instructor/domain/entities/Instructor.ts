@@ -1,10 +1,4 @@
-export interface SocialLinks {
-  linkedin?: string;
-  twitter?: string;
-  github?: string;
-  website?: string;
-  youtube?: string;
-}
+
 
 export interface Qualification {
   title: string;
@@ -18,10 +12,9 @@ export class Instructor {
     public passwordHash: string,
     public bio: string | null,
     public profilePictureUrl: string | null,
-    public socialLinks: SocialLinks,
-    public expertise: string[],
+    public SocialProfile: string,
+    public experience: number,
     public isEmailVerified: boolean,
-    public qualifications: Qualification[],
     public accountStatus: "pending" | "active" | "suspended" | "rejected" ,
     public approved: boolean,
     public rejected: boolean,
