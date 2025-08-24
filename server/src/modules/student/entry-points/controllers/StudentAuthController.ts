@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { RegisterStudentUseCase } from "../../application/use-cases/RegisterStudentUseCase";
-import {LoginStudentUseCase} from '../../application/use-cases/LoginStudentUseCase';
 import { RedisOtpService } from "../../../../shared/services/otp/OtpService";
 
 export class StudentAuthController {

@@ -8,7 +8,7 @@ import { password } from '../../../../shared/validation/Password';
 
 export class RegisterInstructorUseCase {
   constructor(
-    private instructorRepo: IInstructorRepository,
+    private readonly instructorRepo: IInstructorRepository,
     private readonly otpService: IOtpService
   ) {}
 
@@ -18,40 +18,57 @@ export class RegisterInstructorUseCase {
   }
 
   async execute(email:string,otp:string): Promise<void> {
-
     // const exists = await this.isUserExists(email);
     // if (exists) throw new Error('Email already exists');
     
     const dto = await this.otpService.getTempData(email);
-    if (!dto) throw new Error("No data found");
+    if (!dto) {
+      const error = new Error("No data found or Your Current Data Expired")as any;
+      error.status = 500;
+      throw error
+    }
 
     const valid = await this.otpService.verifyOtp(email, otp);
-    if (!valid) throw new Error("Invalid or expired OTP");
+    if (!valid) {
+      const error = new Error("Invalid or expired OTP") as any;
+      error.status=400;
+      throw error
+    }
     
-    
+    const responseLength = Object.entries(dto).length
+      if (responseLength!==8) {
+      const error = new Error("Some data's are missing") as any;
+      error.status=400;
+      throw error
+    }
+
+    const nameVO = new Name(dto.fullName);
     const emailVO = new Email(dto.email);
-    const nameVO = new Name(dto.name);
     const passwordVO = new password(dto.password);
     const hashedPassword = await bcrypt.hash(passwordVO.value, 10);
+    
     const instructor = new Instructor(
       nameVO.value,
       emailVO.value,
       hashedPassword,
+      dto.subject,
+      dto.jobTitle,
+      Number(dto.experience),
+      dto.socialMediaLink,
+      dto.portfolio,
       dto.bio,
       dto.profilePictureUrl ?? null,
-      dto.socialLinks ?? {},
-      dto.expertise,
       true, // isEmailVerified
-      dto.qualifications ?? [], // qualifications
       'pending', // accountStatus
       false, // not approved
-      false,
+      false, // not rejected
       null, // approvalNotes
       null, // approvedBy
       null, // approvedAt
       0, // avg rating
       0, // total reviews
     );
+    console.log(instructor,'just before saved')
     await this.instructorRepo.save(instructor);
   }
 }

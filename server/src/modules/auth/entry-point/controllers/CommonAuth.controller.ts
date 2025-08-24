@@ -5,9 +5,9 @@ import { LoginStudentUseCase } from '../../../student/application/use-cases/Logi
 import { LoginInstructorUseCase } from '../../../instructor/application/use-cases/LoginInstructorUseCase';
 import { AccessTokenUseCase   } from '../../application/AccessTokenUseCase';
 import { ResendOtpUseCase } from '../../application/ResendOtpUseCase';
-import { ForgotPasswordUseCase } from '../../application/ForgotPassword';
-import { ResetPasswordUseCase } from '../../application/ResetPassword';
-import { GoogleLoginUseCase } from '../../application/GoogleLogin';
+import { ForgotPasswordUseCase } from '../../application/ForgotPasswordUseCase';
+import { ResetPasswordUseCase } from '../../application/ResetPasswordUseCase';
+import { GoogleLoginUseCase } from '../../application/GoogleLoginUseCase';
 
 export class CommonAuthController {
   constructor(
@@ -35,6 +35,7 @@ export class CommonAuthController {
         .json({ error: 'Email, password, and role are required' });
       return;
     }
+    
 
     try {
       let data;

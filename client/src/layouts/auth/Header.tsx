@@ -13,7 +13,7 @@ const header = () => {
         <div className="container min-w-full flex justify-between items-center ">
           <div className="flex items-center ">
           <Link to="/" className="text-gray-600 dark:text-white text-lg font-bold">
-            <img className="w-30 h-20 " src={logo} alt="" />
+            <img className="w-30 h-20 " src={logo} alt="logo" />
           </Link>
            {isNav&&<nav className="hidden md:flex gap-6 text-sm font-medium px-8">
             <Link to="/" className="hover:text-indigo-500">
@@ -25,7 +25,7 @@ const header = () => {
           </div>
           <div className="flex gap-4">
             
-           <Link to='/auth/login'  className="border border-gray-400 dark:border-gray-500 text-sm px-5 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+           <Link to='/auth/login'  className="border border-gray-400 dark:border-gray-500 text-sm px-5 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
                 Sign In
             </Link>
               <ThemeToggle />

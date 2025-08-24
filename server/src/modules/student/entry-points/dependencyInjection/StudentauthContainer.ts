@@ -11,7 +11,6 @@ const studentRepo = new MongoStudentRepository();
 
 // Instantiate use cases
 const registerStudentUC = new RegisterStudentUseCase(studentRepo, new RedisOtpService());
-
 // const loginUC = new LoginStudentUseCase(studentRepo); 
 const generateOtpUC = new RedisOtpService();
 

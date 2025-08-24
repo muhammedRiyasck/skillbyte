@@ -6,28 +6,28 @@ import { RedisOtpService } from "../../../../shared/services/otp/OtpService";
 
 export class InstructorAuthController {
   constructor(
-    private registerInstructorUseCase: RegisterInstructorUseCase, 
-    private generateOtpUseCase: RedisOtpService , 
-    // private loginUseCase: LoginInstructorUseCase 
+    private readonly registerInstructorUseCase: RegisterInstructorUseCase, 
+    private readonly generateOtpUseCase: RedisOtpService , 
   ) {}
 
   // 🧑‍🏫 Instructor Registration
-   async registerInstructor(req: Request, res: Response) {
-    const { fullName,email,password,bio,profile,socialLinks,expertise,qualifications,otp} = req.body;
-    const isUserExists = await this.registerInstructorUseCase.isUserExists(email);
+    registerInstructor = async(req: Request, res: Response)=> {
+     const { fullName,email,password,subject,jobTitle,socialMediaLink,experience,portfolioLink} = req.body;
+     const isUserExists = await this.registerInstructorUseCase.isUserExists(email);
+     
     if (!isUserExists) {
-      await this.generateOtpUseCase.storeTempData(email, {fullName, email, password, bio, profilePictureUrl:profile, socialLinks, expertise, qualifications });
+      await this.generateOtpUseCase.storeTempData(email, {fullName,email,password,subject,jobTitle,socialMediaLink,experience,portfolioLink});
       await this.generateOtpUseCase.sendOtp(email,fullName,'Instructor Registration OTP');
-      res.status(201).json({ message: "Instructor registered. OTP sent to email." });
+      res.status(201).json({ message: "An OTP sented to your mail." });
     }else {
       res.status(400).json({ message: "Email already exists" });
     }
   }
-  async verifyOtp(req: Request, res: Response) {
-    const { otp,email } = req.body;
-    
-    await this.registerInstructorUseCase.execute(email,otp);
-    res.status(201).json({ message: "Instructor registered successfully." });
+
+   verifyOtp = async(req: Request, res: Response) => {
+    const { Otp,email } = req.body;
+    await this.registerInstructorUseCase.execute(email,Otp);
+    res.status(201).json({ message: "Successfully registered. You'll receive an email once approved." });
   }
   
   // 🧑‍🏫 Instructor Login

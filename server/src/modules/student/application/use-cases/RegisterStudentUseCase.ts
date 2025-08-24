@@ -18,15 +18,29 @@ export class RegisterStudentUseCase {
   }
 
   async execute(email:string,otp:string): Promise<void> {
-
-    if(otp.length!==4) throw new Error('OTP Should be 4 digit')
+    console.log('haiiii')
+    if(otp.length!==4) throw new Error('OTP should be 4 digit')
 
     const dto = await this.otpService.getTempData(email);
-    if (!dto) throw new Error("No data found or Your Current Data Expired");
+    if (!dto){
+     const error = new Error("No data found or Your Current Data Expired") as any;
+      error.status=500;
+      throw error
+    }
     
     const valid = await this.otpService.verifyOtp(email, otp);
-    if (!valid) throw new Error("Invalid or expired OTP");
-    
+  
+    if (!valid) {
+      const error = new Error("Invalid or expired OTP") as any;
+      error.status=400;
+      throw error
+    }
+      const responseLength = Object.entries(dto).length
+      if (responseLength!==3) {
+      const error = new Error("Some data's are missing") as any;
+      error.status=400;
+      throw error
+    }
     const emailVO = new Email(dto.email);
     const nameVO = new Name(dto.fullName);
     const passwordVO = new password(dto.password);
@@ -37,6 +51,7 @@ export class RegisterStudentUseCase {
       hashedPassword,
       true  // isEmailVerified
     );
+    console.log(student)
     await this.studentRepo.save(student);
   }
 

@@ -1,7 +1,7 @@
 import { useState  } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { register } from "../services/AuthService";
+import { studentRegister } from "../services/AuthService";
 
 import TextInput from "../../../shared/ui/TextInput";
 import ErrorMessage from "../../../shared/ui/ErrorMessage";
@@ -62,11 +62,11 @@ export default function StudentSignUp () {
     if(nameValidation.success && emailValidation.success && passwordValidation.success && confirmPasswordValidation.success){
       try {
         setLoading(true)
-        const response = await register(formData)
-        console.log(response,'response')
+        const response = await studentRegister(formData)
         sessionStorage.setItem("emailForOtp", formData.email);
         const expiryTime = Date.now() + 2 * 60 * 1000; // 2 minutes from now
         localStorage.setItem("otpExpiry", expiryTime.toString());
+        sessionStorage.setItem("role",'student')
         navigate('/auth/otp')
         setLoading(false)
         toast.success(response.message)

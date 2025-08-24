@@ -4,40 +4,45 @@ import { Instructor } from "../domain/entities/Instructor";
 export class InstructorMapper {
   static toEntity(doc: any): Instructor {
     return new Instructor(
-      // doc._id.toString(),
       doc.name,
       doc.email,
       doc.passwordHash,
-      doc.bio ?? null,
-      doc.profilePictureUrl ?? null,
-      doc.socialLinks ?? {},
-      doc.expertise ?? [],
-      doc.isEmailVerified ?? true,
-      doc.qualifications ?? [],
-      doc.accountStatus ?? "active",
-      doc.approved ?? false,
-      doc.approvalNotes ?? null,
-      doc.approvedBy ?? null,
-      doc.approvedAt ?? null,
-      doc.averageRating ?? 0,
-      doc.totalReviews ?? 0
+      doc.subject,
+      doc.jobTitle,
+      doc.experience,
+      doc.socialProfile ,  
+      doc.portfolio,                                                                                     
+      doc.bio ,
+      doc.profilePictureUrl,
+      doc.isEmailVerified ,
+      doc.accountStatus ,
+      doc.approved ,
+      doc.rejected,
+      doc.approvalNotes,
+      doc.approvedBy,
+      doc.approvedAt,
+      doc.averageRating ,
+      doc.totalReviews 
     );
   }
 
+  // input
   static toPersistence(entity: Instructor): any {
     return {
-      // _id: entity._id,
       name: entity.name,
       email: entity.email,
       passwordHash: entity.passwordHash,
+      subject:entity.subject,
+      jobTitle: entity.jobTitle,
+      experience: entity.experience,
+      socialProfile: entity.socialProfile,
+      portfolio: entity.portfolio,
       bio: entity.bio,
       profilePictureUrl: entity.profilePictureUrl,
-      socialLinks: entity.socialLinks,
-      expertise: entity.expertise,
       isEmailVerified: entity.isEmailVerified,
-      qualifications: entity.qualifications,
       accountStatus: entity.accountStatus,
       approved: entity.approved,
+      rejected: entity.rejected,
       approvalNotes: entity.approvalNotes,
       approvedBy: entity.approvedBy,
       approvedAt: entity.approvedAt,

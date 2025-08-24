@@ -1,11 +1,12 @@
  
 export interface TempInstructorData {
-  fullName: string;
-  email: string;
-  password: string;
-  bio?: string;
-  profilePictureUrl?: string;
-  expertise?: string[];
-  socialLinks?: any;
-  qualifications?: any[];
+   fullName:string;
+  email:string;
+  password:string;
+  confirmPassword:string;
+  subject:string;
+  jobTitle:string;
+  experience:string;
+  socialMediaLink:string;
+  portfolioLink?:string
 }

@@ -2,13 +2,14 @@ import { useEffect, useState, useRef } from "react";
 import logo from "../../../assets/OrginalLogo.png";
 import { useNavigate } from "react-router-dom";
 
-import { verifyOtp, resendOtp } from "../services/AuthService";
+import { studentVerifyOtp,instructorVerifyOtp, resendOtp } from "../services/AuthService";
 import { toast } from "sonner";
 import ErrorMessage from "../../../shared/ui/ErrorMessage";
 
 function Otp() {
   const [otpArr, setOtp] = useState(Array(4).fill(""));
   const [email, setEmail] = useState("");
+  const [role,setRole] = useState('')
   const [time, setTime] = useState(0);
   const [error, setError] = useState("");
 
@@ -17,11 +18,14 @@ function Otp() {
   const navigate = useNavigate();
   useEffect(() => {
     const storedEmail = sessionStorage.getItem("emailForOtp");
-    if (!storedEmail) {
-      navigate("/auth/register");
+    const storedRole = sessionStorage.getItem('role')
+    if (!storedEmail || !storedRole) {
+      navigate("/auth/learner-register");
     } else {
+      console.log(role,'from useEffect')
       inputField.current[0]?.focus();
       setEmail(storedEmail);
+      setRole(storedRole)
       const storedExpiry = localStorage.getItem("otpExpiry");
       console.log(storedExpiry,'expire time')
       if (storedExpiry) {
@@ -76,22 +80,46 @@ function Otp() {
   };
 
   const handleVerify = async () => {
-   
+      try{
       const Otp = otpArr.join("");
       if (Otp.length === 4) {
         setError("");
-        const response = await verifyOtp({ Otp, email });
+        if(role==='student'){
+        const response = await studentVerifyOtp({ Otp, email });
         sessionStorage.removeItem("emailForOtp");
+        sessionStorage.removeItem('role')
         localStorage.removeItem("otpExpiry");
         navigate("/auth/login");
         toast.success(response.message);
+        }else if(role==='instructor'){
+        const response = await instructorVerifyOtp({ Otp, email });
+        sessionStorage.removeItem("emailForOtp");
+        sessionStorage.removeItem('role')
+        localStorage.removeItem("otpExpiry");
+        navigate("/auth/login");
+        toast(response.message);
+        }
       } else {
-        setError("OTP Should be 4 digit");
+        setError("OTP should be 4 digit");
       }
+        }catch (error:any) {
+          console.log(error)
+      if(error.status===500){
+        if(role==='student'){
+        navigate('/auth/learner-register')
+        }else if(role==='instructor'){
+        navigate('/auth/instructor-register')
+        }
+      }
+    toast.error(error.message)
+    throw error(error)
+    }
+
   };
 
   const ResendOtp = async () => {
-    console.log(email, "frontend resend otp");
+    try{
+
     if (email) {
       console.log(email, "resend otp called");
       const Otp = await resendOtp(email);
@@ -102,6 +130,18 @@ function Otp() {
       toast.success(Otp.message);
     } else {
       toast.success("Do Registration Once more");
+    }
+  }catch (error:any) {
+    
+      if(error.message==="No data found or Your Current Data Expired"){
+        if(role==='student'){
+        navigate('/auth/learner-register')
+        }else if(role==='instructor'){
+        navigate('/auth/instructor-register')
+        }
+      }
+    toast.error(error.message)
+    throw error(error)
     }
   };
 
@@ -141,24 +181,26 @@ function Otp() {
           </div>
           <ErrorMessage error={error} />
           {/* Verify Button */}
-          <button
-            onClick={handleVerify}
-            className="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-medium transition-colors cursor-pointer"
-          >
-            Verify
-          </button>
+       <button
+          type="submit"
+          onClick={handleVerify}
+          disabled={time<=0}
+          className={`mt-6 w-full py-3 rounded-lg font-medium transition-colors  ${time<=0?'bg-gray-400 cursor-not-allowed text-gray-200':' bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer'}`}
+        >
+          Verify
+        </button>
 
           {/* Resend Link */}
           <div className="text-center mt-4">
             {time > 0 ? (
               <p className="text-sm text-gray-500">
-                Resend code in{" "}
+                Resend code in
                 <span className="font-medium">
                   {minutes}:{seconds > 9 ? seconds : `0${seconds}`}
                 </span>
               </p>
             ) : (
-              <button className="text-sm text-blue-600 dark:text-blue-400 hover:cursor-pointer" onClick={ResendOtp}>
+                <button className="text-sm text-blue-600 dark:text-blue-400 hover:cursor-pointer" onClick={ResendOtp}>
                 Resend Code
               </button>
             )}

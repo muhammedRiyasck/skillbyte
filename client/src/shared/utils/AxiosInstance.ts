@@ -9,8 +9,8 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.data||error.response?.data?.message|| error.response?.data?.error) {
-      error.message = error.response?.data|| error.response.data.message || error.response.data.error ; // Replace Axios's generic text
+    if (error.response?.data?.message|| error.response?.data?.error || error.response?.data) {
+      error.message =  error.response.data.message || error.response.data.error ||error.response?.data; // Replace Axios's generic text
     }
 
     if (error.response?.status === 401 && !originalRequest._retry) {

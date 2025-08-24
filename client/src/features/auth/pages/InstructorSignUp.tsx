@@ -1,12 +1,24 @@
 import  { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import ErrorMessage from "../../../shared/ui/ErrorMessage";
 import MotionDiv from "../../../shared/ui/MotionDiv";
 import TextInput from "../../../shared/ui/TextInput";
 import ShowPassword from "../components/ShowPassword";
+import isNameValid from "../../../shared/validation/Name";
+import isEmailValid from "../../../shared/validation/Email";
+import isPasswordValid from '../../../shared/validation/Password'
+import isConfirmPasswordValid from "../../../shared/validation/ConfirmPassword";
+import { isValidSubject,isValidJobTitle,isValidExperience,isValidPortfolio, isValidSocailMedia } from "../InstructorValidation";
+
+import { instructorRegister } from "../services/AuthService";
+import { toast } from "sonner";
+import Spiner from "../../../shared/ui/Spiner";
 
 export default function InstructorSignup () {
+  let navigate = useNavigate()
+  let [loading,setLoading] = useState(false)
+
   const [formData,setFormData] = useState({
       fullName : '',
       email : '',
@@ -34,12 +46,12 @@ export default function InstructorSignup () {
     const [showPassword,setShowPassword] = useState(false)
 
 
+    const [customSubject , setCustomSubject] = useState('')
+    const [isOtherSubjectSelected, setOtherSubjectSelected] = useState(false)
 
   const [customJobTitle, setCustomJobTitle] = useState("");
   const [isOtherTitleSelected, setIsOtherTitleSelected] = useState(false);
 
-  const [customSubject , setCustomSubject] = useState('')
-  const [isOtherSubjectSelected, setOtherSubjectSelected] = useState(false)
 
   const [agree, setAgree] = useState(false);
 
@@ -68,24 +80,70 @@ export default function InstructorSignup () {
     }
   };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
 
+    const nameValid = isNameValid(formData.fullName)
+    const emailValid = isEmailValid(formData.email)
+    const passwordValid = isPasswordValid(formData.password)
+    const confirmPasswordValid = isConfirmPasswordValid(formData.password,formData.confirmPassword)
+    const subjectValid = isValidSubject(formData.subject,customSubject)
+    const jobTitleValid = isValidJobTitle(formData.jobTitle,customJobTitle)
+    const experienceValid = isValidExperience(formData.experience)
+    const socialMediaLinkValid = isValidSocailMedia(formData.socialMediaLink)
+    const portfolioValid = isValidPortfolio(formData.portfolioLink)
+
+    setFormError({
+    fullNameError: !nameValid.success ? nameValid.message : '',
+    emailError: !emailValid.success ? emailValid.message : '',
+    passwordError: !passwordValid.success ? passwordValid.message : '',
+    confirmPasswordError: !confirmPasswordValid.success ? confirmPasswordValid.message : '',
+    subjectError: !subjectValid.success ? subjectValid.message : '',
+    jobTitleError: !jobTitleValid.success ? jobTitleValid.message : '',
+    experienceError: !experienceValid.success ? experienceValid.message : '',
+    socialMediaLinError: !socialMediaLinkValid.success ? socialMediaLinkValid.message : '',
+    portfolioLinkError: !portfolioValid.success ? portfolioValid.message : ''
+  });
+
+  //  Stop form submission if any validation fails
+  if (
+    !nameValid.success ||
+    !emailValid.success ||
+    !passwordValid.success ||
+    !confirmPasswordValid.success ||
+    !subjectValid.success ||
+    !jobTitleValid.success ||
+    !experienceValid.success ||
+    !socialMediaLinkValid.success ||
+    !portfolioValid.success
+  ) {
+    return; 
+  }
+
+   try {
+        setLoading(true)
+        const response = await instructorRegister(formData)
+        console.log(response,'response')
+        sessionStorage.setItem("emailForOtp", formData.email);
+        const expiryTime = Date.now() + 2 * 60 * 1000; // 2 minutes from now
+        localStorage.setItem("otpExpiry", expiryTime.toString());
+        sessionStorage.setItem("role",'instructor')
+        navigate('/auth/otp')
+        setLoading(false)
+        toast.success(response.message)
+        
+      } catch (error:any) {
+      } finally{
+        setLoading(false)
+      }
 
 
-    const finalJobTitle = formData.jobTitle === "Other" ? customJobTitle : formData.jobTitle;
-
-    if (formData.jobTitle === "Other" && !customJobTitle.trim()) {
-      alert("Please enter your custom job title.");
-      return;
-    }
-
-    console.log("Selected Job Title:", finalJobTitle);
   };
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 ">
+ <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4 ">
+      {loading&&<Spiner/>}
       <MotionDiv className="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-8 my-12">
         {/* Title */}
         <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100">
@@ -111,7 +169,7 @@ export default function InstructorSignup () {
               value={formData.fullName}
               setValue={(value)=>setFormData({...formData,fullName:value})}
             />
-            <ErrorMessage error={'something went wrong'}/>
+            <ErrorMessage error={formError.fullNameError}/>
           </div>
 
           {/* Email */}
@@ -130,7 +188,7 @@ export default function InstructorSignup () {
               setValue={(value)=>setFormData({...formData,email:value})}
               
             />
-            <ErrorMessage error={'something went wrong'}/>
+            <ErrorMessage error={formError.emailError}/>
 
           </div>
 
@@ -153,7 +211,7 @@ export default function InstructorSignup () {
               icon={()=><ShowPassword  showPassword={showPassword} setShowPassword={(value:boolean)=>setShowPassword(value)} />}
               
             />
-              <ErrorMessage error={'something went wrong'}/>
+              <ErrorMessage error={formError.passwordError}/>
 
             </div>
             <div>
@@ -172,7 +230,7 @@ export default function InstructorSignup () {
                 showPassword={showPassword}
               
               />
-                 <ErrorMessage error={'something went wrong'}/>
+                 <ErrorMessage error={formError.confirmPasswordError}/>
 
             </div>
           </div>
@@ -190,14 +248,16 @@ export default function InstructorSignup () {
               htmlFor="subjects"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300"
             >
-              Subject(s) You Want to Teach
+              Subject You Want to Teach
             </label>
             <select
               id="subjects"
               value={formData.subject}
               onChange={handleSubjectChange}
-              className="mt-1 w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500  dark:bg-gray-700 dark:text-white"
+              className="mt-1 w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none  dark:bg-gray-700 dark:text-white"
             >
+            <option  disabled value="">Select a subject</option>
+
               {subjectOptions.map((job,index)=>{
                 return <option key={index} value={job}>{job}</option>
               })}
@@ -209,13 +269,13 @@ export default function InstructorSignup () {
                 placeholder="Enter your Subject"
                 value={customSubject}
                 onChange={(e) => setCustomSubject(e.target.value)}
-                className="border border-gray-300 rounded-lg p-2 my-3  dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                className="border w-full border-gray-300 rounded-lg shadow-lg p-2 my-3 bg-blue-400/5 dark:text-gray-300 focus:outline-none"
                 maxLength={50}
               />
             )}
 
 
-             <ErrorMessage error={'something went wrong'}/>
+             <ErrorMessage error={isOtherSubjectSelected?"Please specify your job title":formError.subjectError}/>
 
           </div>
 
@@ -231,8 +291,10 @@ export default function InstructorSignup () {
               id="jobTitle"
               value={formData.jobTitle}
               onChange={handleJobTitleChange}
-              className="mt-1 w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"
+              className="mt-1 w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
             >
+              <option disabled value="">Select a job title</option>
+
               {jobTitleOptions.map((job,index)=>{
                 return <option key={index} value={job}>{job}</option>
               })}
@@ -244,12 +306,12 @@ export default function InstructorSignup () {
                       placeholder="Enter your job title"
                       value={customJobTitle}
                       onChange={(e) => setCustomJobTitle(e.target.value)}
-                      className="border border-gray-300 rounded-lg p-2 my-3 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-indigo-400"
+                      className=" w-full border border-gray-300 rounded-lg p-2 my-3 dark:text-gray-300 shadow-lg bg-blue-400/5 focus:ring-blue-400/40 focus:outline-none"
                       maxLength={50}
                     />
                   )}
 
-              <ErrorMessage error={'something went wrong'}/>
+              <ErrorMessage error={isOtherTitleSelected?"Please specify your subject":formError.jobTitleError}/>
 
           </div>
         </div>
@@ -268,7 +330,7 @@ export default function InstructorSignup () {
                 value={formData.experience}
                 setValue={(value)=>setFormData({...formData,experience:value})}
               />
-              <ErrorMessage error={'something went wrong'}/>
+              <ErrorMessage error={formError.experienceError}/>
             </div>
 
             {/* LinkedIn */}
@@ -286,7 +348,7 @@ export default function InstructorSignup () {
                 value={formData.socialMediaLink}
                 setValue={(value)=>setFormData({...formData,socialMediaLink:value})}  
                 />
-              <ErrorMessage error={'something went wrong'}/>
+              <ErrorMessage error={formError.socialMediaLinError}/>
             </div>
 
             {/* Portfolio */}
@@ -304,7 +366,7 @@ export default function InstructorSignup () {
                 value={formData.portfolioLink}
                 setValue={(value)=>setFormData({...formData,portfolioLink:value})}
               />
-              <ErrorMessage error={'something went wrong'}/>
+              <ErrorMessage error={formError.portfolioLinkError}/>
             </div>
           </div>
 
@@ -322,7 +384,7 @@ export default function InstructorSignup () {
               htmlFor="terms"
               className="ml-2 text-sm text-gray-600 dark:text-gray-400"
             >
-              By signing up, I agree with the{" "}
+              By signing up, I agree with the &nbsp;
               <a
                 href="/terms"
                 className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500"
@@ -342,14 +404,15 @@ export default function InstructorSignup () {
           {/* Sign up button */}
           <button
             type="submit"
-            disabled={!agree}
-            className={`w-full py-2 px-4 rounded-md font-semibold transition  ${
+            disabled={!agree||loading}
+            onClick={handleSubmit}
+            className={`w-full py-2 px-4 rounded-md font-semibold transition  disabled:opacity-50  ${
               agree
-                ? "bg-indigo-600 hover:bg-indigo-700 text-white hover:cursor-pointer"
+                ? "bg-indigo-600 hover:bg-indigo-700 text-white hover:cursor-pointer "
                 : "bg-gray-400 cursor-not-allowed text-gray-200"
             }`}
           >
-            Sign up
+            {loading ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
 
@@ -358,7 +421,7 @@ export default function InstructorSignup () {
           Already have an account? &nbsp;
           <Link
             to="/auth/login"
-            className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-200 "
+            className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500 "
           >
             Sign in
           </Link>

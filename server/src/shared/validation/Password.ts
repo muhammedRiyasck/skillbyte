@@ -3,21 +3,37 @@ export class password {
     public value: string;
     constructor(value: string) {
         if (!value || value.length < 6) {
-        throw new Error("Password must be at least 6 characters long");
+        const error = new Error("Password must be at least 6 characters long")as any;
+         error.status = 400
+        throw error
         }else if(!/[A-Z]/.test(value) ) {
-        throw new Error("Password must contain at least one uppercase letter");
+        const error = new Error("Password must contain at least one uppercase letter")as any;
+         error.status = 400
+        throw error
         }else if(!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
-        throw new Error("Password must contain at least one special character");
+        const error = new Error("Password must contain at least one special character")as any;
+         error.status = 400
+        throw error
         }else if(!/[a-z]/.test(value)) {
-        throw new Error("Password must contain at least one lowercase letter");
+        const error = new Error("Password must contain at least one lowercase letter")as any;
+         error.status = 400
+        throw error
         }else if(!/[0-9]/.test(value)) {
-        throw new Error("Password must contain at least one number")
+        const error = new Error("Password must contain at least one number")as any
+        error.status = 400
+        throw error
         }else if(/[\s]/.test(value)) { 
-        throw new Error("Password must not contain spaces");
+        const error = new Error("Password must not contain spaces")as any;
+         error.status = 400
+        throw error
         }else if(/[^a-zA-Z0-9!@#$%^&*(),.?":{}|<>]/.test(value)) {
-        throw new Error("Password contains invalid characters");
+        const error = new Error("Password contains invalid characters")as any;
+         error.status = 400
+        throw error
         }else if(value.length > 20) {
-        throw new Error("Password must not exceed 20 characters");
+        const error = new Error("Password must not exceed 20 characters")as any;
+         error.status = 400
+        throw error
         }
         this.value = value;
     }

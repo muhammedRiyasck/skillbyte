@@ -18,7 +18,14 @@ const steps = [
 ];
 const StepsSection = forwardRef <HTMLElement,{highlight:boolean}>(({highlight},ref) => {
   return (
-    <section ref={ref} className={`px-4 md:px-8 py-12 text-center ${highlight?"border":'' }`}>
+    <section 
+      ref={ref} 
+      className={`px-4 md:px-8 py-12 text-center transition-all duration-300 ease-in-out ${
+        highlight 
+          ? "border-2 border-indigo-500 shadow-lg mx-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/20" 
+          : "border-2 border-transparent"
+      }`}
+    >
       <h2 className="text-2xl font-bold mb-6">Simple Steps to Get Started</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
         {steps.map((item) => (

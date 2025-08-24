@@ -8,7 +8,11 @@ export class LoginAdminUseCase {
 
   async execute(dto: LoginAdminDTO): Promise<{admin:any,token:string}> {
     const admin = await this.adminRepo.findByEmail(dto.email);
-    if (!admin) throw new Error('Invalkid credentials');
+    if (!admin) {
+     const error = new Error('Invalid credentials') as any;
+     error.status = 401
+     throw error
+    }
 
     const isMatch = await bcrypt.compare(dto.password, admin.passwordHash);
     if (!isMatch) throw new Error('Invalid credentials');

@@ -105,7 +105,7 @@ const ResetPassword = () => {
             type="submit"
             className="w-full bg-indigo-600 hover:bg-indigo-700 hover:cursor-pointer text-white font-semibold py-2 px-4 mt-4 rounded-lg transition"
           >
-            Send Reset Link
+            Reset Passoword
           </button>
         </form>
 

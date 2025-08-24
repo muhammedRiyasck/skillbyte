@@ -5,12 +5,24 @@ export interface IsingInPayload  {
   role:string
 }
 
-export interface IsignUpPayload {
+export interface IStudentSignUpPayload {
   fullName: string;
   email: string;
   password: string;
   confirmPassword: string;
   agree: boolean;
+}
+
+export interface IinstrctorSignUpPayload{
+  fullName:string;
+  email:string;
+  password:string;
+  confirmPassword:string;
+  subject:string;
+  jobTitle:string;
+  experience:string;
+  socialMediaLink:string;
+  portfolioLink?:string
 }
 
 export interface IotpPayload{

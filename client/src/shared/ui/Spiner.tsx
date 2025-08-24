@@ -2,7 +2,7 @@
 
 const Spiner = () => {
   return (
-    <div className="flex justify-center items-center absolute inset-0 bg-opacity-50 z-50">
+    <div className="flex justify-center items-center fixed inset-0 bg-opacity-50 z-50">
       <svg
         className="animate-spin h-12 w-12 text-blue-500"
         xmlns="http://www.w3.org/2000/svg"

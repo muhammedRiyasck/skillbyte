@@ -1,19 +1,18 @@
 
 
-export interface Qualification {
-  title: string;
-  year: number;
-  photoUrl?: string | null;
-}
+
 export class Instructor {
   constructor(
     public name: string,
     public email: string,
     public passwordHash: string,
+    public subject: string,
+    public jobTitle: string,
+    public experience: number,
+    public socialProfile:string,
+    public portfolio:string,
     public bio: string | null,
     public profilePictureUrl: string | null,
-    public SocialProfile: string,
-    public experience: number,
     public isEmailVerified: boolean,
     public accountStatus: "pending" | "active" | "suspended" | "rejected" ,
     public approved: boolean,
