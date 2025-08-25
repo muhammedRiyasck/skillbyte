@@ -420,7 +420,7 @@ export default function InstructorSignup () {
         <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
           Already have an account? &nbsp;
           <Link
-            to="/auth/login"
+            to="/auth"
             className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500 "
           >
             Sign in

@@ -18,7 +18,7 @@ export class LoginAdminUseCase {
     if (!isMatch) throw new Error('Invalid credentials');
 
     const isActive = admin.accountStatus === 'blocked';
-    if (!isActive)
+    if (isActive)
       throw new Error('Account is Blocked. Please contact support.');
 
     const token = jwt.sign(

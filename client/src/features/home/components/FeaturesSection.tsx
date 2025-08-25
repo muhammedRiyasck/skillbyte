@@ -35,7 +35,7 @@ const features = [
 
 const FeaturesSection: React.FC = () => {
   return (
-    <section className="px-4 md:px-8 py-12 bg-gray-50 dark:bg-gray-800">
+    <section className="px-4 md:px-8 py-12 bg-gray-400/20   dark:bg-gray-800 ">
       <h2 className="text-2xl font-bold text-center mb-8">Why Choose Skillbyte?</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {features.map((item) => (

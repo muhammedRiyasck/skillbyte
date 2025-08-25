@@ -42,7 +42,7 @@ const ResetPassword = () => {
        setLoading(true)
       try {
         const response  = await resetPassword({role,token,password})
-        navigate('/auth/login')
+        navigate('/auth')
         toast.success(response.message)
       } finally  {
         setLoading(false)

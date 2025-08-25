@@ -191,7 +191,7 @@ export default function StudentSignUp () {
 
         <p className="text-center text-sm text-gray-400 mt-4">
           Already have an account?&nbsp;
-          <Link to="/auth/login" className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
+          <Link to="/auth" className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
             Sign in
           </Link>
         </p>

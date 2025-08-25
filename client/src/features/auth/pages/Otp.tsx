@@ -89,14 +89,14 @@ function Otp() {
         sessionStorage.removeItem("emailForOtp");
         sessionStorage.removeItem('role')
         localStorage.removeItem("otpExpiry");
-        navigate("/auth/login");
+        navigate("/auth");
         toast.success(response.message);
         }else if(role==='instructor'){
         const response = await instructorVerifyOtp({ Otp, email });
         sessionStorage.removeItem("emailForOtp");
         sessionStorage.removeItem('role')
         localStorage.removeItem("otpExpiry");
-        navigate("/auth/login");
+        navigate("/auth");
         toast(response.message);
         }
       } else {

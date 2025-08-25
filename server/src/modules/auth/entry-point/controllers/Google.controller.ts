@@ -23,7 +23,7 @@ export class GoogleController {
           // return res
           //   .status(400)
           //   .json({ error: info.message || 'Authentication failed' });
-          res.status(400).redirect('http://localhost:5173/auth/login');
+          res.status(400).redirect('http://localhost:5173/auth');
           return;
         }
           console.log(5)

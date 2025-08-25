@@ -7,12 +7,16 @@ import Otp from '../../features/auth/pages/Otp.tsx';
 import ForgotPassword from '../../features/auth/pages/ForgotPassword.tsx';
 import ResetPassword from '../../features/auth/pages/ResetPassword.tsx'
 
-import InstructorSignup from '../../features/auth/pages/InstructorSignUp.tsx';
-
 import NotFound from '../../shared/ui/NotFound.tsx';
 import LandingPage from '../../features/home/pages/Landing.tsx';
 import StudentLayout from '../../layouts/student/StudentLayout.tsx';
 import OAuthSuccess from '../../features/auth/components/OAuthSuccess.tsx';
+
+import InstructorSignup from '../../features/auth/pages/InstructorSignUp.tsx';
+
+import AdminLayout from '../../layouts/admin/AdminLayout.tsx'                
+import AdminSignIn from '../../features/admin/pages/SignIn.tsx'
+
 
 import PublicRoute from './PublicRoute.tsx';
 
@@ -21,7 +25,7 @@ const router = createBrowserRouter([
     path: '/auth',
     element: <PublicLayout />,
     children: [
-      { path: 'login', element:( 
+      {  index: true, element:( 
         <PublicRoute>
          <SignIn /> 
          </PublicRoute>)},
@@ -92,13 +96,14 @@ const router = createBrowserRouter([
   //     // { path: 'create-course', element: <CreateCourse /> },
   //   ],
   // },
-  // {
-  //   path: '/admin',
-  //   element: <AdminLayout />,
-  //   children: [
-  //     { path: 'dashboard', element: <AdminDashboard /> },
-  //   ],
-  // },
+  {
+    path: '/admin',
+    element: <AdminLayout />,
+    children: [
+      { index: true, element: <AdminSignIn /> }
+      // { path: 'dashboard', element: <AdminDashboard /> },
+    ],
+  },
   // {
   //   path: '*',
   //   element: <NotFound />,

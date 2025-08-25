@@ -20,7 +20,7 @@ const OAuthSuccess = () => {
       })
       .catch(() => {
         toast.success("Learner Registration Successfull Via Google")
-        navigate("/auth/login");
+        navigate("/auth");
       });
   }, [navigate]);
 

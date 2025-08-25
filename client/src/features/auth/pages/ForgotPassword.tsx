@@ -95,7 +95,7 @@ const ForgotPassword = () => {
         {/* Back to login */}
         <div className="flex mt-6 text-sm text-gray-600 dark:text-gray-400 text-center">
           <p className=" text-center ">Remember your password?&nbsp;</p>
-          <Link to="/auth/login" className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500  ">
+          <Link to="/auth" className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500  ">
             Sign in
           </Link>
         </div>

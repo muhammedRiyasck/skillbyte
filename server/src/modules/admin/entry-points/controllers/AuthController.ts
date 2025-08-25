@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 // import LoginAdminDTO from '../../application/dtos/LoginAdminDTO ';
 export class AdminAuthContainer {
   constructor(private readonly loginAdminUseCase: LoginAdminUseCase) {}
-  async login(req: Request, res: Response): Promise<void> {
+   login = async(req: Request, res: Response): Promise<void> =>{
     const { email, password } = req.body;
     if (!email || !password) {
       res
@@ -21,8 +21,8 @@ export class AdminAuthContainer {
     });
 
     res.status(200).json({
-      message: 'Login successful',
-      user: {
+      message: 'Admin Login Successful',
+      userData: {
         name: admin.name,
         email: admin.email,
         role: 'admin',
