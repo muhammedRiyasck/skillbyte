@@ -1,17 +1,21 @@
 import { IAdminRepository } from '../../domain/IRepositories/IAdminRepository';
 import LoginAdminDTO from '../dtos/LoginAdminDTO ';
-import {Admin} from '../../domain/entities/Admin'
+import { Admin } from '../../domain/entities/Admin';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { generateAccessToken } from '../../../../shared/utils/AccessToken';
+import { generateRefreshToken } from '../../../../shared/utils/RefreshToken';
 export class LoginAdminUseCase {
   constructor(private adminRepo: IAdminRepository) {}
 
-  async execute(dto: LoginAdminDTO): Promise<{admin:any,token:string}> {
+  async execute(
+    dto: LoginAdminDTO,
+  ): Promise<{ admin: any; accessToken: string; refreshToken: string }> {
     const admin = await this.adminRepo.findByEmail(dto.email);
     if (!admin) {
-     const error = new Error('Invalid credentials') as any;
-     error.status = 401
-     throw error
+      const error = new Error('Invalid credentials') as any;
+      error.status = 400;
+      throw error;
     }
 
     const isMatch = await bcrypt.compare(dto.password, admin.passwordHash);
@@ -21,12 +25,9 @@ export class LoginAdminUseCase {
     if (isActive)
       throw new Error('Account is Blocked. Please contact support.');
 
-    const token = jwt.sign(
-      { id: admin._id, role: 'admin' },
-      process.env.JWT_SECRET!,
-      { expiresIn: '7d' },
-    );
-    return {admin,token};
-  }
+    const accessToken = generateAccessToken({ id: admin._id, role: 'admin' });
+    const refreshToken = generateRefreshToken({ id: admin._id, role: 'admin' });
 
+    return { admin, accessToken, refreshToken };
+  }
 }

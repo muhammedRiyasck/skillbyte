@@ -1,6 +1,6 @@
 
 import { IMailerService } from "../../../../shared/services/mail/IMailerService";
-import { IInstructorRepository } from "../../domain/IRepositories/IinstructorRepository";
+import { IInstructorRepository } from "../../domain/IRepositories/IInstructorRepository";
 
 import { approvedInstructorEmailTemplate } from "../../../../shared/templates/ApprovedInstructor";
 

@@ -1,11 +1,11 @@
-import axiosInstance from "../../../shared/utils/AxiosInstance";
+import api from "../../../shared/utils/AxiosInstance";
 import { toast } from "sonner";
 
 import type { IresetPassword, IsingInPayload,IStudentSignUpPayload,IinstrctorSignUpPayload,IforgotPassword,IotpPayload} from "../types/Auth";
 
 export const studentRegister = async (payload: IStudentSignUpPayload) => {
   try {
-    const response = await axiosInstance.post("/student/register", payload);
+    const response = await api.post("/student/register", payload);
     return response.data;
   } catch (error:any) {
     toast.error(error.message);
@@ -15,7 +15,7 @@ export const studentRegister = async (payload: IStudentSignUpPayload) => {
 
 export const studentVerifyOtp = async (payload: IotpPayload)=>{
   //  try {
-    const response = await axiosInstance.post('/student/verify-otp',payload)
+    const response = await api.post('/student/verify-otp',payload)
     return response.data
   //  } catch (error:any) {
   //   console.log(error)
@@ -26,7 +26,7 @@ export const studentVerifyOtp = async (payload: IotpPayload)=>{
 
 export const instructorRegister = async (payload: IinstrctorSignUpPayload) => {
   try {
-    const response = await axiosInstance.post("/instructor/register", payload);
+    const response = await api.post("/instructor/register", payload);
     return response.data;
   } catch (error:any) {
     toast.error(error.message);
@@ -37,7 +37,7 @@ export const instructorRegister = async (payload: IinstrctorSignUpPayload) => {
 
 export const instructorVerifyOtp = async (payload: IotpPayload)=>{
   // try {
-    const response = await axiosInstance.post('/instructor/verify-otp',payload)
+    const response = await api.post('/instructor/verify-otp',payload)
     return response.data
   // } catch (error:any) {
   //    console.log(error)
@@ -48,7 +48,7 @@ export const instructorVerifyOtp = async (payload: IotpPayload)=>{
 
 export const resendOtp = async(email:string)=>{
   // try {
-    const response = await axiosInstance.post('/auth/resend-otp',{email})
+    const response = await api.post('/auth/resend-otp',{email})
     return response.data
     
   // } catch (error:any) {
@@ -59,10 +59,10 @@ export const resendOtp = async(email:string)=>{
 
 export const login = async (payload: IsingInPayload) => {
   try {
-    const response = await axiosInstance.post("/auth/login", payload);
+    const response = await api.post("/auth/login", payload);
     return response.data;
   } catch (error:any) {
-    
+    console.log(error)
     toast.error(error.message);
     throw error(error)
   }
@@ -70,7 +70,7 @@ export const login = async (payload: IsingInPayload) => {
 
 export const forgotPassword = async(playload:IforgotPassword)=>{
   try {
-    const response = await axiosInstance.post('/auth/forgot-password',playload)
+    const response = await api.post('/auth/forgot-password',playload)
     return response.data  
   } catch (error:any) {
     toast.error(error.message)
@@ -80,7 +80,7 @@ export const forgotPassword = async(playload:IforgotPassword)=>{
 
 export const resetPassword  = async(playload:IresetPassword)=>{
   try {
-    const response = await axiosInstance.post('/auth/reset-password',playload)
+    const response = await api.post('/auth/reset-password',playload)
     return response.data  
   } catch (error:any) {
     toast.error(error.message)
@@ -92,7 +92,7 @@ export const resetPassword  = async(playload:IresetPassword)=>{
 export const logout = async () => {
   try {
 
-    const response = await axiosInstance.post("/auth/logout");
+    const response = await api.post("/auth/logout");
     return response.data;
   } catch (error:any) {
   

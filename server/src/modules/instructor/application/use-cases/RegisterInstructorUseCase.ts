@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { IInstructorRepository } from '../../domain/IRepositories/IinstructorRepository';
+import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRepository';
 import { Instructor } from '../../domain/entities/Instructor';
 import { IOtpService } from '../../../../shared/services/otp/interfaces/IOtpService';
 import { Email } from '../../../../shared/validation/Email';
@@ -61,8 +61,9 @@ export class RegisterInstructorUseCase {
       true, // isEmailVerified
       'pending', // accountStatus
       false, // not approved
-      false, // not rejected
       null, // approvalNotes
+      false, // not rejected
+      null, // rejectedNote
       null, // approvedBy
       null, // approvedAt
       0, // avg rating

@@ -1,5 +1,5 @@
 import { InstructorModel } from "../models/InstructorModel";
-import { IInstructorRepository } from "../../domain/IRepositories/IinstructorRepository";
+import { IInstructorRepository } from "../../domain/IRepositories/IInstructorRepository";
 import { Instructor } from "../../domain/entities/Instructor";
 import { InstructorMapper } from "../../mappers/InstructorMapper";
 
@@ -16,7 +16,7 @@ export class MongoInstructorRepository implements IInstructorRepository {
   }
 
   async findById(id: string): Promise<Instructor | null> {
-    const doc = await InstructorModel.findById(id);
+    const doc = await InstructorModel.findById(id).select('-passwordHash');
     if (!doc) return null;
     return InstructorMapper.toEntity(doc);
   }
@@ -34,7 +34,7 @@ export class MongoInstructorRepository implements IInstructorRepository {
     }
 
   async listPending(): Promise<Instructor[] | null> {
-    const docs = await InstructorModel.find({ approved: false });
+    const docs = await InstructorModel.find({ accountStatus: "pending" }).select('-passwordHash');
     if (!docs || docs.length === 0) return null;
     return docs.map(doc => InstructorMapper.toEntity(doc));
   }
@@ -43,21 +43,23 @@ async approve(id: string, adminId: string): Promise<void> {
   await InstructorModel.findByIdAndUpdate(id, {
     accountStatus: "active",
     approved: true,
-    approvedBy: adminId,
-    approvedAt: new Date()
+    doneBy: adminId,
+    doneAt: new Date()
   });
 }
 
-async decline(id: string, note: string): Promise<void> {
+async decline(id: string,adminId: string, note: string): Promise<void> {
   await InstructorModel.findByIdAndUpdate(id, {
     accountStatus: "rejected",
-    approvalNotes: note,
-    rejected: true
+    rejected: true,
+    rejectedNote: note,
+    doneBy: adminId,
+    doneAt: new Date()
   });
 }
 
 async findAllApproved(): Promise<Instructor[]|null> {
-  const docs = await InstructorModel.find({ approved: true });
+  const docs = await InstructorModel.find({ approved: true }).select('-passwordHash');
   if(!docs) return null
   return docs.map(doc => InstructorMapper.toEntity(doc));
 }

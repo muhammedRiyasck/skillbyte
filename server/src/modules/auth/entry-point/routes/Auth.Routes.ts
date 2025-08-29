@@ -18,7 +18,7 @@ router.get("/google/callback", GoogleController.googleCallback);
 router.get("/facebook",facebookController.facebookAuth)
 router.get("/facebook/callback",facebookController.facebookCallback)
 
-router.post('/refresh-token',commonAuthController.refreshToken)
+router.get('/refresh-token',commonAuthController.refreshToken)
 router.post('/resend-otp',fiveMinLimit,asyncHandler(commonAuthController.resendOtp))
 router.post('/forgot-password',fiveMinLimit,asyncHandler(commonAuthController.forgotPassword))
 router.post('/reset-password',fiveMinLimit,asyncHandler(commonAuthController.resetPassword))

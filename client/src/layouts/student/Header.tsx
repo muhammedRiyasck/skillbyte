@@ -1,5 +1,5 @@
 import ThemeToggle from "../../shared/ui/ThemeToggle";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type{ RootState } from "../../core/store/Index";
 import { Menu, X } from "lucide-react"; 
@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { clearUser } from "../../features/auth/AuthSlice";
 const Header = () => {
+  
   
   const user = useSelector((store:RootState)=>store.auth.user)
   const dispatch = useDispatch()
@@ -51,8 +52,8 @@ const Header = () => {
             <Link to="#">🔔</Link>
             <Link to="#">❤️</Link>
             <Link to="#">👤</Link>
+          <p className="text-lg mr-2">{user&&user.name}</p>
           </div>
-          <p>{user&&user.name}</p>
           <button onClick={handleLogout}  className="border border-gray-400 dark:border-gray-500 text-sm px-5 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 hover:cursor-pointer">
                 Sign Out
             </button>

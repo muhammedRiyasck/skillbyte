@@ -5,19 +5,19 @@ import { adminInstructorController } from '../dependencyInjection/AdminInstructo
 import { authenticate } from '../../../../shared/middlewares/AuthMiddleware';
 import { requireRole } from '../../../../shared/middlewares/RequireRole';
 router.get(
-  '/pending',
+  '/pendings',
   authenticate,
   requireRole('admin'),
   adminInstructorController.getPending
 );
 router.patch(
-  '/:id/approve',
+  '/approve',
   authenticate,
   requireRole('admin'),
   adminInstructorController.approve
 );
 router.patch(
-  '/:id/decline',
+  '/decline',
   authenticate,
   requireRole('admin'),
   adminInstructorController.decline

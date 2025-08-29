@@ -146,7 +146,7 @@ export default function InstructorSignup () {
       {loading&&<Spiner/>}
       <MotionDiv className="w-full max-w-2xl bg-white dark:bg-gray-800 rounded-lg shadow-2xl p-8 my-12">
         {/* Title */}
-        <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-gray-100">
+        <h2 className="text-2xl font-bold text-center text-indigo-600 dark:text-white">
           Create Your Instructor Account
         </h2>
         <p className="mt-2 text-sm text-center text-gray-600 dark:text-gray-400">

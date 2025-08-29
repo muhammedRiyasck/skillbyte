@@ -56,7 +56,7 @@ export class MongoStudentRepository implements IStudentRepository {
   }
 
   async findAll(): Promise<Student[]> {
-    const docs = await StudentModel.find({});
+    const docs = await StudentModel.find({}).select('-passwordHash');
     return docs.map(
       (doc) =>
         new Student(doc.name, doc.email, doc.passwordHash, doc.isEmailVerified),

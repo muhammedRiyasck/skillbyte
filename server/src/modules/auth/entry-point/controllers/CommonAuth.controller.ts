@@ -28,7 +28,7 @@ export class CommonAuthController {
 
    login = async(req: Request, res: Response): Promise<void> => {
     const { email, password, role } = req.body;
-    
+    console.log(req.body,'from login')
     if (!email || !password || !role) {
       res
         .status(400)
@@ -52,7 +52,7 @@ export class CommonAuthController {
           return;
       }
       const { user, accessToken, refreshToken } = data;
-
+     
       res.cookie('access_token', accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -77,14 +77,14 @@ export class CommonAuthController {
         },
       });
     } catch (error: any) {
-      res.status(401).json({ error: error.message || 'Invalid credentials' });
+      res.status(error.status).json({ error: error.message || 'Invalid credentials' });
     }
   }
 
     refreshToken =  (req: Request, res: Response):void=>{
     
       const refreshToken = req.cookies.refresh_token;
-
+      console.log('refresh token called ')
       const newAccessToken = this.accessTokenUseCase.execute(refreshToken);
 
       res.cookie("access_token", newAccessToken, {

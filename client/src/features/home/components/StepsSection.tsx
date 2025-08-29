@@ -26,7 +26,7 @@ const StepsSection = forwardRef <HTMLElement,{highlight:boolean}>(({highlight},r
           : "border-2 border-transparent"
       }`}
     >
-      <h2 className="text-2xl font-bold mb-6">Simple Steps to Get Started</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-400 dark:text-white">Simple Steps to Get Started</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
         {steps.map((item) => (
           <div key={item.step}>

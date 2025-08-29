@@ -4,13 +4,14 @@ import { generateAccessToken } from "../../../../shared/utils/AccessToken";
 import { IStudentRepository} from "../../domain/IRepositories/IStudentRepository";
 import { Student } from "../../domain/entities/Student";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+
 export class LoginStudentUseCase {
   constructor(
     private studentRepo: IStudentRepository
   ) {}
 
     async execute(email: string, password: string): Promise<{user:Student,accessToken:string,refreshToken:string}> {
+   
         const student = await this.studentRepo.findByEmail(email);
 
         if (!student) throw new Error("Invalid credentials");

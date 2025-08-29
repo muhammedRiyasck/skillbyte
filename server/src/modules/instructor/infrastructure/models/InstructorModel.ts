@@ -14,10 +14,11 @@ const InstructorSchema = new mongoose.Schema({
   isEmailVerified: { type: Boolean, default: false },
   accountStatus: { type: String, enum: ["pending","active", "suspended", "rejected"], default: "pending" }, // Pending, Active, Suspended, Rejected
   approved: { type: Boolean, default: false},
-  rejected:{type:Boolean, default:false},
-  approvalNotes: { type: String, default: null },
-  approvedBy: { type: String, default: null }, // ID of the admin who approved
-  approvedAt: { type: Date, default: null }, // Timestamp of approval
+  approvalNote: { type: String, default: null },
+  rejected:{type:Boolean, default:false}, 
+  rejectedNote:{ type: String, default: null },
+  doneBy: { type: String, default: null }, // ID of the admin who approved
+  doneAt: { type: Date, default: null }, // Timestamp of approval
   averageRating: { type: Number, default: 0 }, // Average rating from students
   totalReviews: { type: Number, default: 0 }, // Total number of reviews received
 

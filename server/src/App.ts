@@ -45,7 +45,7 @@ const limiter = rateLimit({
   standardHeaders: true,    // Return rate limit info in the `RateLimit-*` headers
 });
 
-app.use(limiter);
+// app.use(limiter);
 
 import AuthRoutes from "./modules/auth/entry-point/routes/Auth.Routes";
 import AdminAuthRoutes from "./modules/admin/entry-points/routes/Auth.routes";

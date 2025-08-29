@@ -7,8 +7,8 @@ export class InstructorMapper {
       doc.name,
       doc.email,
       doc.passwordHash,
-      doc.subject,
       doc.jobTitle,
+      doc.subject,
       doc.experience,
       doc.socialProfile ,  
       doc.portfolio,                                                                                     
@@ -18,11 +18,14 @@ export class InstructorMapper {
       doc.accountStatus ,
       doc.approved ,
       doc.rejected,
+      doc.rejectedNote,
       doc.approvalNotes,
-      doc.approvedBy,
-      doc.approvedAt,
+      doc.doneBy,
+      doc.doneAt,
       doc.averageRating ,
-      doc.totalReviews 
+      doc.totalReviews ,
+      doc._id
+
     );
   }
 
@@ -44,8 +47,8 @@ export class InstructorMapper {
       approved: entity.approved,
       rejected: entity.rejected,
       approvalNotes: entity.approvalNotes,
-      approvedBy: entity.approvedBy,
-      approvedAt: entity.approvedAt,
+      approvedBy: entity.doneBy,
+      approvedAt: entity.doneAt,
       averageRating: entity.averageRating,
       totalReviews: entity.totalReviews,
     };

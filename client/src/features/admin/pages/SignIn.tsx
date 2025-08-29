@@ -39,7 +39,7 @@ const Login: React.FC = () => {
         setLoading(true);
           const response = await login({email,password})
           dispatch(setUser(response.userData))
-          navigate('/')
+          navigate('/admin/instructor-request')
           toast.success(response.message)
       }
 
@@ -54,10 +54,10 @@ const Login: React.FC = () => {
   // };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-blue-400/15   px-4  dark:dark:bg-gray-800 ">
+    <div className="min-h-screen flex items-center justify-center bg-gray-400/20  px-4  dark:dark:bg-gray-800 ">
       {loading && <Spiner/>}
       <MotionDiv
-        className="w-full max-w-lg bg-blue-400/5 p-8 rounded-lg shadow-2xl dark:bg-gray-800 text-black dark:text-white"
+        className="w-full max-w-lg bg-gray-200 p-8 rounded-lg shadow-2xl dark:bg-gray-800 text-black dark:text-white"
       >
         <h2 className="text-2xl font-semibold text-center mb-1">Welcome Back Admin</h2>
         <p className="text-gray-500 text-center  text-sm">Sign in to access control</p>

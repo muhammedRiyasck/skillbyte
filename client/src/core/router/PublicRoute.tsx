@@ -3,10 +3,10 @@ import type { RootState } from "../store/Index";
 import { useSelector } from "react-redux";
 import React from "react";
 
-const PublicRoute = ({ children }: { children: React.ReactElement }) => {
+const PublicRoute = ({ children , endPoint }: { children: React.ReactElement ,endPoint:string }) => {
   const user = useSelector((state: RootState) => state.auth.user);
 
-  if (user) return <Navigate to="/" replace />;
+  if (user) return <Navigate to={endPoint} replace />;
 
   return children;
 };

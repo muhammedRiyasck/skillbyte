@@ -3,10 +3,9 @@ import axios from "axios";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import Spiner from "../../../shared/ui/Spiner";
 import { useDispatch } from "react-redux";
 import { setUser } from "../AuthSlice";
-
+import Shimmer from '../../../shared/shimmer/Home'
 const OAuthSuccess = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch()
@@ -24,15 +23,17 @@ const OAuthSuccess = () => {
       });
   }, [navigate]);
 
-  return (
-    <div className="flex items-center justify-center h-screen dark:bg-gray-900 bg-white text-gray-800">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold mb-4">OAuth Success</h1>
-        <p className="text-lg">You have successfully logged in!</p>
-        <p className="text-gray-500">Redirecting...</p>
-        </div>
-      <Spiner />
-    </div>)
+  return <Shimmer/>
+
+  // (
+  //   <div className="flex items-center justify-center h-screen dark:bg-gray-900 bg-white text-gray-800">
+  //     <div className="text-center">
+  //       <h1 className="text-2xl font-bold mb-4">OAuth Success</h1>
+  //       <p className="text-lg">You have successfully logged in!</p>
+  //       <p className="text-gray-500">Redirecting...</p>
+  //       </div>
+  //     <Spiner />
+  //   </div>)
         
 }
 

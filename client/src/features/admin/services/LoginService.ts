@@ -1,7 +1,7 @@
 
 import { toast } from "sonner";
 
-import axiosInstance from "../../../shared/utils/AxiosInstance";
+import api from "../../../shared/utils/AxiosInstance";
 
 interface loginPlayload {
     email:string;
@@ -11,7 +11,7 @@ interface loginPlayload {
 const login = async (playload:loginPlayload) => {
   try {
 
-    const response = await axiosInstance.post("/admin/login",playload);
+    const response = await api.post("/admin/login",playload);
     return response.data;
   } catch (error:any) {
     console.log(error)

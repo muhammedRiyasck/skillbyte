@@ -1,10 +1,9 @@
 
 import { generateRefreshToken } from "../../../../shared/utils/RefreshToken";
 import { generateAccessToken } from "../../../../shared/utils/AccessToken";
-import { IInstructorRepository} from "../../domain/IRepositories/IinstructorRepository";
+import { IInstructorRepository} from "../../domain/IRepositories/IInstructorRepository";
 import { Instructor } from "../../domain/entities/Instructor";
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 export class LoginInstructorUseCase {
   constructor(
     private instructorRepo: IInstructorRepository
@@ -22,11 +21,17 @@ export class LoginInstructorUseCase {
         if(accountStatus == 'pending'){
             throw new Error("Your Account Is Not Approved Yet By Admin.");
         }else if(accountStatus == 'suspended'){
-          throw new Error("Your Account Is Suspended By Admin. Please Contact Support.");
+          const error = new Error("Your Account Is Suspended By Admin. Please Contact Support.") as any
+          error.status = 403
+          throw error
+          
         }else if(accountStatus == 'rejected'){
-          throw new Error("Your Account Is Rejected By Admin. Please Contact Support.");
+          console.log(true)
+          const error = new Error("Your Account Is Rejected By Admin. Please Contact Support.") as any
+          error.status = 403
+          throw error
         }
-        
+        console.log('flase')
       const accessToken = generateAccessToken({ id: instructor._id, role:'instructor' });
       const refreshToken = generateRefreshToken({ id: instructor._id, role:'instructor' });        
       return {user:instructor,accessToken,refreshToken};

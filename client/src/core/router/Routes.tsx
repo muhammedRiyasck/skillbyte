@@ -19,6 +19,11 @@ import AdminSignIn from '../../features/admin/pages/SignIn.tsx'
 
 
 import PublicRoute from './PublicRoute.tsx';
+import ProtectedRoute from './RoleBaseRoute.tsx';
+
+import InstructorRequests from '../../features/admin/pages/InstructorRequests.tsx';
+import InstructorDashboard from '../../features/instructor/pages/Dashboard.tsx';
+import CreateCourse from '../../features/instructor/pages/CreateCourse.tsx';
 
 const router = createBrowserRouter([
   {
@@ -26,28 +31,28 @@ const router = createBrowserRouter([
     element: <PublicLayout />,
     children: [
       {  index: true, element:( 
-        <PublicRoute>
+        <PublicRoute endPoint='/'>
          <SignIn /> 
          </PublicRoute>)},
       { path: 'learner-register', element:
-         <PublicRoute>
+         <PublicRoute endPoint='/'>
           <StudentSignup />
          </PublicRoute>
          },
 
       {
         path:'instructor-register', element:
-        <PublicRoute>
+        <PublicRoute endPoint='/'>
           <InstructorSignup/>
         </PublicRoute>
       },
       { path: 'oauth-success', element: 
-        <PublicRoute>
+        <PublicRoute endPoint='/'>
         <OAuthSuccess />
         </PublicRoute>
        },
       { path: 'forgot-password', element:
-        <PublicRoute>
+        <PublicRoute endPoint='/'>
         <ForgotPassword/>
         </PublicRoute>
       }
@@ -58,7 +63,7 @@ const router = createBrowserRouter([
   {
     path:'/auth/otp',
     element:
-    <PublicRoute>
+    <PublicRoute endPoint='/'>
      <Otp />
      </PublicRoute>,
     errorElement: <NotFound />,
@@ -66,7 +71,7 @@ const router = createBrowserRouter([
   {
     path:'/auth/reset-password',
     element:
-    <PublicRoute>
+    <PublicRoute endPoint='/'>
     <ResetPassword/>
     </PublicRoute>
   },
@@ -81,26 +86,35 @@ const router = createBrowserRouter([
       
       { index: true, element: <LandingPage /> },
       // { path: 'courses', element: <Courses /> },
+      // { path: 'courses', element: <Courses /> },
       // { path: 'profile', element: <Profile /> },
       // { path: 'chat', element: <Chat /> },
     ],
     errorElement: <NotFound />,
   },
   
-  // {
-  //   path: '/instructor',
-  //   element: <StudentLayout />,
-  //   // element: <InstructorLayout />,
-  //   children: [
-  //     // { path: 'dashboard', element: <InstructorDashboard /> },
-  //     // { path: 'create-course', element: <CreateCourse /> },
-  //   ],
-  // },
+  {
+    path: '/instructor',
+    element: <StudentLayout />,
+    // element: <InstructorLayout />,
+    children: [
+      { path: 'dashboard', element: <InstructorDashboard /> },
+      { path: 'create-course', element: <CreateCourse /> },
+    ],
+  },
   {
     path: '/admin',
     element: <AdminLayout />,
     children: [
-      { index: true, element: <AdminSignIn /> }
+      { index: true, element:
+         <PublicRoute endPoint='/admin/instructor-request'>
+         <AdminSignIn />  
+        </PublicRoute>},
+      { path: 'instructor-request', element: 
+      <ProtectedRoute roles={['admin']}>
+      <InstructorRequests /> 
+      </ProtectedRoute>
+      }
       // { path: 'dashboard', element: <AdminDashboard /> },
     ],
   },

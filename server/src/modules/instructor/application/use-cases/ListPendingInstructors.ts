@@ -1,5 +1,5 @@
 import { Instructor } from "../../domain/entities/Instructor";
-import { IInstructorRepository } from "../../domain/IRepositories/IinstructorRepository";
+import { IInstructorRepository } from "../../domain/IRepositories/IInstructorRepository";
 
 export class ListPendingInstructorsUseCase {
   constructor(private repo: IInstructorRepository) {}

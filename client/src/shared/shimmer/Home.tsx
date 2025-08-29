@@ -1,0 +1,44 @@
+import Shimmer from "./Shimmer"
+
+const Home = () => {
+  return (
+    <div className="w-full shadow-sm bg-gray-100 dark:bg-gray-700 p-4 space-y-6">
+      {/* Hero Section */}
+      <div className="rounded-lg overflow-hidden">
+        <Shimmer height={400} width="100%" />
+      </div>
+      
+      {/* Features Section */}
+      <div className="space-y-4">
+        <Shimmer height={40} width="30%" style={{ marginBottom: "20px" }} />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Shimmer height={200} width="100%" />
+          <Shimmer height={200} width="100%" />
+          <Shimmer height={200} width="100%" />
+          <Shimmer height={200} width="100%" />
+          <Shimmer height={200} width="100%" />
+          <Shimmer height={200} width="100%" />
+        </div>
+      </div>
+      
+      {/* Steps Section */}
+      {/* <div className="space-y-4">
+        <Shimmer height={40} width="30%" style={{ marginBottom: "20px" }} />
+        <div className="space-y-4">
+          <Shimmer height={80} width="100%" />
+          <Shimmer height={80} width="100%" />
+          <Shimmer height={80} width="100%" />
+        </div>
+      </div> */}
+      
+      {/* Additional Content */}
+      <div className="grid grid-cols-1  gap-6">
+        <Shimmer height={300} width="100%" />
+      
+      </div>
+    </div>
+  )
+}
+
+export default Home
+

@@ -6,7 +6,7 @@ interface CustomError extends Error {
 }
 
 function errorHandler(err: CustomError,req: Request,res: Response,next: NextFunction): void {
-      
+    console.log(err)
     const statusCode = err.status || 500;
     res.status(statusCode).json({
         success: false,

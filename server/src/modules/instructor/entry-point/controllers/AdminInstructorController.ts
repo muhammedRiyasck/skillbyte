@@ -20,17 +20,20 @@ export class AdminInstructorController {
     res.json(instructors);
   };
 
-    approve = async (req: Request, res: Response)=>{
-    const { id } = req.params;
-    const adminId = (req.user as { id: string }).id;
-    await this.approveUC.execute(id, adminId);
+    approve = async (req: any, res: Response)=>{
+    
+    const instructorId = req.body.id
+    const adminId = req.user.id
+    
+    await this.approveUC.execute(instructorId, adminId);
     res.json({ message: "Instructor approved" });
   };
 
-    decline = async  (req: Request, res: Response)=> {
-    const { id } = req.params;
+    decline = async  (req: any, res: Response)=> {
+    const instructorId = req.body.id
+    const adminId = req.user.id
     const { reason } = req.body;
-    await this.declineUC.execute(id, reason);
+    await this.declineUC.execute(instructorId,adminId, reason);
     res.json({ message: "Instructor declined", note: reason });
   };
 
