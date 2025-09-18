@@ -6,7 +6,7 @@ import { Menu, X } from "lucide-react";
 
 const header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isNav, setIsNav] = useState(true);
+
   return (
     <header>
       <div className=" bg-gray-50 border-b border-gray-200 px-4 md:px-8 dark:bg-gray-900 shadow-2xl dark:border-b dark:border-gray-700 dark:text-white">
@@ -15,7 +15,7 @@ const header = () => {
           <Link to="/" className="text-gray-600 dark:text-white text-lg font-bold">
             <img className="w-30 h-20 " src={logo} alt="logo" />
           </Link>
-           {isNav&&<nav className="hidden md:flex gap-6 text-sm font-medium px-8">
+           {<nav className="hidden md:flex gap-6 text-sm font-medium px-8">
             <Link to="/" className="hover:text-indigo-500">
               Home
             </Link>
@@ -30,12 +30,12 @@ const header = () => {
             </Link>
               <ThemeToggle />
            <button className="md:hidden focus:outline-none dark:text-white " onClick={() => setIsOpen(!isOpen)}>
-            {isOpen && isNav ? <X size={24} /> : <Menu size={24} />}
+            {isOpen  ? <X size={24} /> : <Menu size={24} />}
           </button>
           </div>
         </div>
       </div>
-      {isOpen && isNav && (
+      {isOpen && (
         <div className="md:hidden bg-gray-50 text-center dark:bg-gray-800 dark:text-white px-4 pb-4 text-lg ">
           <Link to="/" className="block py-2 ">
               Home

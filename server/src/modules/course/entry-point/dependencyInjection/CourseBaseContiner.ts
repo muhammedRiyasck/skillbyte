@@ -1,15 +1,15 @@
 import { CourseController } from "../controllers/CourseController";
-import { GetCourseDetailsUseCase } from "../../application/use-cases/GetCourseDetails";
-import { CreateBaseUseCase } from "../../application/use-cases/CreateBase";
+import { GetCourseDetailsUseCase } from "../../application/use-cases/GetCourseDetailsUseCase";
+import { CreateBaseUseCase } from "../../application/use-cases/CreateBaseUseCase";
 
 import { MongoCourseRepository } from "../../infrastructure/repositories/MongoCourseRepository";
 import { MongoModuleRepository } from "../../infrastructure/repositories/MongoModuleRepository";
 import { MongoLessonRepository } from "../../infrastructure/repositories/MongoLessonRepository";
-import { UpdateBaseUseCase } from "../../application/use-cases/UpdateBase";
+import { UpdateBaseUseCase } from "../../application/use-cases/UpdateBaseUseCase";
 import { DeleteCourseUseCase } from "../../application/use-cases/DeleteCourseUseCase";
 import { UpdateCourseStatusUseCase } from "../../application/use-cases/UpdateCourseStatusUseCase";
 import { GetPublishedCoursesUseCase } from "../../application/use-cases/GetPublishedCoursesUseCase";
-import { GetInstructorCoursesUseCase } from "../../application/use-cases/GetInstructorCourses";
+import { GetInstructorCoursesUseCase } from "../../application/use-cases/GetInstructorCoursesUseCase";
 import { GetAllCoursesForAdminUseCase } from "../../application/use-cases/GetAllCoursesForAdminUseCase";
 
 const courseRepository = new MongoCourseRepository();

@@ -53,7 +53,7 @@ const InstructorRequests: React.FC = () => {
   };
 
   return (
-    <div className="p-6 min-h-screen bg-gray-400/20 dark:bg-gray-800">
+    <div className="p-6 min-h-screen bg-gray-50 dark:bg-gray-800">
       {spiner&&<Spiner/>}
       <h1 className="text-2xl font-semibold mb-6 dark:text-blue-100 text-center">Instructor Requests</h1>
       <div className="overflow-x-auto rounded-lg shadow-md bg-gray-150 ">

@@ -4,7 +4,11 @@ import { generateAccessToken } from "../../../shared/utils/AccessToken";
 
 export class  AccessTokenUseCase {
   execute(refreshToken: string): string {
-    if (!refreshToken) throw new Error("No refresh token provided");
+    if (!refreshToken) {
+      const error = new Error("No refresh token provided") as any;
+      error.status=400
+      throw error
+    }
 
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET!) as {
       id: string;

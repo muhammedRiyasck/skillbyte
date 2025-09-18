@@ -21,9 +21,10 @@ import AdminSignIn from '../../features/admin/pages/SignIn.tsx'
 import PublicRoute from './PublicRoute.tsx';
 import ProtectedRoute from './RoleBaseRoute.tsx';
 
+import InstructorLayout from '../../layouts/instructor/InstructorLayout.tsx';
 import InstructorRequests from '../../features/admin/pages/InstructorRequests.tsx';
 import InstructorDashboard from '../../features/instructor/pages/Dashboard.tsx';
-import CreateCourse from '../../features/instructor/pages/CreateCourse.tsx';
+import CreateCourse from '../../features/course/pages/CreateCourse.tsx';
 
 const router = createBrowserRouter([
   {
@@ -33,7 +34,7 @@ const router = createBrowserRouter([
       {  index: true, element:( 
         <PublicRoute endPoint='/'>
          <SignIn /> 
-         </PublicRoute>)},
+        </PublicRoute>)},
       { path: 'learner-register', element:
          <PublicRoute endPoint='/'>
           <StudentSignup />
@@ -95,11 +96,18 @@ const router = createBrowserRouter([
   
   {
     path: '/instructor',
-    element: <StudentLayout />,
-    // element: <InstructorLayout />,
+    element: <InstructorLayout />,
     children: [
-      { path: 'dashboard', element: <InstructorDashboard /> },
-      { path: 'create-course', element: <CreateCourse /> },
+      { index:true, element:
+        <ProtectedRoute roles={['instructor']}>
+        <InstructorDashboard /> 
+        </ProtectedRoute>
+       },
+      { path: 'create-baseCourse', element:
+      <ProtectedRoute roles={['instructor']}>
+        <CreateCourse /> 
+        </ProtectedRoute> 
+      }, 
     ],
   },
   {

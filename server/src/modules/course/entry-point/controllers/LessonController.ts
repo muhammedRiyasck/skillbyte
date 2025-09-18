@@ -1,7 +1,8 @@
 import {  Response } from "express";
-import { CreateLessonUseCase } from "../../application/use-cases/CreateLesson";
+import { CreateLessonUseCase } from "../../application/use-cases/CreateLessonUseCase";
 import { UpdateLessonUseCase } from "../../application/use-cases/UpdateLessonUseCase";
 import { DeleteLessonUseCase } from "../../application/use-cases/DeleteLessonUseCase";
+import { uploadBufferToCloudinary } from "../../../../shared/utils/Cloudinary";
 
 export class LessonController {
   constructor(
@@ -30,6 +31,38 @@ export class LessonController {
     }
   };
 
+  uploadLessonContent =  async (req: any, res: Response) => {
+    try {
+       if (!req.file) return res.status(400).json({ message: "No file provided" });
+
+    // Basic type guard (optional)
+    if (!req.file.mimetype.startsWith("video/")) {
+      return res.status(400).json({ message: "Only video files are allowed" });
+    }
+
+    const result = await uploadBufferToCloudinary(req.file.buffer, {
+      folder: "skillbyte/lessons",
+      resource_type: "video",
+      public_id: req.file.originalname.replace(/\.[^.]+$/, ""), 
+      //  overwrite: false,
+    });
+
+    return res.json({
+      message: "Video uploaded",
+      public_id: result.public_id,
+      url: result.secure_url, // progressive MP4 URL (default)
+      // HLS/DASH streaming (if enabled on your account/plan):
+      // hls_url: result.secure_url.replace("/upload/", "/upload/f_auto,q_auto,vc_auto/").replace(/\.(mp4|mov|mkv|webm)$/, ".m3u8"),
+      duration: result.duration, // seconds
+      bytes: result.bytes,
+      format: result.format,
+      width: result.width,
+      height: result.height,
+    });
+    } catch(error:any){
+      res.status(400).json({ message: error.message });
+    }
+  }
   updateLesson = async (req: any, res: Response) => {
     try {
       const lessonId = req.params.lessonId;

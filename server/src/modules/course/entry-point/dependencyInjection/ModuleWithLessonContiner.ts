@@ -1,6 +1,6 @@
 import { ModuleWithLessonController} from "../controllers/ModuleController";
 
-import { CreateModuleWithLessonsUseCase } from "../../application/use-cases/CreateModuleWithLessons";
+import { CreateModuleWithLessonsUseCase } from "../../application/use-cases/CreateModuleWithLessonsUseCase";
 import {MongoCourseRepository} from "../../infrastructure/repositories/MongoCourseRepository";
 import { MongoModuleRepository } from "../../infrastructure/repositories/MongoModuleRepository";
 import { MongoLessonRepository } from "../../infrastructure/repositories/MongoLessonRepository";

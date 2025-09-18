@@ -12,17 +12,17 @@ import { toast } from "sonner";
 const header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const user = useSelector((store: RootState) => store.auth.user);
-  const navigate = useNavigate()
   const dispatch = useDispatch();
+  const navigate = useNavigate()
   const handleLogout = async () => {
     const response = await logout();
     dispatch(clearUser());
-     navigate("/",{replace:true})
+    navigate("/",{replace:true})
     toast.success(response.message);
   };
   return (
     <header>
-      <div className=" bg-gray-50 border-b border-gray-200  px-4 md:px-8 dark:dark:bg-gray-800 shadow-md dark:border-b dark:border-gray-700 dark:text-white">
+      <div className=" bg-gray-50 px-4 md:px-8 dark:dark:bg-gray-800 shadow-md dark:border-b dark:border-gray-700 dark:text-white">
         <div className="container min-w-full flex justify-between items-center ">
           <div className="flex items-center ">
             <Link to="/" className="text-gray-600 dark:text-white text-lg font-bold">
@@ -36,39 +36,33 @@ const header = () => {
                 {isOpen ? <X size={32} /> : <Menu size={32} />}
               </button>
             )}
-            {/* {user&&<p>{user.name}</p>} */}
           </div>
         </div>
       </div>
       {isOpen && (
-        <div className="bg-gray-100 left-0 px-8 min-h-screen w-1/2 md:w-1/6 absolute float-end  dark:bg-gray-700 dark:text-white pb-4 text-lg ">
+        <div className="bg-gray-50 left-0 px-8 min-h-screen w-1/2 md:w-1/7 absolute float-end  dark:bg-gray-700 dark:text-white pb-4 text-lg z-50">
           <div className="mt-14">
             <Link to="/" className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-300">
               Dashboard
             </Link>
             <Link to="#" className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-300  ">
-              Instructor Requests
+              My Courses
             </Link>
             <Link to="#" className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-300  ">
-              Users
+              Create Course
             </Link>
             <Link to="#" className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-300 ">
-              Courses
+              Announcement
             </Link>
             <Link to="#" className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-300 ">
-              Mentor Feedback
+              Schedule Session
             </Link>
-            <Link to="#" className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-300 ">
-              Reports
-            </Link>
-            {user && (
-              <span
-                onClick={handleLogout}
-                className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-300 cursor-pointer"
-              >
-                Sign Out
-              </span>
-            )}
+            <span
+              onClick={handleLogout}
+              className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-300 cursor-pointer"
+            >
+              {user ? "Sign Out" : ""}
+            </span>
           </div>
         </div>
       )}

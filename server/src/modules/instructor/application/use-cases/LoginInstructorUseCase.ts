@@ -31,7 +31,6 @@ export class LoginInstructorUseCase {
           error.status = 403
           throw error
         }
-        console.log('flase')
       const accessToken = generateAccessToken({ id: instructor._id, role:'instructor' });
       const refreshToken = generateRefreshToken({ id: instructor._id, role:'instructor' });        
       return {user:instructor,accessToken,refreshToken};

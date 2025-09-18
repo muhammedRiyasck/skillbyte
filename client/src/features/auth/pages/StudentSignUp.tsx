@@ -82,7 +82,7 @@ export default function StudentSignUp () {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 dark:bg-gray-900">
-      <MotionDiv className="bg-white p-6 rounded-lg shadow-2xl w-full max-w-lg dark:bg-gray-800 text-black dark:text-white">
+      <MotionDiv className="bg-white p-10 my-8 rounded-lg shadow-2xl w-full max-w-lg dark:bg-gray-800 text-black dark:text-white">
         <h2 className="text-center text-2xl font-bold mb-2 text-indigo-600 dark:text-white">Create Your Skillbyte Account</h2>
         <p className="text-center text-gray-500 mb-6 text-sm">
           Fill out the form below to start as a member on skillbyte

@@ -3,6 +3,7 @@
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 import type { RootState } from "../store/Index";
+import Spiner from "../../shared/ui/Spiner";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -10,7 +11,11 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, roles }) => {
-  const { user } = useSelector((state: RootState) => state.auth);
+  const { user,loading } = useSelector((state: RootState) => state.auth);
+
+  if(loading){
+    return <Spiner/>
+  }
 
   if ( !user) {
     return <Navigate to="/" replace />;

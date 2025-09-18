@@ -1,7 +1,7 @@
 
 import { LessonController } from "../controllers/LessonController";
 
-import { CreateLessonUseCase } from "../../application/use-cases/CreateLesson";
+import { CreateLessonUseCase } from "../../application/use-cases/CreateLessonUseCase";
 import { UpdateLessonUseCase } from "../../application/use-cases/UpdateLessonUseCase";
 import { DeleteLessonUseCase } from "../../application/use-cases/DeleteLessonUseCase";
 

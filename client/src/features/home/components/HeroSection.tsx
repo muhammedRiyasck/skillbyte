@@ -11,11 +11,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({ steps }) => {
   const user = useSelector((state: RootState) => state.auth.user);
 
   return (
-    <section className="px-4 md:px-8 py-10 md:py-20 flex flex-col md:flex-row items-center justify-between gap-10">
+    <section className="px-4 md:px-8 py-10 md:py-20 flex flex-col lg:flex-row items-center justify-between gap-10">
       <div className="md:w-1/2 text-center md:text-left">
         <h1 className="text-4xl md:text-5xl font-bold mb-4 text-indigo-600 dark:text-white">
-          from learning To earning. <br />
-           all in one place
+          Skill up. <br />Shine brighter. 
+           {/* all in one place */}
         </h1>
            {/* <h1 className="text-4xl md:text-5xl font-bold mb-4 text-indigo-600 dark:text-white">
           Sign. Simplify. <br />

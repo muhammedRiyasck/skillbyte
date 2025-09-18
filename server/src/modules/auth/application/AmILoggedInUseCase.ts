@@ -1,7 +1,7 @@
-import { IInstructorRepository } from "../../instructor/domain/IRepositories/IinstructorRepository";
+import { IInstructorRepository } from "../../instructor/domain/IRepositories/IInstructorRepository";
 import { IStudentRepository } from "../../student/domain/IRepositories/IStudentRepository";
 
-export class GoogleLoginUseCase{
+export class AmILoggedInUseCase{
       constructor(
           private studentRepo : IStudentRepository,
           private instructorRepo : IInstructorRepository,

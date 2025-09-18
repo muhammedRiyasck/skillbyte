@@ -1,5 +1,5 @@
 import {  Response } from "express";
-import { CreateModuleWithLessonsUseCase } from "../../application/use-cases/CreateModuleWithLessons";
+import { CreateModuleWithLessonsUseCase } from "../../application/use-cases/CreateModuleWithLessonsUseCase";
 import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
 import { UpdateModuleUseCase } from "../../application/use-cases/UpdateModuleUseCase";
 import { DeleteModuleUseCase } from "../../application/use-cases/DeleteModuleUseCase";

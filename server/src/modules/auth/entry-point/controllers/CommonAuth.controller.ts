@@ -7,7 +7,7 @@ import { AccessTokenUseCase   } from '../../application/AccessTokenUseCase';
 import { ResendOtpUseCase } from '../../application/ResendOtpUseCase';
 import { ForgotPasswordUseCase } from '../../application/ForgotPasswordUseCase';
 import { ResetPasswordUseCase } from '../../application/ResetPasswordUseCase';
-import { GoogleLoginUseCase } from '../../application/GoogleLoginUseCase';
+import { AmILoggedInUseCase } from '../../application/AmILoggedInUseCase';
 
 export class CommonAuthController {
   constructor(
@@ -17,12 +17,13 @@ export class CommonAuthController {
     private readonly resendOtpUseCase: ResendOtpUseCase,
     private readonly forgotPasswordUseCase : ForgotPasswordUseCase,
     private readonly resetPasswordUseCase : ResetPasswordUseCase,
-    private readonly googleLoginUseCase : GoogleLoginUseCase
+    private readonly googleLoginUseCase : AmILoggedInUseCase
   ) {}
 
    amILoggedIn =  async(req: any, res: Response): Promise<void> => {
-    const decodedUserData = req.user;
-    const user = await this.googleLoginUseCase.execute(decodedUserData.id,decodedUserData.role)
+     const decodedUserData = req.user;
+     const user = await this.googleLoginUseCase.execute(decodedUserData.id,decodedUserData.role)
+     console.log('Iam i logged' , user?true:false)
     res.status(200).json({message: 'User is logged in', userData:{name:user?.name,email:user?.email,profilePicture:user?.profilePictureUrl,role:decodedUserData.role}});
   }
 
@@ -77,7 +78,7 @@ export class CommonAuthController {
         },
       });
     } catch (error: any) {
-      res.status(error.status).json({ error: error.message || 'Invalid credentials' });
+      res.status(error.status||400).json({ error: error.message || 'Invalid credentials' });
     }
   }
 

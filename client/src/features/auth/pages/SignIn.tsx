@@ -1,4 +1,4 @@
-import React, { useState,   } from "react";
+import React, { useState} from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Spiner from "../../../shared/ui/Spiner";
 import { toast } from "sonner";
@@ -40,9 +40,17 @@ const Login: React.FC = () => {
       if (emailValidation.success && passwordValidation.success && role){
         setLoading(true);
           const response = await login({email,password,role})
+      
           dispatch(setUser(response.userData))
-          navigate('/')
-          toast.success(response.message)
+          if(role==='instructor'){
+            setTimeout(() => {
+              navigate('/instructor/create-baseCourse')
+            }, 0)
+            toast.success('instructor login successfull')
+          } else{
+            navigate('/')
+            toast.success(response.message)
+          }
       }
 
     } catch (error) {
@@ -59,7 +67,7 @@ const Login: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50  px-4  dark:bg-gray-900 ">
       {loading && <Spiner/>}
       <MotionDiv
-        className="w-full max-w-lg bg-white p-8 rounded-lg shadow-2xl dark:bg-gray-800  dark:text-white"
+        className="w-full max-w-lg bg-white p-10 rounded-lg shadow-2xl dark:bg-gray-800 my-8 dark:text-white"
       >
         <h2 className="text-2xl font-semibold text-center mb-1 text-indigo-600 dark:text-white">Welcome Back to Skillbyte</h2>
         <p className="text-gray-500 text-center mb-6 text-sm">Sign in to continue your learning journey.</p>

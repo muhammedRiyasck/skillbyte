@@ -1,3 +1,4 @@
+import { create } from "domain";
 import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
 import { Course } from "../../domain/entities/Course";
 import { CourseModel } from "../models/CourseModel";
@@ -7,27 +8,35 @@ export class MongoCourseRepository implements ICourseRepository {
   async save(course: Course): Promise<Course> {
     const created = await CourseModel.create({
       instructorId: course.instructorId,
-      title: course.title,
-      description: course.description,
       thumbnailUrl: course.thumbnailUrl,
-      price: course.price,
+      title: course.title,
+      subText: course.subText,
       category: course.category,
+      courseLevel: course.courseLevel,
+      language: course.language,
+      price: course.price,
+      features: course.features,
+      description: course.description,
+      duration: course.duration,
       tags: course.tags,
       isPublished: course.status
     });
 
     return new Course(
-      created.instructorId.toString(),
-      created.title,
-      created.description,
-      created.thumbnailUrl,
-      created.price,
-      created.category,
-      created.tags,
-      created.status,
-       created._id.toString(),
-      created.createdAt,
-      created.updatedAt
+    created.instructorId.toString(),
+    created.thumbnailUrl,
+    created.title,
+    created.subText,
+    created.category,
+    created.courseLevel,
+    created.language,
+    created.price,
+    created.features,
+    created.description,
+    created.duration  ,
+    created.tags,
+    created.status,
+    created._id.toString()
     );
   }
 
@@ -35,17 +44,20 @@ export class MongoCourseRepository implements ICourseRepository {
   const doc = await CourseModel.findById(id);
   if (!doc) return null;
   return new Course(
-    doc.instructorId.toString(),
-    doc.title,
-    doc.description,
-    doc.thumbnailUrl,
-    doc.price,
-    doc.category,
-    doc.tags,
-    doc.status,
-    doc._id.toString(),
-    doc.createdAt,
-    doc.updatedAt
+  doc.instructorId.toString(),
+  doc.thumbnailUrl,
+  doc.title,
+  doc.subText,
+  doc.category,
+  doc.courseLevel,
+  doc.language,
+  doc.price,
+  doc.features,
+  doc.description,
+  doc.duration  ,
+  doc.tags,
+  doc.status,
+  doc._id.toString()
   );
 }
 
@@ -79,17 +91,20 @@ async findPublishedCourses(filters: {
   const docs = await CourseModel.find(query).populate("instructorId", "name");
 
   return docs.map(doc => new Course(
-    doc.instructorId._id.toString(),
-    doc.title,
-    doc.description,
-    doc.thumbnailUrl,
-    doc.price,
-    doc.category,
-    doc.tags,
-    doc.status,
-    doc._id.toString(),
-    doc.createdAt,
-    doc.updatedAt
+  doc.instructorId.toString(),
+  doc.thumbnailUrl,
+  doc.title,
+  doc.subText,
+  doc.category,
+  doc.courseLevel,
+  doc.language,
+  doc.price,
+  doc.features,
+  doc.description,
+  doc.duration  ,
+  doc.tags,
+  doc.status,
+  doc._id.toString()
   ));
 }
 
@@ -97,17 +112,20 @@ async findByInstructorId(instructorId: string): Promise<Course[]> {
   const docs = await CourseModel.find({ instructorId });
 
   return docs.map(doc => new Course(
-    doc.instructorId.toString(),
-    doc.title,
-    doc.description,
-    doc.thumbnailUrl,
-    doc.price,
-    doc.category,
-    doc.tags,
-    doc.status,
-    doc._id.toString(),
-    doc.createdAt,
-    doc.updatedAt
+     doc.instructorId.toString(),
+  doc.thumbnailUrl,
+  doc.title,
+  doc.subText,
+  doc.category,
+  doc.courseLevel,
+  doc.language,
+  doc.price,
+  doc.features,
+  doc.description,
+  doc.duration  ,
+  doc.tags,
+  doc.status,
+  doc._id.toString()
   ));
 }
 
@@ -142,17 +160,20 @@ async findAllForAdmin(filters: {
     .populate("instructorId", "name email");
 
   return docs.map(doc => new Course(
-    doc.instructorId._id.toString(),
-    doc.title,
-    doc.description,
-    doc.thumbnailUrl,
-    doc.price,
-    doc.category,
-    doc.tags,
-    doc.status,
-    doc._id.toString(),
-    doc.createdAt,
-    doc.updatedAt
+  doc.instructorId.toString(),
+  doc.thumbnailUrl,
+  doc.title,
+  doc.subText,
+  doc.category,
+  doc.courseLevel,
+  doc.language,
+  doc.price,
+  doc.features,
+  doc.description,
+  doc.duration  ,
+  doc.tags,
+  doc.status,
+  doc._id.toString()
   ));
 }
 

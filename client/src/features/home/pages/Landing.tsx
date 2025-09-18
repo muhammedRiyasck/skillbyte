@@ -19,7 +19,7 @@ const LandingPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100">
+    <div className="bg-white min-h-screen dark:bg-gray-900 text-gray-800 dark:text-gray-100">
       <motion.div
         initial={{ opacity: -1, scale: 1 }}
         animate={{ opacity: 1, scale: 1 }}

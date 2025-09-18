@@ -2,11 +2,16 @@ import mongoose from "mongoose";
 
 const CourseSchema = new mongoose.Schema({
   instructorId: { type: mongoose.Schema.Types.ObjectId, ref: "Instructor", required: true },
+  thumbnailUrl: { type: String , default:null },
   title: { type: String, required: true },
-  description: { type: String, required: true },
-  thumbnailUrl: { type: String , required: true },
-  price: { type: Number, default: 0  },
+  subText: { type: String, required: true },
   category: { type: String , required: true },
+  courseLevel:{type:String, required:true},
+  language:{type:String, default: 'English'},
+  price: { type: Number, default: 0  },
+  features: [{type:String, required:true}],
+  description: { type: String, required: true },
+  duration: {type:Date, required:true},
   tags: [{ type: String }],
   status: {
   type: String,
