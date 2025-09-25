@@ -23,7 +23,6 @@ export class CourseController {
   ) {}
 
   createBase = async (req: any, res: Response) => {
-    console.log(req.body);
     const {
       title,
       thumbnail,
@@ -54,53 +53,55 @@ export class CourseController {
       features,
       description,
       duration: access,
-      tags: tags ,
+      tags: tags,
       status: 'draft',
     });
-    console.log(course, 'created coures')
+    console.log(course, 'created coures');
     res.status(201).json({ message: 'details added successfuly', course });
   };
 
   uploadThumbnail = async (req: any, res: Response) => {
-    const {id} = req.params
-    console.log(id,'params')
-   
+    const { id } = req.params;
+    console.log(id, 'params');
+    console.log(1);
+
+    if (!req.file) {
+      const error = new Error('No file uploaded') as any;
+      error.status = 400;
+      throw error;
+    }
+    console.log(1);
+
+    if (req.file.size > 2 * 1024 * 1024) {
+      console.log('photo is greter than 2 mb');
+      const error = new Error('Thumbnail size should be less than 2mb') as any;
+      error.status = 400;
+      throw error;
+    }
+    console.log(1);
+
+    if (!req.file.mimetype.startsWith('image/')) {
+      const error = new Error('Only image files are allowed') as any;
+      error.status = 400;
+      throw error;
+    }
+
+    const url = await uploadToCloudinary(req.file.path, {
+      folder: 'skillbyte/thumbnails',
+      resourceType: 'image',
+      publicId: `thumbnail_${id}`,
+      overwrite: true,
+    });
+
+    this.updateBaseUseCase.execute(id, req.user.id, { thumbnailUrl: url });
+
+    res.json({ message: 'Course Base Created Successfully' });
+
+    // Delete the local uploaded file
     try {
-      if (!req.file) {
-        res.status(400).json({ message: 'No file uploaded' });
-        return;
-      }
-
-      if (req.file.size > 2 * 1024 * 1024) {
-        res
-          .status(400)
-          .json({ message: 'Thumbnail size should be less than 2mb' });
-      }
-
-      if (!req.file.mimetype.startsWith('image/')) {
-        res.status(400).json({ message: 'Only image files are allowed' });
-        return;
-      }
-
-      const url = await uploadToCloudinary(req.file.path, {
-        folder: 'skillbyte/thumbnails',
-        resourceType: 'image',
-        publicId: `thumbnail_${id}`,
-        overwrite: true,
-      });
-
-      this.updateBaseUseCase.execute(id,req.user.id,{thumbnailUrl: url})
-
-      res.json({ message:'Course Base Created Successfully'});
-
-      // Delete the local uploaded file
-      try {
-        await fs.promises.unlink(req.file.path);
-      } catch (unlinkError) {
-        console.error('Error deleting local file:', unlinkError);
-      }
-    } catch (error) {
-      res.status(500).json({ message: 'Something went wrong' });
+      await fs.promises.unlink(req.file.path);
+    } catch (unlinkError) {
+      console.error('Error deleting local file:', unlinkError);
     }
   };
 
@@ -112,8 +113,10 @@ export class CourseController {
 
       await this.updateBaseUseCase.execute(courseId, instructorId, data);
       res.status(200).json({ message: 'Course updated successfully' });
-    } catch (err: any) {
-      res.status(400).json({ message: err.message });
+    } catch (Error: any) {
+      const error = new Error(Error.message) as any;
+      error.status = 400;
+      throw error;
     }
   };
 
@@ -124,8 +127,9 @@ export class CourseController {
       const instructorId = req.user.id;
 
       if (!['published', 'unpublished'].includes(status)) {
-        res.status(400).json({ message: 'Invalid status' });
-        return;
+        const error = new Error('Invalid Status') as any;
+        error.status = 400;
+        throw error;
       }
 
       await this.updateCourseStatusUseCase.execute(
@@ -134,8 +138,10 @@ export class CourseController {
         status,
       );
       res.status(200).json({ message: `Course ${status} successfully` });
-    } catch (err: any) {
-      res.status(400).json({ message: err.message });
+    } catch (Error: any) {
+      const error = new Error(Error.message) as any;
+      error.status = 400;
+      throw error;
     }
   };
   getCourseById = async (req: any, res: Response) => {
@@ -168,11 +174,31 @@ export class CourseController {
   getInstructorCourses = async (req: any, res: Response) => {
     try {
       const instructorId = req.user.id;
+      let status = req.query.status;
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 6;
+      let query;
+      console.log(status,'status',page,limit);
 
-      const courses =
-        await this.getInstructorCoursesUseCase.execute(instructorId);
+      if (status === 'Drafted Courses') {
+        query = { instructorId, status: 'draft' };
+      } else if (status === 'Listed Courses') {
+        query = { instructorId, status: 'list' };
+      } else if (status === 'Unlisted Courses') {
+        query = { instructorId, status: 'unlist' };
+      } else {
+        query = { instructorId };
+      }
 
-      res.status(200).json({ courses });
+       let sort: Record<string, 1 | -1> = { createdAt: -1 };
+      if (typeof req.query.sort === 'string') {
+        const [field, dir] = (req.query.sort as string).split(':');
+        sort = { [field]: dir === 'asc' ? 1 : -1 };
+      }
+
+      const courses = await this.getInstructorCoursesUseCase.execute(query,page,limit,sort);
+
+      res.status(200).json(courses);
     } catch (err: any) {
       res.status(500).json({ message: err.message });
     }
@@ -201,8 +227,10 @@ export class CourseController {
 
       await this.deleteCourseUseCase.execute(courseId, instructorId);
       res.status(200).json({ message: 'Course deleted successfully.' });
-    } catch (err: any) {
-      res.status(400).json({ message: err.message });
+    } catch (Error: any) {
+      const error = new Error(Error.message) as any;
+      error.status = 400;
+      throw error;
     }
   };
 }

@@ -12,7 +12,7 @@ export class Course {
     public description: string,
     public duration: Date,
     public tags: string[],
-    public status: "draft" | "published" | "unpublished" = "draft",
+    public status: "draft" | "list" | "unlist" = "draft",
     public id?: string,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date()

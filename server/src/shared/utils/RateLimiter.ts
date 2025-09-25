@@ -1,7 +1,8 @@
 import rateLimit from "express-rate-limit";
 
-export const fiveMinLimit = rateLimit({
-  windowMs:5 * 60 * 1000, // 5 min
+
+export const fiveMinLimit = (minit:number,message:string)=> rateLimit({
+  windowMs:minit * 60 * 1000, // 5 min
   max: 15,                  // only 5 attempts
-  message: "Too many login attempts. Please try again later.",
+  message: `Too many attempts to ${message}. Please try again ${minit} minute later.`,
 });

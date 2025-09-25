@@ -7,7 +7,7 @@ import { fiveMinLimit } from "../../../../shared/utils/RateLimiter";
 const router = Router();
 
 router.post("/register", asyncHandler(studentAuthController.registerStudent));
-router.post("/verify-otp",fiveMinLimit, asyncHandler(studentAuthController.verifyOtp));
+router.post("/verify-otp",fiveMinLimit(10,'verify OTP'), asyncHandler(studentAuthController.verifyOtp));
 
 // router.post("/resend-otp", studentAuthController.resendOtp);
 // router.post("/forgot-password", studentAuthController.forgotPassword);

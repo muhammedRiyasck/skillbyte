@@ -25,6 +25,7 @@ import InstructorLayout from '../../layouts/instructor/InstructorLayout.tsx';
 import InstructorRequests from '../../features/admin/pages/InstructorRequests.tsx';
 import InstructorDashboard from '../../features/instructor/pages/Dashboard.tsx';
 import CreateCourse from '../../features/course/pages/CreateCourse.tsx';
+import InstructorCourses from '../../features/course/pages/InstructorCourses.tsx';
 
 const router = createBrowserRouter([
   {
@@ -85,7 +86,11 @@ const router = createBrowserRouter([
     element: <StudentLayout />,
     children: [
       
-      { index: true, element: <LandingPage /> },
+      { index: true, element:
+        <PublicRoute endPoint=''>
+         <LandingPage />
+         </PublicRoute>
+          },
       // { path: 'courses', element: <Courses /> },
       // { path: 'courses', element: <Courses /> },
       // { path: 'profile', element: <Profile /> },
@@ -107,6 +112,11 @@ const router = createBrowserRouter([
       <ProtectedRoute roles={['instructor']}>
         <CreateCourse /> 
         </ProtectedRoute> 
+      }, 
+      { path: 'myCourses', element:
+      <ProtectedRoute roles={['instructor']}>
+        <InstructorCourses /> 
+      </ProtectedRoute> 
       }, 
     ],
   },

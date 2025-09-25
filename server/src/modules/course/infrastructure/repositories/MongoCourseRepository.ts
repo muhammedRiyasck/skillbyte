@@ -2,6 +2,7 @@ import { create } from "domain";
 import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
 import { Course } from "../../domain/entities/Course";
 import { CourseModel } from "../models/CourseModel";
+import { Types } from "mongoose";
 
 export class MongoCourseRepository implements ICourseRepository {
 
@@ -108,26 +109,56 @@ async findPublishedCourses(filters: {
   ));
 }
 
-async findByInstructorId(instructorId: string): Promise<Course[]> {
-  const docs = await CourseModel.find({ instructorId });
+// async findByInstructorId(query:{instructorId: string,status:string}): Promise<Course[]> {
+//   console.log(query)
+//   const docs = await CourseModel.find(query);
 
-  return docs.map(doc => new Course(
-     doc.instructorId.toString(),
-  doc.thumbnailUrl,
-  doc.title,
-  doc.subText,
-  doc.category,
-  doc.courseLevel,
-  doc.language,
-  doc.price,
-  doc.features,
-  doc.description,
-  doc.duration  ,
-  doc.tags,
-  doc.status,
-  doc._id.toString()
-  ));
-}
+//   return docs.map(doc => new Course(
+//      doc.instructorId.toString(),
+//   doc.thumbnailUrl,
+//   doc.title,
+//   doc.subText,
+//   doc.category,
+//   doc.courseLevel,
+//   doc.language,
+//   doc.price,
+//   doc.features,
+//   doc.description,
+//   doc.duration  ,
+//   doc.tags,
+//   doc.status,
+//   doc._id.toString()
+//   ));
+// }
+
+async listPaginated(
+    filter: Record<string, any>,          // 👈 dynamic filter
+    page: number,
+    limit: number,
+    sort: Record<string, 1 | -1> = { createdAt: -1 }
+  ): Promise<{ data: Course[]; total: number }> {
+
+    const safePage  = Math.max(page, 1);
+    const safeLimit = Math.min(limit, 50);
+    const skip      = (safePage - 1) * safeLimit;
+
+    const [rawData, total] = await Promise.all([
+      CourseModel.find(filter)
+        .sort(sort)
+        .skip(skip)
+        .limit(safeLimit)
+        .lean(),
+      CourseModel.countDocuments(filter)   // use countDocuments when a filter exists
+    ]);
+        const data: Course[] = rawData.map(doc => ({
+      ...doc,
+      instructorId: (doc.instructorId as Types.ObjectId).toString(),
+      createdAt: new Date(doc.createdAt),
+      updatedAt: new Date(doc.updatedAt)
+    }));
+
+    return { data, total };
+  }
 
 async findAllForAdmin(filters: {
   instructorId?: string;

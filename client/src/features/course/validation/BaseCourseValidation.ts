@@ -7,9 +7,14 @@ export const validateCreateCourse = (data: any): Record<string, ValidationRespon
   const errors: Record<string, ValidationResponse> = {};
 
   // Thumbnail
-  if (!data.thumbnail) {
+  if (!data.thumbnailFile) {
     errors.thumbnail = { success: false, message: "Thumbnail is required" };
   }
+  if (data?.thumbnailFile?.size > 2 * 1024 * 1024) {
+    errors.thumbnail = { success: false, message: "Thumbnail must be less than 2 MB"};
+  }
+
+
 
   // Course Title
   if (!data.title.trim()) {

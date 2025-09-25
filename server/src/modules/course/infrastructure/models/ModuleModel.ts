@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const ModuleSchema = new mongoose.Schema({
-  courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course", required: true },
+  courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course", required: true,unique:true },
   title: { type: String, required: true },
   description: {type:String, required: true },
   order: {type:Number, required: true },

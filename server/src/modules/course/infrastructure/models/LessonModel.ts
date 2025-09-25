@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const LessonSchema = new mongoose.Schema({
-  moduleId: { type: mongoose.Schema.Types.ObjectId, ref: "Module", required: true },
+  moduleId: { type: mongoose.Schema.Types.ObjectId, ref: "Module", required: true,unique:true },
   title: { type: String, required: true },
   contentType: { type: String, enum: ["video", "pdf"], required: true },
   contentUrl: { type: String, required: true },

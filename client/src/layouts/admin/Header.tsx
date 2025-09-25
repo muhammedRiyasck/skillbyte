@@ -41,30 +41,30 @@ const header = () => {
         </div>
       </div>
       {isOpen && (
-        <div className="bg-gray-100 left-0 px-8 min-h-screen w-1/2 md:w-1/6 absolute float-end  dark:bg-gray-700 dark:text-white pb-4 text-lg ">
+        <div className="bg-gray-100 right-0 px-8 min-h-screen w-1/2 md:w-2/11 absolute float-end  dark:bg-gray-700 dark:text-white pb-4 text-lg ">
           <div className="mt-14">
-            <Link to="/" className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-300">
+            <Link to="/" className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-500 shadow-md">
               Dashboard
             </Link>
-            <Link to="#" className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-300  ">
+            <Link to="#" className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-500 shadow-md  ">
               Instructor Requests
             </Link>
-            <Link to="#" className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-300  ">
+            <Link to="#" className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-500 shadow-md  ">
               Users
             </Link>
-            <Link to="#" className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-300 ">
+            <Link to="#" className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-500 shadow-md ">
               Courses
             </Link>
-            <Link to="#" className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-300 ">
+            <Link to="#" className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-500 shadow-md ">
               Mentor Feedback
             </Link>
-            <Link to="#" className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-300 ">
+            <Link to="#" className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-500 shadow-md ">
               Reports
             </Link>
             {user && (
               <span
                 onClick={handleLogout}
-                className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-300 cursor-pointer"
+                className="block py-2 my-3 px-4 rounded-md outline-1 outline-gray-200 hover:bg-gray-500 shadow-md cursor-pointer"
               >
                 Sign Out
               </span>

@@ -15,10 +15,12 @@ const CourseSchema = new mongoose.Schema({
   tags: [{ type: String }],
   status: {
   type: String,
-  enum: ["draft", "published", "unpublished"],
+  enum: ["draft", "list", "unlist"],
   default: "draft"
 }
-
 }, { timestamps: true });
+
+CourseSchema.index({status: 1, createdAt: -1 }); 
+
 
 export const CourseModel = mongoose.model("Course", CourseSchema);

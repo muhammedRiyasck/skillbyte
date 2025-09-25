@@ -2,19 +2,24 @@ import React, { useState } from "react";
 import TextInput from "../../../shared/ui/TextInput";
 import AboutCourseField from "../components/DynamicField";
 import ErrorMessage from "../../../shared/ui/ErrorMessage";
-import { validateCreateCourse } from "../validation/BaseCourseValidation"
-import { createBase } from "../services/CreateBase";
+import { validateCreateCourse } from "../validation/BaseCourseValidation";
+import { createBase, uploadThumbnail } from "../services/CreateBase";
 import api from "../../../shared/utils/AxiosInstance";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import Spiner from "../../../shared/ui/Spiner";
+import CropImageModal from "../../../shared/ui/CropImageModal";
+import getCroppedImg from "../../../shared/utils/GetCroppedImg";
+import useCreateCourse from "../hooks/useCreateCourse";
 
 const CreateCourse = () => {
-  const navigate = useNavigate()
-  const [spining,setSpining] = useState(false)
-  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
+  const navigate = useNavigate();
+  const [spining, setSpining] = useState(false);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [isCropOpen, setIsCropOpen] = useState(false);
+  const [croppedBlob, setCroppedBlob] = useState<Blob | null>(null);
   const [formData, setFormData] = useState({
-    thumbnail: '',
+    thumbnail: "",
     title: "",
     subText: "",
     category: "",
@@ -26,7 +31,7 @@ const CreateCourse = () => {
     price: "",
     description: "",
     tags: "",
-    features: [''] as string[],
+    features: [""] as string[],
   });
 
   const [errors, setErrors] = useState<Record<string, { success: boolean; message: string }>>({});
@@ -45,11 +50,19 @@ const CreateCourse = () => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setThumbnailFile(file);
-      setFormData((prev) => ({
-        ...prev,
-        thumbnail: URL.createObjectURL(file),
-      }));
+      setIsCropOpen(true);
     }
+  };
+
+  const handleCropComplete = async (croppedAreaPixels: any) => {
+    if (!thumbnailFile || !croppedAreaPixels) return;
+
+    const croppedblob = await getCroppedImg(URL.createObjectURL(thumbnailFile), croppedAreaPixels);
+    setFormData((prev) => ({
+      ...prev,
+      thumbnail: URL.createObjectURL(croppedblob),
+    }));
+    setCroppedBlob(croppedblob);
   };
 
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -58,45 +71,42 @@ const CreateCourse = () => {
       ...prev,
       category: value,
       otherCategory: value === "Other",
-      customCategory: value === "Other" ? prev.customCategory : ""
+      customCategory: value === "Other" ? prev.customCategory : "",
     }));
   };
 
-  const handleSubmit = async(e: React.FormEvent) => {
+  const createCourse = useCreateCourse();
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const validationErrors = validateCreateCourse(formData);
+    const validationErrors = validateCreateCourse({ ...formData, thumbnailFile });
     setErrors(validationErrors);
 
-     if (Object.keys(validationErrors).length === 0) {
-    
-    const response = await createBase({...formData,thumbnail:null});
-     
-    if (thumbnailFile) {
-      const photo = new FormData();
-      photo.append('thumbnail', thumbnailFile);
-      try {
-        setSpining(true)
-        const success = await api.post(`/course/upload-thumbnail/${response.course.id}`, photo);
-        toast.success(success.data.message)
-        navigate('/')
-      } catch (error) {
-        toast.error('Something Went Wrong! Try Again Later')
-        throw error
-      }finally{
-        setSpining(false)
+    if (Object.keys(validationErrors).length === 0) {
+
+      if (croppedBlob && thumbnailFile) {
+        try {
+          setSpining(true);
+          await createCourse({ formData, croppedBlob, thumbnailFile });
+          toast.success("Course created successfully!");
+          navigate("/");
+        } catch (error: any) {
+          toast.error(error.message);
+          throw error;
+        } finally {
+          setSpining(false);
+        }
       }
     }
-  }
-     
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col ">
       {spining && Spiner()}
+
       {/* Top Navigation */}
-      <div className="dark:bg-gray-700 shadow px-6 py-4 flex justify-between items-center">
+      <div className="bg-gray-200 dark:bg-gray-700  px-6 py-4 flex justify-between items-center">
         <h1 className="text-xl font-bold text-gray-800 dark:text-white">Create Course</h1>
-        <button className="border dark:text-white border-gray-300 rounded-lg px-5 py-2 text-gray-600 hover:bg-gray-100 transition">
+        <button className="border border-gray-300 text-center w-48 rounded-lg px-5 py-2 dark:text-gray-300 shadow-lg cursor-pointer bg-white dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500">
           Save as Draft
         </button>
       </div>
@@ -104,20 +114,27 @@ const CreateCourse = () => {
       <div className="flex-col bg-white dark:bg-gray-800">
         <form
           onSubmit={handleSubmit}
-          className={`w-5/6 rounded-lg shadow p-6 m-6 mx-auto dark:bg-gray-700 dark:text-gray-100 dark:border ${Object.keys(errors).length>0 ?"border border-red-600":''} `}
+          className={`w-5/6 rounded-lg shadow-2xl p-6 m-6 mx-auto  dark:bg-gray-700 dark:text-gray-100 dark:border ${
+            Object.keys(errors).length > 0 ? "border border-red-600" : ""
+          } `}
         >
           <h2 className="text-lg font-semibold mb-6">Basics</h2>
 
           {/* Thumbnail */}
           <div className="mb-6">
+            {thumbnailFile && (
+              <CropImageModal
+                isOpen={isCropOpen}
+                onClose={() => setIsCropOpen(false)}
+                file={thumbnailFile}
+                onCropComplete={handleCropComplete}
+              />
+            )}
+
             <label className="block text-gray-700 mb-2 dark:text-white">Thumbnail</label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center">
               {formData.thumbnail ? (
-                <img
-                  src={formData.thumbnail}
-                  alt="thumbnail"
-                  className="rounded-lg w-64 h-40 object-cover mb-3"
-                />
+                <img src={formData.thumbnail} alt="thumbnail" className="rounded-lg w-64 h-40 object-cover mb-3" />
               ) : (
                 <p className="text-gray-400">No image selected</p>
               )}
@@ -129,8 +146,9 @@ const CreateCourse = () => {
                 {formData.thumbnail && (
                   <button
                     onClick={() => {
-                      setFormData((prev) => ({ ...prev, thumbnail: '' }));
+                      setFormData((prev) => ({ ...prev, thumbnail: "" }));
                       setThumbnailFile(null);
+                      setCroppedBlob(null);
                     }}
                     className="cursor-pointer border border-gray-300 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition"
                   >
@@ -161,20 +179,22 @@ const CreateCourse = () => {
             {/* Short Sentence */}
             <div>
               <label className="block text-gray-700 dark:text-white mb-2">Short Sentence (below Title)</label>
-              <TextInput
+
+              <textarea
                 id="subtext"
-                type="text"
+                rows={2}
                 placeholder="Enter short sentence"
+                className="w-full border border-gray-400 rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 value={formData.subText}
-                setValue={(val) => setFormData((prev) => ({ ...prev, subText: val }))}
-                className="dark:border-white"
+                onChange={(e) => setFormData((prev) => ({ ...prev, subText: e.target.value }))}
               />
+
               {errors.shortSEntence && <ErrorMessage error={errors.shortSEntence.message} />}
             </div>
 
             {/* Category */}
             <div>
-              <label className="block text-gray-700 mb-2 dark:text-white">Category</label>
+              <label className="block text-gray-700 mb-2 dark:text-white">Course Category</label>
               <select
                 value={formData.category}
                 onChange={handleCategoryChange}
@@ -288,9 +308,7 @@ const CreateCourse = () => {
 
           {/* About Course */}
           <div className="mt-6">
-            <label className="block text-gray-700 dark:text-white mb-2">
-              About This Course (features)
-            </label>
+            <label className="block text-gray-700 dark:text-white mb-2">About This Course (features)</label>
             <AboutCourseField
               points={formData.features}
               setPoints={(val: string[]) => setFormData((prev) => ({ ...prev, features: val }))}
@@ -305,11 +323,9 @@ const CreateCourse = () => {
               <textarea
                 rows={5}
                 placeholder="Write course description..."
-                className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full border border-gray-400 rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                 value={formData.description}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, description: e.target.value }))
-                }
+                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
               />
             </div>
             {errors.description && <ErrorMessage error={errors.description.message} />}
@@ -318,9 +334,10 @@ const CreateCourse = () => {
           {/* Next Button */}
           <div className="flex justify-end mt-8">
             <button
-              
               type="submit"
-              className={`bg-indigo-600 text-white rounded-lg px-6 py-2 hover:bg-indigo-700 transition cursor-pointer ${Object.keys(errors).length>0 ?"opacity-50 cursor-not-allowed":''}`}
+              className={`bg-indigo-600 text-white rounded-lg px-6 py-2 hover:bg-indigo-700 transition cursor-pointer ${
+                Object.keys(errors).length > 0 ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
               Next →
             </button>

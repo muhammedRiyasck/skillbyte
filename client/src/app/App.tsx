@@ -7,7 +7,16 @@ import { Toaster } from "sonner";
 import { fetchCurrentUser } from "../features/auth/AuthSlice.ts";
 import type{ RootState, AppDispatch } from '../core/store/Index.ts';
 import Home from "../shared/shimmer/Home.tsx";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -24,10 +33,10 @@ function App() {
   }
 
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <Toaster position="top-center" richColors />
       <RouterProvider router={router} />
-    </>
+    </QueryClientProvider>
   );
 }
 

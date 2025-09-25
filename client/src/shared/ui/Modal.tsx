@@ -1,43 +1,30 @@
-import{ Fragment, useState } from "react";
+import { Fragment } from "react";
+import type { ReactNode } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import ErrorMessage from "./ErrorMessage";
 
-interface ModalProps {
+interface BaseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  title: string;
-  onSubmit: (reason: string) => void; 
-  name:string
+  title?: string;
+  onConfirm?: () => void;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  children?: ReactNode;
 }
 
-export default function Modal({ isOpen, onClose, title, onSubmit, name  }: ModalProps) {
-  const [reason, setReason] = useState("");
-  const [error, setError] = useState("")
-  const handleConfirm = () => {
-    if(title === 'Approve Instructor'){
-        onSubmit(reason.trim());
-        setReason("");
-        onClose();
-        
-    }else{
-        if(!reason.trim()){
-            setError('reason is required to decline')
-            return
-        } 
-        setError('')
-        onSubmit(reason);
-        setReason("");
-        onClose();
-
-    }
-  
-    
-  };
-
+export default function Modal({
+  isOpen,
+  onClose,
+  title,
+  onConfirm,
+  confirmLabel = "Confirm",
+  cancelLabel = "Cancel",
+  children,
+}: BaseModalProps) {
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-50" onClose={onClose}>
-        {/* Background overlay */}
+        {/* Overlay */}
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -50,7 +37,7 @@ export default function Modal({ isOpen, onClose, title, onSubmit, name  }: Modal
           <div className="fixed inset-0 bg-black/30" />
         </Transition.Child>
 
-        {/* Modal panel */}
+        {/* Panel */}
         <div className="fixed inset-0 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
             <Transition.Child
@@ -63,39 +50,36 @@ export default function Modal({ isOpen, onClose, title, onSubmit, name  }: Modal
               leaveTo="opacity-0 scale-95"
             >
               <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all">
-                <Dialog.Title
-                  as="h3"
-                  className="text-lg font-semibold leading-6 text-gray-900 dark:text-gray-100"
-                >
-                  {title}
-                </Dialog.Title>
+                {title && (
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-semibold leading-6 text-gray-900 dark:text-gray-100"
+                  >
+                    {title}
+                  </Dialog.Title>
+                )}
 
-                {title === 'Approve Instructor'? <p className="text-center dark:text-white my-8 text-lg ">Are You Sure To Accept <br /><strong >{name}</strong></p>:<div className="mt-4">
-                  <textarea
-                    rows={4}
-                    placeholder="Enter reason..."
-                    value={reason}
-                    onChange={(e) => setReason(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 p-2 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  />
-                  <ErrorMessage error={error}/>
-                </div>}
+                {/* Custom content */}
+                <div className="mt-4">{children}</div>
 
-                <div className="mt-5 flex justify-end gap-3">
+                {/* Footer */}
+                <div className="mt-6 flex justify-end gap-3">
                   <button
                     type="button"
                     className="rounded-lg border border-gray-300 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                     onClick={onClose}
                   >
-                    Cancel
+                    {cancelLabel}
                   </button>
-                  <button
-                    type="button"
-                    className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 cursor-pointer"
-                    onClick={handleConfirm}
-                  >
-                    Confirm
-                  </button>
+                  {onConfirm && (
+                    <button
+                      type="button"
+                      className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 cursor-pointer"
+                      onClick={onConfirm}
+                    >
+                      {confirmLabel}
+                    </button>
+                  )}
                 </div>
               </Dialog.Panel>
             </Transition.Child>
