@@ -16,6 +16,7 @@
   "devDependencies": {
     "@eslint/js": "^9.28.0",
     "@eslint/json": "^0.12.0",
+    "@types/backblaze-b2": "^1.5.6",
     "@types/cookie-parser": "^1.4.9",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
@@ -29,6 +30,7 @@
     "@types/passport-facebook": "^3.0.3",
     "@types/passport-google-oauth20": "^2.0.16",
     "@types/streamifier": "^0.1.2",
+    "@types/winston": "^2.4.4",
     "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.4.1",
@@ -41,6 +43,9 @@
     "typescript-eslint": "^8.33.1"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.896.0",
+    "@aws-sdk/s3-request-presigner": "^3.896.0",
+    "backblaze-b2": "^1.7.1",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^1.41.3",
     "cookie-parser": "^1.4.7",
@@ -58,6 +63,7 @@
     "passport": "^0.7.0",
     "passport-facebook": "^3.0.0",
     "passport-google-oauth20": "^2.0.0",
-    "streamifier": "^0.1.1"
+    "streamifier": "^0.1.1",
+    "zod": "^4.1.12"
   }
 }
