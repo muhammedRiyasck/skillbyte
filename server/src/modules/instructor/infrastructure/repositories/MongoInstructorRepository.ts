@@ -2,12 +2,14 @@ import { InstructorModel } from "../models/InstructorModel";
 import { IInstructorRepository } from "../../domain/IRepositories/IInstructorRepository";
 import { Instructor } from "../../domain/entities/Instructor";
 import { InstructorMapper } from "../../mappers/InstructorMapper";
+import { Types } from "mongoose";
 
 export class MongoInstructorRepository implements IInstructorRepository {
   async save(instructor: Instructor): Promise<void> {
     const data = InstructorMapper.toPersistence(instructor);
     await InstructorModel.create(data);
   }
+  // Find admin by email to support login functionality
 
   async findByEmail(email: string): Promise<Instructor | null> {
     const doc = await InstructorModel.findOne({ email });
@@ -21,6 +23,35 @@ export class MongoInstructorRepository implements IInstructorRepository {
     return InstructorMapper.toEntity(doc);
   }
 
+  async listPaginatedInstructor(
+      filter: Record<string, any>,         
+      page: number,
+      limit: number,
+      sort: Record<string, 1 | -1> = { createdAt: -1 }
+    ): Promise<{ data: Instructor[]; total: number }> {
+  
+      const safePage  = Math.max(page, 1);
+      const safeLimit = Math.min(limit, 50);
+      const skip      = (safePage - 1) * safeLimit;
+  
+      const [rawData, total] = await Promise.all([
+        InstructorModel.find(filter).select('-passwordHash')
+          .sort(sort)
+          .skip(skip)
+          .limit(safeLimit)
+          .lean(),
+        InstructorModel.countDocuments(filter)   // use countDocuments when a filter exists
+      ]);
+          const data: Instructor[] = rawData.map(doc => ({
+        ...doc,
+        instructorId: (doc._id as Types.ObjectId).toString(),
+        createdAt: new Date(doc.createdAt),
+        updatedAt: new Date(doc.updatedAt)
+      }));
+  
+      return { data, total };
+    }
+
   async findByIdAndUpdatePassword(id: string, passwordHash: string): Promise<{name:string,email:string}|void> {
       try {
         
@@ -33,11 +64,7 @@ export class MongoInstructorRepository implements IInstructorRepository {
       }
     }
 
-  async listPending(): Promise<Instructor[] | null> {
-    const docs = await InstructorModel.find({ accountStatus: "pending" }).select('-passwordHash');
-    if (!docs || docs.length === 0) return null;
-    return docs.map(doc => InstructorMapper.toEntity(doc));
-  }
+
 
 async approve(id: string, adminId: string): Promise<void> {
   await InstructorModel.findByIdAndUpdate(id, {
@@ -64,10 +91,16 @@ async findAllApproved(): Promise<Instructor[]|null> {
   return docs.map(doc => InstructorMapper.toEntity(doc));
 }
 
-async changeStatus(id: string, status: "active" | "suspended"): Promise<void> {
-  await InstructorModel.findByIdAndUpdate(id, { accountStatus: status });
+async changeInstructorStatus(id: string, status: "active" | "suspended",note?:string): Promise<void> {
+  await InstructorModel.findByIdAndUpdate(id, { accountStatus: status,suspendNote:note || null });
 }
 
- 
+async deleteById(id: string): Promise<void> {
+  await InstructorModel.findByIdAndDelete(id);
+}
+
+async updateById(id: string, updates: Partial<Instructor>): Promise<void> {
+  await InstructorModel.findByIdAndUpdate(id, updates);
+}
 }
 

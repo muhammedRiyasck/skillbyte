@@ -7,3 +7,4 @@ router.post("/register", asyncHandler(instructorAuthController.registerInstructo
 router.post("/verify-otp", asyncHandler(instructorAuthController.verifyOtp));
 
 export default router;
+

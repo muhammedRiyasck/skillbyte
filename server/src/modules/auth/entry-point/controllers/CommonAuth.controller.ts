@@ -1,150 +1,211 @@
-// modules/auth/interfaces/controllers/login.controller.ts
-
 import { Request, Response } from 'express';
-import { LoginStudentUseCase } from '../../../student/application/use-cases/LoginStudentUseCase';
-import { LoginInstructorUseCase } from '../../../instructor/application/use-cases/LoginInstructorUseCase';
-import { AccessTokenUseCase   } from '../../application/AccessTokenUseCase';
-import { ResendOtpUseCase } from '../../application/ResendOtpUseCase';
-import { ForgotPasswordUseCase } from '../../application/ForgotPasswordUseCase';
-import { ResetPasswordUseCase } from '../../application/ResetPasswordUseCase';
-import { AmILoggedInUseCase } from '../../application/AmILoggedInUseCase';
+import { IAccessTokenUseCase } from '../../application/interfaces/IAccessTokenUseCase';
+import { IResendOtpUseCase } from '../../application/interfaces/IResendOtpUseCase';
+import { IForgotPasswordUseCase } from '../../application/interfaces/IForgotPasswordUseCase';
+import { IResetPasswordUseCase } from '../../application/interfaces/IResetPasswordUseCase';
+import { IAmILoggedInUseCase } from '../../application/interfaces/IAmILoggedInUseCase';
+import { ILoginStudentUseCase } from '../../../student/application/interfaces/ILoginStudentUseCase';
+import { ILoginInstructorUseCase } from '../../../instructor/application/interfaces/ILoginInstructorUseCase';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { LoginSchema, ResendOtpSchema, ForgotPasswordSchema, ResetPasswordSchema } from '../../../../shared/validations/AuthValidation';
+import logger from '../../../../shared/utils/Logger';
+import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 
 export class CommonAuthController {
   constructor(
-    private readonly studentLoginUC: LoginStudentUseCase,
-    private readonly instructorLoginUC: LoginInstructorUseCase,
-    private readonly accessTokenUseCase: AccessTokenUseCase,
-    private readonly resendOtpUseCase: ResendOtpUseCase,
-    private readonly forgotPasswordUseCase : ForgotPasswordUseCase,
-    private readonly resetPasswordUseCase : ResetPasswordUseCase,
-    private readonly googleLoginUseCase : AmILoggedInUseCase
+    private readonly studentLoginUC: ILoginStudentUseCase,
+    private readonly instructorLoginUC: ILoginInstructorUseCase,
+    private readonly accessTokenUseCase: IAccessTokenUseCase,
+    private readonly resendOtpUseCase: IResendOtpUseCase,
+    private readonly forgotPasswordUseCase : IForgotPasswordUseCase,
+    private readonly resetPasswordUseCase : IResetPasswordUseCase,
+    private readonly amILoggedInUseCase : IAmILoggedInUseCase
   ) {}
 
-   amILoggedIn =  async(req: any, res: Response): Promise<void> => {
-     const decodedUserData = req.user;
-     const user = await this.googleLoginUseCase.execute(decodedUserData.id,decodedUserData.role)
-     console.log('Iam i logged' , user?true:false)
-    res.status(200).json({message: 'User is logged in', userData:{name:user?.name,email:user?.email,profilePicture:user?.profilePictureUrl,role:decodedUserData.role}});
-  }
-
-   login = async(req: Request, res: Response): Promise<void> => {
-    const { email, password, role } = req.body;
-    console.log(req.body,'from login')
-    if (!email || !password || !role) {
-      res
-        .status(400)
-        .json({ error: 'Email, password, and role are required' });
-      return;
-    }
-    
-
-    try {
-      let data;
-
-      switch (role) {
-        case 'student':
-          data = await this.studentLoginUC.execute(email, password);
-          break;
-        case 'instructor':
-          data = await this.instructorLoginUC.execute(email, password);
-          break;
-        default:
-          res.status(400).json({ message: 'Invalid role' });
-          return;
+  /**
+   * Checks if the user is logged in.
+   * @param req - Authenticated request object.
+   * @param res - Express response object.
+   */
+  amILoggedIn = async (req: Request, res: Response): Promise<void> => {
+    logger.info(`AmILoggedIn check from IP: ${req.ip}`);
+    const decodedUserData = req.user as { id: string; role: string };
+    const user = await this.amILoggedInUseCase.execute(decodedUserData.id, decodedUserData.role);
+    logger.info(`User logged in status: ${user ? true : false}`);
+    ApiResponseHelper.success(res, 'User is logged in', {
+      userData: {
+        name: user?.name,
+        email: user?.email,
+        profilePicture: user?.profilePictureUrl,
+        role: decodedUserData.role
       }
-      const { user, accessToken, refreshToken } = data;
-     
-      res.cookie('access_token', accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 15 * 60 * 1000,
-      });
+    });
+  };
 
-      res.cookie('refresh_token', refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-      });
+  /**
+   * Handles user login for students and instructors.
+   * @param req - Express request object.
+   * @param res - Express response object.
+   */
+  login = async (req: Request, res: Response): Promise<void> => {
+    logger.info(`Login attempt from IP: ${req.ip}`);
 
-      res.status(200).json({
-        message: 'Login successful',
-        userData: {
-          name: user.name,
-          email: user.email,
-          role,
-          profilePicture: user.profilePictureUrl
-        },
-      });
-    } catch (error: any) {
-      res.status(error.status||400).json({ error: error.message || 'Invalid credentials' });
+    const validationResult = LoginSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      logger.warn(`Login validation failed: ${validationResult.error.message}`);
+      throw new HttpError('Invalid input', HttpStatusCode.BAD_REQUEST);
     }
-  }
 
-    refreshToken =  (req: Request, res: Response):void=>{
-    
-      const refreshToken = req.cookies.refresh_token;
-      console.log('refresh token called ')
-      const newAccessToken = this.accessTokenUseCase.execute(refreshToken);
+    const { email, password, role } = validationResult.data;
 
-      res.cookie("access_token", newAccessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 15 * 60 * 1000 // 15 min
-      });
+    let data;
 
-       res.status(200).json({ message: "Access token refreshed" });
-    
+    switch (role) {
+      case 'student':
+        data = await this.studentLoginUC.execute(email, password);
+        break;
+      case 'instructor':
+        data = await this.instructorLoginUC.execute(email, password);
+        break;
+      default:
+        logger.warn(`Invalid role attempted: ${role}`);
+        throw new HttpError('Invalid role', HttpStatusCode.BAD_REQUEST);
+    }
+    const { user, accessToken, refreshToken } = data;
+
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    logger.info(`Login successful for ${role}: ${email}`);
+
+    ApiResponseHelper.success(res, 'Login successful', {
+      userData: {
+        name: user.name,
+        email: user.email,
+        role,
+        profilePicture: user.profilePictureUrl
+      },
+    });
+  };
+
+  /**
+   * Refreshes the access token using the refresh token.
+   * @param req - Express request object.
+   * @param res - Express response object.
+   */
+  refreshToken = (req: Request, res: Response): void => {
+    logger.info(`Refresh token attempt from IP: ${req.ip}`);
+
+    const refreshToken = req.cookies.refresh_token;
+    if (!refreshToken) {
+      logger.warn('Refresh token missing');
+      throw new HttpError('Refresh token required', HttpStatusCode.UNAUTHORIZED);
+    }
+
+    const newAccessToken = this.accessTokenUseCase.execute(refreshToken);
+
+    res.cookie("access_token", newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 15 * 60 * 1000 // 15 min
+    });
+
+    logger.info('Access token refreshed successfully');
+    ApiResponseHelper.success(res, "Access token refreshed");
   };
 
 
-    resendOtp = async (req: Request, res: Response): Promise<void> => {
-      const { email } = req.body
-      await this.resendOtpUseCase.execute(email); 
-      res.json({ message: "OTP resent successfully" });
-    };
+  /**
+   * Resends OTP to the user's email.
+   * @param req - Express request object.
+   * @param res - Express response object.
+   */
+  resendOtp = async (req: Request, res: Response): Promise<void> => {
+    logger.info(`Resend OTP attempt from IP: ${req.ip}`);
 
-    forgotPassword = async (req:Request,res:Response): Promise<void> =>{
-      const {email,role} = req.body
-      const genericMsg = { message: 'If the email exists, a reset link has been sent.' };
-      if(!['student','instructor'].includes(role)){
-        res.status(400).json({message:'Invalid Role, Please Check It Properly'})
-      }
-      if(!email&&!role) {
-        res.status(400).json({message:'Email and User Role is Required'})
-        return
-      }
-      const user = await this.forgotPasswordUseCase.execute(email,role)
-      if(user === false){
-        console.log(true)
-        await new Promise((res) => setTimeout(res, 5000));
-      }
-      res.status(200).json(genericMsg) 
-
+    const validationResult = ResendOtpSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      logger.warn(`Resend OTP validation failed: ${validationResult.error.message}`);
+      throw new HttpError('Invalid input', HttpStatusCode.BAD_REQUEST);
     }
 
-    resetPassword = async(req:Request,res:Response): Promise<void> =>{
-      const {token , password, role} = req.body
-      
-       if(!['student','instructor'].includes(role)){
-        res.status(400).json({message:'Invalid Role, Please Check It Properly'})
-      }
-      if(!password){
-        res.status(400).json({message:'Reset Password is Required'}) 
-        return
-      }
-      if(!role&&!token){
-        res.status(400).json({message:'Token and Role is Required'}) 
-        return
-      }
-      await this.resetPasswordUseCase.execute(token,password,role)
-      res.status(200).json({message:'Password Reseted Successfully'})
+    const { email } = validationResult.data;
+
+    await this.resendOtpUseCase.execute(email);
+    logger.info(`OTP resent successfully to: ${email}`);
+    ApiResponseHelper.success(res, "OTP resent successfully");
+  };
+
+  /**
+   * Handles forgot password request by sending reset link.
+   * @param req - Express request object.
+   * @param res - Express response object.
+   */
+  forgotPassword = async (req: Request, res: Response): Promise<void> => {
+    logger.info(`Forgot password attempt from IP: ${req.ip}`);
+
+    const validationResult = ForgotPasswordSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      logger.warn(`Forgot password validation failed: ${validationResult.error.message}`);
+      throw new HttpError('Invalid input', HttpStatusCode.BAD_REQUEST);
     }
 
+    const { email, role } = validationResult.data;
 
-   logout=(req: Request, res: Response)=> {
+    const user = await this.forgotPasswordUseCase.execute(email, role);
+    // Delay to prevent timing attacks
+    if (user === false) {
+      logger.info(`Non-existent user delay for email: ${email}`);
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    } else {
+      logger.info(`Forgot password link sent to: ${email} for role: ${role}`);
+    }
+    ApiResponseHelper.success(res, 'If the email exists, a reset link has been sent.');
+  };
+
+  /**
+   * Resets the user's password using a reset token.
+   * @param req - Express request object.
+   * @param res - Express response object.
+   */
+  resetPassword = async (req: Request, res: Response): Promise<void> => {
+    logger.info(`Reset password attempt from IP: ${req.ip}`);
+
+    const validationResult = ResetPasswordSchema.safeParse(req.body);
+    if (!validationResult.success) {
+      logger.warn(`Reset password validation failed: ${validationResult.error.message}`);
+      throw new HttpError('Invalid input', HttpStatusCode.BAD_REQUEST);
+    }
+
+    const { token, password, role } = validationResult.data;
+
+    await this.resetPasswordUseCase.execute(token, password, role);
+    logger.info(`Password reset successful for role: ${role}`);
+    ApiResponseHelper.success(res, 'Password reset successfully');
+  };
+
+
+  /**
+   * Logs out the user by clearing authentication cookies.
+   * @param req - Express request object.
+   * @param res - Express response object.
+   */
+  logout = (req: Request, res: Response): void => {
+    logger.info(`Logout attempt from IP: ${req.ip}`);
+
     res.clearCookie('access_token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -156,8 +217,9 @@ export class CommonAuthController {
       sameSite: 'strict',
     });
 
-    res.status(200).json({ message: 'Logout successfull' });
-  }
+    logger.info('User logged out successfully');
+    ApiResponseHelper.success(res, 'Logout successful');
+  };
 
   
 }

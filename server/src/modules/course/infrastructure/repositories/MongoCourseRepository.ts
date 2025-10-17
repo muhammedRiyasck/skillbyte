@@ -1,8 +1,10 @@
-import { create } from "domain";
 import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
 import { Course } from "../../domain/entities/Course";
 import { CourseModel } from "../models/CourseModel";
+import { ModuleModel } from "../models/ModuleModel";
+import { LessonModel } from "../models/LessonModel";
 import { Types } from "mongoose";
+import { ModuleWithLessons } from "../../domain/entities/IModuleWithLessons";
 
 export class MongoCourseRepository implements ICourseRepository {
 
@@ -65,10 +67,9 @@ export class MongoCourseRepository implements ICourseRepository {
 async findPublishedCourses(filters: {
   search?: string;
   category?: string;
-  price?: 'free' | 'paid';
 }): Promise<Course[]> {
 
-  const query: any = { status: "published" };
+  const query: any = { status: "list" };
 
   if (filters.search) {
     query.$or = [
@@ -81,11 +82,11 @@ async findPublishedCourses(filters: {
     query.category = filters.category;
   }
 
-  if (filters.price === "free") {
-    query.price = 0;
-  } else if (filters.price === "paid") {
-    query.price = { $gt: 0 };
-  }
+  // if (filters.price === "free") {
+  //   query.price = 0;
+  // } else if (filters.price === "paid") {
+  //   query.price = { $gt: 0 };
+  // }
 
   console.log("Querying courses with filters:", query);
 
@@ -109,30 +110,8 @@ async findPublishedCourses(filters: {
   ));
 }
 
-// async findByInstructorId(query:{instructorId: string,status:string}): Promise<Course[]> {
-//   console.log(query)
-//   const docs = await CourseModel.find(query);
-
-//   return docs.map(doc => new Course(
-//      doc.instructorId.toString(),
-//   doc.thumbnailUrl,
-//   doc.title,
-//   doc.subText,
-//   doc.category,
-//   doc.courseLevel,
-//   doc.language,
-//   doc.price,
-//   doc.features,
-//   doc.description,
-//   doc.duration  ,
-//   doc.tags,
-//   doc.status,
-//   doc._id.toString()
-//   ));
-// }
-
 async listPaginated(
-    filter: Record<string, any>,          // 👈 dynamic filter
+    filter: Record<string, any>,         
     page: number,
     limit: number,
     sort: Record<string, 1 | -1> = { createdAt: -1 }
@@ -188,7 +167,7 @@ async findAllForAdmin(filters: {
   }
 
   const docs = await CourseModel.find(query)
-    .populate("instructorId", "name email");
+    // .populate("instructorId", "name email");
 
   return docs.map(doc => new Course(
   doc.instructorId.toString(),
@@ -208,12 +187,12 @@ async findAllForAdmin(filters: {
   ));
 }
 
-async update(courseId: string, updatedFields: Partial<Course>): Promise<void> {
+async updateBaseInfo(courseId: string, updatedFields: Partial<Course>): Promise<void> {
   await CourseModel.findByIdAndUpdate(courseId, updatedFields, { new: true });
 }
 
 
-async updateStatus(courseId: string, status: "published" | "unpublished"): Promise<void> {
+async updateStatus(courseId: string, status: "list" | "unlist"): Promise<void> {
   await CourseModel.findByIdAndUpdate(courseId, { status });
 }
 
@@ -221,4 +200,5 @@ async deleteById(courseId: string): Promise<void> {
   await CourseModel.findByIdAndDelete(courseId);
 }
 
+ 
 }

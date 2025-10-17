@@ -12,7 +12,7 @@ config();
 
 const app = express();
 app.use(session({
-  secret: "some_secret_key", 
+  secret: process.env.SESSION_SECRET || "default_secret_change_in_prod",
   resave: false,
   saveUninitialized: true
 }));
@@ -45,23 +45,25 @@ const limiter = rateLimit({
   standardHeaders: true,    // Return rate limit info in the `RateLimit-*` headers
 });
 
-// app.use(limiter);
+app.use(limiter);
 
 import AuthRoutes from "./modules/auth/entry-point/routes/Auth.Routes";
 import AdminAuthRoutes from "./modules/admin/entry-points/routes/Auth.routes";
 import StudentauthRoutes from "./modules/student/entry-points/routes/Auth.routes";
 import AdminStudentRoutes from "./modules/student/entry-points/routes/AdminStudent.routes";
 import InstructorauthRoutes from "./modules/instructor/entry-point/routes/Auth.Routes";
-import AdminInstructorRoutes from './modules/instructor/entry-point/routes/AdminInstructor.routes'
+import InstructorProfileRoutes from "./modules/instructor/entry-point/routes/InstructorProfile.routes";
+import AdminInstructorRoutes from './modules/instructor/entry-point/routes/AdminInstructor.Routes'
 import CourseRoutes from "./modules/course/entry-point/routes/Course.routes";
 // import AdminCourseRoutes from "./modules/course/entry-point/routes/AdminCourse.Routes";
 // Load auth routes
 app.use("/api/auth", AuthRoutes);
 
 app.use("/api/student", StudentauthRoutes);
+app.use("/api/students", AdminStudentRoutes)
 
 app.use("/api/instructor", InstructorauthRoutes);
-
+app.use("/api/instructor", InstructorProfileRoutes);
 app.use("/api/instructors/", AdminInstructorRoutes)
 
 app.use("/api/course", CourseRoutes);

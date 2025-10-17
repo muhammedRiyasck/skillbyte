@@ -1,44 +1,67 @@
+import { HttpStatusCode } from "../../../../shared/enums/HttpStatusCodes";
 import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
 import { ILessonRepository } from "../../domain/IRepositories/ILessonRepository";
 import { IModuleRepository } from "../../domain/IRepositories/IModuleRepository";
-import { Lesson } from "../../domain/entities/Lession";
+import { Lesson } from "../../domain/entities/Lesson";
+import { ICreateLessonUseCase } from "../interfaces/ICreateLessonUseCase";
+import { ERROR_MESSAGES } from "../../../../shared/constants/messages";
+import { HttpError } from "../../../../shared/types/HttpError";
 
-export class CreateLessonUseCase {
+type WithInstructorId<T> = T & { instructorId: string };
+
+/**
+ * Use case for creating a new lesson.
+ * Handles validation of module and course ownership, then creates and saves the lesson.
+ */
+export class CreateLessonUseCase implements ICreateLessonUseCase {
+  /**
+   * Constructs a new CreateLessonUseCase instance.
+   * @param courseRepo - The repository for course data operations.
+   * @param moduleRepo - The repository for module data operations.
+   * @param lessonRepo - The repository for lesson data operations.
+   */
   constructor(
-    private courseRepo: ICourseRepository, // Assuming courseRepo is used to verify ownership
+    private courseRepo: ICourseRepository,
     private moduleRepo: IModuleRepository,
     private lessonRepo: ILessonRepository,
   ) {}
 
-  async execute(dto: {
-    moduleId: string;
-    instructorId: string;
-    title: string;
-    contentType: "video" | "pdf";
-    contentUrl: string;
-    order: number;
-    isFreePreview?: boolean;
-    isPublished?: boolean;
-  }): Promise<void> {
-      
-          // verify instructor owns the course/module
+  /**
+   * Executes the lesson creation logic.
+   * Validates the module exists, the course exists, and the instructor owns the course.
+   * Creates a new Lesson entity and saves it.
+   * @param dto - The data transfer object containing lesson creation details with instructor ID.
+   * @returns A promise that resolves to the created Lesson entity.
+   * @throws HttpError with appropriate status code if validation fails.
+   */
+  async execute(dto: WithInstructorId<Lesson>): Promise<Lesson> {
     const module = await this.moduleRepo.findById(dto.moduleId);
-    if (!module) throw new Error("Module not found");
-    const course = await this.courseRepo.findById(module?.courseId); 
-    if (!course) throw new Error("Course not found");
-    if (course.instructorId !== dto.instructorId) {
-      throw new Error("Unauthorized to add lesson to this module");
+    if (!module) {
+      throw new HttpError(ERROR_MESSAGES.MODULE_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
     }
+
+    const course = await this.courseRepo.findById(module.courseId);
+    if (!course) {
+      throw new HttpError(ERROR_MESSAGES.COURSE_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
+    }
+
+    if (course.instructorId !== dto.instructorId) {
+      throw new HttpError(ERROR_MESSAGES.UNAUTHORIZED_ADD_LESSON, HttpStatusCode.BAD_REQUEST);
+    }
+
     const lesson = new Lesson(
       dto.moduleId,
       dto.title,
+      dto.description,
       dto.contentType,
-      dto.contentUrl,
+      dto.fileName,
       dto.order,
+      dto.duration,
+      dto.resources,
       dto.isFreePreview || false,
-      dto.isPublished || false
+      dto.isPublished || false,
     );
 
-    await this.lessonRepo.create(lesson);
+    return await this.lessonRepo.create(lesson);
   }
 }

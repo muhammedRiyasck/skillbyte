@@ -14,6 +14,7 @@ export class MongoStudentRepository implements IStudentRepository {
     }
   }
 
+  // Find admin by email to support login functionality
   async findByEmail(email: string): Promise<Student | null> {
     const doc = await StudentModel.findOne({ email })
     if (!doc) return null;
@@ -56,10 +57,12 @@ export class MongoStudentRepository implements IStudentRepository {
   }
 
   async findAll(): Promise<Student[]> {
+    console.log('find called')
     const docs = await StudentModel.find({}).select('-passwordHash');
+    // console.log('find called',docs)
     return docs.map(
       (doc) =>
-        new Student(doc.name, doc.email, doc.passwordHash, doc.isEmailVerified),
+        new Student(doc.name, doc.email,'', doc.isEmailVerified,doc.registeredVia,doc.profilePictureUrl,doc.accountStatus,doc._id.toString() ),
     );
   }
 

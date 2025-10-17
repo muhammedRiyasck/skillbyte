@@ -1,3 +1,4 @@
+import {Module} from '../entities/Module'
 export class Course {
   constructor(
     public instructorId: string,
@@ -13,8 +14,9 @@ export class Course {
     public duration: Date,
     public tags: string[],
     public status: "draft" | "list" | "unlist" = "draft",
-    public id?: string,
+    public courseId?: string,
     public createdAt: Date = new Date(),
-    public updatedAt: Date = new Date()
+    public updatedAt: Date = new Date(),
+    public modules?: Module[]
   ) {}
 }

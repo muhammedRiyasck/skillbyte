@@ -1,16 +1,15 @@
 import { Request, Response, NextFunction } from 'express';
 
-
-interface AsyncHandlerFunction {
-    (req: Request, res: Response, next: NextFunction): Promise<any>;
+interface AsyncHandlerFunction<T = Request> {
+    (req: T, res: Response, next: NextFunction): Promise<any>;
 }
 
-interface AsyncHandler {
-    (req: Request, res: Response, next: NextFunction): void;
+interface AsyncHandler<T = Request> {
+    (req: T, res: Response, next: NextFunction): void;
 }
 
-const asyncHandler = (fn: AsyncHandlerFunction): AsyncHandler => (req, res, next) => {
+const asyncHandler = <T = Request>(fn: AsyncHandlerFunction<T>): AsyncHandler<T> => (req, res, next) => {
     Promise.resolve(fn(req, res, next)).catch(next);
 };
 
-export default asyncHandler
+export default asyncHandler;

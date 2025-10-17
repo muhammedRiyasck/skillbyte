@@ -3,20 +3,23 @@ import {CommonAuthController} from '../controllers/CommonAuth.controller'
 
 import {LoginStudentUseCase} from '../../../student/application/use-cases/LoginStudentUseCase'
 import {LoginInstructorUseCase} from '../../../instructor/application/use-cases/LoginInstructorUseCase'
-import { AccessTokenUseCase } from '../../application/AccessTokenUseCase'
-import { ResendOtpUseCase } from '../../application/ResendOtpUseCase'
-import { ForgotPasswordUseCase } from '../../application/ForgotPasswordUseCase'
-import { ResetPasswordUseCase} from '../../application/ResetPasswordUseCase'
-import { AmILoggedInUseCase } from '../../application/AmILoggedInUseCase'
+import { AccessTokenUseCase } from '../../application/use-cases/AccessTokenUseCase'
+import { ResendOtpUseCase } from '../../application/use-cases/ResendOtpUseCase'
+import { ForgotPasswordUseCase } from '../../application/use-cases/ForgotPasswordUseCase'
+import { ResetPasswordUseCase} from '../../application/use-cases/ResetPasswordUseCase'
+import { AmILoggedInUseCase } from '../../application/use-cases/AmILoggedInUseCase'
 
 import { OtpRateLimiter } from '../../../../shared/services/otp/OtpRateLimiter'
 import { RedisOtpService } from '../../../../shared/services/otp/OtpService'
 
 import {MongoStudentRepository} from '../../../student/infrastructure/repositories/MongoStudentRepository'
 import {MongoInstructorRepository} from '../../../instructor/infrastructure/repositories/MongoInstructorRepository'
+import {MongoAdminRepository} from '../../../admin/infrastructure/repositories/MongoAdminRepository'
 
 const studentRepo = new MongoStudentRepository();   
 const instructorRepo = new MongoInstructorRepository();
+const adminRepo = new MongoAdminRepository();
+
 
 const studentLoginUC = new LoginStudentUseCase(studentRepo);
 const instructorLoginUC = new LoginInstructorUseCase(instructorRepo);
@@ -24,7 +27,7 @@ const accessTokenUC = new AccessTokenUseCase()
 const resendOtpUC = new ResendOtpUseCase(new RedisOtpService(60),new OtpRateLimiter())
 const forgotPasswordUc = new ForgotPasswordUseCase(studentRepo,instructorRepo)
 const resetPasswordUc = new ResetPasswordUseCase(studentRepo,instructorRepo)
-const googleLoginUc = new AmILoggedInUseCase(studentRepo,instructorRepo)
+const amILoggedLoginUc = new AmILoggedInUseCase(studentRepo,instructorRepo,adminRepo);
 
 export const commonAuthController = new CommonAuthController(
     studentLoginUC,
@@ -33,5 +36,5 @@ export const commonAuthController = new CommonAuthController(
     resendOtpUC,
     forgotPasswordUc,
     resetPasswordUc,
-    googleLoginUc
+    amILoggedLoginUc
  );

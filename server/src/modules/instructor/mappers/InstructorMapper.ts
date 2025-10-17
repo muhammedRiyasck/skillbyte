@@ -1,4 +1,3 @@
-import { InstructorModel } from "../infrastructure/models/InstructorModel"
 import { Instructor } from "../domain/entities/Instructor";
 
 export class InstructorMapper {
@@ -7,8 +6,8 @@ export class InstructorMapper {
       doc.name,
       doc.email,
       doc.passwordHash,
-      doc.jobTitle,
       doc.subject,
+      doc.jobTitle,
       doc.experience,
       doc.socialProfile ,  
       doc.portfolio,                                                                                     
@@ -17,20 +16,19 @@ export class InstructorMapper {
       doc.isEmailVerified ,
       doc.accountStatus ,
       doc.approved ,
+      doc.suspendNote,
       doc.rejected,
       doc.rejectedNote,
-      doc.approvalNotes,
       doc.doneBy,
       doc.doneAt,
       doc.averageRating ,
       doc.totalReviews ,
-      doc._id
-
+      doc._id.toString() ,
     );
   }
 
   // input
-  static toPersistence(entity: Instructor): any {
+  static toPersistence(entity: Instructor): Instructor {
     return {
       name: entity.name,
       email: entity.email,
@@ -45,10 +43,11 @@ export class InstructorMapper {
       isEmailVerified: entity.isEmailVerified,
       accountStatus: entity.accountStatus,
       approved: entity.approved,
+      suspendNote: entity.suspendNote,
       rejected: entity.rejected,
-      approvalNotes: entity.approvalNotes,
-      approvedBy: entity.doneBy,
-      approvedAt: entity.doneAt,
+      rejectedNote: entity.rejectedNote,
+      doneBy: entity.doneBy,
+      doneAt: entity.doneAt,
       averageRating: entity.averageRating,
       totalReviews: entity.totalReviews,
     };

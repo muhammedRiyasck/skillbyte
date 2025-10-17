@@ -1,28 +1,54 @@
 import { Request, Response } from 'express';
-import { CreateBaseUseCase } from '../../application/use-cases/CreateBaseUseCase';
-import { GetCourseDetailsUseCase } from '../../application/use-cases/GetCourseDetailsUseCase';
-import { UpdateBaseUseCase } from '../../application/use-cases/UpdateBaseUseCase';
-import { DeleteCourseUseCase } from '../../application/use-cases/DeleteCourseUseCase';
-import { UpdateCourseStatusUseCase } from '../../application/use-cases/UpdateCourseStatusUseCase';
-import { GetPublishedCoursesUseCase } from '../../application/use-cases/GetPublishedCoursesUseCase';
-import { GetInstructorCoursesUseCase } from '../../application/use-cases/GetInstructorCoursesUseCase';
-import { GetAllCoursesForAdminUseCase } from '../../application/use-cases/GetAllCoursesForAdminUseCase';
-import { uploadToCloudinary } from '../../../../shared/utils/Cloudinary';
 import fs from 'fs';
+import { uploadToCloudinary } from '../../../../shared/utils/Cloudinary';
+import { ICreateBaseUseCase } from '../../application/interfaces/ICreateBaseUseCase';
+import { IGetCourseUseCase } from '../../application/interfaces/IGetCourseDetailsUseCase';
+import { IUpdateBaseUseCase } from '../../application/interfaces/IUpdateBaseUseCase';
+import { IDeleteCourseUseCase } from '../../application/interfaces/IDeleteCourseUseCase';
+import { IUpdateCourseStatusUseCase } from '../../application/interfaces/IUpdateCourseStatusUseCase';
+import { IGetPaginatedCoursesUseCase } from '../../application/interfaces/IGetPaginatedCoursesUseCase';
+import { IGetAllCoursesForAdminUseCase } from '../../application/interfaces/IGetAllCoursesForAdminUseCase';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { HttpError } from '../../../../shared/types/HttpError';
+import logger from '../../../../shared/utils/Logger';
+import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
+import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
+import {
+  CreateBaseSchema,
+  UpdateBaseSchema,
+  UpdateStatusSchema,
+  CourseIdParamSchema,
+  PaginationQuerySchema,
+  GetCourseQuerySchema,
+  type CreateBaseValidationType,
+  type UpdateBaseValidationType,
+  type UpdateStatusValidationType,
+  type CourseIdParamValidationType,
+  type PaginationQueryValidationType,
+  type GetCourseQueryValidationType,
+} from '../../application/dtos/CourseValidationSchemas';
 
 export class CourseController {
   constructor(
-    private createCourseUseCase: CreateBaseUseCase,
-    private getCourseDetailsUseCase: GetCourseDetailsUseCase,
-    private updateBaseUseCase: UpdateBaseUseCase,
-    private deleteCourseUseCase: DeleteCourseUseCase,
-    private updateCourseStatusUseCase: UpdateCourseStatusUseCase,
-    private getPublishedCoursesUseCase: GetPublishedCoursesUseCase,
-    private getInstructorCoursesUseCase: GetInstructorCoursesUseCase,
-    private getAllCoursesForAdminUseCase: GetAllCoursesForAdminUseCase,
+    private createCourseUseCase: ICreateBaseUseCase,
+    private getCourseDetailsUseCase: IGetCourseUseCase,
+    private updateBaseUseCase: IUpdateBaseUseCase,
+    private deleteCourseUseCase: IDeleteCourseUseCase,
+    private updateCourseStatusUseCase: IUpdateCourseStatusUseCase,
+    private getPaginatedCoursesUseCase: IGetPaginatedCoursesUseCase,
+    private getAllCoursesForAdminUseCase: IGetAllCoursesForAdminUseCase,
   ) {}
 
-  createBase = async (req: any, res: Response) => {
+  /**
+   * Creates the base details for a new course.
+   * @param req - Authenticated request object.
+   * @param res - Express response object.
+   */
+  createBase = async (req: Request, res: Response): Promise<void> => {
+    const authenticatedReq = req as AuthenticatedRequest;
+    logger.info(`Create course base attempt from IP: ${authenticatedReq.ip}`);
+
+    const validatedData = CreateBaseSchema.parse(authenticatedReq.body);
     const {
       title,
       thumbnail,
@@ -37,200 +63,229 @@ export class CourseController {
       description,
       tags,
       features,
-    } = req.body;
+    } = validatedData;
 
-    const instructorId = req.user.id;
+    const instructorId = authenticatedReq.user.id;
 
     const course = await this.createCourseUseCase.execute({
       instructorId,
-      thumbnailUrl: thumbnail,
+      thumbnailUrl: thumbnail || null,
       title,
-      subText,
-      category: otherCategory && customCategory ? customCategory : category,
-      courseLevel,
-      language,
-      price: Number(price),
-      features,
-      description,
-      duration: access,
-      tags: tags,
+      subText: subText || '',
+      category: otherCategory && customCategory ? customCategory : (category || ''),
+      courseLevel: courseLevel || '',
+      language: language || '',
+      price: Number(price) || 0,
+      features: features || [],
+      description: description || '',
+      duration: access || '',
+      tags: tags || [],
       status: 'draft',
     });
-    console.log(course, 'created coures');
-    res.status(201).json({ message: 'details added successfuly', course });
+
+    logger.info(`Course base created successfully for instructor ${instructorId}`);
+    ApiResponseHelper.created(res, 'Details added successfully', course);
   };
 
-  uploadThumbnail = async (req: any, res: Response) => {
-    const { id } = req.params;
-    console.log(id, 'params');
-    console.log(1);
-
-    if (!req.file) {
-      const error = new Error('No file uploaded') as any;
-      error.status = 400;
-      throw error;
+  /**
+   * Uploads a thumbnail image for a course.
+   * Validates the course ID, file presence, size, and type, then uploads to Cloudinary and updates the course.
+   * @param req - Authenticated request object with file upload.
+   * @param res - Express response object.
+   * @throws HttpError if validation fails.
+   */
+  uploadThumbnail = async (req: Request, res: Response): Promise<void> => {
+    const authenticatedReq = req as AuthenticatedRequest;
+    const { courseId } = authenticatedReq.params;
+    if (!courseId) {
+      throw new HttpError("Can't find the Course Id", HttpStatusCode.BAD_REQUEST);
     }
-    console.log(1);
-
-    if (req.file.size > 2 * 1024 * 1024) {
-      console.log('photo is greter than 2 mb');
-      const error = new Error('Thumbnail size should be less than 2mb') as any;
-      error.status = 400;
-      throw error;
-    }
-    console.log(1);
-
-    if (!req.file.mimetype.startsWith('image/')) {
-      const error = new Error('Only image files are allowed') as any;
-      error.status = 400;
-      throw error;
+    if (!authenticatedReq.file) {
+      throw new HttpError('No file uploaded', HttpStatusCode.BAD_REQUEST);
     }
 
-    const url = await uploadToCloudinary(req.file.path, {
+    if (authenticatedReq.file.size > 2 * 1024 * 1024) {
+      logger.warn('Thumbnail size exceeds 2MB');
+      throw new HttpError('Thumbnail size should be less than 2MB', HttpStatusCode.BAD_REQUEST);
+    }
+
+    if (!authenticatedReq.file.mimetype.startsWith('image/')) {
+      throw new HttpError('Only image files are allowed', HttpStatusCode.BAD_REQUEST);
+    }
+
+    const url = await uploadToCloudinary(authenticatedReq.file.path, {
       folder: 'skillbyte/thumbnails',
       resourceType: 'image',
-      publicId: `thumbnail_${id}`,
+      publicId: `thumbnail_${courseId}`,
       overwrite: true,
     });
 
-    this.updateBaseUseCase.execute(id, req.user.id, { thumbnailUrl: url });
+    await this.updateBaseUseCase.execute(courseId, authenticatedReq.user.id, {
+      thumbnailUrl: url,
+    });
 
-    res.json({ message: 'Course Base Created Successfully' });
+    ApiResponseHelper.success(res, 'Course Base Created Successfully', { courseId });
 
     // Delete the local uploaded file
     try {
-      await fs.promises.unlink(req.file.path);
+      await fs.promises.unlink(authenticatedReq.file.path);
     } catch (unlinkError) {
-      console.error('Error deleting local file:', unlinkError);
+      logger.error('Error deleting local file:', unlinkError);
     }
   };
 
-  updateBase = async (req: any, res: Response) => {
-    try {
-      const courseId = req.params.courseId;
-      const instructorId = req.user.id;
-      const data = req.body;
+  /**
+   * Updates the base details of a course.
+   * @param req - Authenticated request object with course ID and update data.
+   * @param res - Express response object.
+   * @throws HttpError if update fails.
+   */
+  updateBase = async (req: Request, res: Response): Promise<void> => {
+    const authenticatedReq = req as AuthenticatedRequest;
+    const courseId = authenticatedReq.params.courseId;
+    const instructorId = authenticatedReq.user.id;
+    const data = authenticatedReq.body;
 
-      await this.updateBaseUseCase.execute(courseId, instructorId, data);
-      res.status(200).json({ message: 'Course updated successfully' });
-    } catch (Error: any) {
-      const error = new Error(Error.message) as any;
-      error.status = 400;
-      throw error;
-    }
+    await this.updateBaseUseCase.execute(courseId, instructorId, data);
+    ApiResponseHelper.success(res, 'Course updated successfully');
   };
 
-  updateCourseStatus = async (req: any, res: Response) => {
-    try {
-      const courseId = req.params.courseId;
-      const { status } = req.body;
-      const instructorId = req.user.id;
+  /**
+   * Updates the status of a course (list or unlist).
+   * @param req - Authenticated request object with course ID and status.
+   * @param res - Express response object.
+   * @throws HttpError if status is invalid or update fails.
+   */
+  updateCourseStatus = async (req: Request, res: Response): Promise<void> => {
+    const authenticatedReq = req as AuthenticatedRequest;
+    const courseId = authenticatedReq.params.courseId;
+    const { status } = authenticatedReq.body;
+    const instructorId = authenticatedReq.user.id;
 
-      if (!['published', 'unpublished'].includes(status)) {
-        const error = new Error('Invalid Status') as any;
-        error.status = 400;
-        throw error;
-      }
+    if (!['published', 'unpublished'].includes(status)) {
+      throw new HttpError('Invalid Status', HttpStatusCode.BAD_REQUEST);
+    }
 
-      await this.updateCourseStatusUseCase.execute(
-        courseId,
-        instructorId,
-        status,
-      );
-      res.status(200).json({ message: `Course ${status} successfully` });
-    } catch (Error: any) {
-      const error = new Error(Error.message) as any;
-      error.status = 400;
-      throw error;
-    }
-  };
-  getCourseById = async (req: any, res: Response) => {
-    try {
-      const courseId = req.params.courseId;
-      const role = req.user.role; // 'instructor' or 'student'
-      const course = await this.getCourseDetailsUseCase.execute(courseId, role);
-      res.status(200).json(course);
-    } catch (err: any) {
-      res.status(404).json({ message: err.message });
-    }
+    await this.updateCourseStatusUseCase.execute(
+      courseId,
+      instructorId,
+      status,
+    );
+    ApiResponseHelper.success(res, `Course ${status} successfully`);
   };
 
-  getPublishedCourses = async (req: Request, res: Response) => {
-    try {
-      const filters = {
-        search: req.query.search as string,
-        category: req.query.category as string,
-        price: req.query.price as 'free' | 'paid',
-      };
-
-      const courses = await this.getPublishedCoursesUseCase.execute(filters);
-
-      res.status(200).json({ courses });
-    } catch (err: any) {
-      res.status(500).json({ message: err.message });
-    }
+  /**
+   * Retrieves a course by its ID, considering the user's role for access control.
+   * @param req - Authenticated request object with course ID and optional include query.
+   * @param res - Express response object.
+   */
+  getCourseById = async (req: Request, res: Response): Promise<void> => {
+    const authenticatedReq = req as AuthenticatedRequest;
+    const courseId = authenticatedReq.params.courseId;
+    const { include } = authenticatedReq.query;
+    const role = authenticatedReq.user.role || 'student';
+    const course = await this.getCourseDetailsUseCase.execute(
+      courseId,
+      role,
+      include as string,
+    );
+    ApiResponseHelper.success(res, 'Course retrieved successfully', course);
   };
 
-  getInstructorCourses = async (req: any, res: Response) => {
-    try {
-      const instructorId = req.user.id;
-      let status = req.query.status;
-      const page = Number(req.query.page) || 1;
-      const limit = Number(req.query.limit) || 6;
-      let query;
-      console.log(status,'status',page,limit);
-
-      if (status === 'Drafted Courses') {
-        query = { instructorId, status: 'draft' };
-      } else if (status === 'Listed Courses') {
-        query = { instructorId, status: 'list' };
-      } else if (status === 'Unlisted Courses') {
-        query = { instructorId, status: 'unlist' };
-      } else {
-        query = { instructorId };
-      }
-
-       let sort: Record<string, 1 | -1> = { createdAt: -1 };
-      if (typeof req.query.sort === 'string') {
-        const [field, dir] = (req.query.sort as string).split(':');
-        sort = { [field]: dir === 'asc' ? 1 : -1 };
-      }
-
-      const courses = await this.getInstructorCoursesUseCase.execute(query,page,limit,sort);
-
-      res.status(200).json(courses);
-    } catch (err: any) {
-      res.status(500).json({ message: err.message });
+  /**
+   * Retrieves published courses with pagination and sorting.
+   * @param req - Request object with optional page, limit, and sort query parameters.
+   * @param res - Express response object.
+   */
+  getPublishedCourses = async (req: Request, res: Response): Promise<void> => {
+    const query = { status: 'list' };
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 6;
+    let sort: Record<string, 1 | -1> = { createdAt: -1 };
+    if (typeof req.query.sort === 'string') {
+      const [field, dir] = (req.query.sort as string).split(':');
+      sort = { [field]: dir === 'asc' ? 1 : -1 };
     }
+
+    const courses = await this.getPaginatedCoursesUseCase.execute(
+      query,
+      page,
+      limit,
+      sort,
+    );
+
+    ApiResponseHelper.success(res, 'Courses retrieved successfully', { courses });
   };
 
-  getAllCourses = async (req: Request, res: Response) => {
-    try {
-      const filters = {
-        instructorId: req.query.instructorId as string,
-        status: req.query.status as string,
-        category: req.query.category as string,
-        search: req.query.search as string,
-      };
+  /**
+   * Retrieves courses for the authenticated instructor with optional status filtering, pagination, and sorting.
+   * @param req - Authenticated request object with optional status, page, limit, and sort query parameters.
+   * @param res - Express response object.
+   */
+  getInstructorCourses = async (req: Request, res: Response): Promise<void> => {
+    const authenticatedReq = req as AuthenticatedRequest;
+    const instructorId = authenticatedReq.user.id;
 
-      const courses = await this.getAllCoursesForAdminUseCase.execute(filters);
-      res.status(200).json({ courses });
-    } catch (err: any) {
-      res.status(500).json({ message: err.message });
+    const status = authenticatedReq.query.status as string;
+    const page = Number(authenticatedReq.query.page) || 1;
+    const limit = Number(authenticatedReq.query.limit) || 6;
+    let query: Record<string, any> = { instructorId };
+
+    // Filter by status if provided
+    if (status === 'Drafted Courses') {
+      query.status = 'draft';
+    } else if (status === 'Listed Courses') {
+      query.status = 'list';
+    } else if (status === 'Unlisted Courses') {
+      query.status = 'unlist';
     }
+
+    let sort: Record<string, 1 | -1> = { createdAt: -1 };
+    if (typeof authenticatedReq.query.sort === 'string') {
+      const [field, dir] = (authenticatedReq.query.sort as string).split(':');
+      sort = { [field]: dir === 'asc' ? 1 : -1 };
+    }
+
+    const courses = await this.getPaginatedCoursesUseCase.execute(
+      query,
+      page,
+      limit,
+      sort,
+    );
+
+    ApiResponseHelper.success(res, 'Courses retrieved successfully', courses);
   };
 
-  deleteCourse = async (req: any, res: Response) => {
-    try {
-      const courseId = req.params.courseId;
-      const instructorId = req.user.id;
+  /**
+   * Retrieves all courses for admin with optional filters.
+   * @param req - Request object with optional instructorId, status, category, and search query parameters.
+   * @param res - Express response object.
+   */
+  getAllCourses = async (req: Request, res: Response): Promise<void> => {
+    const filters = {
+      instructorId: req.query.instructorId as string,
+      status: req.query.status as string,
+      category: req.query.category as string,
+      search: req.query.search as string,
+    };
 
-      await this.deleteCourseUseCase.execute(courseId, instructorId);
-      res.status(200).json({ message: 'Course deleted successfully.' });
-    } catch (Error: any) {
-      const error = new Error(Error.message) as any;
-      error.status = 400;
-      throw error;
-    }
+    const courses = await this.getAllCoursesForAdminUseCase.execute(filters);
+    ApiResponseHelper.success(res, 'Courses retrieved successfully', { courses });
+  };
+
+  /**
+   * Deletes a course by its ID for the authenticated instructor.
+   * @param req - Authenticated request object with course ID.
+   * @param res - Express response object.
+   * @throws HttpError if deletion fails.
+   */
+  deleteCourse = async (req: Request, res: Response): Promise<void> => {
+    const authenticatedReq = req as AuthenticatedRequest;
+    const courseId = authenticatedReq.params.courseId;
+    const instructorId = authenticatedReq.user.id;
+
+    await this.deleteCourseUseCase.execute(courseId, instructorId);
+    ApiResponseHelper.success(res, 'Course deleted successfully');
   };
 }
+

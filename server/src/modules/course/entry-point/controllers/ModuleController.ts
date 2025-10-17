@@ -1,55 +1,82 @@
-import {  Response } from "express";
-import { CreateModuleWithLessonsUseCase } from "../../application/use-cases/CreateModuleWithLessonsUseCase";
+import { Request, Response } from "express";
 import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
-import { UpdateModuleUseCase } from "../../application/use-cases/UpdateModuleUseCase";
-import { DeleteModuleUseCase } from "../../application/use-cases/DeleteModuleUseCase";
+import { HttpStatusCode } from "../../../../shared/enums/HttpStatusCodes";
+import { HttpError } from "../../../../shared/types/HttpError";
+import logger from "../../../../shared/utils/Logger";
+import { ICreateModuleUseCase } from "../../application/interfaces/ICreateModuleUseCase";
+import { IUpdateModuleUseCase } from "../../application/interfaces/UpdateModuleUseCase ";
+import { IDeleteModuleUseCase } from "../../application/interfaces/IDeleteModuleUseCase";
+import { AuthenticatedRequest } from "../../../../shared/types/AuthenticatedRequestType";
+import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 
-export class ModuleWithLessonController {
+/**
+ * Interface for authenticated request with user data.
+ */
+
+
+export class ModuleController {
   constructor(
-    private createUseCase: CreateModuleWithLessonsUseCase,
-    private courseRepo: ICourseRepository, 
-    private updateModuleUseCase: UpdateModuleUseCase,
-    private deleteModuleUseCase : DeleteModuleUseCase
-
+    private createUseCase: ICreateModuleUseCase,
+    private courseRepo: ICourseRepository,
+    private updateModuleUseCase: IUpdateModuleUseCase,
+    private deleteModuleUseCase: IDeleteModuleUseCase
   ) {}
 
-  createModuleWithLessons = async (req: any, res: Response) => {
-    const instructorId = req.user.id;
-    const { courseId, title, description, order, lessons } = req.body;
+  /**
+   * Creates a new module for a course.
+   * @param req - Authenticated request object.
+   * @param res - Express response object.
+   */
+  createModule = async (req: Request, res: Response): Promise<void> => {
+    const authenticatedReq = req as AuthenticatedRequest;
+    logger.info(`Create module attempt from IP: ${authenticatedReq.ip}`);
 
-    // 🔒 Verify course ownership
+    const instructorId = authenticatedReq.user.id;
+    const { courseId, moduleId, title, description, order, lessons } = authenticatedReq.body;
+
     const course = await this.courseRepo.findById(courseId);
     if (!course || course.instructorId !== instructorId) {
-       res.status(403).json({ message: "You do not own this course." }); return
+      logger.warn(`Unauthorized module creation attempt for course ${courseId} by instructor ${instructorId}`);
+      throw new HttpError("You do not own this course.", HttpStatusCode.UNAUTHORIZED);
     }
 
-    await this.createUseCase.execute({ courseId, title, description, order, lessons });
-    res.status(201).json({ message: "Module and lessons added." });
+    const module = await this.createUseCase.execute({ courseId, moduleId, title, description, order, lessons });
+    logger.info(`Module created successfully for course ${courseId}`);
+    ApiResponseHelper.created(res, "Module created successfully.", module);
   };
 
-    updateModule = async (req: any, res: Response) => {
-    try {
-      const moduleId = req.params.moduleId;
-      const instructorId = req.user.id;
-      const updates = req.body;
+  /**
+   * Updates an existing module.
+   * @param req - Authenticated request object.
+   * @param res - Express response object.
+   */
+  updateModule = async (req: Request, res: Response): Promise<void> => {
+    const authenticatedReq = req as AuthenticatedRequest;
+    logger.info(`Update module attempt from IP: ${authenticatedReq.ip}`);
 
-      await this.updateModuleUseCase.execute(moduleId, instructorId, updates);
-      res.status(200).json({ message: "Module updated successfully" });
-    } catch (err: any) {
-      res.status(400).json({ message: err.message });
-    }
+    const moduleId = authenticatedReq.params.moduleId;
+    const instructorId = authenticatedReq.user.id;
+    const updates = authenticatedReq.body;
+
+    await this.updateModuleUseCase.execute(moduleId, instructorId, updates);
+    logger.info(`Module ${moduleId} updated successfully`);
+    ApiResponseHelper.success(res, "Module updated successfully");
   };
 
-  deleteModule = async (req: any, res: Response) => {
-    try {
-      const moduleId = req.params.moduleId;
-      const instructorId = req.user.id;
+  /**
+   * Deletes a module.
+   * @param req - Authenticated request object.
+   * @param res - Express response object.
+   */
+  deleteModule = async (req: Request, res: Response): Promise<void> => {
+    const authenticatedReq = req as AuthenticatedRequest;
+    logger.info(`Delete module attempt from IP: ${authenticatedReq.ip}`);
 
-      await this.deleteModuleUseCase.execute(moduleId, instructorId);
-      res.status(200).json({ message: "Module deleted successfully." });
-    } catch (err: any) {
-      res.status(400).json({ message: err.message });
-    }
+    const moduleId = authenticatedReq.params.moduleId;
+    const instructorId = authenticatedReq.user.id;
+
+    await this.deleteModuleUseCase.execute(moduleId, instructorId);
+    logger.info(`Module ${moduleId} deleted successfully`);
+    ApiResponseHelper.success(res, "Module deleted successfully.");
   };
-
 }

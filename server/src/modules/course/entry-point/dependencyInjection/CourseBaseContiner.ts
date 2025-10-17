@@ -1,5 +1,5 @@
 import { CourseController } from "../controllers/CourseController";
-import { GetCourseDetailsUseCase } from "../../application/use-cases/GetCourseDetailsUseCase";
+import { GetCourseDetailUseCase } from "../../application/use-cases/GetCourseDetailUseCase";
 import { CreateBaseUseCase } from "../../application/use-cases/CreateBaseUseCase";
 
 import { MongoCourseRepository } from "../../infrastructure/repositories/MongoCourseRepository";
@@ -8,8 +8,7 @@ import { MongoLessonRepository } from "../../infrastructure/repositories/MongoLe
 import { UpdateBaseUseCase } from "../../application/use-cases/UpdateBaseUseCase";
 import { DeleteCourseUseCase } from "../../application/use-cases/DeleteCourseUseCase";
 import { UpdateCourseStatusUseCase } from "../../application/use-cases/UpdateCourseStatusUseCase";
-import { GetPublishedCoursesUseCase } from "../../application/use-cases/GetPublishedCoursesUseCase";
-import { GetInstructorCoursesUseCase } from "../../application/use-cases/GetInstructorCoursesUseCase";
+import { GetPaginatedCoursesUseCase } from "../../application/use-cases/GetPaginatedCoursesUseCase";
 import { GetAllCoursesForAdminUseCase } from "../../application/use-cases/GetAllCoursesForAdminUseCase";
 
 const courseRepository = new MongoCourseRepository();
@@ -18,8 +17,8 @@ const lessonRepository = new MongoLessonRepository();
 
 const createCourseUC = new CreateBaseUseCase(courseRepository);
 
-const getCourseDetailsUC = new GetCourseDetailsUseCase(
-   courseRepository,
+const getCourseDetailsUC = new GetCourseDetailUseCase(
+    courseRepository,
     moduleRepository,
     lessonRepository
 );
@@ -28,9 +27,9 @@ const updateBaseUC = new UpdateBaseUseCase(courseRepository);
 
 const updateCourseStatusUC = new UpdateCourseStatusUseCase(courseRepository)
 
-const getPublishedCoursesUC = new GetPublishedCoursesUseCase(courseRepository);
+const getPaginatedCoursesUC = new GetPaginatedCoursesUseCase(courseRepository);
 
-const getInstructorCoursesUC = new GetInstructorCoursesUseCase(courseRepository);
+
 
 const getAllCoursesForAdminUC = new GetAllCoursesForAdminUseCase(courseRepository);
 
@@ -46,7 +45,6 @@ export const courseController = new CourseController(createCourseUC,
   updateBaseUC,
   deleteCourseUC,
   updateCourseStatusUC,
-  getPublishedCoursesUC,
-  getInstructorCoursesUC,
+  getPaginatedCoursesUC,
   getAllCoursesForAdminUC
 ); 

@@ -3,6 +3,7 @@ import passport from 'passport';
 
 import { generateAccessToken } from '../../../../shared/utils/AccessToken';
 import { generateRefreshToken } from '../../../../shared/utils/RefreshToken';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 export class facebookController {
   static facebookAuth(req: Request, res: Response, next: NextFunction) {
@@ -42,7 +43,7 @@ export class facebookController {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
           });
 
-          res.status(200).json({
+          res.status(HttpStatusCode.OK).json({
             message: `${role} login successful via Facebook`,
             user: {
               name: user.name,

@@ -7,5 +7,6 @@ const router = Router()
 import asyncHandler from '../../../../shared/utils/AsyncHandler';
 
 router.get('/allStudents',authenticate,requireRole('admin'),asyncHandler(adminStudentController.listAll))
+router.patch('/change-status',authenticate,requireRole('admin'),asyncHandler(adminStudentController.changeStatus))
 
 export default router;

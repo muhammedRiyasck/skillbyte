@@ -6,7 +6,14 @@ const CourseSchema = new mongoose.Schema({
   title: { type: String, required: true },
   subText: { type: String, required: true },
   category: { type: String , required: true },
-  courseLevel:{type:String, required:true},
+  courseLevel:{type:String, enum: [
+    "Beginner",
+    "Intermediate",
+    "Advanced",
+    "Beginner - Intermediate",
+    "Intermediate - Advanced",
+    "All Level",
+  ], required:true},
   language:{type:String, default: 'English'},
   price: { type: Number, default: 0  },
   features: [{type:String, required:true}],
@@ -20,6 +27,7 @@ const CourseSchema = new mongoose.Schema({
 }
 }, { timestamps: true });
 
+CourseSchema.index({ instructorId: 1 }); 
 CourseSchema.index({status: 1, createdAt: -1 }); 
 
 

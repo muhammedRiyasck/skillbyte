@@ -8,7 +8,7 @@ cloudinary.config({
 
 interface UploadOptions {
   folder: string;
-  resourceType?: "image" | "video";
+  resourceType?: "image"
   publicId?: string;
   overwrite?: boolean;
 } 
@@ -29,5 +29,22 @@ export const uploadToCloudinary = async (
   } catch (err) {
     console.error("Cloudinary upload error:", err);
     throw new Error("File upload failed");
+  }
+};
+
+export const getPublicIdFromUrl = (url: string): string => {
+  const match = url.match(/\/upload\/v\d+\/(.*?)(\.\w+)?$/);
+  if (match) {
+    return match[1];
+  }
+  throw new Error('Could not extract public ID from URL');
+};
+
+export const deleteFromCloudinary = async (publicId: string): Promise<void> => {
+  try {
+    await cloudinary.uploader.destroy(publicId, { resource_type: "image" });
+  } catch (err) {
+    console.error("Cloudinary delete error:", err);
+    throw new Error("File delete failed");
   }
 };

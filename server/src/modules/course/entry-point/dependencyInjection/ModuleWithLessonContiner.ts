@@ -1,6 +1,6 @@
-import { ModuleWithLessonController} from "../controllers/ModuleController";
+import { ModuleController} from "../controllers/ModuleController";
 
-import { CreateModuleWithLessonsUseCase } from "../../application/use-cases/CreateModuleWithLessonsUseCase";
+import { CreateModuleUseCase } from "../../application/use-cases/CreateModuleUseCase";
 import {MongoCourseRepository} from "../../infrastructure/repositories/MongoCourseRepository";
 import { MongoModuleRepository } from "../../infrastructure/repositories/MongoModuleRepository";
 import { MongoLessonRepository } from "../../infrastructure/repositories/MongoLessonRepository";
@@ -11,9 +11,8 @@ const courseRepository = new MongoCourseRepository();
 const moduleRepository = new MongoModuleRepository();
 const lessonRepository = new MongoLessonRepository();
 
-const createModuleWithLessonsUC = new CreateModuleWithLessonsUseCase(
-  moduleRepository,
-  lessonRepository
+const createModuleUC = new CreateModuleUseCase(
+  moduleRepository
 );
 
 const updateModuleUseCase = new UpdateModuleUseCase(
@@ -27,8 +26,8 @@ const deleteModuleUseCase = new DeleteModuleUseCase(
   courseRepository
 );
 
-export const moduleWithLessonController = new ModuleWithLessonController(
-  createModuleWithLessonsUC,
+export const moduleWithLessonController = new ModuleController(
+  createModuleUC,
   courseRepository,
   updateModuleUseCase,
   deleteModuleUseCase

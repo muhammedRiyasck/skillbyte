@@ -2,57 +2,80 @@ import bcrypt from 'bcryptjs';
 import { IStudentRepository } from '../../domain/IRepositories/IStudentRepository';
 import { RedisOtpService } from '../../../../shared/services/otp/OtpService';
 import { Student } from '../../domain/entities/Student';
-import { Email } from '../../../../shared/validation/Email';
-import { Name } from '../../../../shared/validation/Name';
-import { password } from '../../../../shared/validation/Password';
+import { IRegisterStudentUseCase } from '../interfaces/IRegisterStudentUseCase';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { StudentRegistrationSchema } from '../../../../shared/validations/StudentValidation';
 
-export class RegisterStudentUseCase {
- constructor(
+/**
+ * Use case for registering a new student.
+ * Verifies OTP, validates data, and creates a new student account.
+ */
+export class RegisterStudentUseCase implements IRegisterStudentUseCase {
+  /**
+   * Constructs the RegisterStudentUseCase.
+   * @param studentRepo - The student repository for data operations.
+   * @param otpService - The OTP service for verification.
+   */
+  constructor(
     private studentRepo: IStudentRepository,
-    private readonly otpService: RedisOtpService
+    private readonly otpService: RedisOtpService,
   ) {}
 
+  /**
+   * Checks if a student with the given email already exists.
+   * @param email - The email address to check.
+   * @returns A promise that resolves to true if the student exists, false otherwise.
+   */
   async isUserExists(email: string): Promise<boolean> {
-    const student = await this.studentRepo.findByEmail(email); 
-    return student?true:false;
+    const student = await this.studentRepo.findByEmail(email);
+    return student ? true : false;
   }
 
-  async execute(email:string,otp:string): Promise<void> {
-    console.log('haiiii')
-    if(otp.length!==4) throw new Error('OTP should be 4 digit')
+  /**
+   * Executes the student registration process.
+   * Validates OTP length, retrieves temporary data, verifies OTP, validates data completeness, and saves the new student.
+   * @param email - The email address of the student.
+   * @param otp - The OTP for verification.
+   * @throws HttpError with appropriate status code if registration fails.
+   */
+  async execute(email: string, otp: string): Promise<void> {
+    if (otp.length !== 4) {
+      throw new HttpError(ERROR_MESSAGES.OTP_INVALID, HttpStatusCode.BAD_REQUEST);
+    }
 
     const dto = await this.otpService.getTempData(email);
-    if (!dto){
-     const error = new Error("No data found or Your Current Data Expired") as any;
-      error.status=500;
-      throw error
+    if (!dto) {
+      throw new HttpError('No data found or Your Current Data Expired', HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
-    
+
     const valid = await this.otpService.verifyOtp(email, otp);
-  
+
     if (!valid) {
-      const error = new Error("Invalid or expired OTP") as any;
-      error.status=400;
-      throw error
+      throw new HttpError('Invalid or expired OTP', HttpStatusCode.BAD_REQUEST);
     }
-      const responseLength = Object.entries(dto).length
-      if (responseLength!==3) {
-      const error = new Error("Some data's are missing") as any;
-      error.status=400;
-      throw error
+
+    const responseLength = Object.entries(dto).length;
+    if (responseLength !== 3) {
+      throw new HttpError("Some data's are missing", HttpStatusCode.BAD_REQUEST);
     }
-    const emailVO = new Email(dto.email);
-    const nameVO = new Name(dto.fullName);
-    const passwordVO = new password(dto.password);
-    const hashedPassword = await bcrypt.hash(passwordVO.value, 10);
+
+    // Validate the registration data using Zod schema
+    const validationResult = StudentRegistrationSchema.safeParse(dto);
+    if (!validationResult.success) {
+      throw new HttpError(validationResult.error.issues.map((e) => e.message).join(', '), HttpStatusCode.BAD_REQUEST);
+    }
+
+    const hashedPassword = await bcrypt.hash(validationResult.data.password, 10);
+
     const student = new Student(
-      nameVO.value,
-      emailVO.value,
+      validationResult.data.fullName,
+      validationResult.data.email,
       hashedPassword,
-      true  // isEmailVerified
+      true, // isEmailVerified
     );
-    console.log(student)
+
     await this.studentRepo.save(student);
   }
-
 }

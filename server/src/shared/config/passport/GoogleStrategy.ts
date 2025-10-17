@@ -42,6 +42,8 @@ console.log("Google Strategy initialized with client ID:riyasss");
               profile.photos?.[0]?.value || null, 
             );
             await StudentModel.save(student);
+          }else if(student && student.accountStatus !== 'active'){
+            return done(new Error("Account Is Blocked. Please Contact Support."), false);
           }
           console.log(4);
           return done(null, { user: student, role: "student" });
@@ -64,5 +66,3 @@ console.log("Google Strategy initialized with client ID:riyasss");
 );
 
 
-// passport.serializeUser((user, done) => done(null, user));
-// passport.deserializeUser((user:any, done) => done(null, user))

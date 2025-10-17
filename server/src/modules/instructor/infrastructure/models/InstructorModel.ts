@@ -14,7 +14,7 @@ const InstructorSchema = new mongoose.Schema({
   isEmailVerified: { type: Boolean, default: false },
   accountStatus: { type: String, enum: ["pending","active", "suspended", "rejected"], default: "pending" }, // Pending, Active, Suspended, Rejected
   approved: { type: Boolean, default: false},
-  approvalNote: { type: String, default: null },
+  suspendNote: { type: String, default: null },
   rejected:{type:Boolean, default:false}, 
   rejectedNote:{ type: String, default: null },
   doneBy: { type: String, default: null }, // ID of the admin who approved

@@ -7,6 +7,8 @@ import { otpVerificationEmailTemplate } from "../../templates/OtpVerification";
 import Redis from "ioredis";
 
 import redisClient from "../../../shared/utils/Redis"; 
+import { HttpError } from "../../types/HttpError";
+import { HttpStatusCode } from "../../enums/HttpStatusCodes";
 
 export class RedisOtpService implements IOtpService {
   private redis: Redis;
@@ -29,7 +31,7 @@ export class RedisOtpService implements IOtpService {
       const time = ttl*1000 
       const minutes = Math.floor(time/ 60000);
       const seconds = Math.floor((time % 60000) / 1000)
-      throw new Error(`Please wait ${minutes}:${seconds} sec for next OTP.`);
+      throw new HttpError(`Please wait ${minutes}:${seconds} sec for next OTP.`, HttpStatusCode.BAD_REQUEST);
     } 
     
     const otp = Math.floor(100000 + Math.random() * 900000).toString().slice(0, 4);
@@ -42,7 +44,6 @@ export class RedisOtpService implements IOtpService {
   
   async verifyOtp(email: string, otp: string): Promise<boolean> {
     const stored = await this.redis.get(`otp:${email}`);
-    console.log(stored,'stored otp',otp , 'my otp')
     if (!stored || stored !== otp) return false;
 
     await this.redis.del(`otp:${email}`); 

@@ -16,14 +16,14 @@ export class Instructor {
     public isEmailVerified: boolean,
     public accountStatus: "pending" | "active" | "suspended" | "rejected" ,
     public approved: boolean,
-    public approvalNotes: string | null,
+    public suspendNote: string | null,
     public rejected: boolean,
     public rejectedNote:string|null,
     public doneBy: string | null,
     public doneAt: Date | null,
     public averageRating: number,
     public totalReviews: number,
-    public _id?: string // Optional ID for database storage
+    public instructorId?: string 
   ) {}
 
 

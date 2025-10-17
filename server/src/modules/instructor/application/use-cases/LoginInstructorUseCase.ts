@@ -1,39 +1,59 @@
 
-import { generateRefreshToken } from "../../../../shared/utils/RefreshToken";
-import { generateAccessToken } from "../../../../shared/utils/AccessToken";
-import { IInstructorRepository} from "../../domain/IRepositories/IInstructorRepository";
-import { Instructor } from "../../domain/entities/Instructor";
-import bcrypt from "bcryptjs";
-export class LoginInstructorUseCase {
-  constructor(
-    private instructorRepo: IInstructorRepository
-  ) {}
+import { generateRefreshToken } from '../../../../shared/utils/RefreshToken';
+import { generateAccessToken } from '../../../../shared/utils/AccessToken';
+import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRepository';
+import { Instructor } from '../../domain/entities/Instructor';
+import bcrypt from 'bcryptjs';
+import { ILoginInstructorUseCase } from '../interfaces/ILoginInstructorUseCase';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
+import { HttpError } from '../../../../shared/types/HttpError';
 
-    async execute(email: string, password: string): Promise<{user:Instructor,accessToken:string,refreshToken:string}> {
-        const instructor = await this.instructorRepo.findByEmail(email);
-        if (!instructor) throw new Error("Invalid credentials");
-    
-        const isMatch = await bcrypt.compare(password, instructor.passwordHash);
-        if (!isMatch) throw new Error("Invalid credentials");
+/**
+ * Use case for logging in an instructor.
+ * Validates credentials, checks account status, and generates tokens upon successful login.
+ */
+export class LoginInstructorUseCase implements ILoginInstructorUseCase {
+  /**
+   * Constructs the LoginInstructorUseCase.
+   * @param instructorRepo - The instructor repository for data operations.
+   */
+  constructor(private instructorRepo: IInstructorRepository) {}
 
-        const accountStatus = instructor.accountStatus
-
-        if(accountStatus == 'pending'){
-            throw new Error("Your Account Is Not Approved Yet By Admin.");
-        }else if(accountStatus == 'suspended'){
-          const error = new Error("Your Account Is Suspended By Admin. Please Contact Support.") as any
-          error.status = 403
-          throw error
-          
-        }else if(accountStatus == 'rejected'){
-          console.log(true)
-          const error = new Error("Your Account Is Rejected By Admin. Please Contact Support.") as any
-          error.status = 403
-          throw error
-        }
-      const accessToken = generateAccessToken({ id: instructor._id, role:'instructor' });
-      const refreshToken = generateRefreshToken({ id: instructor._id, role:'instructor' });        
-      return {user:instructor,accessToken,refreshToken};
+  /**
+   * Executes the instructor login process.
+   * Validates email and password, checks account status, and returns user data with tokens.
+   * @param email - The instructor's email address.
+   * @param password - The instructor's password.
+   * @returns A promise that resolves to an object containing the user, access token, and refresh token.
+   * @throws HttpError with appropriate status code if login fails.
+   */
+  async execute(
+    email: string,
+    password: string,
+  ): Promise<{ user: Instructor; accessToken: string; refreshToken: string }> {
+    const instructor = await this.instructorRepo.findByEmail(email);
+    if (!instructor) {
+      throw new HttpError(ERROR_MESSAGES.INVALID_CREDENTIALS, HttpStatusCode.UNAUTHORIZED);
     }
 
+    const isMatch = await bcrypt.compare(password, instructor.passwordHash);
+    if (!isMatch) {
+      throw new HttpError(ERROR_MESSAGES.INVALID_CREDENTIALS, HttpStatusCode.UNAUTHORIZED);
+    }
+
+    const accountStatus = instructor.accountStatus;
+
+    if (accountStatus === 'pending') {
+      throw new HttpError(ERROR_MESSAGES.ACCOUNT_NOT_APPROVED, HttpStatusCode.FORBIDDEN);
+    } else if (accountStatus === 'suspended') {
+      throw new HttpError(ERROR_MESSAGES.ACCOUNT_SUSPENDED, HttpStatusCode.FORBIDDEN);
+    } else if (accountStatus === 'rejected') {
+      throw new HttpError(ERROR_MESSAGES.ACCOUNT_REJECTED, HttpStatusCode.FORBIDDEN);
+    }
+    console.log(instructor.instructorId,'instructor id from login use case')
+    const accessToken = generateAccessToken({ id: instructor.instructorId, role: 'instructor' });
+    const refreshToken = generateRefreshToken({ id: instructor.instructorId, role: 'instructor' });
+    return { user: instructor, accessToken, refreshToken };
+  }
 }

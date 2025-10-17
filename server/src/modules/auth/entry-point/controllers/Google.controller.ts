@@ -13,24 +13,21 @@ export class GoogleController {
     console.log(1)
   }
 
-  static googleCallback(req: any, res: any,next: NextFunction) {
+  static googleCallback(req: Request, res: Response,next: NextFunction) {
     console.log(2);
     passport.authenticate(
       'google',
       { failureRedirect: '/auth/'},
       (err, userr, info) => {
         if (err || !userr) {
-          // return res
-          //   .status(400)
-          //   .json({ error: info.message || 'Authentication failed' });
-          res.status(400).redirect('http://localhost:5173/auth');
-          return;
+          const errorMessage = err?.message || info?.message || 'Authentication failed';
+          return res.redirect(`${process.env.SUCCESS_REDIRECT!}/?error=${encodeURIComponent(errorMessage)}`);
         }
           console.log(5)
           const { user, role } = userr;
           req.user = user
-          const accessToken = generateAccessToken({ id: user._id, role });
-          const refreshToken = generateRefreshToken({ id: user._id, role });
+          const accessToken = generateAccessToken({ id: user.studentId, role });
+          const refreshToken = generateRefreshToken({ id: user.studentId, role });
           res.cookie('access_token', accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -45,16 +42,7 @@ export class GoogleController {
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
           });
 
-          res.status(302).redirect("http://localhost:5173/auth/oauth-success");
-          // res.status(200).json({
-          //   message: `${role} login successful via Google`,
-          //   user: {
-          //     name: user.name,
-          //     email: user.email,
-          //     role,
-          //     profilePicture: user.profilePictureUrl ?? null,
-          //   },
-          // });
+          res.status(302).redirect(`${process.env.SUCCESS_REDIRECT!}/oauth-success`);
         
       },
     )(req, res , next);
