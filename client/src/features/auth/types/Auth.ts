@@ -20,6 +20,8 @@ export interface IinstrctorSignUpPayload{
   confirmPassword:string;
   subject:string;
   jobTitle:string;
+  customSubject:string;
+  customJobTitle:string;
   experience:string;
   socialMediaLink:string;
   portfolioLink?:string

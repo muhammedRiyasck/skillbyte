@@ -1,16 +1,16 @@
-import React, { useState } from "react";
-import TextInput from "../../../shared/ui/TextInput";
+import React, {  useState } from "react";
+import TextInput from "@shared/ui/TextInput";
 import AboutCourseField from "../components/DynamicField";
-import ErrorMessage from "../../../shared/ui/ErrorMessage";
+import ErrorMessage from "@shared/ui/ErrorMessage";
 import { validateCreateCourse } from "../validation/BaseCourseValidation";
-import { createBase, uploadThumbnail } from "../services/CreateBase";
-import api from "../../../shared/utils/AxiosInstance";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-import Spiner from "../../../shared/ui/Spiner";
-import CropImageModal from "../../../shared/ui/CropImageModal";
-import getCroppedImg from "../../../shared/utils/GetCroppedImg";
+import { ROUTES } from "@core/router/paths";
+import Spiner from "@shared/ui/Spiner";
+import CropImageModal from "@shared/ui/CropImageModal";
+import getCroppedImg from "@shared/utils/GetCroppedImg";
 import useCreateCourse from "../hooks/useCreateCourse";
+
 
 const CreateCourse = () => {
   const navigate = useNavigate();
@@ -33,10 +33,11 @@ const CreateCourse = () => {
     tags: "",
     features: [""] as string[],
   });
-
+  
   const [errors, setErrors] = useState<Record<string, { success: boolean; message: string }>>({});
-
+  
   const Category = ["Marketing", "Programming", "Designing", "Business", "Other"];
+  
   const Levels = [
     "Beginner",
     "Intermediate",
@@ -45,7 +46,7 @@ const CreateCourse = () => {
     "Intermediate - Advanced",
     "All Level",
   ];
-
+  
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -64,7 +65,7 @@ const CreateCourse = () => {
     }));
     setCroppedBlob(croppedblob);
   };
-
+  
   const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setFormData((prev) => ({
@@ -74,21 +75,23 @@ const CreateCourse = () => {
       customCategory: value === "Other" ? prev.customCategory : "",
     }));
   };
-
+  
   const createCourse = useCreateCourse();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const validationErrors = validateCreateCourse({ ...formData, thumbnailFile });
     setErrors(validationErrors);
-
+    
     if (Object.keys(validationErrors).length === 0) {
-
+      
       if (croppedBlob && thumbnailFile) {
         try {
           setSpining(true);
-          await createCourse({ formData, croppedBlob, thumbnailFile });
-          toast.success("Course created successfully!");
-          navigate("/");
+          const {courseId} = await createCourse({ formData, croppedBlob, thumbnailFile });
+          
+          navigate(ROUTES.instructor.uploadCourseContent,{state:{
+            courseId
+          }})
         } catch (error: any) {
           toast.error(error.message);
           throw error;
@@ -100,7 +103,9 @@ const CreateCourse = () => {
   };
 
   return (
+    
     <div className="min-h-screen flex flex-col ">
+      
       {spining && Spiner()}
 
       {/* Top Navigation */}
@@ -111,10 +116,10 @@ const CreateCourse = () => {
         </button>
       </div>
 
-      <div className="flex-col bg-white dark:bg-gray-800">
+      <div className="flex-col bg-white dark:bg-gray-800 min-h-screen">
         <form
           onSubmit={handleSubmit}
-          className={`w-5/6 rounded-lg shadow-2xl p-6 m-6 mx-auto  dark:bg-gray-700 dark:text-gray-100 dark:border ${
+          className={` lg:w-4/6 rounded-lg shadow-2xl p-6 m-6 mx-auto  dark:bg-gray-700 dark:text-gray-100 dark:border ${
             Object.keys(errors).length > 0 ? "border border-red-600" : ""
           } `}
         >
@@ -170,7 +175,7 @@ const CreateCourse = () => {
                 type="text"
                 placeholder="Enter course title"
                 value={formData.title}
-                setValue={(val) => setFormData((prev) => ({ ...prev, title: val }))}
+                onChange={(val) => setFormData((prev) => ({ ...prev, title: val }))}
                 className="dark:border-white"
               />
               {errors.course && <ErrorMessage error={errors.course.message} />}
@@ -215,7 +220,7 @@ const CreateCourse = () => {
                   type="text"
                   placeholder="Enter custom category"
                   value={formData.customCategory}
-                  setValue={(val) => setFormData((prev) => ({ ...prev, customCategory: val }))}
+                  onChange={(val) => setFormData((prev) => ({ ...prev, customCategory: val }))}
                   className="mt-4 dark:border-white"
                 />
               )}
@@ -254,7 +259,7 @@ const CreateCourse = () => {
                 <option disabled value="">
                   Select Language
                 </option>
-                <option value="english">English</option>
+                <option value="English">English</option>
               </select>
               {errors.language && <ErrorMessage error={errors.language.message} />}
             </div>
@@ -285,7 +290,7 @@ const CreateCourse = () => {
                 type="text"
                 placeholder="Enter Price"
                 value={formData.price}
-                setValue={(val) => setFormData((prev) => ({ ...prev, price: val }))}
+                onChange={(val) => setFormData((prev) => ({ ...prev, price: val }))}
                 className="dark:border-white"
               />
               {errors.price && <ErrorMessage error={errors.price.message} />}
@@ -299,7 +304,7 @@ const CreateCourse = () => {
                 type="text"
                 placeholder="#marketing #digitalstrategy"
                 value={formData.tags}
-                setValue={(val) => setFormData((prev) => ({ ...prev, tags: val }))}
+                onChange={(val) => setFormData((prev) => ({ ...prev, tags: val }))}
                 className="dark:border-white"
               />
               {errors.tags && <ErrorMessage error={errors.tags.message} />}
@@ -310,8 +315,9 @@ const CreateCourse = () => {
           <div className="mt-6">
             <label className="block text-gray-700 dark:text-white mb-2">About This Course (features)</label>
             <AboutCourseField
-              points={formData.features}
-              setPoints={(val: string[]) => setFormData((prev) => ({ ...prev, features: val }))}
+              data={formData.features}
+              setData={(val: string[]) => setFormData((prev) => ({ ...prev, features: val }))}
+              placeholder="point"
             />
             {errors.features && <ErrorMessage error={errors.features.message} />}
           </div>

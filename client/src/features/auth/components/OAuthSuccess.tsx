@@ -4,8 +4,9 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
-import { setUser } from "../AuthSlice";
-import Shimmer from '../../../shared/shimmer/Home'
+import { setUser } from "../";
+import { ROUTES } from "@core/router/paths";
+import { Home } from '@shared/shimmer'
 const OAuthSuccess = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch()
@@ -15,15 +16,15 @@ const OAuthSuccess = () => {
         console.log("User:", res.data);
         toast.success("Login successful!");
         dispatch(setUser(res.data.userData))
-        navigate("/");
+        navigate(ROUTES.root);
       })
       .catch(() => {
         toast.success("Learner Registration Successfull Via Google")
-        navigate("/auth");
+        navigate(ROUTES.auth.signIn);
       });
   }, [navigate]);
 
-  return <Shimmer/>
+  return <Home/>
 
   // (
   //   <div className="flex items-center justify-center h-screen dark:bg-gray-900 bg-white text-gray-800">

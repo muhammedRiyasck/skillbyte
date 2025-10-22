@@ -2,11 +2,11 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RouterProvider } from "react-router-dom";
-import router from "../core/router/Routes.tsx";
+import router from "@core/router/Routes.tsx";
 import { Toaster } from "sonner";
 import { fetchCurrentUser } from "../features/auth/AuthSlice.ts";
-import type{ RootState, AppDispatch } from '../core/store/Index.ts';
-import Home from "../shared/shimmer/Home.tsx";
+import type{ RootState, AppDispatch } from '@core/store/Index.ts';
+import Home from "@shared/shimmer/Home.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const queryClient = new QueryClient({

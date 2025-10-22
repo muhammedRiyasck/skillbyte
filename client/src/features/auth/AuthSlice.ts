@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice, type PayloadAction   } from "@reduxjs/toolkit";
 
 import type { User } from "./types/User";
-import api from "../../shared/utils/AxiosInstance";
+import api from "@shared/utils/AxiosInstance";
 
 interface AuthState {
   user: User | null;
@@ -19,8 +19,8 @@ export const fetchCurrentUser = createAsyncThunk<User>(
   "auth/fetchCurrentUser",
   async (_, thunkAPI) => {
     try {
-      const response = await api.get<{userData:User}>("/auth/me");
-      return response.data.userData;
+      const response = await api.get("/auth/me");
+      return response?.data?.data?.userData;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(error.response?.data || "Failed to fetch user");
     }

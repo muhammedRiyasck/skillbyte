@@ -1,46 +1,47 @@
 import { Trash2, Plus } from "lucide-react";
-import TextInput from "../../../shared/ui/TextInput";
+import TextInput from "@shared/ui/TextInput";
 
 type DynamicFieldProps = {
-  points:string[]
-  setPoints:(value:string[])=>void
+  data:string[]
+  setData:(value:string[])=>void
+  placeholder:string
 }
 
-export default function DynamicField({points, setPoints}:DynamicFieldProps) {
+export default function DynamicField({data, setData,placeholder}:DynamicFieldProps) {
   
 
   const handleAddField = () => {
-    if(points.length >=6) return 
-    setPoints([...points, ""]);
+    if(data.length >=6) return 
+    setData([...data, ""]);
   };
 
   const handleRemoveField = (index: number) => {
-    const updatedPoints = points.filter((_, i) => i !== index);
-    setPoints(updatedPoints);
+    const updateddata = data.filter((_, i) => i !== index);
+    setData(updateddata);
   };
 
   const handleChange = (index: number, value: string) => {
-    const updatedPoints = [...points];
-    updatedPoints[index] = value;
-    setPoints(updatedPoints);
+    const updateddata = [...data];
+    updateddata[index] = value;
+    setData(updateddata);
   };
 
   return (
-    <div className="w-full bg-white p-2 rounded-2xl shadow-md space-y-4 dark:bg-gray-700 dark:border dark:border-white">
+    <div className="w-full  p-2 rounded-lg shadow-md space-y-4 dark:bg-gray-700 dark:border dark:border-white">
 
-      {points.map((point, index) => (
+      {data.map((point, index) => (
         <div key={index} className="w-full flex gap-2 ">
           <div className="w-[95%]">
             <TextInput
               id="point"
-              type='text'
-              placeholder={`Enter point ${index + 1}`}
+              type={ 'text' }
+              placeholder={`Enter ${placeholder} ${index + 1}`}
               value={point}
-              setValue={(value)=>handleChange(index,value)}
+              onChange={(value)=>handleChange(index,value)}
               className="dark:bg-gray-700 dark:border dark:border-white "
             />
           </div>
-          {points.length > 1 && (
+          {data.length > 1 && (
             <button
               type="button"
               onClick={() => handleRemoveField(index)}

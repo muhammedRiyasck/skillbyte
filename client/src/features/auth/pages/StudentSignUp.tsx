@@ -1,20 +1,15 @@
 import { useState  } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { ROUTES } from "@core/router/paths";
 
 import { studentRegister } from "../services/AuthService";
 
-import TextInput from "../../../shared/ui/TextInput";
-import ErrorMessage from "../../../shared/ui/ErrorMessage";
-import Spiner from "../../../shared/ui/Spiner";
+import { TextInput, ErrorMessage, Spiner, MotionDiv } from "@shared/ui";
 
-import isNameValid from "../../../shared/validation/Name";
-import isEmailValid from "../../../shared/validation/Email";
-import isPasswordValid from "../../../shared/validation/Password";
-import isConfirmPasswordValid from "../../../shared/validation/ConfirmPassword";
+import { isNameValid, isEmailValid, isPasswordValid, isConfirmPasswordValid } from "@shared/validation";
 import { toast } from "sonner";
 
-import ShowPassword from "../components/ShowPassword";
-import MotionDiv from "../../../shared/ui/MotionDiv";
+import { ShowPassword } from "../";
 
 export default function StudentSignUp () {
 
@@ -37,7 +32,6 @@ export default function StudentSignUp () {
   });
 
   const [agree,setAgree] = useState(false)
-  console.log(agree)
   const navigate = useNavigate()
 
   const  handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -67,7 +61,7 @@ export default function StudentSignUp () {
         const expiryTime = Date.now() + 2 * 60 * 1000; // 2 minutes from now
         localStorage.setItem("otpExpiry", expiryTime.toString());
         sessionStorage.setItem("role",'student')
-        navigate('/auth/otp')
+        navigate(ROUTES.auth.otp)
         setLoading(false)
         toast.success(response.message)
         
@@ -98,7 +92,7 @@ export default function StudentSignUp () {
               type="text"
               value={formData.fullName}
               placeholder="Full Name"
-              setValue={(value) => setFormData({ ...formData, fullName: value })} 
+              onChange={(value) => setFormData({ ...formData, fullName: value })} 
               
             />
             < ErrorMessage error={error.fullNameError} />
@@ -112,7 +106,7 @@ export default function StudentSignUp () {
               type="email"
               value={formData.email}
               placeholder="Email Address"
-              setValue={(value) => setFormData({ ...formData, email: value })}
+              onChange={(value) => setFormData({ ...formData, email: value })}
             />
             <ErrorMessage error={error.emailError} />
           </div>
@@ -126,9 +120,9 @@ export default function StudentSignUp () {
                 type="password"
                 value={formData.password}
                 placeholder="Password"
-                setValue={(value) => setFormData({ ...formData, password: value })}
+                onChange={(value) => setFormData({ ...formData, password: value })}
                 showPassword={showPassword}
-                icon={()=><ShowPassword  showPassword={showPassword} setShowPassword={(value:boolean)=>setShowPassword(value)} />}
+                icon={<ShowPassword  showPassword={showPassword} setShowPassword={(value:boolean)=>setShowPassword(value)} />}
                 />
                 
               <ErrorMessage error={error.passwordError} />
@@ -142,9 +136,9 @@ export default function StudentSignUp () {
                 type="password"
                 value={formData.confirmPassword}
                 placeholder="Confirm Password"
-                setValue={(value) => setFormData({ ...formData, confirmPassword: value })}
+                onChange={(value) => setFormData({ ...formData, confirmPassword: value })}
                 showPassword={showPassword}
-                // icon={()=><ShowPassword  showPassword={showPassword} setShowPassword={(value:boolean)=>setShowPassword(value)} />}
+                // icon={<ShowPassword  showPassword={showPassword} setShowPassword={(value:boolean)=>setShowPassword(value)} />}
 
                 />
               <ErrorMessage error={error.confirmPasswordError} />

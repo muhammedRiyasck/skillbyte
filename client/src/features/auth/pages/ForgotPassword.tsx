@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import validateEmailfrom from "../../../shared/validation/Email";
+import { ROUTES } from "@core/router/paths";
+import { isEmailValid } from "@shared/validation";
 import { forgotPassword } from "../services/AuthService";
 import { toast } from "sonner";
-import ErrorMessage from "../../../shared/ui/ErrorMessage";
-import Spiner from "../../../shared/ui/Spiner";
-import MotionDiv from "../../../shared/ui/MotionDiv";
+import { ErrorMessage, Spiner, MotionDiv } from "@shared/ui";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -15,12 +14,12 @@ const ForgotPassword = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const isEmailValid = validateEmailfrom(email);
+    const emailValid = isEmailValid(email);
     setError({
-      email: isEmailValid.message,
+      email: emailValid.message,
       role: role ? "" : "role is required",
     });
-    if (isEmailValid.success && role) {
+    if (emailValid.success && role){
       try {
         setLoading(true);
         const response = await forgotPassword({ email, role });
@@ -95,7 +94,7 @@ const ForgotPassword = () => {
         {/* Back to login */}
         <div className="flex mt-6 text-sm text-gray-600 dark:text-gray-400 text-center">
           <p className=" text-center ">Remember your password?&nbsp;</p>
-          <Link to="/auth" className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500  ">
+          <Link to={ROUTES.auth.signIn} className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500  ">
             Sign in
           </Link>
         </div>

@@ -1,7 +1,7 @@
 import React from "react";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { useTheme } from "../../core/store/ThemeContext";
+import { useTheme } from "@core/store/ThemeContext";
 
 interface ShimmerProps {
   count?: number; // Number of skeleton lines

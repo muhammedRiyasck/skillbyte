@@ -1,145 +1,176 @@
 import {createBrowserRouter} from 'react-router-dom';
+import { lazy } from 'react';
+import Fallback from './Fallback';
+import { ROUTES } from './paths';
+import ErrorHandler from './ErrorHandler';
+import ErrorPage from '@shared/ui/ErrorPage';
 
-import PublicLayout from '../../layouts/auth/PublicLayout.tsx';
-import SignIn from '../../features/auth/pages/SignIn.tsx';
-import StudentSignup from '../../features/auth/pages/StudentSignUp.tsx';
-import Otp from '../../features/auth/pages/Otp.tsx';
-import ForgotPassword from '../../features/auth/pages/ForgotPassword.tsx';
-import ResetPassword from '../../features/auth/pages/ResetPassword.tsx'
+// Helper function to get relative path from full path
+const getRelativePath = (fullPath: string, basePath: string) => {
+  return fullPath.replace(`${basePath}/`, '');
+};
 
-import NotFound from '../../shared/ui/NotFound.tsx';
-import LandingPage from '../../features/home/pages/Landing.tsx';
-import StudentLayout from '../../layouts/student/StudentLayout.tsx';
-import OAuthSuccess from '../../features/auth/components/OAuthSuccess.tsx';
+import PublicLayout from '@layouts/auth/PublicLayout.tsx';
+const SignIn = lazy(() => import('@features/auth/pages/SignIn.tsx'));
+const StudentSignup = lazy(() => import('@features/auth/pages/StudentSignUp.tsx'));
+const Otp = lazy(() => import('@features/auth/pages/Otp.tsx'));
+const ForgotPassword = lazy(() => import('@features/auth/pages/ForgotPassword.tsx'));
+const ResetPassword = lazy(() => import('@features/auth/pages/ResetPassword.tsx'));
 
-import InstructorSignup from '../../features/auth/pages/InstructorSignUp.tsx';
+const LandingPage = lazy(() => import('@features/home/pages/Landing.tsx'));
+import StudentLayout from '@layouts/student/StudentLayout.tsx';
+const OAuthSuccess = lazy(() => import('@features/auth/components/OAuthSuccess.tsx'));
 
-import AdminLayout from '../../layouts/admin/AdminLayout.tsx'                
-import AdminSignIn from '../../features/admin/pages/SignIn.tsx'
+const InstructorSignup = lazy(() => import('@features/auth/pages/InstructorSignUp.tsx'));
+
+import AdminLayout from '@layouts/admin/AdminLayout.tsx'                
+const AdminSignIn = lazy(() => import('@features/admin/pages/SignIn.tsx'))
 
 
 import PublicRoute from './PublicRoute.tsx';
 import ProtectedRoute from './RoleBaseRoute.tsx';
 
-import InstructorLayout from '../../layouts/instructor/InstructorLayout.tsx';
-import InstructorRequests from '../../features/admin/pages/InstructorRequests.tsx';
-import InstructorDashboard from '../../features/instructor/pages/Dashboard.tsx';
-import CreateCourse from '../../features/course/pages/CreateCourse.tsx';
-import InstructorCourses from '../../features/course/pages/InstructorCourses.tsx';
+import InstructorLayout from '@layouts/instructor/InstructorLayout.tsx';
+const InstructorManagement = lazy(() => import('@features/admin/pages/InstructorManagement.tsx'));
+const InstructorDashboard = lazy(() => import('@features/instructor/pages/Dashboard.tsx'));
+const InstructorProfile = lazy(() => import('@features/instructor/pages/Profile.tsx'));
+const ContentUploadPage = lazy(() => import('@features/course/pages/contentUpload/ContentUploadPage.tsx'));
+const StudentManagement = lazy(() => import('@features/admin/pages/StudentManagement.tsx'));
+
+const CreateCourse = lazy(() => import('@features/course/pages/CreateCourse.tsx'));
+const InstructorCourses = lazy(() => import('@features/course/pages/InstructorCourses.tsx'));
+const StudentCourses = lazy(() => import('@features/course/pages/StudentCourses.tsx'));
 
 const router = createBrowserRouter([
   {
-    path: '/auth',
+    path: ROUTES.auth.base,
     element: <PublicLayout />,
     children: [
-      {  index: true, element:( 
-        <PublicRoute endPoint='/'>
-         <SignIn /> 
+      {  index: true, element:(
+        <PublicRoute endPoint={ROUTES.root}>
+         <Fallback><SignIn /></Fallback>
         </PublicRoute>)},
-      { path: 'learner-register', element:
-         <PublicRoute endPoint='/'>
-          <StudentSignup />
+      { path: getRelativePath(ROUTES.auth.learnerRegister, ROUTES.auth.base), element:
+         <PublicRoute endPoint={ROUTES.root}>
+          <Fallback><StudentSignup /></Fallback>
          </PublicRoute>
          },
 
       {
-        path:'instructor-register', element:
-        <PublicRoute endPoint='/'>
-          <InstructorSignup/>
+        path: getRelativePath(ROUTES.auth.instructorRegister, ROUTES.auth.base), element:
+        <PublicRoute endPoint={ROUTES.root}>
+          <Fallback><InstructorSignup/></Fallback>
         </PublicRoute>
       },
-      { path: 'oauth-success', element: 
-        <PublicRoute endPoint='/'>
-        <OAuthSuccess />
+      { path: getRelativePath(ROUTES.auth.oauthSuccess, ROUTES.auth.base), element:
+        <PublicRoute endPoint={ROUTES.root}>
+        <Fallback><OAuthSuccess /></Fallback>
         </PublicRoute>
        },
-      { path: 'forgot-password', element:
-        <PublicRoute endPoint='/'>
-        <ForgotPassword/>
+      { path: getRelativePath(ROUTES.auth.forgotPassword, ROUTES.auth.base), element:
+        <PublicRoute endPoint={ROUTES.root}>
+        <Fallback><ForgotPassword/></Fallback>
         </PublicRoute>
       }
 
     ],
-    errorElement: <NotFound />,
+    errorElement: <ErrorHandler />,
   },
+  //layout is different for otp and reset password
   {
-    path:'/auth/otp',
+    path: ROUTES.auth.otp,
     element:
-    <PublicRoute endPoint='/'>
-     <Otp />
+    <PublicRoute endPoint={ROUTES.root}>
+     <Fallback><Otp /></Fallback>
      </PublicRoute>,
-    errorElement: <NotFound />,
+    errorElement: <ErrorHandler />,
   },
   {
-    path:'/auth/reset-password',
+    path: ROUTES.auth.resetPassword,
     element:
-    <PublicRoute endPoint='/'>
-    <ResetPassword/>
-    </PublicRoute>
+    <PublicRoute endPoint={ROUTES.root}>
+    <Fallback><ResetPassword/></Fallback>
+    </PublicRoute>,
+    errorElement: <ErrorHandler />,
   },
-  // {
-  //   path:'/auth/forgot-password',
-  //   element: <ForgotPassword/>
-  // },
   {
-    path: '/',
+    path: ROUTES.root,
     element: <StudentLayout />,
     children: [
-      
+
       { index: true, element:
         <PublicRoute endPoint=''>
-         <LandingPage />
+         <Fallback><LandingPage /></Fallback>
          </PublicRoute>
-          },
-      // { path: 'courses', element: <Courses /> },
-      // { path: 'courses', element: <Courses /> },
-      // { path: 'profile', element: <Profile /> },
-      // { path: 'chat', element: <Chat /> },
+      },
+      { path: getRelativePath(ROUTES.student.courses, ROUTES.root), element:
+      <ProtectedRoute roles={['student']}>
+        <Fallback><StudentCourses /></Fallback>
+      </ProtectedRoute>
+      },
     ],
-    errorElement: <NotFound />,
+    errorElement: <ErrorHandler />,
   },
-  
+
   {
-    path: '/instructor',
+    path: ROUTES.instructor.base,
     element: <InstructorLayout />,
     children: [
       { index:true, element:
         <ProtectedRoute roles={['instructor']}>
-        <InstructorDashboard /> 
+        <Fallback><InstructorDashboard /></Fallback>
         </ProtectedRoute>
        },
-      { path: 'create-baseCourse', element:
+      { path: getRelativePath(ROUTES.instructor.profile, ROUTES.instructor.base), element:
+        <ProtectedRoute roles={['instructor']}>
+        <Fallback><InstructorProfile /></Fallback>
+        </ProtectedRoute>
+       },
+      { path: getRelativePath(ROUTES.instructor.createCourseBase, ROUTES.instructor.base), element:
       <ProtectedRoute roles={['instructor']}>
-        <CreateCourse /> 
-        </ProtectedRoute> 
-      }, 
-      { path: 'myCourses', element:
+        <Fallback><CreateCourse /></Fallback>
+      </ProtectedRoute>
+      },
+      { path: getRelativePath(ROUTES.instructor.uploadCourseContent, ROUTES.instructor.base), element:
       <ProtectedRoute roles={['instructor']}>
-        <InstructorCourses /> 
-      </ProtectedRoute> 
-      }, 
+        <Fallback><ContentUploadPage /></Fallback>
+      </ProtectedRoute>
+      },
+      { path: getRelativePath(ROUTES.instructor.myCourses, ROUTES.instructor.base), element:
+      <ProtectedRoute roles={['instructor']}>
+        <Fallback><InstructorCourses /></Fallback>
+      </ProtectedRoute>
+      },
     ],
+    errorElement: <ErrorHandler />,
   },
   {
-    path: '/admin',
+    path: "*",
+    element: <ErrorPage message="Page Not Found" statusCode={404} />,
+  },
+  {
+    path: ROUTES.admin.base,
     element: <AdminLayout />,
     children: [
       { index: true, element:
-         <PublicRoute endPoint='/admin/instructor-request'>
-         <AdminSignIn />  
-        </PublicRoute>},
-      { path: 'instructor-request', element: 
+         <PublicRoute endPoint={ROUTES.admin.studentManagement}>
+         <Fallback><AdminSignIn /></Fallback>
+        </PublicRoute>
+        },
+      { path: getRelativePath(ROUTES.admin.instructorManagement, ROUTES.admin.base), element:
       <ProtectedRoute roles={['admin']}>
-      <InstructorRequests /> 
+      <Fallback><InstructorManagement /></Fallback>
+      </ProtectedRoute>
+      },
+      { path: getRelativePath(ROUTES.admin.studentManagement, ROUTES.admin.base), element:
+      <ProtectedRoute roles={['admin']}>
+      <Fallback><StudentManagement /></Fallback>
       </ProtectedRoute>
       }
-      // { path: 'dashboard', element: <AdminDashboard /> },
     ],
+    errorElement: <ErrorHandler />,
   },
-  // {
-  //   path: '*',
-  //   element: <NotFound />,
-  // },
+
 ]);
 
   

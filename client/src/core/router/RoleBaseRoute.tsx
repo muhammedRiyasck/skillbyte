@@ -3,28 +3,27 @@
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 import type { RootState } from "../store/Index";
-import Spiner from "../../shared/ui/Spiner";
+import { toast } from "sonner";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  roles?: string[]; // optional roles
+  roles?: string[]; 
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, roles }) => {
-  const { user,loading } = useSelector((state: RootState) => state.auth);
+  const user = useSelector((state: RootState) => state.auth.user);
 
-  if(loading){
-    return <Spiner/>
-  }
-
-  if ( !user) {
+  if (!user) {
+    toast.info('You Should Login To Access This Page')
     return <Navigate to="/" replace />;
   }
+
 
   if (roles && !roles.includes(user.role)) {
+    toast.error('You Do Not Have Permission To Access This Page')
     return <Navigate to="/" replace />;
   }
-
+  
   return <>{children}</>;
 };
 

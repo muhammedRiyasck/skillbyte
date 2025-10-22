@@ -1,5 +1,5 @@
 import { toast } from "sonner";
-import api from "../../../shared/utils/AxiosInstance";
+import api from "@shared/utils/AxiosInstance";
 import type { Ibase } from "../types/IBase";
 
 export const createBase = async (data: Ibase) => {
@@ -17,6 +17,7 @@ export const uploadThumbnail = async ({courseId,blob,fileName}: {
   blob: Blob;
   fileName: string;
 }) => {
+  console.log(courseId,'courseId')
   const photo = new FormData();
   photo.append("thumbnail", blob, fileName);
   const { data } = await api.post(`/course/upload-thumbnail/${courseId}`, photo);

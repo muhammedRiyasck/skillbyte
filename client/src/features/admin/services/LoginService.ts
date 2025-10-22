@@ -1,7 +1,7 @@
 
 import { toast } from "sonner";
 
-import api from "../../../shared/utils/AxiosInstance";
+import api from "@shared/utils/AxiosInstance";
 
 interface loginPlayload {
     email:string;

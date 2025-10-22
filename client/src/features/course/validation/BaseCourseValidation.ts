@@ -1,7 +1,4 @@
-export interface ValidationResponse {
-  success: boolean;
-  message: string;
-}
+import type { ValidationResponse } from "../types/ValidationResponse";
 
 export const validateCreateCourse = (data: any): Record<string, ValidationResponse> => {
   const errors: Record<string, ValidationResponse> = {};
@@ -70,7 +67,7 @@ export const validateCreateCourse = (data: any): Record<string, ValidationRespon
   //tags validation should be started with # and should not contain spaces
   if (data.tags) {
     const tagsArray = data.tags.split(" ");
-    for (let tag of tagsArray) {
+    for (const tag of tagsArray) {
       if (!tag.startsWith("#")) {
         errors.tags = { success: false, message: "Each tag must start with #" };
         break;
@@ -82,7 +79,7 @@ export const validateCreateCourse = (data: any): Record<string, ValidationRespon
   if ( data.features.length < 3) {
     errors.features = { success: false, message: "Please add at least 3 course features" };
   }else{
-    for(let val of data.features){
+    for(const val of data.features){
       if(!val.trim()) errors.features = { success: false, message: "All course features should be filled" };
     }
   }

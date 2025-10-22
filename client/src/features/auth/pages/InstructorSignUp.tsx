@@ -1,23 +1,19 @@
 import  { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { ROUTES } from "@core/router/paths";
 
-import ErrorMessage from "../../../shared/ui/ErrorMessage";
-import MotionDiv from "../../../shared/ui/MotionDiv";
-import TextInput from "../../../shared/ui/TextInput";
-import ShowPassword from "../components/ShowPassword";
-import isNameValid from "../../../shared/validation/Name";
-import isEmailValid from "../../../shared/validation/Email";
-import isPasswordValid from '../../../shared/validation/Password'
-import isConfirmPasswordValid from "../../../shared/validation/ConfirmPassword";
+import { ErrorMessage, MotionDiv, TextInput } from "@shared/ui";
+import { ShowPassword } from "../";
+import { isNameValid, isEmailValid, isPasswordValid, isConfirmPasswordValid } from "@shared/validation";
 import { isValidSubject,isValidJobTitle,isValidExperience,isValidPortfolio, isValidSocailMedia } from "../InstructorValidation";
 
-import { instructorRegister } from "../services/AuthService";
+import { instructorRegister } from "../";
 import { toast } from "sonner";
-import Spiner from "../../../shared/ui/Spiner";
+import { Spiner } from "@shared/ui";
 
 export default function InstructorSignup () {
-  let navigate = useNavigate()
-  let [loading,setLoading] = useState(false)
+  const navigate = useNavigate()
+  const [loading,setLoading] = useState(false)
 
   const [formData,setFormData] = useState({
       fullName : '',
@@ -122,13 +118,13 @@ export default function InstructorSignup () {
 
    try {
         setLoading(true)
-        const response = await instructorRegister(formData)
+        const response = await instructorRegister({...formData,customJobTitle,customSubject})
         console.log(response,'response')
         sessionStorage.setItem("emailForOtp", formData.email);
         const expiryTime = Date.now() + 2 * 60 * 1000; // 2 minutes from now
         localStorage.setItem("otpExpiry", expiryTime.toString());
         sessionStorage.setItem("role",'instructor')
-        navigate('/auth/otp')
+        navigate(ROUTES.auth.otp)
         setLoading(false)
         toast.success(response.message)
         
@@ -167,7 +163,7 @@ export default function InstructorSignup () {
               type="text"
               placeholder="Full Name"
               value={formData.fullName}
-              setValue={(value)=>setFormData({...formData,fullName:value})}
+              onChange={(value)=>setFormData({...formData,fullName:value})}
             />
             <ErrorMessage error={formError.fullNameError}/>
           </div>
@@ -185,7 +181,7 @@ export default function InstructorSignup () {
               type="email"
               placeholder="Email Address"
               value={formData.email}
-              setValue={(value)=>setFormData({...formData,email:value})}
+              onChange={(value)=>setFormData({...formData,email:value})}
               
             />
             <ErrorMessage error={formError.emailError}/>
@@ -206,9 +202,9 @@ export default function InstructorSignup () {
               type="password"
               placeholder="Password"
               value={formData.password}
-              setValue={(value)=>setFormData({...formData,password:value})}
+              onChange={(value)=>setFormData({...formData,password:value})}
               showPassword={showPassword}
-              icon={()=><ShowPassword  showPassword={showPassword} setShowPassword={(value:boolean)=>setShowPassword(value)} />}
+              icon={<ShowPassword  showPassword={showPassword} setShowPassword={(value:boolean)=>setShowPassword(value)} />}
               
             />
               <ErrorMessage error={formError.passwordError}/>
@@ -226,7 +222,7 @@ export default function InstructorSignup () {
                 type="password"
                 placeholder="Confirm Password"
                 value={formData.confirmPassword}
-                setValue={(value)=>setFormData({...formData,confirmPassword:value})}
+                onChange={(value)=>setFormData({...formData,confirmPassword:value})}
                 showPassword={showPassword}
               
               />
@@ -275,7 +271,7 @@ export default function InstructorSignup () {
             )}
 
 
-             <ErrorMessage error={isOtherSubjectSelected?"Please specify your job title":formError.subjectError}/>
+             <ErrorMessage error={formError.subjectError}/>
 
           </div>
 
@@ -311,7 +307,7 @@ export default function InstructorSignup () {
                     />
                   )}
 
-              <ErrorMessage error={isOtherTitleSelected?"Please specify your subject":formError.jobTitleError}/>
+              <ErrorMessage error={formError.jobTitleError}/>
 
           </div>
         </div>
@@ -328,7 +324,7 @@ export default function InstructorSignup () {
                 type="number"
                 placeholder="e.g. 5"
                 value={formData.experience}
-                setValue={(value)=>setFormData({...formData,experience:value})}
+                onChange={(value)=>setFormData({...formData,experience:value})}
               />
               <ErrorMessage error={formError.experienceError}/>
             </div>
@@ -346,7 +342,7 @@ export default function InstructorSignup () {
                 type="url"
                 placeholder="https://linkedin.com/in/yourprofile"
                 value={formData.socialMediaLink}
-                setValue={(value)=>setFormData({...formData,socialMediaLink:value})}  
+                onChange={(value)=>setFormData({...formData,socialMediaLink:value})}  
                 />
               <ErrorMessage error={formError.socialMediaLinError}/>
             </div>
@@ -364,7 +360,7 @@ export default function InstructorSignup () {
                 type="url"
                 placeholder="https://yourportfolio.com"
                 value={formData.portfolioLink}
-                setValue={(value)=>setFormData({...formData,portfolioLink:value})}
+                onChange={(value)=>setFormData({...formData,portfolioLink:value})}
               />
               <ErrorMessage error={formError.portfolioLinkError}/>
             </div>

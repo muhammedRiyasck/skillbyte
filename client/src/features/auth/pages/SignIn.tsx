@@ -1,20 +1,17 @@
-import React, { useState} from "react";
+import React, { useState,useEffect} from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Spiner from "../../../shared/ui/Spiner";
+import { Spiner, TextInput, ErrorMessage } from "@shared/ui";
 import { toast } from "sonner";
 
-import TextInput from "../../../shared/ui/TextInput";
-import ErrorMessage from "../../../shared/ui/ErrorMessage";
-
 import { login } from "../services/AuthService";
-import isEmailValid from "../../../shared/validation/Email";
-import { isPasswordEntered } from "../../../shared/validation/Password";
-import ShowPassword from "../components/ShowPassword";
+import { isEmailValid, isPasswordEntered } from "@shared/validation";
+import { ShowPassword } from "../";
 
 import { useDispatch } from "react-redux";
-import { setUser } from "../AuthSlice";
-import type { AppDispatch } from "../../../core/store/Index";
-import MotionDiv from "../../../shared/ui/MotionDiv";
+import { setUser } from "../";
+import type { AppDispatch } from "@core/store/Index";
+import MotionDiv from "@shared/ui/MotionDiv";
+import { ROUTES } from "@core/router/paths";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -26,6 +23,16 @@ const Login: React.FC = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>()
 
+  // take the error from url if any and show it as toast
+useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get("error");
+    if (error) {
+      toast.error(error);
+    }
+  }, []);
+  
+ 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -41,26 +48,27 @@ const Login: React.FC = () => {
         setLoading(true);
           const response = await login({email,password,role})
       
-          dispatch(setUser(response.userData))
+          dispatch(setUser(response.data.userData))
           if(role==='instructor'){
             setTimeout(() => {
-              navigate('/instructor/myCourses',{replace:true})
+              navigate(ROUTES.instructor.myCourses,{replace:true})
             }, 0)
             toast.success('instructor login successfull')
           } else{
-            navigate('/')
+            navigate(ROUTES.root)
             toast.success(response.message)
           }
       }
 
-    } catch (error) {
+    } catch (err) {
+      // toast is handled inside service; optional: toast.error('Login failed')
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
-    window.location.href = "http://localhost:4000/api/auth/google";
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
   };
 
   return (
@@ -97,7 +105,7 @@ const Login: React.FC = () => {
               type={"email"}
               placeholder="your.email@example.com"
               value={email}
-              setValue={setEmail}
+              onChange={setEmail}
             />
             {error.emailError && <ErrorMessage error={error.emailError} />}
           </div>
@@ -112,14 +120,14 @@ const Login: React.FC = () => {
               type="password"
               placeholder="********"
               value={password}
-              setValue={setPassword}
+              onChange={setPassword}
               showPassword={showPassword}
-              icon={() => (
+              icon={
                 <ShowPassword
                   showPassword={showPassword}
                   setShowPassword={(value: boolean) => setShowPassword(value)}
                 />
-              )}
+              }
             />
             {error.passwordError && <ErrorMessage error={error.passwordError} />}
           </div>
@@ -164,19 +172,19 @@ const Login: React.FC = () => {
 
         <div className="mt-4 text-sm text-center space-y-1 ">
           <p>
-            <Link to="/auth/forgot-password" className="text-indigo-600  dark:text-indigo-400  hover:text-indigo-500">
+            <Link to={ROUTES.auth.forgotPassword} className="text-indigo-600  dark:text-indigo-400  hover:text-indigo-500">
               Forgot password?
             </Link>
           </p>
           <p className="text-center text-sm text-gray-400 mt-2">
             New to Skillbyte? &nbsp;
-            <Link to="/auth/learner-register" className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
+            <Link to={ROUTES.auth.learnerRegister} className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
               Create an account
             </Link>
           </p>
           <p className="text-center text-sm text-gray-400 mt-2">
             Want to become an Instructor? &nbsp;
-            <Link to="/auth/instructor-register" className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
+            <Link to={ROUTES.auth.instructorRegister} className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
               Create an account
             </Link>
           

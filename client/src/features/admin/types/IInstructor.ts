@@ -8,7 +8,7 @@ export interface Instructor {
   experience: string;
   socialProfile: string;
   portfolio: string;
-  accountStatus: "pending" | "active" | "rejected"
+  accountStatus: "pending" | "active" | "suspend" | "rejected"
   approved:boolean
   rejected:boolean
 }

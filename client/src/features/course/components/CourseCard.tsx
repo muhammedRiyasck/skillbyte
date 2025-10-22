@@ -1,59 +1,182 @@
+import { memo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@core/router/paths";
+import { cn } from "@shared/utils/cn";
 
-interface courses {
-    id: string,
-    title: string 
-    subText:string
-    description:string 
-    rating: number,
-    reviews: string 
-    language: string 
-    thumbnailUrl: string 
-    status:string
+interface Course {
+  _id: string;
+  title: string;
+  subText: string;
+  description: string;
+  rating: number;
+  reviews: string;
+  language: string;
+  thumbnailUrl: string;
+  status: 'draft' | 'list' | 'unlist';
 }
 
 interface CourseCardProps {
-    courses: courses[];
+  courses: Course[];
+  isStudent?: boolean;
+  onEnroll?: (courseId: string) => void;
+  onStatusChange?: (courseId: string, status: string) => void;
 }
 
-const CourseCard = ({ courses }: CourseCardProps) => {
+const CourseCard = memo<CourseCardProps>(({ 
+  courses, 
+  isStudent = false,
+  onEnroll,
+  onStatusChange 
+}) => {
+  const navigate = useNavigate();
+
+  const handleStatusChange = useCallback((courseStatus: string, courseId: string) => {
+    if (onStatusChange) {
+      onStatusChange(courseId, courseStatus);
+      return;
+    }
+
+    switch (courseStatus) {
+      case "draft":
+        navigate(ROUTES.instructor.uploadCourseContent, {
+          state: { courseId }
+        });
+        break;
+      case "list":
+        // Handle list action
+        break;
+      case "unlist":
+        // Handle unlist action
+        break;
+      default:
+        break;
+    }
+  }, [navigate, onStatusChange]);
+
+  const handleEnrollment = useCallback((courseId: string) => {
+    if (onEnroll) {
+      onEnroll(courseId);
+    } else {
+      // Default enrollment logic
+      console.log('Enrolling in course:', courseId);
+    }
+  }, [onEnroll]);
+
+  const getStatusBadge = (status: Course['status']) => {
+    const statusConfig = {
+      draft: { label: 'Drafted', className: 'bg-orange-400' },
+      unlist: { label: 'Unlisted', className: 'bg-red-600' },
+      list: { label: 'Listed', className: 'bg-green-600' }
+    };
+
+    const config = statusConfig[status];
+    if (!config) return null;
+
+    return (
+      <span className={cn(
+        "text-white z-10 absolute right-2 top-2 px-3 py-1 rounded-md text-xs font-medium",
+        config.className
+      )}>
+        {config.label}
+      </span>
+    );
+  };
+
+  const getActionButton = (course: Course) => {
+    if (isStudent) {
+      return (
+        <button
+          onClick={() => handleEnrollment(course._id)}
+          className="mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+        >
+          {/* Enroll Now */}
+          View Course
+        </button>
+      );
+    }
+
+    const buttonConfig = {
+      draft: { 
+        label: 'Continue Upload', 
+        className: 'bg-indigo-500 hover:bg-indigo-600' 
+      },
+      list: { 
+        label: 'Unlist Course', 
+        className: 'bg-red-700 hover:bg-red-900' 
+      },
+      unlist: { 
+        label: 'List Course', 
+        className: 'bg-green-700 hover:bg-green-900' 
+      }
+    };
+
+    const config = buttonConfig[course.status];
+    if (!config) return null;
+
+    return (
+      <button
+        onClick={() => handleStatusChange(course.status, course._id)}
+        className={cn(
+          "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer",
+          config.className
+        )}
+      >
+        {config.label}
+      </button>
+    );
+  };
+
+  if (!courses || courses.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-gray-500 dark:text-gray-400 text-lg">No courses found</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 cursor-pointer my-12 ">
-          {courses.map((c) => (
-            <div
-              key={c.id}
-              className="bg-gray-200 dark:bg-gray-800 rounded-xl shadow hover:shadow-xl transition p-4 flex flex-col"
-            >
-              <div className="rounded-md overflow-hidden mb-4 relative">
-                <span className={`text-white z-1 absolute right-2 top-2 px-4 rounded-md ${c.status==='draft'?'bg-orange-400':c.status==='unlist'?'bg-red-600':''} `}>{c.status==='draft'?'Drafted':c.status==='unlist'?' Unlisted':''}</span>
-                <img
-                  src={c.thumbnailUrl}
-                  alt={c.title}
-                  className="w-full h-48 object-cover"
-                />
-              </div>
+    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 my-12">
+      {courses.map((course) => (
+        <div
+          key={course._id}
+          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex flex-col group"
+        >
+          <div className="rounded-lg overflow-hidden mb-4 relative">
+            {!isStudent && getStatusBadge(course.status)}
+            <img
+              src={course.thumbnailUrl}
+              alt={course.title}
+              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+            />
+          </div>
 
-              <h2 className="text-black dark:text-white text-xl font-semibold">{c.title}</h2>
+          <h2 className="text-gray-900 dark:text-white text-xl font-semibold mb-2 line-clamp-2">
+            {course.title}
+          </h2>
 
-              <div className="flex items-center mt-2 text-black  dark:text-gray-300 text-sm gap-3 ">
-                <span className="bg-yellow-500 text-gray-900 text-xs font-bold px-2 py-1 rounded">
-                  PREMIUM
-                </span>
-                <span>{c.language}</span>
-                <span>⭐ {c.rating} ({c.reviews} Reviews)</span>
-              </div>
+          <div className="flex items-center gap-3 mb-3 text-sm">
+            <span className="bg-yellow-500 text-gray-900 text-xs font-bold px-2 py-1 rounded-full">
+              PREMIUM
+            </span>
+            <span className="text-gray-600 dark:text-gray-300">{course.language}</span>
+            <span className="text-gray-600 dark:text-gray-300 flex items-center gap-1">
+              ⭐ {course.rating} ({course.reviews} Reviews)
+            </span>
+          </div>
 
-              <p className="text-black dark:text-gray-400 text-sm mt-3 flex-grow ">
-                {c.subText}
-              </p>
+          <p className="text-gray-600 dark:text-gray-400 text-sm flex-grow line-clamp-3">
+            {course.subText}
+          </p>
 
-              <button className={`mt-4   text-white font-medium py-2 rounded transition cursor-pointer ${c.status === 'list'?'bg-red-700 hover:bg-red-900':c.status === 'unlist'?'bg-green-700 hover:bg-green-900':'bg-indigo-500 hover:bg-indigo-600'}`}>
-                {c.status === 'draft'?'Continue Upload ':c.status === 'list'?'Unlist The Course':'List The Course'}
-              </button>
-            </div>
-          ))}
+          {getActionButton(course)}
         </div>
-  )
-}
+      ))}
+    </div>
+  );
+});
 
-export default CourseCard
+CourseCard.displayName = 'CourseCard';
+
+export default CourseCard;
 

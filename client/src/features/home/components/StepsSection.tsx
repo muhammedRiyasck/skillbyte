@@ -20,7 +20,7 @@ const StepsSection = forwardRef <HTMLElement,{highlight:boolean}>(({highlight},r
   return (
     <section 
       ref={ref} 
-      className={`px-4 md:px-8 py-12 text-center transition-all duration-300 ease-in-out ${
+      className={`px-4 md:px-8 py-28 text-center transition-all duration-300 ease-in-out ${
         highlight 
           ? "border-2 border-indigo-500 shadow-lg mx-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/20" 
           : "border-2 border-transparent"

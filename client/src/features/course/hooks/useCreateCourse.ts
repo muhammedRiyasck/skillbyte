@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { createBase, uploadThumbnail } from "../services/CreateBase";
+import { createBase, uploadThumbnail } from "../services/CourseBase";
 
 export default function useCreateCourse() {
   const queryClient = useQueryClient();
@@ -15,7 +15,7 @@ export default function useCreateCourse() {
   }) => {
     const response = await createBase({ ...formData, thumbnail: null });
     const success = await uploadThumbnail({
-      courseId: response.course.id,
+      courseId: response.course.courseId,
       blob: croppedBlob,
       fileName: thumbnailFile.name,
     });

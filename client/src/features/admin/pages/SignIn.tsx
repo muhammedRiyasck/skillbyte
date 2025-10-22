@@ -1,20 +1,21 @@
 import React, { useState,   } from "react";
 import {  useNavigate } from "react-router-dom";
-import Spiner from "../../../shared/ui/Spiner";
+import { ROUTES } from "@core/router/paths";
+import Spiner from "@shared/ui/Spiner";
 import { toast } from "sonner";
 
-import TextInput from "../../../shared/ui/TextInput";
-import ErrorMessage from "../../../shared/ui/ErrorMessage";
+import TextInput from "@shared/ui/TextInput";
+import ErrorMessage from "@shared/ui/ErrorMessage";
 
 import login from "../services/LoginService";
-import isEmailValid from "../../../shared/validation/Email";
-import { isPasswordEntered } from "../../../shared/validation/Password";
+import isEmailValid from "@shared/validation/Email";
+import { isPasswordEntered } from "@shared/validation/Password";
 import ShowPassword from "../../auth/components/ShowPassword";
 
 import { useDispatch } from "react-redux";
 import { setUser } from "../../auth/AuthSlice";
-import type { AppDispatch } from "../../../core/store/Index";
-import MotionDiv from "../../../shared/ui/MotionDiv";
+import type { AppDispatch } from "@core/store/Index";
+import MotionDiv from "@shared/ui/MotionDiv";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -38,8 +39,9 @@ const Login: React.FC = () => {
       if (emailValidation.success && passwordValidation.success ){
         setLoading(true);
           const response = await login({email,password})
-          dispatch(setUser(response.userData))
-          navigate('/admin/instructor-request')
+          console.log(response)
+          dispatch(setUser(response?.data))
+          navigate(ROUTES.admin.studentManagement)
           toast.success(response.message)
       }
 
@@ -87,7 +89,7 @@ const Login: React.FC = () => {
               type={"email"}
               placeholder="your.email@example.com"
               value={email}
-              setValue={setEmail}
+              onChange={setEmail}
             />
             {error.emailError && <ErrorMessage error={error.emailError} />}
           </div>
@@ -102,9 +104,9 @@ const Login: React.FC = () => {
               type="password"
               placeholder="********"
               value={password}
-              setValue={setPassword}
+              onChange={setPassword}
               showPassword={showPassword}
-              icon={() => (
+              icon={ (
                 <ShowPassword
                   showPassword={showPassword}
                   setShowPassword={(value: boolean) => setShowPassword(value)}

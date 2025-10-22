@@ -1,4 +1,4 @@
-import api from "../../../shared/utils/AxiosInstance";
+import api from "@shared/utils/AxiosInstance";
 import { toast } from "sonner";
 
 import type { IresetPassword, IsingInPayload,IStudentSignUpPayload,IinstrctorSignUpPayload,IforgotPassword,IotpPayload} from "../types/Auth";
@@ -60,7 +60,10 @@ export const resendOtp = async(email:string)=>{
 export const login = async (payload: IsingInPayload) => {
   try {
     const response = await api.post("/auth/login", payload);
+    console.log(response,'response')
+    console.log(response.data,'response data')
     return response.data;
+
   } catch (error:any) {
     console.log(error)
     toast.error(error.message);

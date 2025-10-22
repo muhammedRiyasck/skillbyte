@@ -1,14 +1,12 @@
 import{ useState } from 'react'
 import { useNavigate, useSearchParams  } from 'react-router-dom'
-import Spiner from '../../../shared/ui/Spiner'
-import ErrorMessage from '../../../shared/ui/ErrorMessage'
-import TextInput from '../../../shared/ui/TextInput'
+import { ROUTES } from "@core/router/paths";
+import { Spiner, ErrorMessage, TextInput } from '@shared/ui'
 import logo from '../../../assets/OrginalLogo.png'
-import { resetPassword } from '../services/AuthService'
+import { resetPassword } from '../'
 import { toast } from 'sonner'
-import validatePassword from '../../../shared/validation/Password'
-import validateConfirmPassword from '../../../shared/validation/ConfirmPassword'
-import ShowPasswordIcon from '../components/ShowPassword'
+import { isPasswordValid, isConfirmPasswordValid } from '@shared/validation'
+import { ShowPassword } from '../'
 
 const ResetPassword = () => {
   const [password,setPassword] = useState('')
@@ -33,16 +31,16 @@ const ResetPassword = () => {
          return
       }
 
-      const isPasswordValid = validatePassword(password)
-      const isPasswordConfirmed = validateConfirmPassword(confirmPassword,password)
+      const passwordValid = isPasswordValid(password)
+      const confirmPasswordValid = isConfirmPasswordValid(password, confirmPassword)
 
-      setErorr({password:isPasswordValid.message,confirmPassword:isPasswordConfirmed.message})
+      setErorr({password:passwordValid.message,confirmPassword:confirmPasswordValid.message})
 
-      if(isPasswordValid.success&&isPasswordConfirmed.success){
+      if(passwordValid.success&&confirmPasswordValid.success){
        setLoading(true)
       try {
         const response  = await resetPassword({role,token,password})
-        navigate('/auth')
+        navigate(ROUTES.auth.signIn)
         toast.success(response.message)
       } finally  {
         setLoading(false)
@@ -78,9 +76,9 @@ const ResetPassword = () => {
               type="password"
               value={password}
               placeholder="************"
-              setValue={setPassword}
+              onChange={setPassword}
               showPassword={showPassword}
-              icon={()=><ShowPasswordIcon showPassword={showPassword} setShowPassword={setShowPassword}/>}
+              icon={<ShowPassword showPassword={showPassword} setShowPassword={setShowPassword}/>}
             />
               <ErrorMessage error={error.password} />
             <label
@@ -95,7 +93,7 @@ const ResetPassword = () => {
             type='password'
             value={confirmPassword}
             placeholder="************"
-            setValue={setConfirmPassword}
+            onChange={setConfirmPassword}
             showPassword={showPassword}
              />
           </div>

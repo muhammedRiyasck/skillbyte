@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import type { RootState } from "../../../core/store/Index";
+import type { RootState } from "@core/store/Index";
 
 type HeroSectionProps = {
   steps: () => void;
@@ -27,17 +27,17 @@ const HeroSection: React.FC<HeroSectionProps> = ({ steps }) => {
           experience.
         </p>
         {!user && (
-          <div className="flex justify-center md:justify-start gap-4">
+          <div className="flex justify-center md:justify-start gap-4 ">
             <button
               onClick={() => steps()}
-              className="bg-gray-600 text-white px-5 py-2 rounded-md text-sm hover:opacity-90 cursor-pointer"
+              className="bg-gray-600 text-white px-5 py-2 rounded-md text-sm hover:opacity-90 cursor-pointer lg:text-lg font-medium"
             >
               Get Started
             </button>
 
             <Link
               to="/auth/learner-register"
-              className="border border-gray-400 dark:border-gray-500 text-sm px-5 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="border border-gray-400 dark:border-gray-500 text-sm px-5 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 lg:text-lg font-medium"
             >
               Sign Up
             </Link>

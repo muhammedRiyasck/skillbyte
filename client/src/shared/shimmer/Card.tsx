@@ -1,6 +1,6 @@
 
 import Shimmer from './Shimmer'
- let arr = new Array(6).fill('')
+ const arr = new Array(6).fill('')
 const Card = () => {
   return (
     <div className='min-h-screen dark:bg-gray-900 flex justify-center'>
