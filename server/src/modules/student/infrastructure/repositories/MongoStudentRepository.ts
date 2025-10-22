@@ -70,4 +70,38 @@ export class MongoStudentRepository implements IStudentRepository {
   await StudentModel.findByIdAndUpdate(id, { accountStatus: status });
 }
 
+  async listPaginated(
+    filter: Record<string, any>,
+    page: number,
+    limit: number,
+    sort: Record<string, 1 | -1> = { createdAt: -1 }
+  ): Promise<{ data: Student[]; total: number }> {
+    const safePage = Math.max(page, 1);
+    const safeLimit = Math.min(limit, 50);
+    const skip = (safePage - 1) * safeLimit;
+
+    const [rawData, total] = await Promise.all([
+      StudentModel.find(filter)
+        .sort(sort)
+        .skip(skip)
+        .limit(safeLimit)
+        .select('-passwordHash')
+        .lean(),
+      StudentModel.countDocuments(filter)
+    ]);
+
+    const data: Student[] = rawData.map(doc => new Student(
+      doc.name,
+      doc.email,
+      '',
+      doc.isEmailVerified,
+      doc.registeredVia,
+      doc.profilePictureUrl,
+      doc.accountStatus,
+      doc._id.toString()
+    ));
+
+    return { data, total };
+  }
+
 }

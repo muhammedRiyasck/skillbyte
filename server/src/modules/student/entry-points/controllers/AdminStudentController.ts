@@ -1,22 +1,33 @@
 import { Request,Response } from "express";
 import { IListAllStudentsUseCase } from "../../application/interfaces/IListAllStudentsUseCase";
 import { IChangeStudentStatusUseCase } from "../../application/interfaces/IChangeStudentStatusUseCase";
+import { IGetPaginatedStudentsUseCase } from "../../application/interfaces/IGetPaginatedStudentsUseCase";
 import { HttpStatusCode } from "../../../../shared/enums/HttpStatusCodes";
 import { ApiResponseHelper } from "../../../../shared/utils/ApiResponseHelper";
 import { HttpError } from "../../../../shared/types/HttpError";
 
 export class AdminStudentController {
-  constructor(private listAllUC: IListAllStudentsUseCase,
-    private changeStatusUC: IChangeStudentStatusUseCase) {}
+  constructor(
+    private getPaginatedStudentsUC: IGetPaginatedStudentsUseCase,
+    private changeStatusUC: IChangeStudentStatusUseCase
+    ) {}
 
   /**
-   * Lists all students
-   * @param req The Express request object
+   * Lists all students with pagination
+   * @param req The Express request object with optional page, limit, and sort query parameters
    * @param res The Express response object
    * @returns Promise<void>
    */
   listAll = async (req: Request, res: Response)=>  {
-    const students = await this.listAllUC.execute();
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 6;
+    let sort: Record<string, 1 | -1> = { createdAt: -1 };
+    if (typeof req.query.sort === 'string') {
+      const [field, dir] = (req.query.sort as string).split(':');
+      sort = { [field]: dir === 'asc' ? 1 : -1 };
+    }
+
+    const students = await this.getPaginatedStudentsUC.execute({}, page, limit, sort);
     ApiResponseHelper.success(res, "Students retrieved successfully", { students });
   };
   /**
@@ -31,7 +42,6 @@ export class AdminStudentController {
   const { status,studentId } = req.body;
   if (!["active", "blocked"].includes(status))
     throw new HttpError("Invalid status", HttpStatusCode.BAD_REQUEST);
-console.log(studentId,status,'studentIdstudentId')
   await this.changeStatusUC.execute(studentId, status);
   ApiResponseHelper.success(res, `Student account status changed to ${status}`);
 };

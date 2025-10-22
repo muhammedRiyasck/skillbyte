@@ -28,6 +28,9 @@ client/.vite/
 .vscode/
 .idea/
 
+# upload through signed Urls so no need to track it
+server/src/shared/utils/b2Service.ts
+
 # Optional: for mono-repo setups
 pnpm-lock.yaml
 yarn.lock

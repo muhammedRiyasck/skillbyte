@@ -1,12 +1,15 @@
 import { AdminStudentController } from "../controllers/AdminStudentController";
 import { ListAllStudentsUseCase } from "../../application/use-cases/ListAllStudents";
-import { MongoStudentRepository } from "../../infrastructure/repositories/MongoStudentRepository"; 
+import { MongoStudentRepository } from "../../infrastructure/repositories/MongoStudentRepository";
 import { ChangeStudentStatusUseCase } from "../../application/use-cases/ChangeAccountStatus";
+import { GetPaginatedStudentsUseCase } from "../../application/use-cases/GetPaginatedStudentsUseCase";
 
 const studentRepo = new MongoStudentRepository()
-const listAllStudentsUc = new ListAllStudentsUseCase(studentRepo)
 const changeAccountStatusUC = new ChangeStudentStatusUseCase(studentRepo)
+const getPaginatedStudentsUC = new GetPaginatedStudentsUseCase(studentRepo)
+
 export const adminStudentController = new AdminStudentController(
-        listAllStudentsUc,
+        getPaginatedStudentsUC,
         changeAccountStatusUC
 )
+
