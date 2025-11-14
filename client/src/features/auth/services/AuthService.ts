@@ -26,7 +26,22 @@ export const studentVerifyOtp = async (payload: IotpPayload)=>{
 
 export const instructorRegister = async (payload: IinstrctorSignUpPayload) => {
   try {
-    const response = await api.post("/instructor/register", payload);
+    const formData = new FormData();
+
+    // Append all fields to FormData
+    Object.entries(payload).forEach(([key, value]) => {
+      if (key === 'resume' && value instanceof File) {
+        formData.append('resume', value);
+      } else if (value !== null && value !== undefined) {
+        formData.append(key, String(value));
+      }
+    });
+
+    const response = await api.post("/instructor/register", formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data;
   } catch (error:any) {
     toast.error(error.message);

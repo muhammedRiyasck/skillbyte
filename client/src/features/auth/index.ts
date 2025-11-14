@@ -6,7 +6,7 @@ export { default as ResetPassword } from './pages/ResetPassword';
 export { default as ForgotPassword } from './pages/ForgotPassword';
 
 export { default as ShowPassword } from './components/ShowPassword';
-export { default as OAuthSuccess } from './components/OAuthSuccess';
+export { default as OAuthSuccess } from './hooks/UseOAuthSuccess';
 
 export * from './services/AuthService';
 

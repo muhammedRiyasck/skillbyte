@@ -19,7 +19,7 @@ const ResetPassword = lazy(() => import('@features/auth/pages/ResetPassword.tsx'
 
 const LandingPage = lazy(() => import('@features/home/pages/Landing.tsx'));
 import StudentLayout from '@layouts/student/StudentLayout.tsx';
-const OAuthSuccess = lazy(() => import('@features/auth/components/OAuthSuccess.tsx'));
+const OAuthSuccess = lazy(() => import('@/features/auth/hooks/UseOAuthSuccess.tsx'));
 
 const InstructorSignup = lazy(() => import('@features/auth/pages/InstructorSignUp.tsx'));
 

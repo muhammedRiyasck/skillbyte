@@ -18,13 +18,16 @@ export interface IinstrctorSignUpPayload{
   email:string;
   password:string;
   confirmPassword:string;
+  phoneNumber:string;
   subject:string;
   jobTitle:string;
   customSubject:string;
   customJobTitle:string;
   experience:string;
   socialMediaLink:string;
-  portfolioLink?:string
+  portfolioLink?:string;
+  bio:string;
+  resume:File | null;
 }
 
 export interface IotpPayload{

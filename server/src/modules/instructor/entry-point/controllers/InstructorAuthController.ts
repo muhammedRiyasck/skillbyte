@@ -30,37 +30,46 @@ export class InstructorAuthController {
       fullName,
       email,
       password,
+      phoneNumber,
       subject,
       jobTitle,
       socialMediaLink,
       experience,
       portfolioLink,
+      bio,
       customJobTitle,
       customSubject,
     } = req.body;
 
+
     // Handle custom subject and job title
     subject = subject.trim() === 'Other' ? customSubject : subject;
     jobTitle = jobTitle.trim() === 'Other' ? customJobTitle : jobTitle;
+    
 
     const isUserExists = await this.registerInstructorUseCase.isUserExists(email);
+    if(isUserExists)  throw new HttpError('Email already exists', HttpStatusCode.BAD_REQUEST);
+    if (!req.file) {
+      throw new HttpError("We can't see your resume", HttpStatusCode.BAD_REQUEST);
+    }
 
-    if (!isUserExists) {
-      await this.generateOtpUseCase.storeTempData(email, {
+
+      await this.generateOtpUseCase.storeTempData(email,{
         fullName,
         email,
         password,
+        phoneNumber,
         subject,
         jobTitle,
         socialMediaLink,
-        experience,
+        experience: Number(experience),
         portfolioLink,
+        bio,
+        resumeFile: req.file,
       });
       await this.generateOtpUseCase.sendOtp(email, fullName, 'Instructor Registration OTP');
       ApiResponseHelper.created(res, 'An OTP sent to your mail.');
-    } else {
-      throw new HttpError('Email already exists', HttpStatusCode.BAD_REQUEST);
-    }
+    
   };
 
   /**

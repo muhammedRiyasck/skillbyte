@@ -26,7 +26,7 @@ const ContentUploadPage = () => {
   }, [data]);
 
   // Use useQuery for signed URLs with caching
-  const { data: signedUrlsData, isLoading: signedUrlsLoading, error: signedUrlsError } = useQuery({
+  const { data: signedUrlsData } = useQuery({
     queryKey: ['signedUrls', courseId, fileNames.sort().join(',')],
     queryFn: async () => {
       if (!fileNames.length) return [];

@@ -14,8 +14,8 @@ export async function updateCors() {
   const corsConfig = {
     CORSRules: [
       {
-        AllowedOrigins: ["http://localhost:5173"],  // your dev frontend
-        AllowedMethods: ["PUT", "POST", "GET", "HEAD"], // allow uploads
+        AllowedOrigins: ["http://localhost:5173", "http://localhost:3000"],  // your dev frontend
+        AllowedMethods: ["PUT", "POST", "GET", "HEAD"], // allow uploads and downloads
         AllowedHeaders: ["*"],
         ExposeHeaders: ["ETag", "x-amz-request-id"],
         MaxAgeSeconds: 3600,
@@ -35,4 +35,3 @@ export async function updateCors() {
   }
 }
 
-// updateCors();

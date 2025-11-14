@@ -3,18 +3,18 @@ import { z } from 'zod';
 // Validation schemas for CourseController
 export const CreateBaseSchema = z.object({
   title: z.string().min(1, 'Title is required'),
-  thumbnail: z.string().nullable().optional(),
-  subText: z.string().optional(),
+  thumbnail: z.string().nullable(),
+  subText: z.string(),
   category: z.string().optional(),
   otherCategory: z.string().optional(),
   customCategory: z.string().optional(),
-  courseLevel: z.string().optional(),
-  language: z.string().optional(),
-  access: z.string().optional(),
-  price: z.string().optional(),
-  description: z.string().optional(),
-  tags: z.array(z.string()).optional(),
-  features: z.array(z.string()).optional(),
+  courseLevel: z.string(),
+  language: z.string(),
+  access: z.string(),
+  price: z.string(),
+  description: z.string(),
+  tags: z.string(),
+  features: z.array(z.string()),
 });
 
 export const UpdateBaseSchema = z.record(z.string(), z.any()); // Flexible for updates

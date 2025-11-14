@@ -17,7 +17,6 @@ export const uploadThumbnail = async ({courseId,blob,fileName}: {
   blob: Blob;
   fileName: string;
 }) => {
-  console.log(courseId,'courseId')
   const photo = new FormData();
   photo.append("thumbnail", blob, fileName);
   const { data } = await api.post(`/course/upload-thumbnail/${courseId}`, photo);

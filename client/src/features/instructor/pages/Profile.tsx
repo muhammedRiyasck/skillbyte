@@ -30,7 +30,6 @@ const Profile: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const queryClient = useQueryClient();
-
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["instructor-profile"],
     queryFn: () => api.get("/instructor/profile").then((r) => r.data?.data?.instructor),
@@ -201,7 +200,6 @@ const Profile: React.FC = () => {
                 className="hidden"
               />
             </div>
-            {/* <div></div> */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
               <Controller

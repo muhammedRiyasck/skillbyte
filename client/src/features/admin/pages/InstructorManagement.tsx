@@ -28,6 +28,9 @@ const InstructorManagement: React.FC = () => {
   const [selectedInstructor, setSelectedInstructor] = useState({ id: "", name: "" });
   const [reason, setReason] = useState("");
   const [modelError, setModelError] = useState("");
+  const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
+  const [selectedResumeUrl, setSelectedResumeUrl] = useState("");
+  const [selectedResumeName, setSelectedResumeName] = useState("");
   const queryClient = useQueryClient();
 
   const [page, setPage] = useState(1);
@@ -42,6 +45,12 @@ const InstructorManagement: React.FC = () => {
     setSelectedInstructor({ name, id });
     setModalTitle(action === "approve" ? "Approve Instructor" : action === 'decline' ? "Decline Instructor" : action === 'suspend' ? 'Suspend Instructor' : action === 'delete' ? 'Delete Instructor' : "ReOpen Instructor");
     setIsModalOpen(true);
+  }, []);
+
+  const handleViewResume = useCallback((resumeUrl: string, name: string) => {
+    setSelectedResumeUrl(resumeUrl);
+    setSelectedResumeName(name);
+    setIsResumeModalOpen(true);
   }, []);
 
   const approveMutation = useMutation({
@@ -152,7 +161,7 @@ const InstructorManagement: React.FC = () => {
             </div>
           </div>
         </td>
-        <td className="px-6 py-4 whitespace-nowrap text-lg font-medium text-gray-900 dark:text-white">
+        <td className="px-6 py-4 whitespace-nowrap text-lg font-medium text-gray-900 dark:text-gray-300">
           {inst.name}
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-lg text-gray-500 dark:text-gray-300">
@@ -188,6 +197,23 @@ const InstructorManagement: React.FC = () => {
             <Eye className="w-4 h-4 mr-1" />
             View
           </a>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-lg hidden xl:table-cell">
+          <button
+            onClick={() => handleViewResume(inst.resumeUrl, inst.name)}
+            className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center cursor-pointer"
+          >
+            <Eye className="w-4 h-4 mr-1" />
+            View Resume
+          </button>
+        </td>
+        <td className="px-6 py-4 whitespace-normal text-gray-500 dark:text-gray-300 text-lg hidden xl:table-cell">
+          <div className="max-w-xs flex flex-wrap" title={inst.bio}>
+            {inst.bio}
+          </div>
+        </td>
+        <td className="px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-300 text-lg hidden xl:table-cell">
+          {inst.phoneNumber}
         </td>
         <td className="px-6 py-4 whitespace-nowrap">
           <span
@@ -228,7 +254,7 @@ const InstructorManagement: React.FC = () => {
               <UserX className="w-4 h-4 mr-1" />
               Suspend
             </button>
-          ) : inst.accountStatus === "rejected" && inst.approved ? (
+          ) : inst.accountStatus === "rejected" && inst.rejected ? (
             <button
               onClick={() => handleAction(inst._id, "delete", inst.name)}
               className="inline-flex items-center px-3 py-2 border border-transparent text-lg leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer focus:ring-red-500"
@@ -314,20 +340,23 @@ const InstructorManagement: React.FC = () => {
           <table className="w-full min-w-max" >
             <thead className="bg-gradient-to-r from-indigo-100 via-purple-50 to-pink-50 dark:from-gray-800 dark:via-gray-700 dark:to-gray-600 border-b border-gray-200 dark:border-gray-600">
               <tr>
-                <th className="px-4 py-5 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">NO</th>
-                <th className="px-4 py-5 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Profile</th>
-                <th className="px-4 py-5 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Name</th>
-                <th className="px-4 py-5 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Email</th>
-                <th className="px-4 py-5 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider hidden lg:table-cell">Subject</th>
-                <th className="px-4 py-5 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider hidden md:table-cell">Job Title</th>
-                <th className="px-4 py-5 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider hidden lg:table-cell">Experience</th>
-                <th className="px-4 py-5 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider hidden xl:table-cell">Social</th>
-                <th className="px-4 py-5 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider hidden xl:table-cell">Portfolio</th>
-                <th className="px-4 py-5 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Status</th>
-                <th className="px-4 py-5 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">NO</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Profile</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Name</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Email</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider hidden lg:table-cell">Subject</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider hidden md:table-cell">Job Title</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider hidden lg:table-cell">Experience</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider hidden xl:table-cell">Social</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider hidden xl:table-cell">Portfolio</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider hidden xl:table-cell">Resume</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider hidden xl:table-cell">Bio</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider hidden xl:table-cell">Phone</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700 ">
               {instructorRows}
             </tbody>
           </table>
@@ -404,6 +433,22 @@ const InstructorManagement: React.FC = () => {
               />
             )}
       {isAnyMutationLoading && <Spiner />}
+
+      {/* Resume Modal */}
+      <Modal
+        isOpen={isResumeModalOpen}
+        onClose={() => setIsResumeModalOpen(false)}
+        title={`Resume - ${selectedResumeName}`}
+        onConfirm={() => setIsResumeModalOpen(false)}
+      >
+        <div className="w-full h-96">
+          <iframe
+            src={selectedResumeUrl}
+            className="w-full h-full border-0 rounded-lg"
+            title={`Resume - ${selectedResumeName}`}
+          />
+        </div>
+      </Modal>
     </div>
   );
 };

@@ -1,5 +1,5 @@
 export interface IStudent {
-  _id:string
+  studentId:string
   name: string;
   email: string;
   profilePictureUrl: string;

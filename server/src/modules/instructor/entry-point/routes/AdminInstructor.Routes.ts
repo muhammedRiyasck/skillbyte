@@ -42,4 +42,12 @@ router.delete(
   adminInstructorController.deleteInstructor)
 );
 
+router.get(
+  '/:instructorId/resume',
+  authenticate,
+  requireRole('admin'),
+  asyncHandler(
+  adminInstructorController.getInstructorResume)
+);
+
 export default router;

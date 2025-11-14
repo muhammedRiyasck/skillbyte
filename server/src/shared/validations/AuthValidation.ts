@@ -40,12 +40,14 @@ export const InstructorRegistrationSchema = z.object({
   fullName: z.string().min(1, 'Full name is required').max(100, 'Full name must be less than 100 characters'),
   email: z.string().email('Invalid email format'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
+  phoneNumber: z.string().min(1, 'Phone number is required'),
   subject: z.string().min(1, 'Subject is required'),
   jobTitle: z.string().min(1, 'Job title is required'),
   experience: z.number().min(0, 'Experience must be a positive number'),
   socialMediaLink: z.string().url('Invalid social media link').optional(),
   portfolio: z.string().url('Invalid portfolio URL').optional(),
   bio: z.string().min(1, 'Bio is required'),
+  resumeFile: z.any(),
   profilePictureUrl: z.string().url('Invalid profile picture URL').optional(),
 });
 

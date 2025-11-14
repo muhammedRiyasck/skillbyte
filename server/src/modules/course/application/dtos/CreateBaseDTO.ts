@@ -10,7 +10,7 @@ export interface CreateCourseDTO {
   features: string[],
   description: string,
   duration: string,
-  tags: string[],
+  tags: string,
   status: "draft" | "published" | "unpublished"
   id?: string,
 }

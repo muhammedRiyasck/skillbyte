@@ -2,7 +2,6 @@ import { memo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@core/router/paths";
 import { cn } from "@shared/utils/cn";
-
 interface Course {
   _id: string;
   title: string;
@@ -71,7 +70,16 @@ const CourseCard = memo<CourseCardProps>(({
 
     const config = statusConfig[status];
     if (!config) return null;
+    
+    if (!courses || courses.length === 0) {
+      return (
+        <div className="text-center py-12">
+          <p className="text-gray-500 dark:text-gray-400 text-lg">No courses found</p>
+        </div>
+      );
+    }
 
+    // Status Badge
     return (
       <span className={cn(
         "text-white z-10 absolute right-2 top-2 px-3 py-1 rounded-md text-xs font-medium",
@@ -81,59 +89,35 @@ const CourseCard = memo<CourseCardProps>(({
       </span>
     );
   };
-
+  
   const getActionButton = (course: Course) => {
+    
     if (isStudent) {
+      // Action Button for Students
       return (
         <button
-          onClick={() => handleEnrollment(course._id)}
-          className="mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+        onClick={() => handleEnrollment(course._id)}
+        className="mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
         >
           {/* Enroll Now */}
           View Course
         </button>
       );
     }
-
-    const buttonConfig = {
-      draft: { 
-        label: 'Continue Upload', 
-        className: 'bg-indigo-500 hover:bg-indigo-600' 
-      },
-      list: { 
-        label: 'Unlist Course', 
-        className: 'bg-red-700 hover:bg-red-900' 
-      },
-      unlist: { 
-        label: 'List Course', 
-        className: 'bg-green-700 hover:bg-green-900' 
-      }
-    };
-
-    const config = buttonConfig[course.status];
-    if (!config) return null;
-
+    
+    // Action Button for Instructors
     return (
       <button
         onClick={() => handleStatusChange(course.status, course._id)}
-        className={cn(
-          "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer",
-          config.className
-        )}
+        className={
+          "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none cursor-pointer bg-indigo-500 hover:bg-indigo-600"}
       >
-        {config.label}
+        Continue Upload
       </button>
     );
   };
 
-  if (!courses || courses.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-gray-500 dark:text-gray-400 text-lg">No courses found</p>
-      </div>
-    );
-  }
-
+  // Main Render
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 my-12">
       {courses.map((course) => (
@@ -151,7 +135,7 @@ const CourseCard = memo<CourseCardProps>(({
             />
           </div>
 
-          <h2 className="text-gray-900 dark:text-white text-xl font-semibold mb-2 line-clamp-2">
+          <h2 className="flex justify-between text-gray-900 dark:text-white text-xl font-semibold mb-2 line-clamp-2">
             {course.title}
           </h2>
 

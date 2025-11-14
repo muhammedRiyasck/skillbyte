@@ -89,7 +89,7 @@ const Login: React.FC = () => {
               type={"email"}
               placeholder="your.email@example.com"
               value={email}
-              onChange={setEmail}
+              onChange={(e) => setEmail(e.target.value)}
             />
             {error.emailError && <ErrorMessage error={error.emailError} />}
           </div>
@@ -101,10 +101,10 @@ const Login: React.FC = () => {
 
             <TextInput
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="********"
               value={password}
-              onChange={setPassword}
+              onChange={(e) => setPassword(e.target.value)}
               showPassword={showPassword}
               icon={ (
                 <ShowPassword

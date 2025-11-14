@@ -1,10 +1,10 @@
-import React, { useState,useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import { Spiner, TextInput, ErrorMessage } from "@shared/ui";
 import { toast } from "sonner";
 
 import { login } from "../services/AuthService";
-import { isEmailValid, isPasswordEntered } from "@shared/validation";
 import { ShowPassword } from "../";
 
 import { useDispatch } from "react-redux";
@@ -13,53 +13,59 @@ import type { AppDispatch } from "@core/store/Index";
 import MotionDiv from "@shared/ui/MotionDiv";
 import { ROUTES } from "@core/router/paths";
 
+interface FormData {
+  email: string;
+  password: string;
+  role: string;
+}
+
 const Login: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [role, setRole] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState({ emailError: "", passwordError: "", roleError: "" });
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate()
-  const dispatch = useDispatch<AppDispatch>()
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+
+  const methods = useForm<FormData>({
+    defaultValues: {
+      email: "",
+      password: "",
+      role: "",
+    },
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = methods;
+
+  const watchedValues = watch();
 
   // take the error from url if any and show it as toast
-useEffect(() => {
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const error = params.get("error");
     if (error) {
       toast.error(error);
     }
   }, []);
-  
- 
-  const handleEmailLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+
+  const onSubmit = async (data: FormData) => {
     try {
-      const emailValidation = isEmailValid(email);
-      const passwordValidation = isPasswordEntered(password);
-      setError({
-        emailError: emailValidation.success ? "" : emailValidation.message,
-        passwordError: passwordValidation.success ? "" : passwordValidation.message,
-        roleError: role ? "" : "Role is Required",
-      });
+      setLoading(true);
+      const response = await login(data);
 
-      if (emailValidation.success && passwordValidation.success && role){
-        setLoading(true);
-          const response = await login({email,password,role})
-      
-          dispatch(setUser(response.data.userData))
-          if(role==='instructor'){
-            setTimeout(() => {
-              navigate(ROUTES.instructor.myCourses,{replace:true})
-            }, 0)
-            toast.success('instructor login successfull')
-          } else{
-            navigate(ROUTES.root)
-            toast.success(response.message)
-          }
+      dispatch(setUser(response.data.userData));
+      if (data.role === 'instructor') {
+        setTimeout(() => {
+          navigate(ROUTES.instructor.myCourses, { replace: true });
+        }, 0);
+        toast.success('instructor login successful');
+      } else {
+        navigate(ROUTES.root);
+        toast.success(response.message);
       }
-
     } catch (err) {
       // toast is handled inside service; optional: toast.error('Login failed')
     } finally {
@@ -75,7 +81,7 @@ useEffect(() => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50  px-4  dark:bg-gray-900 ">
       {loading && <Spiner/>}
       <MotionDiv
-        className="w-full max-w-lg bg-white p-10 rounded-lg shadow-2xl dark:bg-gray-800 my-8 dark:text-white"
+        className="w-full max-w-xl bg-white p-10 rounded-lg shadow-2xl dark:bg-gray-800 my-8 dark:text-white"
       >
         <h2 className="text-2xl font-semibold text-center mb-1 text-indigo-600 dark:text-white">Welcome Back to Skillbyte</h2>
         <p className="text-gray-500 text-center mb-6 text-sm">Sign in to continue your learning journey.</p>
@@ -94,7 +100,7 @@ useEffect(() => {
           <div className="flex-grow border-t border-gray-200"></div>
         </div>
 
-        <form onSubmit={handleEmailLogin} className="space-y-3">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
           <div>
             <label htmlFor="email" className="block text-sm font-medium mb-2">
               Email
@@ -104,10 +110,15 @@ useEffect(() => {
               id="email"
               type={"email"}
               placeholder="your.email@example.com"
-              value={email}
-              onChange={setEmail}
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                  message: "Invalid email address",
+                },
+              })}
             />
-            {error.emailError && <ErrorMessage error={error.emailError} />}
+            <ErrorMessage error={errors.email?.message as string} />
           </div>
 
           <div>
@@ -119,8 +130,6 @@ useEffect(() => {
               id="password"
               type="password"
               placeholder="********"
-              value={password}
-              onChange={setPassword}
               showPassword={showPassword}
               icon={
                 <ShowPassword
@@ -128,8 +137,11 @@ useEffect(() => {
                   setShowPassword={(value: boolean) => setShowPassword(value)}
                 />
               }
+              {...register("password", {
+                required: "Password is required",
+              })}
             />
-            {error.passwordError && <ErrorMessage error={error.passwordError} />}
+            <ErrorMessage error={errors.password?.message as string} />
           </div>
 
           <label htmlFor="role" className="block text-sm font-medium mb-2">
@@ -139,27 +151,25 @@ useEffect(() => {
             <div className="flex  dark:text-white text-sm font-medium mx-4">
               <input
                 type="radio"
-                name="role"
                 value="student"
                 id="student_role"
                 className=" w-full px-4 py-2 hover:cursor-pointer dark:bg-gray-700 dark:text-white"
-                onChange={(e) => setRole(e.target.value)}
+                {...register("role", { required: "Role is required" })}
               />
               <label className="mx-2 text-gray-700 dark:text-gray-400">Learner</label>
             </div>
             <div className="flex  dark:text-white text-sm font-medium mx-4">
               <input
                 type="radio"
-                name="role"
                 id="instructor_role"
                 value="instructor"
                 className=" w-full px-4 py-2 hover:cursor-pointer  dark:text-white "
-                onChange={(e) => setRole(e.target.value)}
+                {...register("role", { required: "Role is required" })}
               />
               <label className="mx-2 text-gray-700 dark:text-gray-400">Instructor</label>
             </div>
           </div>
-          <ErrorMessage error={error.roleError} />
+          <ErrorMessage error={errors.role?.message as string} />
 
           <button
             type="submit"

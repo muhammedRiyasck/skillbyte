@@ -5,26 +5,24 @@ export const validateCreateCourse = (data: any): Record<string, ValidationRespon
 
   // Thumbnail
   if (!data.thumbnailFile) {
-    errors.thumbnail = { success: false, message: "Thumbnail is required" };
+    errors.thumbnailFile = { success: false, message: "Thumbnail is required" };
   }
   if (data?.thumbnailFile?.size > 2 * 1024 * 1024) {
-    errors.thumbnail = { success: false, message: "Thumbnail must be less than 2 MB"};
+    errors.thumbnailFile = { success: false, message: "Thumbnail must be less than 2 MB"};
   }
-
-
 
   // Course Title
   if (!data.title.trim()) {
-    errors.course = { success: false, message: "Course title is required" };
+    errors.title = { success: false, message: "Course title is required" };
   } else if (data.title.length < 5) {
-    errors.course = { success: false, message: "Course title must be at least 5 characters" };
+    errors.title = { success: false, message: "Course title must be at least 5 characters" };
   }
 
   // Short Sentence
   if (!data.subText.trim()) {
-    errors.shortSEntence = { success: false, message: "Short sentence is required" };
+    errors.subText = { success: false, message: "Short sentence is required" };
   } else if (data.subText.length > 120) {
-    errors.shortSEntence = { success: false, message: "Short sentence cannot exceed 120 characters" };
+    errors.subText = { success: false, message: "Short sentence cannot exceed 120 characters" };
   }
 
   // Category
@@ -60,12 +58,12 @@ export const validateCreateCourse = (data: any): Record<string, ValidationRespon
   }
 
   // Tags
-  if (!data.tags.trim()) {
+  if (!data.tags) {
     errors.tags = { success: false, message: "Tags are required" };
   }
 
   //tags validation should be started with # and should not contain spaces
-  if (data.tags) {
+  if (data.tags[0]) {
     const tagsArray = data.tags.split(" ");
     for (const tag of tagsArray) {
       if (!tag.startsWith("#")) {
@@ -73,9 +71,8 @@ export const validateCreateCourse = (data: any): Record<string, ValidationRespon
         break;
       }
     }
-}
+  }
 
- 
   if ( data.features.length < 3) {
     errors.features = { success: false, message: "Please add at least 3 course features" };
   }else{
@@ -83,7 +80,6 @@ export const validateCreateCourse = (data: any): Record<string, ValidationRespon
       if(!val.trim()) errors.features = { success: false, message: "All course features should be filled" };
     }
   }
-  
 
   // Description
   if (!data.description.trim()) {

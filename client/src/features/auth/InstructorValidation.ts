@@ -1,10 +1,9 @@
-
- export const isValidSubject = (subject: string,otherSubject:string) => {
+export const isValidSubject = (subject: string,otherSubject:string) => {
   if (!subject) {
-    
+
      return { success: false, message: "Please select your subject."};
   } else if (subject === "Other" && !otherSubject?.trim()) {
-    
+
     return { success: false, message: "Please specify your subject" };
   }
 
@@ -21,22 +20,27 @@
 }
 
   // ✅ Experience validation
-export const isValidExperience = (number:string) => {
-    const experience = Number(number)
-  if (!experience && experience == 0) {
-     return { success: false, message: "Experience is required at least 1 Year" };
-  } else if (isNaN(experience)) {
-    return { success: false, message:"Experience must be a valid number."};
-  } else if (experience < 0) {
-    return { success: false, message: "Experience cannot be negative."};
+export const isValidExperience = (number: string) => {
+  if (!number || number.trim() === '') {
+    return { success: false, message: "Experience is required" };
   }
-    return {success:true,message:''}
+  const experience = Number(number);
+  if (isNaN(experience)) {
+    return { success: false, message: "Experience must be a valid number." };
+  }
+  if (experience < 0) {
+    return { success: false, message: "Experience cannot be negative." };
+  }
+  if (experience < 1) {
+    return { success: false, message: "Experience must be at least 1 year." };
+  }
+  return { success: true, message: '' };
 }
 
-  export const isValidSocailMedia = (linkedInUrl: string) => {
-    if(!linkedInUrl.trim())return { success: false, message: "A professional social media profile is required to evaluate you!"};
+  export const isValidSocialMedia = (url: string) => {
+    if(!url&&!url?.trim())return { success: false, message: "A professional social media profile is required to evaluate you!"};
 
-  if (linkedInUrl && !/^https?:\/\/(www\.)?(linkedin\.com|twitter\.com|x\.com)\/.*$/.test(linkedInUrl)) {
+  if (url && !/^https?:\/\/(www\.)?(linkedin\.com|twitter\.com|x\.com)\/.*$/.test(url)) {
     return { success: false, message: "Please enter a valid profile URL (linkedin,twitter,X)."};
   }
     return {success:true,message:''}
@@ -49,3 +53,28 @@ export const isValidPortfolio = (portfolioUrl: string) => {
   return { success: true, message: "" };
 }
 
+export const isValidBio = (bio: string) => {
+  if (!bio || !bio.trim()) {
+    return { success: false, message: "Bio is required." };
+  } else if (bio.trim().length < 50) {
+    return { success: false, message: "Bio must be at least 50 characters long." };
+  } else if (bio.trim().length > 500) {
+    return { success: false, message: "Bio cannot exceed 500 characters." };
+  }
+  return { success: true, message: "" };
+}
+
+export const isValidResume = (resume: File | null) => {
+  if (!resume) {
+    return { success: false, message: "Resume is required." };
+  }
+  const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+  if (!allowedTypes.includes(resume.type)) {
+    return { success: false, message: "Resume must be a PDF, DOC, or DOCX file." };
+  }
+  const maxSize = 10 * 1024 * 1024; // 10MB
+  if (resume.size > maxSize) {
+    return { success: false, message: "Resume file size must not exceed 10MB." };
+  }
+  return { success: true, message: "" };
+}

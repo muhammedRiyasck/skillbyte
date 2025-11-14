@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
-import { setUser } from "../";
+import { setUser } from "..";
 import { ROUTES } from "@core/router/paths";
 import { Home } from '@shared/shimmer'
 const OAuthSuccess = () => {

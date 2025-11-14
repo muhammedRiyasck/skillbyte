@@ -45,7 +45,7 @@ export default function ModuleItem({ courseId, module, order, setModules }: Prop
       console.log(createdModule,createdModule,'createdModulecreatedModule')
       updateModule({
         ...module,
-        ...createdModule,
+        ...createdModule?.data,
         lessons: [
           ...module.lessons,
           {

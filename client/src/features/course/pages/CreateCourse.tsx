@@ -1,4 +1,5 @@
-import React, {  useState } from "react";
+import React, { useState } from "react";
+import { useForm, Controller } from "react-hook-form";
 import TextInput from "@shared/ui/TextInput";
 import AboutCourseField from "../components/DynamicField";
 import ErrorMessage from "@shared/ui/ErrorMessage";
@@ -11,30 +12,67 @@ import CropImageModal from "@shared/ui/CropImageModal";
 import getCroppedImg from "@shared/utils/GetCroppedImg";
 import useCreateCourse from "../hooks/useCreateCourse";
 
+type FormData = {
+  title: string;
+  subText: string;
+  category: string;
+  customCategory: string;
+  courseLevel: string;
+  language: string;
+  access: string;
+  price: string;
+  description: string;
+  tags: string[];
+  features: string[];
+  thumbnailFile: File | null;
+};
 
 const CreateCourse = () => {
   const navigate = useNavigate();
   const [spining, setSpining] = useState(false);
-  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [isCropOpen, setIsCropOpen] = useState(false);
   const [croppedBlob, setCroppedBlob] = useState<Blob | null>(null);
-  const [formData, setFormData] = useState({
-    thumbnail: "",
-    title: "",
-    subText: "",
-    category: "",
-    otherCategory: false,
-    customCategory: "",
-    courseLevel: "",
-    language: "",
-    access: "",
-    price: "",
-    description: "",
-    tags: "",
-    features: [""] as string[],
+  const [thumbnail, setThumbnail] = useState("");
+
+  const {
+    handleSubmit,
+    control,
+    watch,
+    formState: { errors },
+    setValue
+  } = useForm<FormData>({
+    defaultValues: {
+      title: "",
+      subText: "",
+      category: "",
+      customCategory: "",
+      courseLevel: "",
+      language: "",
+      access: "",
+      price: "",
+      description: "",
+      tags: [""],
+      features: [""] as string[],
+      thumbnailFile: null,
+    },
+       resolver: async (data) => {
+      const validationErrors = validateCreateCourse({ ...data });
+      const fieldErrors: Record<string, any> = {};
+
+      Object.keys(validationErrors).forEach((key) => {
+        if (!validationErrors[key].success) {
+          fieldErrors[key] = { type: "manual", message: validationErrors[key].message };
+        }
+      });
+
+      return {
+        values: fieldErrors.length ? {} : data,
+        errors: fieldErrors,
+      };
+    },
   });
-  
-  const [errors, setErrors] = useState<Record<string, { success: boolean; message: string }>>({});
+
+  const watchedCategory = watch("category");
   
   const Category = ["Marketing", "Programming", "Designing", "Business", "Other"];
   
@@ -50,63 +88,45 @@ const CreateCourse = () => {
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setThumbnailFile(file);
+      setValue("thumbnailFile", file, { shouldValidate: true });
       setIsCropOpen(true);
     }
   };
-
+  
+  const thumbnailFile = watch("thumbnailFile");
   const handleCropComplete = async (croppedAreaPixels: any) => {
     if (!thumbnailFile || !croppedAreaPixels) return;
 
-    const croppedblob = await getCroppedImg(URL.createObjectURL(thumbnailFile), croppedAreaPixels);
-    setFormData((prev) => ({
-      ...prev,
-      thumbnail: URL.createObjectURL(croppedblob),
-    }));
-    setCroppedBlob(croppedblob);
-  };
-  
-  const handleCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
-    setFormData((prev) => ({
-      ...prev,
-      category: value,
-      otherCategory: value === "Other",
-      customCategory: value === "Other" ? prev.customCategory : "",
-    }));
-  };
-  
-  const createCourse = useCreateCourse();
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const validationErrors = validateCreateCourse({ ...formData, thumbnailFile });
-    setErrors(validationErrors);
-    
-    if (Object.keys(validationErrors).length === 0) {
-      
-      if (croppedBlob && thumbnailFile) {
-        try {
-          setSpining(true);
-          const {courseId} = await createCourse({ formData, croppedBlob, thumbnailFile });
-          
-          navigate(ROUTES.instructor.uploadCourseContent,{state:{
-            courseId
-          }})
-        } catch (error: any) {
-          toast.error(error.message);
-          throw error;
-        } finally {
-          setSpining(false);
-        }
-      }
-    }
+  if (thumbnailFile?.size > 2 * 1024 * 1024) {
+      toast.error("Thumbnail must be less than 2 MB");
+      return;
+  }
+    const croppedBlob = await getCroppedImg(URL.createObjectURL(thumbnailFile), croppedAreaPixels);
+    setThumbnail(URL.createObjectURL(croppedBlob));
+    setCroppedBlob(croppedBlob);
   };
 
+  const createCourse = useCreateCourse();
+
+  const onSubmit = async (data: FormData) => {
+    if (croppedBlob && thumbnailFile) {
+    try {
+      setSpining(true);
+      const  courseId  = await createCourse({ formData: data, croppedBlob, thumbnailFile });
+      navigate(ROUTES.instructor.uploadCourseContent, { state: { courseId } });
+      toast.success("Course created successfully!");
+    } catch (error: any) {
+      toast.error(error?.message || "Something went wrong");
+    } finally {
+      setSpining(false);
+    }
+  };
+  }
   return (
     
     <div className="min-h-screen flex flex-col ">
       
-      {spining && Spiner()}
+      {spining && <Spiner />}
 
       {/* Top Navigation */}
       <div className="bg-gray-200 dark:bg-gray-700  px-6 py-4 flex justify-between items-center">
@@ -118,7 +138,7 @@ const CreateCourse = () => {
 
       <div className="flex-col bg-white dark:bg-gray-800 min-h-screen">
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           className={` lg:w-4/6 rounded-lg shadow-2xl p-6 m-6 mx-auto  dark:bg-gray-700 dark:text-gray-100 dark:border ${
             Object.keys(errors).length > 0 ? "border border-red-600" : ""
           } `}
@@ -138,8 +158,8 @@ const CreateCourse = () => {
 
             <label className="block text-gray-700 mb-2 dark:text-white">Thumbnail</label>
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center">
-              {formData.thumbnail ? (
-                <img src={formData.thumbnail} alt="thumbnail" className="rounded-lg w-64 h-40 object-cover mb-3" />
+              {thumbnail ? (
+                <img src={thumbnail} alt="thumbnail" className="rounded-lg w-64 h-40 object-cover mb-3" />
               ) : (
                 <p className="text-gray-400">No image selected</p>
               )}
@@ -148,11 +168,12 @@ const CreateCourse = () => {
                   Change
                   <input type="file" accept="image/*" className="hidden" onChange={handleThumbnailChange} />
                 </label>
-                {formData.thumbnail && (
+                {thumbnail && (
                   <button
                     onClick={() => {
-                      setFormData((prev) => ({ ...prev, thumbnail: "" }));
-                      setThumbnailFile(null);
+                      setThumbnail("");
+                      setValue("thumbnailFile", null, { shouldValidate: true }); // ✅ also clears validation
+
                       setCroppedBlob(null);
                     }}
                     className="cursor-pointer border border-gray-300 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition"
@@ -162,7 +183,7 @@ const CreateCourse = () => {
                 )}
               </div>
             </div>
-            {errors.thumbnail && <ErrorMessage error={errors.thumbnail.message} />}
+           {errors.thumbnailFile?.message && <ErrorMessage error={errors.thumbnailFile.message} />}
           </div>
 
           {/* Two Column Form */}
@@ -170,144 +191,191 @@ const CreateCourse = () => {
             {/* Course Title */}
             <div>
               <label className="block text-gray-700 dark:text-white mb-2">Course Title</label>
-              <TextInput
-                id="title"
-                type="text"
-                placeholder="Enter course title"
-                value={formData.title}
-                onChange={(val) => setFormData((prev) => ({ ...prev, title: val }))}
-                className="dark:border-white"
+              <Controller
+                name="title"
+                control={control}
+                render={({ field }) => (
+                  <TextInput
+                    {...field}
+                    id="title"
+                    type="text"
+                    placeholder="Enter course title"
+                    className="dark:border-white"
+                  />
+                )}
               />
-              {errors.course && <ErrorMessage error={errors.course.message} />}
+              {errors.title?.message && <ErrorMessage error={errors.title.message} />}
             </div>
 
             {/* Short Sentence */}
             <div>
               <label className="block text-gray-700 dark:text-white mb-2">Short Sentence (below Title)</label>
-
-              <textarea
-                id="subtext"
-                rows={2}
-                placeholder="Enter short sentence"
-                className="w-full border border-gray-400 rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                value={formData.subText}
-                onChange={(e) => setFormData((prev) => ({ ...prev, subText: e.target.value }))}
+              <Controller
+                name="subText"
+                control={control}
+                render={({ field }) => (
+                  <textarea
+                    {...field}
+                    id="subtext"
+                    rows={2}
+                    placeholder="Enter short sentence"
+                    className="w-full border border-gray-400 rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                )}
               />
-
-              {errors.shortSEntence && <ErrorMessage error={errors.shortSEntence.message} />}
+              {errors.subText?.message && <ErrorMessage error={errors.subText.message} />}
             </div>
 
             {/* Category */}
             <div>
               <label className="block text-gray-700 mb-2 dark:text-white">Course Category</label>
-              <select
-                value={formData.category}
-                onChange={handleCategoryChange}
-                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
-              >
-                <option disabled value="">
-                  Select Category
-                </option>
-                {Category.map((cat, index) => (
-                  <option key={index} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-              {formData.otherCategory && (
-                <TextInput
-                  id="custom_input"
-                  type="text"
-                  placeholder="Enter custom category"
-                  value={formData.customCategory}
-                  onChange={(val) => setFormData((prev) => ({ ...prev, customCategory: val }))}
-                  className="mt-4 dark:border-white"
+              <Controller
+                name="category"
+                control={control}
+                render={({ field }) => (
+                  <select
+                    {...field}
+                    value={field.value || ""}
+                    className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
+                  >
+                    <option disabled value="">
+                      Select Category
+                    </option>
+                    {Category.map((cat, index) => (
+                      <option key={index} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              />
+              {watchedCategory === "Other" && (
+                <Controller
+                  name="customCategory"
+                  control={control}
+                  render={({ field }) => (
+                    <TextInput
+                      {...field}
+                      id="custom_input"
+                      type="text"
+                      placeholder="Enter custom category"
+                      className="mt-4 dark:border-white"
+                    />
+                  )}
                 />
               )}
-              {errors.category && <ErrorMessage error={errors.category.message} />}
-              {errors.customCategory && <ErrorMessage error={errors.customCategory.message} />}
+              {errors.category?.message && <ErrorMessage error={errors.category.message} />}
+              {errors.customCategory?.message&& <ErrorMessage error={errors.customCategory.message} />}
             </div>
 
             {/* Course Level */}
             <div>
               <label className="block text-gray-700 mb-2 dark:text-white">Course Level</label>
-              <select
-                value={formData.courseLevel}
-                onChange={(e) => setFormData((prev) => ({ ...prev, courseLevel: e.target.value }))}
-                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
-              >
-                <option disabled value="">
-                  Select Level
-                </option>
-                {Levels.map((level, index) => (
-                  <option key={index} value={level}>
-                    {level}
-                  </option>
-                ))}
-              </select>
-              {errors.courseLevel && <ErrorMessage error={errors.courseLevel.message} />}
+              <Controller
+                name="courseLevel"
+                control={control}
+                render={({ field }) => (
+                  <select
+                    {...field}
+                    value={field.value || ""}
+                    className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
+                  >
+                    <option disabled value="">
+                      Select Level
+                    </option>
+                    {Levels.map((level, index) => (
+                      <option key={index} value={level}>
+                        {level}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              />
+              {errors.courseLevel?.message && <ErrorMessage error={errors.courseLevel.message} />}
             </div>
 
             {/* Language */}
             <div>
               <label className="block text-gray-700 mb-2 dark:text-white">Language</label>
-              <select
-                value={formData.language}
-                onChange={(e) => setFormData((prev) => ({ ...prev, language: e.target.value }))}
-                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
-              >
-                <option disabled value="">
-                  Select Language
-                </option>
-                <option value="English">English</option>
-              </select>
-              {errors.language && <ErrorMessage error={errors.language.message} />}
+              <Controller
+                name="language"
+                control={control}
+                render={({ field }) => (
+                  <select
+                    {...field}
+                    value={field.value || ""}
+                    className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
+                  >
+                    <option disabled value="">
+                      Select Language
+                    </option>
+                    <option value="English">English</option>
+                  </select>
+                )}
+              />
+              {errors.language?.message && <ErrorMessage error={errors.language.message} />}
             </div>
 
             {/* Access */}
             <div>
               <label className="block text-gray-700 mb-2 dark:text-white">Course Access Duration</label>
-              <select
-                value={formData.access}
-                onChange={(e) => setFormData((prev) => ({ ...prev, access: e.target.value }))}
-                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
-              >
-                <option disabled value="">
-                  Select Duration
-                </option>
-                <option value="Life Time Access">Life Time Access</option>
-                <option value="1-Year Access">1-Year Access</option>
-                <option value="6-Month Access">6-Month Access</option>
-              </select>
-              {errors.access && <ErrorMessage error={errors.access.message} />}
+              <Controller
+                name="access"
+                control={control}
+                render={({ field }) => (
+                  <select
+                    {...field}
+                    value={field.value || ""}
+                    className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
+                  >
+                    <option disabled value="">
+                      Select Duration
+                    </option>
+                    <option value="Life Time Access">Life Time Access</option>
+                    <option value="1-Year Access">1-Year Access</option>
+                    <option value="6-Month Access">6-Month Access</option>
+                  </select>
+                )}
+              />
+              {errors.access?.message && <ErrorMessage error={errors.access.message} />}
             </div>
 
             {/* Price */}
             <div>
               <label className="block text-gray-700 mb-2 dark:text-white">Course Price</label>
-              <TextInput
-                id="price"
-                type="text"
-                placeholder="Enter Price"
-                value={formData.price}
-                onChange={(val) => setFormData((prev) => ({ ...prev, price: val }))}
-                className="dark:border-white"
+              <Controller
+                name="price"
+                control={control}
+                render={({ field }) => (
+                  <TextInput
+                    {...field}
+                    id="price"
+                    type="text"
+                    placeholder="Enter Price"
+                    className="dark:border-white"
+                  />
+                )}
               />
-              {errors.price && <ErrorMessage error={errors.price.message} />}
+              {errors.price?.message && <ErrorMessage error={errors.price.message} />}
             </div>
 
             {/* Tags */}
             <div>
               <label className="block text-gray-700 mb-2 dark:text-white">Tags</label>
-              <TextInput
-                id="tags"
-                type="text"
-                placeholder="#marketing #digitalstrategy"
-                value={formData.tags}
-                onChange={(val) => setFormData((prev) => ({ ...prev, tags: val }))}
-                className="dark:border-white"
+              <Controller
+                name="tags"
+                control={control}
+                render={({ field }) => (
+                  <TextInput
+                    {...field}
+                    id="tags"
+                    type="text"
+                    placeholder="#marketing #digitalstrategy"
+                    className="dark:border-white"
+                  />
+                )}
               />
-              {errors.tags && <ErrorMessage error={errors.tags.message} />}
+              {errors.tags?.message && <ErrorMessage error={errors.tags.message} />}
             </div>
           </div>
 
@@ -315,26 +383,31 @@ const CreateCourse = () => {
           <div className="mt-6">
             <label className="block text-gray-700 dark:text-white mb-2">About This Course (features)</label>
             <AboutCourseField
-              data={formData.features}
-              setData={(val: string[]) => setFormData((prev) => ({ ...prev, features: val }))}
+              control={control}
+              name="features"
               placeholder="point"
             />
-            {errors.features && <ErrorMessage error={errors.features.message} />}
+            {errors.features?.message && <ErrorMessage error={errors.features.message} />}
           </div>
 
           {/* Description */}
           <div className="grid grid-cols-1 md:grid-cols-1 gap-6 mt-6">
             <div>
               <label className="block text-gray-700 mb-2 dark:text-white">Description</label>
-              <textarea
-                rows={5}
-                placeholder="Write course description..."
-                className="w-full border border-gray-400 rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                value={formData.description}
-                onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                  <textarea
+                    {...field}
+                    rows={5}
+                    placeholder="Write course description..."
+                    className="w-full border border-gray-400 rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                  />
+                )}
               />
             </div>
-            {errors.description && <ErrorMessage error={errors.description.message} />}
+            {errors.description?.message && <ErrorMessage error={errors.description.message} />}
           </div>
 
           {/* Next Button */}

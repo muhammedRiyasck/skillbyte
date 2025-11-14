@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from "react";
 import default_profile from "../../../assets/defualt_profile.svg";
-import { CheckCircle, XCircle, UserX, RefreshCw } from "lucide-react";
+import { CheckCircle, UserX, RefreshCw } from "lucide-react";
 
 import TableShimmer from "@shared/shimmer/Table";
 import Modal from "@shared/ui/Modal";
@@ -58,6 +58,7 @@ const StudentManagement: React.FC = () => {
   }, [isError, error]);
 
   const handleAction = (id: string, action: "active" | "blocked", name: string) => {
+    console.log(id,'iddd')
     setSelectedStudent({ name, id });
     setModalAction(action === "active" ? "unblock" : "block");
     setIsModalOpen(true);
@@ -72,12 +73,11 @@ const StudentManagement: React.FC = () => {
       name: selectedStudent.name
     });
   };
-
   // Memoized student rows for better performance - must be called before any conditional returns
   const studentRows = useMemo(() =>
     students.map((student: IStudent, i: number) => (
       <tr
-        key={student.email}
+        key={student.studentId}
         className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
       >
         <td className="px-6 py-4 whitespace-nowrap text-lg text-gray-900 dark:text-white">
@@ -117,7 +117,7 @@ const StudentManagement: React.FC = () => {
         <td className="px-6 py-4 whitespace-nowrap text-lg font-medium">
           {student.accountStatus === "blocked" ? (
             <button
-              onClick={() => handleAction(student._id, "active", student.name)}
+              onClick={() => handleAction(student.studentId, "active", student.name)}
               disabled={toggleStudentStatusMutation.isPending}
               className="inline-flex items-center px-3 py-2 border border-transparent text-lg leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors cursor-pointer disabled:opacity-50"
             >
@@ -126,11 +126,11 @@ const StudentManagement: React.FC = () => {
             </button>
           ) : (
             <button
-              onClick={() => handleAction(student._id, "blocked", student.name)}
+              onClick={() => handleAction(student.studentId, "blocked", student.name)}
               disabled={toggleStudentStatusMutation.isPending}
-              className="inline-flex items-center px-3 py-2 border border-transparent text-lg leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center px-6 py-2 border border-transparent text-lg leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors cursor-pointer disabled:opacity-50"
             >
-              <XCircle className="w-4 h-4 mr-1" />
+              !
               Block
             </button>
           )}

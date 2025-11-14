@@ -37,4 +37,6 @@ router.delete(
   asyncHandler(instructorProfileController.removeProfileImage)
 );
 
+
+
 export default router;

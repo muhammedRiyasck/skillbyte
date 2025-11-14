@@ -45,6 +45,7 @@ export class CourseController {
    * @param res - Express response object.
    */
   createBase = async (req: Request, res: Response): Promise<void> => {
+    
     const authenticatedReq = req as AuthenticatedRequest;
     logger.info(`Create course base attempt from IP: ${authenticatedReq.ip}`);
 
@@ -65,6 +66,7 @@ export class CourseController {
       features,
     } = validatedData;
 
+
     const instructorId = authenticatedReq.user.id;
 
     const course = await this.createCourseUseCase.execute({
@@ -79,12 +81,12 @@ export class CourseController {
       features: features || [],
       description: description || '',
       duration: access || '',
-      tags: tags || [],
+      tags: tags || '',
       status: 'draft',
     });
 
     logger.info(`Course base created successfully for instructor ${instructorId}`);
-    ApiResponseHelper.created(res, 'Details added successfully', course);
+    ApiResponseHelper.created(res, 'Details added successfully', {courseId:course.courseId});
   };
 
   /**
@@ -124,7 +126,7 @@ export class CourseController {
       thumbnailUrl: url,
     });
 
-    ApiResponseHelper.success(res, 'Course Base Created Successfully', { courseId });
+    ApiResponseHelper.success(res,'Course Base Created Successfully', { courseId });
 
     // Delete the local uploaded file
     try {

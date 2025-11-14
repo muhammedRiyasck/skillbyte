@@ -8,10 +8,11 @@ cloudinary.config({
 
 interface UploadOptions {
   folder: string;
-  resourceType?: "image"
+  resourceType?: "image" | "raw"
   publicId?: string;
   overwrite?: boolean;
-} 
+  accessMode?: "public" | "authenticated";
+}
 
 export const uploadToCloudinary = async (
   filePath: string,
@@ -23,6 +24,7 @@ export const uploadToCloudinary = async (
       resource_type: options.resourceType || "image",
       public_id: options.publicId,
       overwrite: options.overwrite ?? false,
+      access_mode: options.accessMode || "public",
     });
 
     return result.secure_url;

@@ -9,9 +9,11 @@ export class InstructorMapper {
       doc.subject,
       doc.jobTitle,
       doc.experience,
-      doc.socialProfile ,  
-      doc.portfolio,                                                                                     
+      doc.socialProfile ,
+      doc.portfolio,
       doc.bio ,
+      doc.phoneNumber,
+      doc.resumeUrl,
       doc.profilePictureUrl,
       doc.isEmailVerified ,
       doc.accountStatus ,
@@ -28,7 +30,7 @@ export class InstructorMapper {
   }
 
   // input
-  static toPersistence(entity: Instructor): Instructor {
+  static toPersistence(entity: Instructor): any {
     return {
       name: entity.name,
       email: entity.email,
@@ -39,6 +41,8 @@ export class InstructorMapper {
       socialProfile: entity.socialProfile,
       portfolio: entity.portfolio,
       bio: entity.bio,
+      phoneNumber: entity.phoneNumber,
+      resumeUrl: entity.resumeUrl,
       profilePictureUrl: entity.profilePictureUrl,
       isEmailVerified: entity.isEmailVerified,
       accountStatus: entity.accountStatus,

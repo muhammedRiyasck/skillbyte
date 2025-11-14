@@ -117,5 +117,29 @@ export class AdminInstructorController {
     await this.deleteInstructorUC.execute(instructorId);
     ApiResponseHelper.success(res, "Instructor deleted successfully");
   };
+
+  /**
+   * Retrieves the resume URL for a specific instructor.
+   * @param req - Request object with instructor ID in params.
+   * @param res - Express response object.
+   */
+  getInstructorResume = async (req: Request, res: Response): Promise<void> => {
+    const { instructorId } = req.params;
+
+    // Get instructor details to retrieve resume URL
+    const instructors = await this.listInstructorsUC.execute({ _id: instructorId }, 1, 1, {});
+    if (!instructors || !instructors.data || instructors.data.length === 0) {
+      throw new HttpError('Instructor not found', HttpStatusCode.NOT_FOUND);
+    }
+
+    const instructor = instructors.data[0];
+    if (!instructor.resumeUrl) {
+      throw new HttpError('Resume not found', HttpStatusCode.NOT_FOUND);
+    }
+
+    ApiResponseHelper.success(res, 'Resume URL retrieved successfully', {
+      resumeUrl: instructor.resumeUrl,
+    });
+  };
 }
   

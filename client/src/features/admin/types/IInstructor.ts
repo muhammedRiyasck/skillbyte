@@ -11,4 +11,7 @@ export interface Instructor {
   accountStatus: "pending" | "active" | "suspend" | "rejected"
   approved:boolean
   rejected:boolean
+  bio: string;
+  phoneNumber: string;
+  resumeUrl: string;
 }

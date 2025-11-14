@@ -4,9 +4,10 @@ import { CourseCard } from "../";
 import Card from "@shared/shimmer/Card";
 import Pagination from "@shared/ui/Pagination";
 import api from "@shared/utils/AxiosInstance";
-import refresh from '../../../assets/Refresh.png'
 import ErrorPage from "@shared/ui/ErrorPage";
 import DropDown from "@shared/ui/DropDown";
+import { RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 
 const options = ["All Courses", "Drafted Courses", "Listed Courses", "Unlisted Courses"];
 
@@ -35,7 +36,13 @@ const InstructorCourses: React.FC = () => {
       <div className="bg-gray-200 dark:bg-gray-700 px-6 py-4 flex justify-between items-center">
         <h1 className="text-xl font-bold text-gray-800 dark:text-white">{selectedStatus}</h1>
         <div className=" flex ">
-           <img src={refresh} className="mr-6 block mb-auto  cursor-pointer w-10 h-10" onClick={() => refetch()}/>
+          <button className="p-3 mx-4 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 rounded-xl transition-all duration-200 transform hover:scale-105 shadow-md cursor-pointer"
+              title="Refresh data"
+              onClick={() => {refetch();toast.success('Course Reffreshed')} }
+              > 
+              <RefreshCw className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+          </button>
+           {/* <img src={refresh} className="mr-6 block mb-auto  cursor-pointer w-10 h-10" onClick={() => refetch()}/> */}
             <DropDown options={options} isOpen={isOpen} setIsOpen={setIsOpen} handleListStatus={handleListStatus} selectedValue={selectedStatus}/>
         </div>
       </div>
@@ -48,8 +55,8 @@ const InstructorCourses: React.FC = () => {
       )}
         {data?.data?.meta?.totalPages > 1 && (
         <Pagination
-          page={data.meta.page}
-          totalPages={data.meta.totalPages}
+          page={data.data?.meta.page}
+          totalPages={data.data?.meta.totalPages}
           onPageChange={setPage}
         />
       )}

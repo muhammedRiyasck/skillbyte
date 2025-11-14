@@ -5,7 +5,7 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "strict": true,
-    "types": ["jest"],  
+    "types": ["jest", "node"],
     "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,

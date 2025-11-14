@@ -6,6 +6,8 @@ import { IRegisterInstructorUseCase } from '../interfaces/IRegisterInstructorUse
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { InstructorRegistrationSchema } from '../../../../shared/validations/AuthValidation';
+import { uploadToBackblaze } from '../../../../shared/utils/Backblaze';
+import fs from 'fs';
 
 /**
  * Use case for registering a new instructor.
@@ -44,14 +46,12 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
     if (!dto) {
       throw new HttpError('No data found or Your Current Data Expired', HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
-
     const valid = await this.otpService.verifyOtp(email, otp);
     if (!valid) {
       throw new HttpError('Invalid or expired OTP', HttpStatusCode.BAD_REQUEST);
     }
-
     const responseLength = Object.entries(dto).length;
-    if (responseLength !== 8) {
+    if (responseLength !== 11) {
       throw new HttpError("Some data's are missing", HttpStatusCode.BAD_REQUEST);
     }
 
@@ -60,6 +60,35 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
     if (!validationResult.success) {
       throw new HttpError(validationResult.error.issues.map((e) => e.message).join(', '), HttpStatusCode.BAD_REQUEST);
     }
+
+        let resumeUrl: string | undefined;
+
+        if (dto.resumeFile) {
+          try {
+            // Extract file extension from original filename
+            const fileExtension = dto.resumeFile.originalname.split('.').pop();
+            const publicId = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExtension}`;
+
+            resumeUrl = await uploadToBackblaze(dto.resumeFile.path, {
+              folder: 'instructor-resumes',
+              contentType: fileExtension === 'pdf' ? 'application/pdf' : 'application/msword',
+              publicRead: true, // Allow public access to resumes
+            });
+            console.log(resumeUrl,'resume Url')
+            // Clean up the temporary file
+            fs.unlinkSync(dto.resumeFile.path);
+          } catch (error) {
+            console.error('Resume upload failed:', error);
+            // For now, continue without resume URL - can be uploaded later
+            console.warn('Continuing registration without resume upload due to connectivity issues');
+            // Clean up the temporary file even on error
+            try {
+              fs.unlinkSync(dto.resumeFile.path);
+            } catch (cleanupError) {
+              console.error('Failed to cleanup temp file:', cleanupError);
+            }
+          }
+        }
 
     const hashedPassword = await bcrypt.hash(validationResult.data.password, 10);
 
@@ -73,6 +102,8 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
       validationResult.data.socialMediaLink || '',
       validationResult.data.portfolio || '',
       validationResult.data.bio,
+      validationResult.data.phoneNumber || null,
+      resumeUrl || null,
       validationResult.data.profilePictureUrl || null,
       true, // isEmailVerified
       'pending', // accountStatus

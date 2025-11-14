@@ -14,12 +14,12 @@ export default function useCreateCourse() {
     thumbnailFile: File;
   }) => {
     const response = await createBase({ ...formData, thumbnail: null });
-    const success = await uploadThumbnail({
-      courseId: response.course.courseId,
+     await uploadThumbnail({
+      courseId: response.data.courseId,
       blob: croppedBlob,
       fileName: thumbnailFile.name,
     });
     queryClient.invalidateQueries({ queryKey: ["courses"] });
-    return success;
+    return response.data.courseId;
   };
 }

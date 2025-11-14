@@ -12,6 +12,8 @@ export class Instructor {
     public socialProfile:string,
     public portfolio:string,
     public bio: string | null,
+    public phoneNumber: string | null,
+    public resumeUrl: string | null,
     public profilePictureUrl: string | null,
     public isEmailVerified: boolean,
     public accountStatus: "pending" | "active" | "suspended" | "rejected" ,
@@ -23,7 +25,7 @@ export class Instructor {
     public doneAt: Date | null,
     public averageRating: number,
     public totalReviews: number,
-    public instructorId?: string 
+    public instructorId?: string
   ) {}
 
 

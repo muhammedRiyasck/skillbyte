@@ -168,9 +168,9 @@ export default function LessonItem({ lesson, moduleId, order, setModules }: Prop
             placeholder="Lesson Title"
             type="text"
             value={title}
-            onChange={(value) => {
-              setTitle(value);
-              updateLesson({ title: value });
+            onChange={(e) => {
+              setTitle(e.target.value);
+              updateLesson({ title: e.target.value });
             }}
             className="bg-gray-300"
           />

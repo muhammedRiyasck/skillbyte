@@ -4,9 +4,12 @@ export interface TempInstructorData {
   email:string;
   password:string;
   confirmPassword:string;
+  phoneNumber:string;
   subject:string;
   jobTitle:string;
-  experience:string;
+  experience:number;
   socialMediaLink:string;
-  portfolioLink?:string
+  portfolioLink?:string;
+  bio:string;
+  resumeUrl?:string;
 }
