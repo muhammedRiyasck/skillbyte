@@ -7,5 +7,5 @@ export const COURSE_ERRORS = {
   UNAUTHORIZED_DELETE_MODULE: "Unauthorized to delete this module",
   UNAUTHORIZED_DELETE_LESSON: "Unauthorized to delete this lesson",
   UNAUTHORIZED_ADD_LESSON: "Unauthorized to add lesson to this module",
-  COURSE_UNPUBLISHED_OR_NOT_AVAILABLE: "This course maybe unpublished or not available",
+  COURSE_UNLISTED_OR_NOT_AVAILABLE: "This course maybe unlisted or not available",
 } as const;

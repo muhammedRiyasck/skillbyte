@@ -55,7 +55,6 @@ export class CourseController {
       thumbnail,
       subText,
       category,
-      otherCategory,
       customCategory,
       courseLevel,
       language,
@@ -69,19 +68,21 @@ export class CourseController {
 
     const instructorId = authenticatedReq.user.id;
 
+    console.log(customCategory,'fjfjfjfjfjfjfjf')
+
     const course = await this.createCourseUseCase.execute({
       instructorId,
       thumbnailUrl: thumbnail || null,
       title,
       subText: subText || '',
-      category: otherCategory && customCategory ? customCategory : (category || ''),
+      category: customCategory && customCategory ? customCategory : (category || ''),
       courseLevel: courseLevel || '',
       language: language || '',
       price: Number(price) || 0,
       features: features || [],
       description: description || '',
       duration: access || '',
-      tags: tags || '',
+      tags: tags || [],
       status: 'draft',
     });
 
@@ -159,12 +160,13 @@ export class CourseController {
    * @throws HttpError if status is invalid or update fails.
    */
   updateCourseStatus = async (req: Request, res: Response): Promise<void> => {
+    console.log('Update Course Status called');
     const authenticatedReq = req as AuthenticatedRequest;
     const courseId = authenticatedReq.params.courseId;
     const { status } = authenticatedReq.body;
     const instructorId = authenticatedReq.user.id;
 
-    if (!['published', 'unpublished'].includes(status)) {
+    if (!['list', 'unlist'].includes(status)) {
       throw new HttpError('Invalid Status', HttpStatusCode.BAD_REQUEST);
     }
 

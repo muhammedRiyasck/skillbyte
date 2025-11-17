@@ -40,6 +40,7 @@ const StudentManagement = lazy(() => import('@features/admin/pages/StudentManage
 const CreateCourse = lazy(() => import('@features/course/pages/CreateCourse.tsx'));
 const InstructorCourses = lazy(() => import('@features/course/pages/InstructorCourses.tsx'));
 const StudentCourses = lazy(() => import('@features/course/pages/StudentCourses.tsx'));
+const CourseDetails = lazy(() => import('@features/course/pages/CourseDetails.tsx'));
 
 const router = createBrowserRouter([
   {
@@ -106,6 +107,11 @@ const router = createBrowserRouter([
       { path: getRelativePath(ROUTES.student.courses, ROUTES.root), element:
       <ProtectedRoute roles={['student']}>
         <Fallback><StudentCourses /></Fallback>
+      </ProtectedRoute>
+      },
+      { path: getRelativePath(ROUTES.student.courseDetails, ROUTES.root), element:
+      <ProtectedRoute roles={['student']}>
+        <Fallback><CourseDetails /></Fallback>
       </ProtectedRoute>
       },
     ],

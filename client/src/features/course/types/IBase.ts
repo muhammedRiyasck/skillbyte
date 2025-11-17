@@ -3,7 +3,6 @@ export interface Ibase {
     title: string;
     subText: string;
     category: string;
-    otherCategory: boolean;
     customCategory: string;
     courseLevel: string;
     language: string;

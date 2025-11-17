@@ -1,5 +1,5 @@
 import React, {  useState } from "react";
-import {  useQuery } from "@tanstack/react-query";
+import {  useQuery, useQueryClient } from "@tanstack/react-query";
 import { CourseCard } from "../";
 import Card from "@shared/shimmer/Card";
 import Pagination from "@shared/ui/Pagination";
@@ -15,13 +15,14 @@ const InstructorCourses: React.FC = () => {
   const [page, setPage] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(options[0]);
+  const queryClient = useQueryClient();
 
   const limit = 6
 
   const { data, isLoading, isError,error ,refetch } = useQuery({
     queryKey: ['courses',selectedStatus, page],
     queryFn: () => api.get(`/course/instructor-courses?status=${selectedStatus}&page=${page}&limit=${limit}`).then(r => r.data),
-    staleTime: 5 * 60 * 1000 
+    staleTime: 5 * 60 * 1000
   });
 
   if (isLoading) return <Card/>
@@ -30,6 +31,23 @@ const InstructorCourses: React.FC = () => {
   const handleListStatus = (option: string) => {
     setIsOpen(false);
     setSelectedStatus(option);
+  };
+
+  const handleStatusChange = (courseId: string, status: string) => {
+    // Update the local state by modifying the cached data
+    queryClient.setQueryData(['courses', selectedStatus, page], (oldData: any) => {
+      if (!oldData) return oldData;
+      const updatedCourses = oldData.data.data.map((course: any) =>
+        course._id === courseId ? { ...course, status } : course
+      );
+      return {
+        ...oldData,
+        data: {
+          ...oldData.data,
+          data: updatedCourses
+        }
+      };
+    });
   };
   return (
     <div className="min-h-screen bg-white  dark:bg-gray-900 pb-8">
@@ -50,7 +68,7 @@ const InstructorCourses: React.FC = () => {
         <p className="text-2xl text-red-800 text-center my-8">No Data Found</p>
       ) : (
         <div className="max-w-7xl mx-auto mt-18">
-          <CourseCard courses={data?.data?.data} />
+          <CourseCard courses={data?.data?.data} isStudent={false} onStatusChange={handleStatusChange} />
         </div>
       )}
         {data?.data?.meta?.totalPages > 1 && (

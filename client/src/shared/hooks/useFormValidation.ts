@@ -24,15 +24,15 @@ export const useFormValidation = (rules: ValidationRules) => {
       return `${name} is required`;
     }
 
-    if (value && rule.minLength && value.length < rule.minLength) {
+    if (value && rule.minLength && value.toString().length < rule.minLength) {
       return `${name} must be at least ${rule.minLength} characters`;
     }
 
-    if (value && rule.maxLength && value.length > rule.maxLength) {
+    if (value && rule.maxLength && value.toString().length > rule.maxLength) {
       return `${name} must be no more than ${rule.maxLength} characters`;
     }
 
-    if (value && rule.pattern && !rule.pattern.test(value)) {
+    if (value && rule.pattern && !rule.pattern.test(value.toString())) {
       return `${name} format is invalid`;
     }
 

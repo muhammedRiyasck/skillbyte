@@ -26,7 +26,7 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <>
-    {user?<header>
+    {user?<header className="w-full sticky top-0 z-50">
       <div className="flex items-center justify-between  md:px-8  bg-gray-50 border-b border-gray-200 px-4 dark:bg-gray-900 shadow-2xl dark:border-b dark:border-gray-700 dark:text-white">
         <div className="flex items-center text-2xl font-bold">
           <Link to="/">

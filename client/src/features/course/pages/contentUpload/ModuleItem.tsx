@@ -5,8 +5,9 @@ import type { ModuleType } from "../../types/IModule";
 import LessonItem from "./LessonItem";
 import { validateModule } from "../../validation/ModuleValidation";
 import ErrorMessage from "@shared/ui/ErrorMessage";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { createModule } from "../../services/CourseModule";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   courseId: string;
@@ -21,16 +22,18 @@ interface prevState {
 }
 
 export default function ModuleItem({ courseId, module, order, setModules }: Props) {
+  const queryClient = useQueryClient();
   const [errors, setErrors] = useState<Record<string, { success: boolean; message: string }>>({});
   const [editModule, setEditModule] = useState<{ disable: boolean; initial: boolean; prevState: prevState }>({
     disable: !/^\d{13,}$/.test(module.moduleId),
     initial: /^\d{13,}$/.test(module.moduleId),
     prevState: { moduleTitle: "", moduleDescription: "" },
   });
-  const updateModule = (updated: ModuleType) => {
+  const updateModule = useCallback((updated: ModuleType) => {
     setModules((prev) => prev.map((m) => (m.moduleId === module.moduleId ? updated : m)));
-  };
-  const addLesson = async () => {
+  }, [module.moduleId, setModules]);
+
+  const addLesson = useCallback(async () => {
     const moduleValidationErrors = validateModule({ title: module.title, description: module.description });
     setErrors(moduleValidationErrors);
 
@@ -42,7 +45,6 @@ export default function ModuleItem({ courseId, module, order, setModules }: Prop
         title: module.title,
         description: module.description,
       });
-      console.log(createdModule,createdModule,'createdModulecreatedModule')
       updateModule({
         ...module,
         ...createdModule?.data,
@@ -60,10 +62,13 @@ export default function ModuleItem({ courseId, module, order, setModules }: Prop
           },
         ],
       });
+      // Invalidate the queries to refetch fresh data
+      queryClient.invalidateQueries({ queryKey: ['modulesAndLesson', courseId, 'modules,lessons'] });
+      
     }
-  };
+  }, [module, courseId, order, updateModule, queryClient]);
 
-  const handleEditDiscard = (moduleId: string) => {
+  const handleEditDiscard = useCallback((moduleId: string) => {
     console.log(moduleId,'from discard button')
     setModules((prev) =>
       prev.map((m) =>
@@ -73,11 +78,11 @@ export default function ModuleItem({ courseId, module, order, setModules }: Prop
       )
     );
     setEditModule({ disable: true, initial: false, prevState: { moduleTitle: "", moduleDescription: "" } });
-  };
+  }, [editModule.prevState, setModules]);
 
-  const removeModule = (moduleId: string) => {
+  const removeModule = useCallback((moduleId: string) => {
     setModules((prev) => prev.filter((m) => m.moduleId !== moduleId));
-  };
+  }, [setModules]);
 
   return (
     <div className=" space-y-4 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">

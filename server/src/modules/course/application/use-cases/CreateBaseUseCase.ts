@@ -24,7 +24,7 @@ export class CreateBaseUseCase implements ICreateBaseUseCase {
   async execute(dto: CreateCourseDTO): Promise<Course> {
     const calculatedDate = DurationConverter(dto.duration);
     const tagsArray = dto.tags;
-
+    console.log(dto.category,'category')
     const course = new Course(
       dto.instructorId,
       dto.thumbnailUrl,

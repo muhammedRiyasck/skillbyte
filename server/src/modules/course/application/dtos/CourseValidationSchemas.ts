@@ -6,21 +6,20 @@ export const CreateBaseSchema = z.object({
   thumbnail: z.string().nullable(),
   subText: z.string(),
   category: z.string().optional(),
-  otherCategory: z.string().optional(),
   customCategory: z.string().optional(),
   courseLevel: z.string(),
   language: z.string(),
   access: z.string(),
   price: z.string(),
   description: z.string(),
-  tags: z.string(),
+  tags: z.array(z.string()),
   features: z.array(z.string()),
 });
 
 export const UpdateBaseSchema = z.record(z.string(), z.any()); // Flexible for updates
 
 export const UpdateStatusSchema = z.object({
-  status: z.enum(['published', 'unpublished']),
+  status: z.enum(['list', 'unlist']),
 });
 
 export const CourseIdParamSchema = z.object({

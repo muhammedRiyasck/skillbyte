@@ -9,7 +9,7 @@ export default function DurationConverter(durationStr: string): Date {
       calculatedDate = new Date(new Date().setFullYear(new Date().getFullYear() + 100));
     }else if(durationINString==='1-Year Access'){
        calculatedDate = new Date(new Date().setFullYear(new Date().getFullYear() + 1));
-    }else if(durationINString==='6-Months Access'){
+    }else if(durationINString==='6-Month Access'){
        calculatedDate = new Date(new Date().setMonth(new Date().getMonth() + 6));
     }else{
 

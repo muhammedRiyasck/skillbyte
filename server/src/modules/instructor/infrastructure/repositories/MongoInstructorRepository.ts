@@ -18,7 +18,7 @@ export class MongoInstructorRepository implements IInstructorRepository {
   }
 
   async findById(id: string): Promise<Instructor | null> {
-    const doc = await InstructorModel.findById(id).select('-passwordHash');
+    const doc = await InstructorModel.findById(id).select('name email bio profilePictureUrl experience socialProfile subject jobTitle averageRating totalReviews');
     if (!doc) return null;
     return InstructorMapper.toEntity(doc);
   }

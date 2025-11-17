@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import TextInput from "@shared/ui/TextInput";
 import AboutCourseField from "../components/DynamicField";
+import TagsInput from "../components/TagsInput";
 import ErrorMessage from "@shared/ui/ErrorMessage";
 import { validateCreateCourse } from "../validation/BaseCourseValidation";
 import { toast } from "sonner";
@@ -51,7 +52,7 @@ const CreateCourse = () => {
       access: "",
       price: "",
       description: "",
-      tags: [""],
+      tags: [],
       features: [""] as string[],
       thumbnailFile: null,
     },
@@ -360,18 +361,17 @@ const CreateCourse = () => {
             </div>
 
             {/* Tags */}
-            <div>
+            <div className="md:col-span-2">
               <label className="block text-gray-700 mb-2 dark:text-white">Tags</label>
               <Controller
                 name="tags"
                 control={control}
                 render={({ field }) => (
-                  <TextInput
-                    {...field}
-                    id="tags"
-                    type="text"
-                    placeholder="#marketing #digitalstrategy"
-                    className="dark:border-white"
+                  <TagsInput
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Add tags (e.g., #javascript, #react, #webdev)"
+                    className="dark:bg-gray-700"
                   />
                 )}
               />

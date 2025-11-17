@@ -19,6 +19,7 @@ interface FormData {
   socialProfile: string;
   portfolio: string;
   profile: string;
+  bio:string
 }
 
 const Profile: React.FC = () => {
@@ -60,6 +61,7 @@ const Profile: React.FC = () => {
       socialProfile: data.socialProfile,
       portfolio: data.portfolio,
       profile: data.profilePictureUrl,
+      bio:data.bio
     } : {},
   });
 
@@ -73,6 +75,7 @@ const Profile: React.FC = () => {
         socialProfile: data.socialProfile,
         portfolio: data.portfolio,
         profile: data.profilePictureUrl,
+        bio:data.bio
       });
     }
   }, [data, reset]);
@@ -144,6 +147,10 @@ const Profile: React.FC = () => {
               <h2 className="mt-4 text-2xl font-bold text-gray-900 dark:text-white">{data?.name}</h2>
               <p className="text-gray-600 dark:text-gray-300">{data?.email}</p>
             </div>
+              <div className="bg-gray-50 dark:bg-gray-800 p-4  rounded-lg shadow-sm">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Bio</label>
+                <p className="mt-1 text-gray-900 dark:text-white font-semibold">{data?.bio}</p>
+              </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-sm">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Subject</label>
@@ -222,6 +229,7 @@ const Profile: React.FC = () => {
                 )}
               />
             </div>
+         
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Subject</label>
               <Controller
@@ -288,6 +296,28 @@ const Profile: React.FC = () => {
                 )}
               />
             </div>
+               <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Bio</label>
+              <Controller
+                name="bio"
+                control={control}
+                rules={{ required: "Bio is required" }}
+                render={({ field, fieldState }) => (
+                  <>
+                    <textarea
+                      id="bio"
+                      rows={4}
+                      placeholder="Enter Your Bio"
+                      value={field.value}
+                      onChange={field.onChange}
+                      className="mt-1 p-4 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  
+                    />
+                    {fieldState.error && <p className="text-red-500 text-sm">{fieldState.error.message}</p>}
+                  </>
+                )}
+              />
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Social Profile</label>
               <Controller
@@ -331,6 +361,7 @@ const Profile: React.FC = () => {
                 )}
               />
             </div>
+            
             <div className="md:col-span-2 flex justify-end space-x-4">
               <button
                 type="button"

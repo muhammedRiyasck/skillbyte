@@ -4,7 +4,7 @@ export function getVideoDuration(file: File): Promise<number> {
     video.preload = "metadata";
     video.onloadedmetadata = () => {
       window.URL.revokeObjectURL(video.src);
-      resolve(video.duration);        // duration in seconds
+      resolve(Math.round((video.duration / 60) * 100) / 100);        // duration in minutes, rounded to 2 decimal places
     };
     video.onerror = () => reject(new Error("Cannot load video metadata"));
     video.src = URL.createObjectURL(file);

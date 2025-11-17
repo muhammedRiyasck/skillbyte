@@ -9,6 +9,7 @@ export interface LessonType {
   duration:number|null
   order:number
   resources:string[];
+  isFreePreview?: boolean;
 }
 
 // export interface uploadToB2Props {

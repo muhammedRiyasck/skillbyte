@@ -1,7 +1,11 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@core/router/paths";
 import { cn } from "@shared/utils/cn";
+import ToggleSwitch from "@/shared/ui/ToggleSwitch";
+import Modal from "@/shared/ui/Modal";
+import { updateCourseStatus } from "../services/CourseStatus";
+
 interface Course {
   _id: string;
   title: string;
@@ -21,36 +25,21 @@ interface CourseCardProps {
   onStatusChange?: (courseId: string, status: string) => void;
 }
 
-const CourseCard = memo<CourseCardProps>(({ 
-  courses, 
+
+const CourseCard = memo<CourseCardProps>(({
+  courses,
   isStudent = false,
   onEnroll,
-  onStatusChange 
+  onStatusChange
 }) => {
   const navigate = useNavigate();
+  const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; courseId: string; newStatus: "list" | "unlist" }>({
+    isOpen: false,
+    courseId: "",
+    newStatus: "list"
+  });
 
-  const handleStatusChange = useCallback((courseStatus: string, courseId: string) => {
-    if (onStatusChange) {
-      onStatusChange(courseId, courseStatus);
-      return;
-    }
 
-    switch (courseStatus) {
-      case "draft":
-        navigate(ROUTES.instructor.uploadCourseContent, {
-          state: { courseId }
-        });
-        break;
-      case "list":
-        // Handle list action
-        break;
-      case "unlist":
-        // Handle unlist action
-        break;
-      default:
-        break;
-    }
-  }, [navigate, onStatusChange]);
 
   const handleEnrollment = useCallback((courseId: string) => {
     if (onEnroll) {
@@ -60,6 +49,32 @@ const CourseCard = memo<CourseCardProps>(({
       console.log('Enrolling in course:', courseId);
     }
   }, [onEnroll]);
+
+  const handleToggleChange = useCallback((course: Course) => {
+    const newStatus = course.status === "list" ? "unlist" : "list";
+    setConfirmModal({
+      isOpen: true,
+      courseId: course._id,
+      newStatus
+    });
+  }, []);
+
+  const confirmStatusChange = useCallback(async () => {
+    try {
+      await updateCourseStatus(confirmModal.courseId, confirmModal.newStatus);
+      if (onStatusChange) {
+        onStatusChange(confirmModal.courseId, confirmModal.newStatus);
+      }
+    } catch (error) {
+      console.error("Failed to update course status:", error);
+    } finally {
+      setConfirmModal({ isOpen: false, courseId: "", newStatus: "list" });
+    }
+  }, [confirmModal, onStatusChange]);
+
+  const cancelStatusChange = useCallback(() => {
+    setConfirmModal({ isOpen: false, courseId: "", newStatus: "list" });
+  }, []);
 
   const getStatusBadge = (status: Course['status']) => {
     const statusConfig = {
@@ -91,24 +106,26 @@ const CourseCard = memo<CourseCardProps>(({
   };
   
   const getActionButton = (course: Course) => {
-    
+
     if (isStudent) {
       // Action Button for Students
       return (
         <button
-        onClick={() => handleEnrollment(course._id)}
+        onClick={() => navigate(ROUTES.student.courseDetails.replace(':courseId', course._id))}
         className="mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
         >
-          {/* Enroll Now */}
-          View Course
+          Enroll Now
+          {/* View Course */}
         </button>
       );
     }
-    
+
     // Action Button for Instructors
     return (
       <button
-        onClick={() => handleStatusChange(course.status, course._id)}
+        onClick={() => {navigate(ROUTES.instructor.uploadCourseContent, {
+          state: { courseId: course._id}
+        })}}
         className={
           "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none cursor-pointer bg-indigo-500 hover:bg-indigo-600"}
       >
@@ -123,24 +140,31 @@ const CourseCard = memo<CourseCardProps>(({
       {courses.map((course) => (
         <div
           key={course._id}
-          className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex flex-col group"
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 p-6 flex flex-col group hover:-translate-y-2 border border-gray-100 dark:border-gray-700"
         >
           <div className="rounded-lg overflow-hidden mb-4 relative">
             {!isStudent && getStatusBadge(course.status)}
             <img
               src={course.thumbnailUrl}
               alt={course.title}
-              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
               loading="lazy"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
 
-          <h2 className="flex justify-between text-gray-900 dark:text-white text-xl font-semibold mb-2 line-clamp-2">
+          <h2 className="flex justify-between text-gray-900 dark:text-white text-xl font-bold mb-3 line-clamp-2 leading-tight">
             {course.title}
+            {!isStudent && (
+              <ToggleSwitch
+                checked={course.status === "list"}
+                onChange={() => handleToggleChange(course)}
+              />
+            )}
           </h2>
 
-          <div className="flex items-center gap-3 mb-3 text-sm">
-            <span className="bg-yellow-500 text-gray-900 text-xs font-bold px-2 py-1 rounded-full">
+          <div className="flex items-center gap-3 mb-4 text-sm flex-wrap">
+            <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 text-xs font-bold px-3 py-1 rounded-full shadow-sm">
               PREMIUM
             </span>
             <span className="text-gray-600 dark:text-gray-300">{course.language}</span>
@@ -149,13 +173,26 @@ const CourseCard = memo<CourseCardProps>(({
             </span>
           </div>
 
-          <p className="text-gray-600 dark:text-gray-400 text-sm flex-grow line-clamp-3">
+          <p className="text-gray-600 dark:text-gray-400 text-sm flex-grow line-clamp-3 leading-relaxed mb-4">
             {course.subText}
           </p>
 
           {getActionButton(course)}
         </div>
       ))}
+
+      <Modal
+        isOpen={confirmModal.isOpen}
+        onClose={cancelStatusChange}
+        title={`Confirm ${confirmModal.newStatus === "list" ? "List" : "Unlist"} Course`}
+        onConfirm={confirmStatusChange}
+        confirmLabel="Confirm"
+        cancelLabel="Cancel"
+      >
+        <p className="text-gray-700 dark:text-gray-300">
+          Are you sure you want to {confirmModal.newStatus === "list" ? "list" : "unlist"} this course?
+        </p>
+      </Modal>
     </div>
   );
 });

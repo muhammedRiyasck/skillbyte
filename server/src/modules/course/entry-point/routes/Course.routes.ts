@@ -18,9 +18,9 @@ router.get("/instructor-courses",CustomLimit(5,'list courses'), authenticate, re
 router.get("/details/:courseId", authenticate, requireRole('instructor','student','admin'), asyncHandler(courseController.getCourseById));
 router.get("/published-courses",CustomLimit(5,'list all courses'), authenticate,requireRole('student'), asyncHandler(courseController.getPublishedCourses));
 router.get("/admin/courses", authenticate, requireRole('admin'), asyncHandler(courseController.getAllCourses));
-router.patch("/course/:courseId", authenticate, requireRole('instructor','admin'), asyncHandler(courseController.updateBase));
-router.patch("/course/:courseId/status", authenticate, requireRole('instructor'), asyncHandler(courseController.updateCourseStatus));
-router.delete("/course/:courseId", authenticate, requireRole('instructor'), asyncHandler(courseController.deleteCourse));
+router.patch("/:courseId", authenticate, requireRole('instructor','admin'), asyncHandler(courseController.updateBase));
+router.patch("/:courseId/status", authenticate, requireRole('instructor'), asyncHandler(courseController.updateCourseStatus));
+router.delete("/:courseId", authenticate, requireRole('instructor'), asyncHandler(courseController.deleteCourse));
 
 // router.get('/modulesAndLessons/:courseId',authenticate, requireRole('instructor'), moduleWithLessonController.getModulesAndLessons)
 router.post("/createmodule", authenticate, requireRole('instructor'), asyncHandler(moduleWithLessonController.createModule));

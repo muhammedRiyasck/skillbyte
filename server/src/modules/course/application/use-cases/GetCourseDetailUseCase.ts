@@ -1,6 +1,7 @@
 import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
 import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
 import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
+import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
 import { Course } from '../../domain/entities/Course';
 import { IGetCourseUseCase } from '../interfaces/IGetCourseDetailsUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
@@ -22,11 +23,13 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
    * @param courseRepo - The repository for course data operations.
    * @param moduleRepo - The repository for module data operations.
    * @param lessonRepo - The repository for lesson data operations.
+   * @param instructorRepo - The repository for instructor data operations.
    */
   constructor(
     private courseRepo: ICourseRepository,
     private moduleRepo: IModuleRepository,
     private lessonRepo: ILessonRepository,
+    private instructorRepo: IInstructorRepository,
   ) {}
 
   /**
@@ -55,9 +58,9 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
       throw new HttpError('Invalid role', HttpStatusCode.BAD_REQUEST);
     }
 
-    // Check if students can access unpublished courses
+    // Check if students can access unlisted courses
     if (role === 'student' && course.status !== 'list') {
-      throw new HttpError(ERROR_MESSAGES.COURSE_UNPUBLISHED_OR_NOT_AVAILABLE, HttpStatusCode.FORBIDDEN);
+      throw new HttpError(ERROR_MESSAGES.COURSE_UNLISTED_OR_NOT_AVAILABLE, HttpStatusCode.FORBIDDEN);
     }
 
     // Parse include parameters
@@ -81,6 +84,20 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
       }
 
       course.modules = modules;
+    }
+
+    // Include instructor if requested
+    if (includeArr.includes('instructor')) {
+      const instructor = await this.instructorRepo.findById(course.instructorId);
+      if (instructor) {
+        // Attach instructor data to course
+        (course as any).instructor = {
+          name: instructor.name,
+          title: instructor.jobTitle,
+          avatar: instructor.profilePictureUrl,
+          bio: instructor.bio,
+        };
+      }
     }
 
     return course;

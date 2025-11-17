@@ -19,7 +19,7 @@ const CourseSchema = new mongoose.Schema({
   features: [{type:String, required:true}],
   description: { type: String, required: true },
   duration: {type:Date, required:true},
-  tags: String,
+  tags: [{type:String, required:true}],
   status: {
   type: String,
   enum: ["draft", "list", "unlist"],

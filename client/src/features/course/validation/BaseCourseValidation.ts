@@ -58,16 +58,13 @@ export const validateCreateCourse = (data: any): Record<string, ValidationRespon
   }
 
   // Tags
-  if (!data.tags) {
-    errors.tags = { success: false, message: "Tags are required" };
-  }
-
-  //tags validation should be started with # and should not contain spaces
-  if (data.tags[0]) {
-    const tagsArray = data.tags.split(" ");
-    for (const tag of tagsArray) {
-      if (!tag.startsWith("#")) {
-        errors.tags = { success: false, message: "Each tag must start with #" };
+  if (!data.tags || data.tags.length === 0 || !data.tags[0].trim()) {
+    errors.tags = { success: false, message: "At least one tag is required" };
+  } else {
+    for (const tag of data.tags) {
+ 
+      if (tag.includes(" ")) {
+        errors.tags = { success: false, message: "Tags should not contain spaces" };
         break;
       }
     }
