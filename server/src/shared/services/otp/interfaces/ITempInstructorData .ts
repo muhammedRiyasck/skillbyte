@@ -11,5 +11,5 @@ export interface TempInstructorData {
   socialMediaLink:string;
   portfolioLink?:string;
   bio:string;
-  resumeUrl?:string;
+  resumeFile?:File;
 }

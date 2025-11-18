@@ -27,13 +27,8 @@ export const uploadToBackblaze = async (
     const command = new PutObjectCommand(uploadParams);
     await s3.send(command);
 
-    // Generate signed URL for the uploaded file since ACL might not be supported
-    const signedUrl = await getSignedUrl(s3, new GetObjectCommand({
-      Bucket: process.env.B2_S3_BUCKET!,
-      Key: fileName,
-    }), { expiresIn: 31536000 }); // 1 year expiry
-
-    return signedUrl;
+    // Return the file key instead of signed URL for storage
+    return fileName;
   } catch (err) {
     console.error("Backblaze upload error:", err);
     throw new Error("File upload failed");

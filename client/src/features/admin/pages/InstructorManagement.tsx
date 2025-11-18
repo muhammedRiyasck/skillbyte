@@ -28,9 +28,6 @@ const InstructorManagement: React.FC = () => {
   const [selectedInstructor, setSelectedInstructor] = useState({ id: "", name: "" });
   const [reason, setReason] = useState("");
   const [modelError, setModelError] = useState("");
-  const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
-  const [selectedResumeUrl, setSelectedResumeUrl] = useState("");
-  const [selectedResumeName, setSelectedResumeName] = useState("");
   const queryClient = useQueryClient();
 
   const [page, setPage] = useState(1);
@@ -47,10 +44,14 @@ const InstructorManagement: React.FC = () => {
     setIsModalOpen(true);
   }, []);
 
-  const handleViewResume = useCallback((resumeUrl: string, name: string) => {
-    setSelectedResumeUrl(resumeUrl);
-    setSelectedResumeName(name);
-    setIsResumeModalOpen(true);
+  const handleViewResume = useCallback(async (instructorId: string) => {
+    try {
+      // Open resume in a new tab by making a GET request to the resume endpoint
+      window.open(`${api.defaults.baseURL}/instructors/${instructorId}/resume`, '_blank');
+    } catch (error) {
+      console.error('Error opening resume:', error);
+      toast.error('Failed to open resume');
+    }
   }, []);
 
   const approveMutation = useMutation({
@@ -104,7 +105,7 @@ const InstructorManagement: React.FC = () => {
   const deleteMutation = useMutation({
     mutationFn: (instructorId: string) => api.delete(`/instructors/${instructorId}`),
     onSuccess: () => {
-      toast.success("Instructor Account Deleted!!");
+      toast.success("Account Deleted!!");
       queryClient.invalidateQueries({ queryKey: ['instructors', dropDownValue, page] });
     },
     onError: (error) => {
@@ -165,20 +166,20 @@ const InstructorManagement: React.FC = () => {
           {inst.name}
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-lg text-gray-500 dark:text-gray-300">
-          {inst.email}
+          {inst.email }
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-lg text-gray-500 dark:text-gray-300 hidden lg:table-cell">
           {inst.subject}
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-lg text-gray-500 dark:text-gray-300 hidden md:table-cell">
-          {inst.jobTitle}
+          {inst.jobTitle || 'N/A'}
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-lg text-gray-500 dark:text-gray-300 hidden lg:table-cell">
-          {inst.experience}
+          {inst.experience || 'N/A'} Years
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-lg hidden xl:table-cell">
           <a
-            href={inst.socialProfile}
+            href={inst.socialProfile || '#'}
             target="_blank"
             rel="noopener noreferrer"
             className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center"
@@ -189,7 +190,7 @@ const InstructorManagement: React.FC = () => {
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-lg hidden xl:table-cell">
           <a
-            href={inst.portfolio}
+            href={inst.portfolio || '#'}
             target="_blank"
             rel="noopener noreferrer"
             className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center"
@@ -199,25 +200,29 @@ const InstructorManagement: React.FC = () => {
           </a>
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-lg hidden xl:table-cell">
-          <button
-            onClick={() => handleViewResume(inst.resumeUrl, inst.name)}
-            className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center cursor-pointer"
-          >
-            <Eye className="w-4 h-4 mr-1" />
-            View Resume
-          </button>
+          {inst.resumeUrl ? (
+            <button
+              onClick={() => handleViewResume(inst._id)}
+              className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center cursor-pointer"
+            >
+              <Eye className="w-4 h-4 mr-1" />
+              View Resume
+            </button>
+          ) : (
+            <span className="text-gray-500 dark:text-gray-400">N/A</span>
+          )}
         </td>
         <td className="px-6 py-4 whitespace-normal text-gray-500 dark:text-gray-300 text-lg hidden xl:table-cell">
           <div className="max-w-xs flex flex-wrap" title={inst.bio}>
-            {inst.bio}
+            {inst.bio || 'N/A'}
           </div>
         </td>
         <td className="px-6 py-4 whitespace-nowrap text-gray-500 dark:text-gray-300 text-lg hidden xl:table-cell">
-          {inst.phoneNumber}
+          {inst.phoneNumber || 'N/A'}
         </td>
         <td className="px-6 py-4 whitespace-nowrap">
           <span
-            className={`inline-flex px-2 py-1 text-lg font-semibold rounded-full ${
+            className={`inline-flex px-6 py-2 text-lg font-semibold rounded-full ${
               inst.approved
                 ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                 : inst.accountStatus === 'pending'
@@ -433,22 +438,6 @@ const InstructorManagement: React.FC = () => {
               />
             )}
       {isAnyMutationLoading && <Spiner />}
-
-      {/* Resume Modal */}
-      <Modal
-        isOpen={isResumeModalOpen}
-        onClose={() => setIsResumeModalOpen(false)}
-        title={`Resume - ${selectedResumeName}`}
-        onConfirm={() => setIsResumeModalOpen(false)}
-      >
-        <div className="w-full h-96">
-          <iframe
-            src={selectedResumeUrl}
-            className="w-full h-full border-0 rounded-lg"
-            title={`Resume - ${selectedResumeName}`}
-          />
-        </div>
-      </Modal>
     </div>
   );
 };

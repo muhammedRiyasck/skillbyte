@@ -67,14 +67,14 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
           try {
             // Extract file extension from original filename
             const fileExtension = dto.resumeFile.originalname.split('.').pop();
-            const publicId = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExtension}`;
+            // const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExtension}`;
 
             resumeUrl = await uploadToBackblaze(dto.resumeFile.path, {
               folder: 'instructor-resumes',
-              contentType: fileExtension === 'pdf' ? 'application/pdf' : 'application/msword',
+              contentType: fileExtension === 'pdf' ? 'application/pdf' : fileExtension === 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/msword',
               publicRead: true, // Allow public access to resumes
             });
-            console.log(resumeUrl,'resume Url')
+            
             // Clean up the temporary file
             fs.unlinkSync(dto.resumeFile.path);
           } catch (error) {

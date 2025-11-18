@@ -1,5 +1,3 @@
-
-
 import { toast } from "sonner";
 
 import api from "@shared/utils/AxiosInstance";
@@ -13,7 +11,7 @@ export const approveRequest = async (playload:IReqestPlayload) => {
     console.log(error)
     toast.error(error.message);
     throw error
-  }
+  } 
 };
 
 export const declineRequest = async (playload:IReqestPlayload) => {

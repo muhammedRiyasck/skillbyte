@@ -8,6 +8,7 @@ import { IDeleteInstructorUseCase } from '../../application/interfaces/IDeleteIn
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
+import { getBackblazeSignedUrl } from '../../../../shared/utils/Backblaze';
 
 /**
  * Controller for admin operations on instructors.
@@ -137,9 +138,14 @@ export class AdminInstructorController {
       throw new HttpError('Resume not found', HttpStatusCode.NOT_FOUND);
     }
 
-    ApiResponseHelper.success(res, 'Resume URL retrieved successfully', {
-      resumeUrl: instructor.resumeUrl,
-    });
+    // The resumeUrl is now the file key (e.g., "instructor-resumes/filename.pdf")
+    const fileKey = instructor.resumeUrl;
+
+    // Generate a fresh signed URL with 1 hour expiration
+    const freshSignedUrl = await getBackblazeSignedUrl(fileKey);
+
+    // Redirect to the fresh signed URL
+    res.redirect(freshSignedUrl);
   };
 }
   
