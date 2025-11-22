@@ -3,6 +3,8 @@ import { IMailerService } from '../../../../shared/services/mail/IMailerService'
 import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRepository';
 import { approvedInstructorEmailTemplate } from '../../../../shared/templates/ApprovedInstructor';
 import { IApproveInstructorUseCase } from '../interfaces/IApproveInstructorUseCase';
+import { EmailJobData, JOB_NAMES, QUEUE_NAMES } from '../../../../shared/services/job-queue/JobTypes';
+import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
 
 /**
  * Use case for approving an instructor.
@@ -31,11 +33,14 @@ export class ApproveInstructorUseCase implements IApproveInstructorUseCase {
 
     const instructor = await this.repo.findById(id);
     if (instructor) {
-      await this.mailer.sendMail(
-        instructor.email,
-        '🎉 SkillByte Instructor Approved',
-        approvedInstructorEmailTemplate(instructor.name),
-      );
+
+      const emailData: EmailJobData = {
+      to: instructor.email,
+      subject: '🎉 SkillByte Instructor Approved',
+      html: approvedInstructorEmailTemplate(instructor.name)
+    };
+
+    await jobQueueService.addJob(QUEUE_NAMES.EMAIL, JOB_NAMES.SEND_EMAIL, emailData);
     }
   }
 }

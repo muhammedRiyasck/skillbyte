@@ -6,8 +6,8 @@ import { IRegisterInstructorUseCase } from '../interfaces/IRegisterInstructorUse
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { InstructorRegistrationSchema } from '../../../../shared/validations/AuthValidation';
-import { uploadToBackblaze } from '../../../../shared/utils/Backblaze';
-import fs from 'fs';
+import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
+import { JOB_NAMES, QUEUE_NAMES, ResumeUploadJobData } from '../../../../shared/services/job-queue/JobTypes';
 
 /**
  * Use case for registering a new instructor.
@@ -61,37 +61,8 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
       throw new HttpError(validationResult.error.issues.map((e) => e.message).join(', '), HttpStatusCode.BAD_REQUEST);
     }
 
-        let resumeUrl: string | undefined;
-
-        if (dto.resumeFile) {
-          try {
-            // Extract file extension from original filename
-            const fileExtension = dto.resumeFile.originalname.split('.').pop();
-            // const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExtension}`;
-
-            resumeUrl = await uploadToBackblaze(dto.resumeFile.path, {
-              folder: 'instructor-resumes',
-              contentType: fileExtension === 'pdf' ? 'application/pdf' : fileExtension === 'docx' ? 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' : 'application/msword',
-              publicRead: true, // Allow public access to resumes
-            });
-            
-            // Clean up the temporary file
-            fs.unlinkSync(dto.resumeFile.path);
-          } catch (error) {
-            console.error('Resume upload failed:', error);
-            // For now, continue without resume URL - can be uploaded later
-            console.warn('Continuing registration without resume upload due to connectivity issues');
-            // Clean up the temporary file even on error
-            try {
-              fs.unlinkSync(dto.resumeFile.path);
-            } catch (cleanupError) {
-              console.error('Failed to cleanup temp file:', cleanupError);
-            }
-          }
-        }
-
     const hashedPassword = await bcrypt.hash(validationResult.data.password, 10);
-
+    console.log('Password hashed successfully');
     const instructor = new Instructor(
       validationResult.data.fullName,
       validationResult.data.email,
@@ -103,7 +74,7 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
       validationResult.data.portfolio || '',
       validationResult.data.bio,
       validationResult.data.phoneNumber || null,
-      resumeUrl || null,
+      null, // resumeUrl - will be set asynchronously
       validationResult.data.profilePictureUrl || null,
       true, // isEmailVerified
       'pending', // accountStatus
@@ -117,6 +88,23 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
       0, // total reviews
     );
 
-    await this.instructorRepo.save(instructor);
+    const savedInstructor = await this.instructorRepo.save(instructor);
+
+    // Queue resume upload if file exists
+    if (dto.resumeFile) {
+      const resumeUploadData: ResumeUploadJobData = {
+        instructorId: savedInstructor.instructorId || '',
+        filePath: dto.resumeFile.path,
+        originalName: dto.resumeFile.originalname,
+        email: validationResult.data.email,
+      };
+
+      await jobQueueService.addJob(
+        QUEUE_NAMES.INSTRUCTOR_REGISTRATION,
+        JOB_NAMES.RESUME_UPLOAD,
+        resumeUploadData
+      );
+
+    }
   }
 }

@@ -32,12 +32,10 @@ export class LoginAdminUseCase implements ILoginAdminUseCase {
     if (!admin) {
       throw new HttpError(ERROR_MESSAGES.INVALID_CREDENTIALS, HttpStatusCode.UNAUTHORIZED);
     }
-    console.log(1,dto.password);
     const isMatch = await bcrypt.compare(dto.password, admin.passwordHash);
     if (!isMatch) {
       throw new HttpError(ERROR_MESSAGES.INVALID_CREDENTIALS, HttpStatusCode.UNAUTHORIZED);
     }
-    console.log(2);
     const isBlocked = admin.accountStatus === 'blocked';
     if (isBlocked) {
       throw new HttpError(ERROR_MESSAGES.ACCOUNT_BLOCKED, HttpStatusCode.FORBIDDEN);

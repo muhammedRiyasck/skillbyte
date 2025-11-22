@@ -4,6 +4,7 @@ import passport from 'passport';
 import { generateAccessToken } from '../../../../shared/utils/AccessToken';
 import { generateRefreshToken } from '../../../../shared/utils/RefreshToken';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 
 export class facebookController {
   static facebookAuth(req: Request, res: Response, next: NextFunction) {
@@ -25,10 +26,11 @@ export class facebookController {
             .json({ error: info.message || 'Authentication failed' });
         }
         async (req: any, res: Response) => {
-          const { user, role } = req.user;
+          const authenticatedReq = req as AuthenticatedRequest;
+          const { id, role } = authenticatedReq.user;
 
-          const accessToken = generateAccessToken({ id: user._id, role });
-          const refreshToken = generateRefreshToken({ id: user._id, role });
+          const accessToken = generateAccessToken({ id, role });
+          const refreshToken = generateRefreshToken({ id, role });
           res.cookie('access_token', accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',

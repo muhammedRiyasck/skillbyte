@@ -1,7 +1,7 @@
 import { Instructor } from '../entities/Instructor';
 
 export interface IInstructorRepository {
-  save(instructor: Instructor): Promise<void>;
+  save(instructor: Instructor): Promise<Instructor>;
   findByEmail(email: string): Promise<Instructor | null>;
   findById(id: string): Promise<Instructor | null>;
   findByIdAndUpdatePassword(id:string,password:string):Promise<{name:string,email:string}|void>;

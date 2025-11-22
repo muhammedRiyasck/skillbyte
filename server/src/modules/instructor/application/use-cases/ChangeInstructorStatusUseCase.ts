@@ -4,6 +4,8 @@ import { accountSuspendedEmailTemplate } from '../../../../shared/templates/Acco
 import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRepository';
 import { IChangeInstructorStatusUseCase } from '../interfaces/IChangeInstructorStatusUseCase';
 import { HttpError } from '../../../../shared/types/HttpError';
+import { EmailJobData, JOB_NAMES, QUEUE_NAMES } from '../../../../shared/services/job-queue/JobTypes';
+import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
 
 /**
  * Use case for changing an instructor's status (activate or suspend).
@@ -47,6 +49,12 @@ export class ChangeInstructorStatusUseCase implements IChangeInstructorStatusUse
         ? '⚠️ SkillByte Account Suspended'
         : '✅ SkillByte Account Reactivated';
 
-    await this.mailer.sendMail(instructor.email, subject, template);
+    const emailData: EmailJobData = {
+      to: instructor.email,
+      subject: subject,
+      html: template
+    };
+
+    await jobQueueService.addJob(QUEUE_NAMES.EMAIL, JOB_NAMES.SEND_EMAIL, emailData);
   }
 }

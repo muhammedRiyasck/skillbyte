@@ -2,6 +2,8 @@ import { IMailerService } from '../../../../shared/services/mail/IMailerService'
 import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRepository';
 import { declinedInstructorEmailTemplate } from '../../../../shared/templates/DeclinedInstructor';
 import { IDeclineInstructorUseCase } from '../interfaces/IDeclineInstructorUseCase';
+import { EmailJobData, JOB_NAMES, QUEUE_NAMES } from '../../../../shared/services/job-queue/JobTypes';
+import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
 
 /**
  * Use case for declining an instructor application.
@@ -31,11 +33,14 @@ export class DeclineInstructorUseCase implements IDeclineInstructorUseCase {
 
     const instructor = await this.repo.findById(id);
     if (instructor) {
-      await this.mailer.sendMail(
-        instructor.email,
-        '⚠️ SkillByte Instructor Application Declined',
-        declinedInstructorEmailTemplate(instructor.name, reason),
-      );
+
+      const emailData: EmailJobData = {
+      to: instructor.email,
+      subject: '⚠️ SkillByte Instructor Application Declined',
+      html: declinedInstructorEmailTemplate(instructor.name, reason)
+    };
+
+    await jobQueueService.addJob(QUEUE_NAMES.EMAIL, JOB_NAMES.SEND_EMAIL, emailData);
     }
   }
 }

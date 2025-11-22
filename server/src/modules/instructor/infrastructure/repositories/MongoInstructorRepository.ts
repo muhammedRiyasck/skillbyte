@@ -5,9 +5,10 @@ import { InstructorMapper } from "../../mappers/InstructorMapper";
 import { Types } from "mongoose";
 
 export class MongoInstructorRepository implements IInstructorRepository {
-  async save(instructor: Instructor): Promise<void> {
+  async save(instructor: Instructor): Promise<Instructor> {
     const data = InstructorMapper.toPersistence(instructor);
-    await InstructorModel.create(data);
+    const doc = await InstructorModel.create(data);
+    return InstructorMapper.toEntity(doc);
   }
   // Find admin by email to support login functionality
 
