@@ -18,7 +18,7 @@ export class LoginStudentUseCase implements ILoginStudentUseCase {
    * Constructs the LoginStudentUseCase.
    * @param studentRepo - The student repository for data operations.
    */
-  constructor(private studentRepo: IStudentRepository) {}
+  constructor(private _studentRepo: IStudentRepository) {}
 
   /**
    * Executes the student login process.
@@ -32,7 +32,7 @@ export class LoginStudentUseCase implements ILoginStudentUseCase {
     email: string,
     password: string,
   ): Promise<{ user: Student; accessToken: string; refreshToken: string }> {
-    const student = await this.studentRepo.findByEmail(email);
+    const student = await this._studentRepo.findByEmail(email);
 
     if (!student) {
       throw new HttpError(ERROR_MESSAGES.INVALID_CREDENTIALS, HttpStatusCode.UNAUTHORIZED);

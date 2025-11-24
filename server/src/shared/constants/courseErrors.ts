@@ -7,5 +7,12 @@ export const COURSE_ERRORS = {
   UNAUTHORIZED_DELETE_MODULE: "Unauthorized to delete this module",
   UNAUTHORIZED_DELETE_LESSON: "Unauthorized to delete this lesson",
   UNAUTHORIZED_ADD_LESSON: "Unauthorized to add lesson to this module",
+  INVALID_STATUS: "Invalid course status",
   COURSE_UNLISTED_OR_NOT_AVAILABLE: "This course maybe unlisted or not available",
+  MODULE_SHOULD_BE_THERE :"A module should be there To list this course",
+  LESSON_SHOULD_BE_THERE : "A lessons should be there To list this course",
+  CANT_SEE_COURSEID: "Cant find the course_id",
+  NO_FILE_UPLOADED: "No file uploaded",
+  THUMBNAIL_SIZE_EXCEEDED: "Thumbnail size exceeded the limit",
+  ONLY_IMAGE_FILES_ALLOWED: "Only image files are allowed for thumbnail",
 } as const;

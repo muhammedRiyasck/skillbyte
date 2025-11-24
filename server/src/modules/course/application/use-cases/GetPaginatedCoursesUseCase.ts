@@ -25,7 +25,7 @@ export class GetPaginatedCoursesUseCase implements IGetPaginatedCoursesUseCase {
    * Constructs a new GetPaginatedCoursesUseCase instance.
    * @param courseRepo - The repository for course data operations.
    */
-  constructor(private courseRepo: ICourseRepository) {}
+  constructor(private _courseRepo: ICourseRepository) {}
 
   /**
    * Executes the paginated course retrieval logic.
@@ -49,7 +49,7 @@ export class GetPaginatedCoursesUseCase implements IGetPaginatedCoursesUseCase {
     const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.min(limit, 50) : 6;
 
     // Fetch paginated data from the repository
-    const { data, total } = await this.courseRepo.listPaginated(query, safePage, safeLimit, sort);
+    const { data, total } = await this._courseRepo.listPaginated(query, safePage, safeLimit, sort);
 
     // Calculate total pages
     const totalPages = Math.ceil(total / safeLimit);

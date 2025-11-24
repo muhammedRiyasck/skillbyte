@@ -16,10 +16,10 @@ import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 
 export class ModuleController {
   constructor(
-    private createUseCase: ICreateModuleUseCase,
-    private courseRepo: ICourseRepository,
-    private updateModuleUseCase: IUpdateModuleUseCase,
-    private deleteModuleUseCase: IDeleteModuleUseCase
+    private _createUseCase: ICreateModuleUseCase,
+    private _courseRepo: ICourseRepository,
+    private _updateModuleUseCase: IUpdateModuleUseCase,
+    private _deleteModuleUseCase: IDeleteModuleUseCase
   ) {}
 
   /**
@@ -34,13 +34,13 @@ export class ModuleController {
     const instructorId = authenticatedReq.user.id;
     const { courseId, moduleId, title, description, order, lessons } = authenticatedReq.body;
 
-    const course = await this.courseRepo.findById(courseId);
+    const course = await this._courseRepo.findById(courseId);
     if (!course || course.instructorId !== instructorId) {
       logger.warn(`Unauthorized module creation attempt for course ${courseId} by instructor ${instructorId}`);
       throw new HttpError("You do not own this course.", HttpStatusCode.UNAUTHORIZED);
     }
 
-    const module = await this.createUseCase.execute({ courseId, moduleId, title, description, order, lessons });
+    const module = await this._createUseCase.execute({ courseId, moduleId, title, description, order, lessons });
     logger.info(`Module created successfully for course ${courseId}`);
     ApiResponseHelper.created(res, "Module created successfully.", module);
   };
@@ -58,7 +58,7 @@ export class ModuleController {
     const instructorId = authenticatedReq.user.id;
     const updates = authenticatedReq.body;
 
-    await this.updateModuleUseCase.execute(moduleId, instructorId, updates);
+    await this._updateModuleUseCase.execute(moduleId, instructorId, updates);
     logger.info(`Module ${moduleId} updated successfully`);
     ApiResponseHelper.success(res, "Module updated successfully");
   };
@@ -75,7 +75,7 @@ export class ModuleController {
     const moduleId = authenticatedReq.params.moduleId;
     const instructorId = authenticatedReq.user.id;
 
-    await this.deleteModuleUseCase.execute(moduleId, instructorId);
+    await this._deleteModuleUseCase.execute(moduleId, instructorId);
     logger.info(`Module ${moduleId} deleted successfully`);
     ApiResponseHelper.success(res, "Module deleted successfully.");
   };

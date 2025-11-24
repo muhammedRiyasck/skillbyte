@@ -8,8 +8,8 @@ import { HttpError } from "../../../../shared/types/HttpError";
 
 export class AdminStudentController {
   constructor(
-    private getPaginatedStudentsUC: IGetPaginatedStudentsUseCase,
-    private changeStatusUC: IChangeStudentStatusUseCase
+    private _getPaginatedStudentsUC: IGetPaginatedStudentsUseCase,
+    private _changeStatusUC: IChangeStudentStatusUseCase
     ) {}
 
   /**
@@ -27,7 +27,7 @@ export class AdminStudentController {
       sort = { [field]: dir === 'asc' ? 1 : -1 };
     }
 
-    const students = await this.getPaginatedStudentsUC.execute({}, page, limit, sort);
+    const students = await this._getPaginatedStudentsUC.execute({}, page, limit, sort);
     ApiResponseHelper.success(res, "Students retrieved successfully", { students });
   };
   /**
@@ -42,7 +42,7 @@ export class AdminStudentController {
   const { status,studentId } = req.body;
   if (!["active", "blocked"].includes(status))
     throw new HttpError("Invalid status", HttpStatusCode.BAD_REQUEST);
-  await this.changeStatusUC.execute(studentId, status);
+  await this._changeStatusUC.execute(studentId, status);
   ApiResponseHelper.success(res, `Student account status changed to ${status}`);
 };
 }

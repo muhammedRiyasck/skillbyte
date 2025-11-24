@@ -8,6 +8,7 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { InstructorRegistrationSchema } from '../../../../shared/validations/AuthValidation';
 import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
 import { JOB_NAMES, QUEUE_NAMES, ResumeUploadJobData } from '../../../../shared/services/job-queue/JobTypes';
+import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 
 /**
  * Use case for registering a new instructor.
@@ -16,12 +17,12 @@ import { JOB_NAMES, QUEUE_NAMES, ResumeUploadJobData } from '../../../../shared/
 export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
   /**
    * Constructs the RegisterInstructorUseCase.
-   * @param instructorRepo - The instructor repository for data operations.
+   * @param _instructorRepo - The instructor repository for data operations.
    * @param otpService - The OTP service for verification.
    */
   constructor(
-    private readonly instructorRepo: IInstructorRepository,
-    private readonly otpService: IOtpService,
+    private readonly _instructorRepo: IInstructorRepository,
+    private readonly _otpService: IOtpService,
   ) {}
 
   /**
@@ -30,7 +31,7 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
    * @returns A promise that resolves to true if the instructor exists, false otherwise.
    */
   async isUserExists(email: string): Promise<boolean> {
-    const instructor = await this.instructorRepo.findByEmail(email);
+    const instructor = await this._instructorRepo.findByEmail(email);
     return instructor ? true : false;
   }
 
@@ -42,13 +43,13 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
    * @throws HttpError with appropriate status code if registration fails.
    */
   async execute(email: string, otp: string): Promise<void> {
-    const dto = await this.otpService.getTempData(email);
+    const dto = await this._otpService.getTempData(email);
     if (!dto) {
-      throw new HttpError('No data found or Your Current Data Expired', HttpStatusCode.INTERNAL_SERVER_ERROR);
+      throw new HttpError(ERROR_MESSAGES.NO_CURRENT_DATA, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
-    const valid = await this.otpService.verifyOtp(email, otp);
+    const valid = await this._otpService.verifyOtp(email, otp);
     if (!valid) {
-      throw new HttpError('Invalid or expired OTP', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.INVALID_OTP, HttpStatusCode.BAD_REQUEST);
     }
     const responseLength = Object.entries(dto).length;
     if (responseLength !== 11) {
@@ -88,7 +89,7 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
       0, // total reviews
     );
 
-    const savedInstructor = await this.instructorRepo.save(instructor);
+    const savedInstructor = await this._instructorRepo.save(instructor);
 
     // Queue resume upload if file exists
     if (dto.resumeFile) {

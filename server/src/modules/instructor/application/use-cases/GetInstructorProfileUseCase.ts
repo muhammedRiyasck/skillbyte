@@ -9,9 +9,9 @@ import { Instructor } from '../../domain/entities/Instructor';
 export class GetInstructorProfileUseCase implements IGetInstructorProfileUseCase {
   /**
    * Constructs the GetInstructorProfileUseCase.
-   * @param instructorRepository - The instructor repository for data operations.
+   * @param _instructorRepo - The instructor repository for data operations.
    */
-  constructor(private readonly instructorRepository: IInstructorRepository) {}
+  constructor(private readonly _instructorRepo: IInstructorRepository) {}
 
   /**
    * Executes the retrieval of an instructor's profile.
@@ -21,6 +21,6 @@ export class GetInstructorProfileUseCase implements IGetInstructorProfileUseCase
    * @throws Error if the retrieval fails.
    */
   async execute(id: string): Promise<Instructor | null> {
-    return await this.instructorRepository.findById(id);
+    return await this._instructorRepo.findById(id);
   }
 }

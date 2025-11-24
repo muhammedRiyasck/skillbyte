@@ -17,7 +17,7 @@ export class LoginAdminUseCase implements ILoginAdminUseCase {
    * Constructs the LoginAdminUseCase with the required repository.
    * @param adminRepo - The admin repository interface.
    */
-  constructor(private adminRepo: IAdminRepository) {}
+  constructor(private _adminRepo: IAdminRepository) {}
 
   /**
    * Executes the admin login logic.
@@ -28,7 +28,7 @@ export class LoginAdminUseCase implements ILoginAdminUseCase {
   async execute(
     dto: LoginAdminDTO,
   ): Promise<{ admin: Admin; accessToken: string; refreshToken: string }> {
-    const admin = await this.adminRepo.findByEmail(dto.email);
+    const admin = await this._adminRepo.findByEmail(dto.email);
     if (!admin) {
       throw new HttpError(ERROR_MESSAGES.INVALID_CREDENTIALS, HttpStatusCode.UNAUTHORIZED);
     }

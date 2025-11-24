@@ -1,5 +1,9 @@
 import nodemailer from 'nodemailer';
 import { IMailerService } from './IMailerService';
+import { HttpError } from '../../types/HttpError';
+import { ERROR_MESSAGES } from '../../constants/messages';
+import logger from '../../utils/Logger';
+import { HttpStatusCode } from '../../enums/HttpStatusCodes';
 
 export class NodeMailerService implements IMailerService {
   transporter = nodemailer.createTransport({
@@ -14,7 +18,7 @@ export class NodeMailerService implements IMailerService {
   async sendMail(email: string, subject: string, html: string): Promise<void> {
     try {
      const result = await this.transporter.verify();
-     console.log('send mail verify',result,email,' email')
+     logger.info('send mail verify',result,email,' email')
       await this.transporter.sendMail({
         from: 'SkillByte" <no-reply@skillbyte.com>',
         to: email,
@@ -22,9 +26,8 @@ export class NodeMailerService implements IMailerService {
         html,
       });
     } catch (error) {
-      console.error('Error verifying email transporter:', error);
-      console.log(process.env.EMAIL,process.env.EMAIL_PASSWORD,)
-      throw new Error('Email service is not configured properly.');
+      logger.error('Error verifying email transporter:', error);
+    throw new HttpError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
 }

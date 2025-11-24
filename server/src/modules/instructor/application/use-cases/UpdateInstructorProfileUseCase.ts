@@ -3,9 +3,9 @@ import { IUpdateInstructorProfileUseCase } from "../interfaces/IUpdateInstructor
 import { Instructor } from "../../domain/entities/Instructor";
 
 export class UpdateInstructorProfileUseCase implements IUpdateInstructorProfileUseCase {
-  constructor(private readonly instructorRepository: IInstructorRepository) {}
+  constructor(private readonly _instructorRepo: IInstructorRepository) {}
 
   async execute(id: string, updates: Partial<Instructor>): Promise<void> {
-    await this.instructorRepository.updateById(id, updates);
+    await this._instructorRepo.updateById(id, updates);
   }
 }

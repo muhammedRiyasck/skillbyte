@@ -18,9 +18,9 @@ export class DeleteLessonUseCase implements IDeleteLessonUseCase {
    * @param courseRepo - The repository for course data operations.
    */
   constructor(
-    private lessonRepo: ILessonRepository,
-    private moduleRepo: IModuleRepository,
-    private courseRepo: ICourseRepository
+    private _lessonRepo: ILessonRepository,
+    private _moduleRepo: IModuleRepository,
+    private _courseRepo: ICourseRepository
   ) {}
 
   /**
@@ -32,24 +32,24 @@ export class DeleteLessonUseCase implements IDeleteLessonUseCase {
    */
   async execute(lessonId: string, instructorId: string): Promise<void> {
     // Find the lesson to ensure it exists
-    const lesson = await this.lessonRepo.findById(lessonId);
+    const lesson = await this._lessonRepo.findById(lessonId);
     if (!lesson) {
       throw new HttpError(ERROR_MESSAGES.LESSON_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
     }
 
     // Find the associated module to ensure it exists
-    const module = await this.moduleRepo.findById(lesson.moduleId.toString());
+    const module = await this._moduleRepo.findById(lesson.moduleId.toString());
     if (!module) {
       throw new HttpError(ERROR_MESSAGES.MODULE_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
     }
 
     // Find the associated course and verify instructor ownership
-    const course = await this.courseRepo.findById(module.courseId);
+    const course = await this._courseRepo.findById(module.courseId);
     if (!course || course.instructorId !== instructorId) {
       throw new HttpError(ERROR_MESSAGES.UNAUTHORIZED_DELETE_LESSON, HttpStatusCode.FORBIDDEN);
     }
 
     // Delete the lesson
-    await this.lessonRepo.deleteById(lessonId);
+    await this._lessonRepo.deleteById(lessonId);
   }
 }

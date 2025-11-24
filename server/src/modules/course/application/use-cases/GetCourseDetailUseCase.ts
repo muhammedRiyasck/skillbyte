@@ -26,10 +26,10 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
    * @param instructorRepo - The repository for instructor data operations.
    */
   constructor(
-    private courseRepo: ICourseRepository,
-    private moduleRepo: IModuleRepository,
-    private lessonRepo: ILessonRepository,
-    private instructorRepo: IInstructorRepository,
+    private _courseRepo: ICourseRepository,
+    private _moduleRepo: IModuleRepository,
+    private _lessonRepo: ILessonRepository,
+    private _instructorRepo: IInstructorRepository,
   ) {}
 
   /**
@@ -47,7 +47,7 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
     include?: string,
   ): Promise<Course | null> {
     // Find the course by ID
-    const course = await this.courseRepo.findById(courseId);
+    const course = await this._courseRepo.findById(courseId);
     if (!course) {
       throw new HttpError(ERROR_MESSAGES.COURSE_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
     }
@@ -55,7 +55,7 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
     // Validate the user role
     const validRoles: UserRole[] = ['instructor', 'student', 'admin'];
     if (!validRoles.includes(role)) {
-      throw new HttpError('Invalid role', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.INVALID_ROLE, HttpStatusCode.BAD_REQUEST);
     }
 
     // Check if students can access unlisted courses
@@ -68,12 +68,12 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
 
     // Include modules if requested
     if (includeArr.includes('modules')) {
-      const modules = await this.moduleRepo.findModulesByCourseId(courseId);
+      const modules = await this._moduleRepo.findModulesByCourseId(courseId);
 
       // Include lessons within modules if requested
       if (includeArr.includes('lessons')) {
         const moduleIds = modules.map((m) => m.moduleId!.toString());
-        const lessons = await this.lessonRepo.findByModuleId(moduleIds);
+        const lessons = await this._lessonRepo.findByModuleId(moduleIds);
 
         // Associate lessons with their respective modules
         modules.forEach((mod) => {
@@ -88,7 +88,7 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
 
     // Include instructor if requested
     if (includeArr.includes('instructor')) {
-      const instructor = await this.instructorRepo.findById(course.instructorId);
+      const instructor = await this._instructorRepo.findById(course.instructorId);
       if (instructor) {
         // Attach instructor data to course
         (course as any).instructor = {

@@ -7,19 +7,19 @@ import fs from 'fs';
 import logger from '../../../utils/Logger';
 
 export class ResumeUploadProcessor {
-  constructor(private readonly instructorRepo: IInstructorRepository) {
-    this.registerProcessor();
+  constructor(private readonly _instructorRepo: IInstructorRepository) {
+    this._registerProcessor();
   }
 
-  private registerProcessor(): void {
+  private _registerProcessor(): void {
     jobQueueService.processJob(
       QUEUE_NAMES.INSTRUCTOR_REGISTRATION,
       JOB_NAMES.RESUME_UPLOAD,
-      this.processResumeUpload.bind(this) as any
+      this._processResumeUpload.bind(this) as any
     );
   }
 
-  private async processResumeUpload(job: Job<ResumeUploadJobData>): Promise<void> {
+  private async _processResumeUpload(job: Job<ResumeUploadJobData>): Promise<void> {
     const { instructorId, filePath, originalName, email } = job.data;
 
     try {
@@ -38,10 +38,10 @@ export class ResumeUploadProcessor {
       logger.info(`Resume uploaded successfully for instructor ${instructorId}: ${resumeUrl}`);
 
       // Update instructor record with resume URL
-      const instructor = await this.instructorRepo.findById(instructorId);
+      const instructor = await this._instructorRepo.findById(instructorId);
       if (instructor) {
         instructor.resumeUrl = resumeUrl;
-        await this.instructorRepo.updateById(instructorId,instructor);
+        await this._instructorRepo.updateById(instructorId,instructor);
         logger.info(`Instructor ${instructorId} resume URL updated`);
       } else {
         logger.error(`Instructor ${instructorId} not found for resume update`);

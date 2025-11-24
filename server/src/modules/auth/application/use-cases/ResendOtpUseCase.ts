@@ -15,8 +15,8 @@ export class ResendOtpUseCase implements IResendOtpUseCase {
    * @param rateLimiter - The rate limiter for controlling OTP resend frequency.
    */
   constructor(
-    private otpService: IOtpService,
-    private rateLimiter: OtpRateLimiter,
+    private _otpService: IOtpService,
+    private _rateLimiter: OtpRateLimiter,
   ) {}
 
   /**
@@ -29,17 +29,17 @@ export class ResendOtpUseCase implements IResendOtpUseCase {
       throw new HttpError("Email is required", HttpStatusCode.BAD_REQUEST);
     }
 
-    const dto = await this.otpService.getTempData(email);
+    const dto = await this._otpService.getTempData(email);
     if (!dto) {
       throw new HttpError("No data found or your current data has expired", HttpStatusCode.BAD_REQUEST);
     }
 
-    const ttl = await this.rateLimiter.isBlocked(email);
+    const ttl = await this._rateLimiter.isBlocked(email);
     if (ttl) {
       throw new HttpError(`Please wait ${ttl} seconds before resending OTP`, HttpStatusCode.BAD_REQUEST);
     }
 
-    await this.otpService.sendOtp(email, "", "🔁 Resend OTP - SkillByte");
-    await this.rateLimiter.block(email, 60); // Block for 1 minute
+    await this._otpService.sendOtp(email, "", "🔁 Resend OTP - SkillByte");
+    await this._rateLimiter.block(email, 60); // Block for 1 minute
   }
 }

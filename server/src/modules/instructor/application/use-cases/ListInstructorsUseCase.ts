@@ -11,7 +11,7 @@ export class ListInstructorsUseCase implements IlistInstructorsUC {
    * Constructs the ListInstructorsUseCase.
    * @param repo - The instructor repository for data operations.
    */
-  constructor(private repo: IInstructorRepository) {}
+  constructor(private _instructorRepo: IInstructorRepository) {}
 
   /**
    * Executes the listing of instructors.
@@ -41,7 +41,7 @@ export class ListInstructorsUseCase implements IlistInstructorsUC {
   }> {
     const safePage = Number.isFinite(page) && page > 0 ? page : 1;
     const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.min(limit, 50) : 6;
-    const { data, total } = await this.repo.listPaginatedInstructor(query, page, limit, sort);
+    const { data, total } = await this._instructorRepo.listPaginatedInstructor(query, page, limit, sort);
     const totalPages = Math.ceil(total / safeLimit);
     return {
       data,

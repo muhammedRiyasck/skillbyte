@@ -21,7 +21,7 @@ export class GetAllCoursesForAdminUseCase implements IGetAllCoursesForAdminUseCa
    * Constructs a new GetAllCoursesForAdminUseCase instance.
    * @param courseRepo - The repository for course data operations.
    */
-  constructor(private courseRepo: ICourseRepository) {}
+  constructor(private _courseRepo: ICourseRepository) {}
 
   /**
    * Executes the course retrieval logic for admin.
@@ -31,6 +31,6 @@ export class GetAllCoursesForAdminUseCase implements IGetAllCoursesForAdminUseCa
    */
   async execute(filters: CourseFilters): Promise<Course[]> {
     // Retrieve all courses for admin with applied filters
-    return await this.courseRepo.findAllForAdmin(filters);
+    return await this._courseRepo.findAllForAdmin(filters);
   }
 }

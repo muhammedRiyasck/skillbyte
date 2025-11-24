@@ -19,9 +19,9 @@ export class UpdateLessonUseCase implements IUpdateLessonUseCase {
    * @param courseRepo - The repository for course data operations.
    */
   constructor(
-    private lessonRepo: ILessonRepository,
-    private moduleRepo: IModuleRepository,
-    private courseRepo: ICourseRepository
+    private _lessonRepo: ILessonRepository,
+    private _moduleRepo: IModuleRepository,
+    private _courseRepo: ICourseRepository
   ) {}
 
   /**
@@ -39,24 +39,24 @@ export class UpdateLessonUseCase implements IUpdateLessonUseCase {
     updates: Partial<Omit<Lesson, 'createdAt' | 'updatedAt' | 'courseId'>>
   ): Promise<void> {
     // Find the lesson to ensure it exists
-    const lesson = await this.lessonRepo.findById(lessonId);
+    const lesson = await this._lessonRepo.findById(lessonId);
     if (!lesson) {
       throw new HttpError(ERROR_MESSAGES.LESSON_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
     }
 
     // Find the module to ensure it exists
-    const module = await this.moduleRepo.findById(lesson.moduleId.toString());
+    const module = await this._moduleRepo.findById(lesson.moduleId.toString());
     if (!module) {
       throw new HttpError(ERROR_MESSAGES.MODULE_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
     }
 
     // Find the course and check if the instructor owns it
-    const course = await this.courseRepo.findById(module.courseId);
+    const course = await this._courseRepo.findById(module.courseId);
     if (!course || course.instructorId !== instructorId) {
       throw new HttpError(ERROR_MESSAGES.UNAUTHORIZED_UPDATE_LESSON, HttpStatusCode.FORBIDDEN);
     }
 
     // Update the lesson with the provided data
-    await this.lessonRepo.updateLessonById(lessonId, updates);
+    await this._lessonRepo.updateLessonById(lessonId, updates);
   }
 }

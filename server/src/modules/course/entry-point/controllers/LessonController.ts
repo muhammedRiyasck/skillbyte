@@ -10,12 +10,13 @@ import { IDeleteLessonUseCase } from "../../application/interfaces/IDeleteLesson
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import logger from '../../../../shared/utils/Logger';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
+import { ERROR_MESSAGES } from "../../../../shared/constants/messages";
 
 export class LessonController {
   constructor(
-    private createUseCase: ICreateLessonUseCase,
-    private updateUseCase: IUpdateLessonUseCase,
-    private deleteUseCase: IDeleteLessonUseCase
+    private _createUseCase: ICreateLessonUseCase,
+    private _updateUseCase: IUpdateLessonUseCase,
+    private _deleteUseCase: IDeleteLessonUseCase
   ) {}
 
   /**
@@ -30,7 +31,7 @@ export class LessonController {
     const instructorId = authenticatedReq.user.id;
     const { moduleId, title, description, contentType, fileName, order, resources } = authenticatedReq.body;
 
-    const data = await this.createUseCase.execute({
+    const data = await this._createUseCase.execute({
       moduleId,
       instructorId,
       title,
@@ -90,7 +91,7 @@ export class LessonController {
 
     if (!fileNames || !Array.isArray(fileNames) || fileNames.length === 0) {
       logger.warn('Invalid fileNames array in get video signed URLs');
-      throw new HttpError('fileNames must be a non-empty array', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.INVALID_INPUT, HttpStatusCode.BAD_REQUEST);
     }
 
     const urls = await Promise.all(
@@ -119,7 +120,7 @@ export class LessonController {
     const instructorId = authenticatedReq.user.id;
     const updates = authenticatedReq.body;
 
-    await this.updateUseCase.execute(lessonId, instructorId, updates);
+    await this._updateUseCase.execute(lessonId, instructorId, updates);
     logger.info(`Lesson ${lessonId} updated successfully`);
     ApiResponseHelper.success(res, "Lesson updated successfully");
   };
@@ -136,7 +137,7 @@ export class LessonController {
     const lessonId = authenticatedReq.params.lessonId;
     const instructorId = authenticatedReq.user.id;
 
-    await this.deleteUseCase.execute(lessonId, instructorId);
+    await this._deleteUseCase.execute(lessonId, instructorId);
     logger.info(`Lesson ${lessonId} deleted successfully`);
     ApiResponseHelper.success(res, "Lesson deleted successfully.");
   };

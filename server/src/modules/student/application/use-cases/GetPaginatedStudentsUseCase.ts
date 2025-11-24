@@ -20,9 +20,9 @@ type StudentSort = Record<string, 1 | -1>;
 export class GetPaginatedStudentsUseCase implements IGetPaginatedStudentsUseCase {
   /**
    * Constructs a new GetPaginatedStudentsUseCase instance.
-   * @param studentRepo - The repository for student data operations.
+   * @param _studentRepo - The repository for student data operations.
    */
-  constructor(private studentRepo: IStudentRepository) {}
+  constructor(private _studentRepo: IStudentRepository) {}
 
   /**
    * Executes the paginated student retrieval logic.
@@ -46,7 +46,7 @@ export class GetPaginatedStudentsUseCase implements IGetPaginatedStudentsUseCase
     const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.min(limit, 50) : 6;
 
     // Fetch paginated data from the repository
-    const { data, total } = await this.studentRepo.listPaginated(query, safePage, safeLimit, sort);
+    const { data, total } = await this._studentRepo.listPaginated(query, safePage, safeLimit, sort);
 
     // Calculate total pages
     const totalPages = Math.ceil(total / safeLimit);

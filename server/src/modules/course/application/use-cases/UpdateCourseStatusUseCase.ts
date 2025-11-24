@@ -8,26 +8,25 @@ import { HttpStatusCode } from "../../../../shared/enums/HttpStatusCodes";
 import { ILessonRepository } from "../../domain/IRepositories/ILessonRepository";
 
 export class UpdateCourseStatusUseCase implements IUpdateCourseStatusUseCase{
-  constructor(private courseRepo: ICourseRepository ,private moduleRepo :IModuleRepository,private lesson:ILessonRepository) {}
+  constructor(private _courseRepo: ICourseRepository ,private _moduleRepo :IModuleRepository,private _lesson:ILessonRepository) {}
 
   async execute(courseId: string, instructorId: string, status: "list" | "unlist"): Promise<void> {
-    const course = await this.courseRepo.findById(courseId);
+    const course = await this._courseRepo.findById(courseId);
     if (!course) throw new HttpError(ERROR_MESSAGES.COURSE_NOT_FOUND, HttpStatusCode.NOT_FOUND);
-    const modules = await this.moduleRepo.findModulesByCourseId(courseId);
-    console.log("modules",modules);
+    const modules = await this._moduleRepo.findModulesByCourseId(courseId);
     if(!modules[0] || !modules[0].moduleId){
-      throw new HttpError('A module should be there To list this course', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.MODULE_SHOULD_BE_THERE, HttpStatusCode.BAD_REQUEST);
     }
 
     const moduleIds = modules.map((m) => m.moduleId!.toString());
-    const lessons = await this.lesson.findByModuleId(moduleIds);
+    const lessons = await this._lesson.findByModuleId(moduleIds);
     if(!lessons[0] || !lessons[0].lessonId){
-      throw new HttpError('A lessons should be there To list this course ', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.LESSON_SHOULD_BE_THERE, HttpStatusCode.BAD_REQUEST);
     }
     if (course.instructorId !== instructorId) {
       throw new HttpError(ERROR_MESSAGES.UNAUTHORIZED, HttpStatusCode.UNAUTHORIZED);
     }
 
-    await this.courseRepo.updateStatus(courseId, status);
+    await this._courseRepo.updateStatus(courseId, status);
   }
 }

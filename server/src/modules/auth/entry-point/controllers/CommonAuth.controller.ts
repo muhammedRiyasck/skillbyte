@@ -11,16 +11,17 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { LoginSchema, ResendOtpSchema, ForgotPasswordSchema, ResetPasswordSchema } from '../../../../shared/validations/AuthValidation';
 import logger from '../../../../shared/utils/Logger';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
+import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 
 export class CommonAuthController {
   constructor(
-    private readonly studentLoginUC: ILoginStudentUseCase,
-    private readonly instructorLoginUC: ILoginInstructorUseCase,
-    private readonly accessTokenUseCase: IAccessTokenUseCase,
-    private readonly resendOtpUseCase: IResendOtpUseCase,
-    private readonly forgotPasswordUseCase : IForgotPasswordUseCase,
-    private readonly resetPasswordUseCase : IResetPasswordUseCase,
-    private readonly amILoggedInUseCase : IAmILoggedInUseCase
+    private readonly _studentLoginUC: ILoginStudentUseCase,
+    private readonly _instructorLoginUC: ILoginInstructorUseCase,
+    private readonly _accessTokenUseCase: IAccessTokenUseCase,
+    private readonly _resendOtpUseCase: IResendOtpUseCase,
+    private readonly _forgotPasswordUseCase : IForgotPasswordUseCase,
+    private readonly _resetPasswordUseCase : IResetPasswordUseCase,
+    private readonly _amILoggedInUseCase : IAmILoggedInUseCase
   ) {}
 
   /**
@@ -31,7 +32,7 @@ export class CommonAuthController {
   amILoggedIn = async (req: Request, res: Response): Promise<void> => {
     logger.info(`AmILoggedIn check from IP: ${req.ip}`);
     const decodedUserData = req.user as { id: string; role: string };
-    const user = await this.amILoggedInUseCase.execute(decodedUserData.id, decodedUserData.role);
+    const user = await this._amILoggedInUseCase.execute(decodedUserData.id, decodedUserData.role);
     logger.info(`User logged in status: ${user ? true : false}`);
     ApiResponseHelper.success(res, 'User is logged in', {
       userData: {
@@ -54,7 +55,7 @@ export class CommonAuthController {
     const validationResult = LoginSchema.safeParse(req.body);
     if (!validationResult.success) {
       logger.warn(`Login validation failed: ${validationResult.error.message}`);
-      throw new HttpError('Invalid input', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.INVALID_INPUT, HttpStatusCode.BAD_REQUEST);
     }
 
     const { email, password, role } = validationResult.data;
@@ -63,14 +64,14 @@ export class CommonAuthController {
 
     switch (role) {
       case 'student':
-        data = await this.studentLoginUC.execute(email, password);
+        data = await this._studentLoginUC.execute(email, password);
         break;
       case 'instructor':
-        data = await this.instructorLoginUC.execute(email, password);
+        data = await this._instructorLoginUC.execute(email, password);
         break;
       default:
         logger.warn(`Invalid role attempted: ${role}`);
-        throw new HttpError('Invalid role', HttpStatusCode.BAD_REQUEST);
+        throw new HttpError(ERROR_MESSAGES.INVALID_INPUT, HttpStatusCode.BAD_REQUEST);
     }
     const { user, accessToken, refreshToken } = data;
 
@@ -111,10 +112,10 @@ export class CommonAuthController {
     const refreshToken = req.cookies.refresh_token;
     if (!refreshToken) {
       logger.warn('Refresh token missing');
-      throw new HttpError('Refresh token required', HttpStatusCode.UNAUTHORIZED);
+      throw new HttpError(ERROR_MESSAGES.NO_REFRESH_TOKEN_PROVIDED, HttpStatusCode.UNAUTHORIZED);
     }
 
-    const newAccessToken = this.accessTokenUseCase.execute(refreshToken);
+    const newAccessToken = this._accessTokenUseCase.execute(refreshToken);
 
     res.cookie("access_token", newAccessToken, {
       httpOnly: true,
@@ -139,12 +140,12 @@ export class CommonAuthController {
     const validationResult = ResendOtpSchema.safeParse(req.body);
     if (!validationResult.success) {
       logger.warn(`Resend OTP validation failed: ${validationResult.error.message}`);
-      throw new HttpError('Invalid input', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.INVALID_INPUT, HttpStatusCode.BAD_REQUEST);
     }
 
     const { email } = validationResult.data;
 
-    await this.resendOtpUseCase.execute(email);
+    await this._resendOtpUseCase.execute(email);
     logger.info(`OTP resent successfully to: ${email}`);
     ApiResponseHelper.success(res, "OTP resent successfully");
   };
@@ -160,12 +161,12 @@ export class CommonAuthController {
     const validationResult = ForgotPasswordSchema.safeParse(req.body);
     if (!validationResult.success) {
       logger.warn(`Forgot password validation failed: ${validationResult.error.message}`);
-      throw new HttpError('Invalid input', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.INVALID_INPUT, HttpStatusCode.BAD_REQUEST);
     }
 
     const { email, role } = validationResult.data;
 
-    const user = await this.forgotPasswordUseCase.execute(email, role);
+    const user = await this._forgotPasswordUseCase.execute(email, role);
     // Delay to prevent timing attacks
     if (user === false) {
       logger.info(`Non-existent user delay for email: ${email}`);
@@ -187,12 +188,12 @@ export class CommonAuthController {
     const validationResult = ResetPasswordSchema.safeParse(req.body);
     if (!validationResult.success) {
       logger.warn(`Reset password validation failed: ${validationResult.error.message}`);
-      throw new HttpError('Invalid input', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.INVALID_INPUT, HttpStatusCode.BAD_REQUEST);
     }
 
     const { token, password, role } = validationResult.data;
 
-    await this.resetPasswordUseCase.execute(token, password, role);
+    await this._resetPasswordUseCase.execute(token, password, role);
     logger.info(`Password reset successful for role: ${role}`);
     ApiResponseHelper.success(res, 'Password reset successfully');
   };

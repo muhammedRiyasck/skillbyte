@@ -19,9 +19,9 @@ export class AmILoggedInUseCase implements IAmILoggedInUseCase {
    * @param instructorRepo - The repository for instructor data.
    */
   constructor(
-    private studentRepo: IStudentRepository,
-    private instructorRepo: IInstructorRepository,
-    private adminRepo: IAdminRepository
+    private _studentRepo: IStudentRepository,
+    private _instructorRepo: IInstructorRepository,
+    private _adminRepo: IAdminRepository
   ) {}
 
   /**
@@ -43,13 +43,13 @@ export class AmILoggedInUseCase implements IAmILoggedInUseCase {
     let userRepo
     switch (role) {
       case "student":
-        userRepo = this.studentRepo;
+        userRepo = this._studentRepo;
         break;
       case "instructor":
-        userRepo = this.instructorRepo;
+        userRepo = this._instructorRepo;
         break;
       case "admin":
-        userRepo = this.adminRepo;
+        userRepo = this._adminRepo;
         break;
       default:
         throw new HttpError("Unsupported role", HttpStatusCode.BAD_REQUEST);  

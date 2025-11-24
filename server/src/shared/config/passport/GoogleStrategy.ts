@@ -9,6 +9,9 @@ const StudentModel = new MongoStudentRepository();
 import { Student } from "../../../modules/student/domain/entities/Student";
 import { InstructorModel } from "../../../modules/instructor/infrastructure/models/InstructorModel"; 
 import dotenv from "dotenv";
+import { HttpError } from "../../types/HttpError";
+import { ERROR_MESSAGES } from "../../constants/messages";
+import { HttpStatusCode } from "../../enums/HttpStatusCodes";
 dotenv.config();
 console.log("Google Strategy initialized with client ID:riyasss");
  passport.use(
@@ -43,7 +46,7 @@ console.log("Google Strategy initialized with client ID:riyasss");
             );
             await StudentModel.save(student);
           }else if(student && student.accountStatus !== 'active'){
-            return done(new Error("Account Is Blocked. Please Contact Support."), false);
+            return done(new HttpError(ERROR_MESSAGES.ACCOUNT_BLOCKED,HttpStatusCode.BAD_REQUEST), false);
           }
           console.log(4);
           return done(null, { user: student, role: "student" });

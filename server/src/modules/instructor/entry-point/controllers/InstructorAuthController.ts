@@ -4,6 +4,7 @@ import { IOtpService } from '../../../../shared/services/otp/interfaces/IOtpServ
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 
 /**
  * Controller for instructor authentication operations.
@@ -12,12 +13,12 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 export class InstructorAuthController {
   /**
    * Constructs the InstructorAuthController.
-   * @param registerInstructorUseCase - Use case for registering instructors.
-   * @param generateOtpUseCase - Service for OTP generation and verification.
+   * @param _registerInstructorUseCase - Use case for registering instructors.
+   * @param _generateOtpUseCase - Service for OTP generation and verification.
    */
   constructor(
-    private readonly registerInstructorUseCase: IRegisterInstructorUseCase,
-    private readonly generateOtpUseCase: IOtpService,
+    private readonly _registerInstructorUseCase: IRegisterInstructorUseCase,
+    private readonly _generateOtpUseCase: IOtpService,
   ) {}
 
   /**
@@ -47,14 +48,14 @@ export class InstructorAuthController {
     jobTitle = jobTitle.trim() === 'Other' ? customJobTitle : jobTitle;
     
 
-    const isUserExists = await this.registerInstructorUseCase.isUserExists(email);
-    if(isUserExists)  throw new HttpError('Email already exists', HttpStatusCode.BAD_REQUEST);
+    const isUserExists = await this._registerInstructorUseCase.isUserExists(email);
+    if(isUserExists)  throw new HttpError(ERROR_MESSAGES.EMAIL_ALREADY_EXISTS, HttpStatusCode.BAD_REQUEST);
     if (!req.file) {
       throw new HttpError("We can't see your resume", HttpStatusCode.BAD_REQUEST);
     }
 
 
-      await this.generateOtpUseCase.storeTempData(email,{
+      await this._generateOtpUseCase.storeTempData(email,{
         fullName,
         email,
         password,
@@ -67,7 +68,7 @@ export class InstructorAuthController {
         bio,
         resumeFile: req.file,
       });
-      await this.generateOtpUseCase.sendOtp(email, fullName, 'Instructor Registration OTP');
+      await this._generateOtpUseCase.sendOtp(email, fullName, 'Instructor Registration OTP');
       ApiResponseHelper.created(res, 'An OTP sent to your mail.');
     
   };
@@ -79,7 +80,7 @@ export class InstructorAuthController {
    */
   verifyOtp = async (req: Request, res: Response): Promise<void> => {
     const { Otp, email } = req.body;
-    await this.registerInstructorUseCase.execute(email, Otp);
+    await this._registerInstructorUseCase.execute(email, Otp);
     ApiResponseHelper.created(res, "Successfully registered. You'll receive an email once approved.");
   };
 }

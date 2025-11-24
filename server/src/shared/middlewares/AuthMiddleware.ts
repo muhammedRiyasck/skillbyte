@@ -33,7 +33,7 @@ export function authenticate(req: Request, res: Response, next: NextFunction): v
       throw new HttpError(ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN, HttpStatusCode.UNAUTHORIZED);
     } else {
       logger.error(`Unexpected error during authentication from IP: ${req.ip}, error: ${errorMessage}`);
-      throw new HttpError('Internal server error', HttpStatusCode.INTERNAL_SERVER_ERROR);
+      throw new HttpError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
 }

@@ -1,4 +1,3 @@
-import { IMailerService } from '../../../../shared/services/mail/IMailerService';
 import { accountReactivatedEmailTemplate } from '../../../../shared/templates/AccountReactivated';
 import { accountSuspendedEmailTemplate } from '../../../../shared/templates/AccountSuspended';
 import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRepository';
@@ -6,6 +5,7 @@ import { IChangeInstructorStatusUseCase } from '../interfaces/IChangeInstructorS
 import { HttpError } from '../../../../shared/types/HttpError';
 import { EmailJobData, JOB_NAMES, QUEUE_NAMES } from '../../../../shared/services/job-queue/JobTypes';
 import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
+import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 
 /**
  * Use case for changing an instructor's status (activate or suspend).
@@ -18,8 +18,7 @@ export class ChangeInstructorStatusUseCase implements IChangeInstructorStatusUse
    * @param mailer - The mailer service for sending emails.
    */
   constructor(
-    private repo: IInstructorRepository,
-    private mailer: IMailerService,
+    private _instructorRepo: IInstructorRepository
   ) {}
 
   /**
@@ -32,11 +31,11 @@ export class ChangeInstructorStatusUseCase implements IChangeInstructorStatusUse
    */
   async execute(id: string, status: 'active' | 'suspend', note?: string): Promise<void> {
     const mappedStatus = status === 'suspend' ? 'suspended' : 'active';
-    await this.repo.changeInstructorStatus(id, mappedStatus, note);
+    await this._instructorRepo.changeInstructorStatus(id, mappedStatus, note);
 
-    const instructor = await this.repo.findById(id);
+    const instructor = await this._instructorRepo.findById(id);
     if (!instructor) {
-      throw new HttpError('Instructor not found', 404);
+      throw new HttpError(ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND, 404);
     }
 
     const template =

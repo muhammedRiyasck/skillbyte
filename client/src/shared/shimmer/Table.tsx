@@ -2,7 +2,7 @@ import Shimmer from "./Shimmer";
 
 export default function InstructorRequestShimmer() {
   return (
-    <div className="w-full min-h-screen rounded-lg shadow-sm bg-gray-100 dark:bg-gray-700 p-4">
+    <div className="w-full min-h-screen  shadow-sm bg-gray-100 dark:bg-gray-700 p-4">
       {/* Table Header */}
       <div className="grid grid-cols-7 gap-4 mb-4">
         <Shimmer height={40} width="100%" />

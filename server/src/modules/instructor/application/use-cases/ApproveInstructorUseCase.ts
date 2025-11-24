@@ -1,5 +1,4 @@
 
-import { IMailerService } from '../../../../shared/services/mail/IMailerService';
 import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRepository';
 import { approvedInstructorEmailTemplate } from '../../../../shared/templates/ApprovedInstructor';
 import { IApproveInstructorUseCase } from '../interfaces/IApproveInstructorUseCase';
@@ -17,8 +16,7 @@ export class ApproveInstructorUseCase implements IApproveInstructorUseCase {
    * @param mailer - The mailer service for sending emails.
    */
   constructor(
-    private repo: IInstructorRepository,
-    private mailer: IMailerService,
+    private _instructorRepo: IInstructorRepository,
   ) {}
 
   /**
@@ -29,9 +27,9 @@ export class ApproveInstructorUseCase implements IApproveInstructorUseCase {
    * @throws Error if the approval or email sending fails.
    */
   async execute(id: string, adminId: string): Promise<void> {
-    await this.repo.approve(id, adminId);
+    await this._instructorRepo.approve(id, adminId);
 
-    const instructor = await this.repo.findById(id);
+    const instructor = await this._instructorRepo.findById(id);
     if (instructor) {
 
       const emailData: EmailJobData = {

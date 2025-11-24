@@ -13,7 +13,7 @@ export class CreateBaseUseCase implements ICreateBaseUseCase {
    * Constructs a new CreateBaseUseCase instance.
    * @param repo - The repository for course data operations.
    */
-  constructor(private repo: ICourseRepository) {}
+  constructor(private _courseRepo: ICourseRepository) {}
 
   /**
    * Executes the course creation logic.
@@ -39,6 +39,6 @@ export class CreateBaseUseCase implements ICreateBaseUseCase {
       calculatedDate,
       tagsArray,
     );
-    return await this.repo.save(course);
+    return await this._courseRepo.save(course);
   }
 }

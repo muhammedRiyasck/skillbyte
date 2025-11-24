@@ -15,7 +15,7 @@ import { ResetPasswordSchema } from "../../../../shared/validations/AuthValidati
  * Handles token validation, password hashing, and notification via email.
  */
 export class ResetPasswordUseCase implements IResetPasswordUseCase {
-    private readonly nodeMailerService: NodeMailerService;
+    private readonly _nodeMailerService: NodeMailerService;
 
     /**
      * Constructs the ResetPasswordUseCase.
@@ -23,10 +23,10 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
      * @param instructorRepo - Repository for instructor operations.
      */
     constructor(
-        private readonly studentRepo: IStudentRepository,
-        private readonly instructorRepo: IInstructorRepository
+        private readonly _studentRepo: IStudentRepository,
+        private readonly _instructorRepo: IInstructorRepository
     ) {
-        this.nodeMailerService = new NodeMailerService();
+        this._nodeMailerService = new NodeMailerService();
     }
 
     /**
@@ -50,18 +50,18 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 
         const hashedPassword = await bcrypt.hash(validationResult.data.password, 10);
 
-        const repository = role === 'student' ? this.studentRepo : this.instructorRepo;
+        const repository = role === 'student' ? this._studentRepo : this._instructorRepo;
         const updatedUser = await repository.findByIdAndUpdatePassword(userId, hashedPassword);
 
         if (updatedUser) {
             await redis.del(`reset:${token}`);
-            await this.nodeMailerService.sendMail(
+            await this._nodeMailerService.sendMail(
                 updatedUser.email,
                 'Your password was changed',
                 SuccessResetPasswordTemplate(updatedUser.name)
             );
         } else {
-            throw new HttpError('Something went wrong while resetting the password', HttpStatusCode.INTERNAL_SERVER_ERROR);
+            throw new HttpError(ERROR_MESSAGES.SOMETHING_WENT_WRONG, HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
     }
 }

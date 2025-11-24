@@ -2,6 +2,9 @@ import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sd
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { s3 } from "../config/backblaze/S3Client";
 import fs from "fs";
+import { HttpError } from "../types/HttpError";
+import { ERROR_MESSAGES } from "../constants/messages";
+import { HttpStatusCode } from "../enums/HttpStatusCodes";
 
 interface UploadOptions {
   folder: string;
@@ -31,7 +34,8 @@ export const uploadToBackblaze = async (
     return fileName;
   } catch (err) {
     console.error("Backblaze upload error:", err);
-    throw new Error("File upload failed");
+    throw new HttpError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
+
   }
 };
 
@@ -47,7 +51,7 @@ export const getBackblazeSignedUrl = async (fileName: string): Promise<string> =
     return signedUrl;
   } catch (err) {
     console.error("Backblaze signed URL error:", err);
-    throw new Error("Failed to generate signed URL");
+    throw new HttpError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
   }
 };
 
@@ -62,6 +66,6 @@ export const deleteFromBackblaze = async (fileName: string): Promise<void> => {
     console.log(`File ${fileName} deleted successfully from Backblaze`);
   } catch (err) {
     console.error("Backblaze delete error:", err);
-    throw new Error("File delete failed");
+    throw new HttpError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
   }
 };

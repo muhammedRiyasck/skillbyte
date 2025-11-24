@@ -21,9 +21,9 @@ export class CreateLessonUseCase implements ICreateLessonUseCase {
    * @param lessonRepo - The repository for lesson data operations.
    */
   constructor(
-    private courseRepo: ICourseRepository,
-    private moduleRepo: IModuleRepository,
-    private lessonRepo: ILessonRepository,
+    private _courseRepo: ICourseRepository,
+    private _moduleRepo: IModuleRepository,
+    private _lessonRepo: ILessonRepository,
   ) {}
 
   /**
@@ -35,12 +35,12 @@ export class CreateLessonUseCase implements ICreateLessonUseCase {
    * @throws HttpError with appropriate status code if validation fails.
    */
   async execute(dto: WithInstructorId<Lesson>): Promise<Lesson> {
-    const module = await this.moduleRepo.findById(dto.moduleId);
+    const module = await this._moduleRepo.findById(dto.moduleId);
     if (!module) {
       throw new HttpError(ERROR_MESSAGES.MODULE_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
     }
 
-    const course = await this.courseRepo.findById(module.courseId);
+    const course = await this._courseRepo.findById(module.courseId);
     if (!course) {
       throw new HttpError(ERROR_MESSAGES.COURSE_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
     }
@@ -62,6 +62,6 @@ export class CreateLessonUseCase implements ICreateLessonUseCase {
       dto.isPublished || false,
     );
 
-    return await this.lessonRepo.create(lesson);
+    return await this._lessonRepo.create(lesson);
   }
 }

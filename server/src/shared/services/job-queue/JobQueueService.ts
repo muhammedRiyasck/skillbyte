@@ -5,13 +5,13 @@ interface JobData {
 }
 
 export class JobQueueService {
-  private queues: Map<string, Queue.Queue<JobData>> = new Map();
+  private _queues: Map<string, Queue.Queue<JobData>> = new Map();
 
   /**
    * Creates or gets an existing queue
    */
   getQueue(queueName: string): Queue.Queue<JobData> {
-    if (!this.queues.has(queueName)) {
+    if (!this._queues.has(queueName)) {
       console.log(`Creating queue ${queueName} with Redis URL: ${process.env.REDIS_URL}`);
       const queue = new Queue(queueName, {
         redis: process.env.REDIS_URL!,
@@ -26,10 +26,10 @@ export class JobQueueService {
         },
       });
 
-      this.queues.set(queueName, queue);
+      this._queues.set(queueName, queue);
     }
 
-    return this.queues.get(queueName)!;
+    return this._queues.get(queueName)!;
   }
 
   /**
@@ -52,9 +52,9 @@ export class JobQueueService {
    * Closes all queues
    */
   async closeAll(): Promise<void> {
-    const closePromises = Array.from(this.queues.values()).map(queue => queue.close());
+    const closePromises = Array.from(this._queues.values()).map(queue => queue.close());
     await Promise.all(closePromises);
-    this.queues.clear();
+    this._queues.clear();
   }
 
   /**

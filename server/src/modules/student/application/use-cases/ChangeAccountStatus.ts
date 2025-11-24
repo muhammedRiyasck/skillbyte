@@ -10,7 +10,7 @@ export class ChangeStudentStatusUseCase implements IChangeStudentStatusUseCase {
    * Constructs the ChangeStudentStatusUseCase.
    * @param repo - The student repository for data operations.
    */
-  constructor(private repo: IStudentRepository) {}
+  constructor(private _studentRepo: IStudentRepository) {}
 
   /**
    * Executes the status change for a student.
@@ -20,6 +20,6 @@ export class ChangeStudentStatusUseCase implements IChangeStudentStatusUseCase {
    * @throws Error if the status change fails.
    */
   async execute(id: string, status: 'active' | 'blocked'): Promise<void> {
-    return await this.repo.changeStatus(id, status);
+    return await this._studentRepo.changeStatus(id, status);
   }
 }

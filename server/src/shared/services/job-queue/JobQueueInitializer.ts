@@ -8,10 +8,10 @@ import logger from '../../utils/Logger';
  * Initializes job queue processors and services
  */
 export class JobQueueInitializer {
-  private static initialized = false;
+  private static _initialized = false;
 
   static initialize(): void {
-    if (this.initialized) {
+    if (this._initialized) {
       logger.info('Job queue already initialized');
       return;
     }
@@ -23,7 +23,7 @@ export class JobQueueInitializer {
       new EmailProcessor();
 
       logger.info('Job queue processors initialized successfully');
-      this.initialized = true;
+      this._initialized = true;
     } catch (error) {
       logger.info('Failed to initialize job queue processors:', error);
       throw error;
@@ -31,9 +31,9 @@ export class JobQueueInitializer {
   }
 
   static async close(): Promise<void> {
-    if (this.initialized) {
+    if (this._initialized) {
       await jobQueueService.closeAll();
-      this.initialized = false;
+      this._initialized = false;
       logger.info('Job queue closed');
     }
   }

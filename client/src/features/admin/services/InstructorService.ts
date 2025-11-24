@@ -25,8 +25,18 @@ export const declineRequest = async (playload:IReqestPlayload) => {
   }
 };
 
+export const deleteInstructor = async (instructorId: string) => {
+  try {
+    const response = await api.delete(`/instructors/${instructorId}`);
+    return response.data;
+  } catch (error:any) {
+    console.log(error)
+    toast.error(error.message);
+    throw error
+  }
+};
+
 export const changeInstructorStatusRequest = async (playload:IReqestPlayload) => {
-  console.log('changeInstructorStatusRequest called',playload)
   try {
     const response = await api.patch(`instructors/${playload.instructorId}/status`,playload);
     return response.data;

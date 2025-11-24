@@ -19,9 +19,9 @@ export class DeleteCourseUseCase implements IDeleteCourseUseCase {
    * @param lessonRepo - The repository for lesson data operations.
    */
   constructor(
-    private courseRepo: ICourseRepository,
-    private moduleRepo: IModuleRepository,
-    private lessonRepo: ILessonRepository
+    private _courseRepo: ICourseRepository,
+    private _moduleRepo: IModuleRepository,
+    private _lessonRepo: ILessonRepository
   ) {}
 
   /**
@@ -33,7 +33,7 @@ export class DeleteCourseUseCase implements IDeleteCourseUseCase {
    */
   async execute(courseId: string, instructorId: string): Promise<void> {
     // Find the course to ensure it exists
-    const course = await this.courseRepo.findById(courseId);
+    const course = await this._courseRepo.findById(courseId);
     if (!course) {
       throw new HttpError(ERROR_MESSAGES.COURSE_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
     }
@@ -44,16 +44,16 @@ export class DeleteCourseUseCase implements IDeleteCourseUseCase {
     }
 
     // Retrieve all modules associated with the course
-    const modules = await this.moduleRepo.findModulesByCourseId(courseId);
+    const modules = await this._moduleRepo.findModulesByCourseId(courseId);
     const moduleIds = modules.map(m => m.moduleId).filter((id): id is string => typeof id === "string");
 
     // Delete all lessons under the modules to avoid orphaned data
-    await this.lessonRepo.deleteManyByModuleIds(moduleIds);
+    await this._lessonRepo.deleteManyByModuleIds(moduleIds);
 
     // Delete all modules associated with the course
-    await this.moduleRepo.deleteManyByCourseId(courseId);
+    await this._moduleRepo.deleteManyByCourseId(courseId);
 
     // Finally, delete the course itself
-    await this.courseRepo.deleteById(courseId);
+    await this._courseRepo.deleteById(courseId);
   }
 }

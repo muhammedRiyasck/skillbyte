@@ -1,3 +1,4 @@
+import { ERROR_MESSAGES } from "../constants/messages";
 import { HttpStatusCode } from "../enums/HttpStatusCodes";
 import { HttpError } from "../types/HttpError";
 
@@ -13,7 +14,7 @@ export default function DurationConverter(durationStr: string): Date {
        calculatedDate = new Date(new Date().setMonth(new Date().getMonth() + 6));
     }else{
 
-   throw new HttpError('Duration is not valid', HttpStatusCode.BAD_REQUEST);
+   throw new HttpError(ERROR_MESSAGES.DURATION_NOT_VALID, HttpStatusCode.BAD_REQUEST);
 
     }
     return calculatedDate;

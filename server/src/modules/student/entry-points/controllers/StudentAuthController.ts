@@ -4,6 +4,7 @@ import { IOtpService } from '../../../../shared/services/otp/interfaces/IOtpServ
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { HttpError } from '../../../../shared/types/HttpError';
+import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 
 /**
  * Controller for student authentication operations.
@@ -16,8 +17,8 @@ export class StudentAuthController {
    * @param generateOtpUseCase - Service for OTP generation and verification.
    */
   constructor(
-    private readonly registerStudentUseCase: IRegisterStudentUseCase,
-    private readonly generateOtpUseCase: IOtpService,
+    private readonly _registerStudentUseCase: IRegisterStudentUseCase,
+    private readonly _generateOtpUseCase: IOtpService,
   ) {}
 
   /**
@@ -29,16 +30,16 @@ export class StudentAuthController {
     const { fullName, email, password, confirmPassword } = req.body;
 
     if (password !== confirmPassword) {
-      throw new HttpError('Confirm Password Mismatched', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.CONFIMED_PASSWORD_MISMATCH, HttpStatusCode.BAD_REQUEST);
     }
 
-    const isUserExists = await this.registerStudentUseCase.isUserExists(email);
+    const isUserExists = await this._registerStudentUseCase.isUserExists(email);
     if (!isUserExists) {
-      await this.generateOtpUseCase.storeTempData(email, { fullName, email, password });
-      await this.generateOtpUseCase.sendOtp(email, fullName, 'student registration');
+      await this._generateOtpUseCase.storeTempData(email, { fullName, email, password });
+      await this._generateOtpUseCase.sendOtp(email, fullName, 'student registration');
       ApiResponseHelper.created(res, 'An OTP sent to your mail.');
     } else {
-      throw new HttpError('Email already exists', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.EMAIL_ALREADY_EXISTS, HttpStatusCode.BAD_REQUEST);
     }
   };
 
@@ -49,7 +50,7 @@ export class StudentAuthController {
    */
   verifyOtp = async (req: Request, res: Response): Promise<void> => {
     const { Otp, email } = req.body;
-    await this.registerStudentUseCase.execute(email, Otp);
+    await this._registerStudentUseCase.execute(email, Otp);
     ApiResponseHelper.created(res, 'Student Registration Successful.');
   };
 }

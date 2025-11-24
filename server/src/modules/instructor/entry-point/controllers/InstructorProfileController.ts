@@ -10,6 +10,7 @@ import {
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { HttpError } from '../../../../shared/types/HttpError';
+import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 
 /**
  * Controller for instructor profile operations.
@@ -22,8 +23,8 @@ export class InstructorProfileController {
    * @param updateInstructorProfileUseCase - Use case for updating instructor profiles.
    */
   constructor(
-    private readonly getInstructorProfileUseCase: IGetInstructorProfileUseCase,
-    private readonly updateInstructorProfileUseCase: IUpdateInstructorProfileUseCase,
+    private readonly _getInstructorProfileUseCase: IGetInstructorProfileUseCase,
+    private readonly _updateInstructorProfileUseCase: IUpdateInstructorProfileUseCase,
   ) {}
 
   /**
@@ -35,9 +36,9 @@ export class InstructorProfileController {
     const AuthenticatedRequest = req as AuthenticatedRequest;
     const instructorId = AuthenticatedRequest.user.id;
     const instructor =
-      await this.getInstructorProfileUseCase.execute(instructorId);
+      await this._getInstructorProfileUseCase.execute(instructorId);
     if (!instructor) {
-      throw new HttpError('Instructor not found', HttpStatusCode.NOT_FOUND);
+      throw new HttpError(ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND, HttpStatusCode.NOT_FOUND);
     }
     ApiResponseHelper.success(
       res,
@@ -55,7 +56,7 @@ export class InstructorProfileController {
     const AuthenticatedRequest = req as AuthenticatedRequest;
     const instructorId = AuthenticatedRequest.user.id;
     const updates = AuthenticatedRequest.body;
-    await this.updateInstructorProfileUseCase.execute(instructorId, updates);
+    await this._updateInstructorProfileUseCase.execute(instructorId, updates);
     ApiResponseHelper.success(res, 'Profile updated successfully');
   };
 
@@ -68,7 +69,7 @@ export class InstructorProfileController {
     const AuthenticatedRequest = req as AuthenticatedRequest;
     const file = AuthenticatedRequest.file;
     if (!file) {
-      throw new HttpError('No file uploaded', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.NO_FILE_UPLOADED, HttpStatusCode.BAD_REQUEST);
     }
 
     const url = await uploadToCloudinary(file.path, {
@@ -88,9 +89,9 @@ export class InstructorProfileController {
     const AuthenticatedRequest = req as AuthenticatedRequest;
     const instructorId = AuthenticatedRequest.user.id;
     const instructor =
-      await this.getInstructorProfileUseCase.execute(instructorId);
+      await this._getInstructorProfileUseCase.execute(instructorId);
     if (!instructor) {
-      throw new HttpError('Instructor not found', HttpStatusCode.NOT_FOUND);
+      throw new HttpError(ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND, HttpStatusCode.NOT_FOUND);
     }
 
     if (instructor.profilePictureUrl) {
@@ -101,7 +102,7 @@ export class InstructorProfileController {
         console.error('Failed to delete image from cloud:', error);
         // Continue to update profile even if delete fails
       }
-      await this.updateInstructorProfileUseCase.execute(instructorId, {
+      await this._updateInstructorProfileUseCase.execute(instructorId, {
         profilePictureUrl: null,
       });
     }

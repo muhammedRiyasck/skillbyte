@@ -17,7 +17,7 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
  * This class generates a password reset token and sends a reset email to the user.
  */
 export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
-  private nodeMailer: NodeMailerService;
+  private _nodeMailer: NodeMailerService;
 
   /**
    * Creates an instance of ForgotPasswordUseCase.
@@ -25,10 +25,10 @@ export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
    * @param instructorRepo - The repository for instructor data.
    */
   constructor(
-    private studentRepo: IStudentRepository,
-    private instructorRepo: IInstructorRepository,
+    private _studentRepo: IStudentRepository,
+    private _instructorRepo: IInstructorRepository,
   ) {
-    this.nodeMailer = new NodeMailerService();
+    this._nodeMailer = new NodeMailerService();
   }
 
   /**
@@ -47,7 +47,7 @@ export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
       throw new HttpError("Invalid role provided", HttpStatusCode.BAD_REQUEST);
     }
 
-    const repo = role === "student" ? this.studentRepo : this.instructorRepo;
+    const repo = role === "student" ? this._studentRepo : this._instructorRepo;
     const user = await repo.findByEmail(email);
     if (!user) {
       return false;
@@ -62,7 +62,7 @@ export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
     const resetUrl = `${process.env.FRONTEND_URL}/auth/reset-password?token=${token}&role=${role}`;
 
     try {
-      await this.nodeMailer.sendMail(
+      await this._nodeMailer.sendMail(
         user.email,
         "Reset your password",
         ResetPasswordTemplate(user.name, resetUrl),

@@ -11,7 +11,7 @@ export class ListAllStudentsUseCase implements IListAllStudentsUseCase {
    * Constructs the ListAllStudentsUseCase.
    * @param repo - The student repository for data operations.
    */
-  constructor(private repo: IStudentRepository) {}
+  constructor(private _studentRepo: IStudentRepository) {}
 
   /**
    * Executes the retrieval of all students.
@@ -20,7 +20,7 @@ export class ListAllStudentsUseCase implements IListAllStudentsUseCase {
    * @throws Error if the retrieval fails.
    */
   async execute(): Promise<Student[] | null> {
-    const docs = await this.repo.findAll();
+    const docs = await this._studentRepo.findAll();
 
     if (!docs) return null;
     return docs;

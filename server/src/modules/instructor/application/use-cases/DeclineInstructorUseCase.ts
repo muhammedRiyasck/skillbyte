@@ -1,4 +1,3 @@
-import { IMailerService } from '../../../../shared/services/mail/IMailerService';
 import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRepository';
 import { declinedInstructorEmailTemplate } from '../../../../shared/templates/DeclinedInstructor';
 import { IDeclineInstructorUseCase } from '../interfaces/IDeclineInstructorUseCase';
@@ -16,8 +15,7 @@ export class DeclineInstructorUseCase implements IDeclineInstructorUseCase {
    * @param mailer - The mailer service for sending emails.
    */
   constructor(
-    private repo: IInstructorRepository,
-    private mailer: IMailerService,
+    private _instructorRepo: IInstructorRepository
   ) {}
 
   /**
@@ -29,9 +27,9 @@ export class DeclineInstructorUseCase implements IDeclineInstructorUseCase {
    * @throws Error if the decline or email sending fails.
    */
   async execute(id: string, adminId: string, reason: string): Promise<void> {
-    await this.repo.decline(id, adminId, reason);
+    await this._instructorRepo.decline(id, adminId, reason);
 
-    const instructor = await this.repo.findById(id);
+    const instructor = await this._instructorRepo.findById(id);
     if (instructor) {
 
       const emailData: EmailJobData = {

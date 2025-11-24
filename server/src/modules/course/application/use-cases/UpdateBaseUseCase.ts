@@ -15,7 +15,7 @@ export class UpdateBaseUseCase implements IUpdateBaseUseCase {
    * Constructs a new UpdateBaseUseCase instance.
    * @param repo - The repository for course data operations.
    */
-  constructor(private readonly repo: ICourseRepository) {}
+  constructor(private readonly _CourseRepo: ICourseRepository) {}
 
   /**
    * Executes the course update logic.
@@ -33,7 +33,7 @@ export class UpdateBaseUseCase implements IUpdateBaseUseCase {
     data: Partial<Omit<Course, 'createdAt' | 'updatedAt' | 'courseId'>>,
   ): Promise<void> {
     // Find the course to ensure it exists
-    const course = await this.repo.findById(courseId);
+    const course = await this._CourseRepo.findById(courseId);
     if (!course) {
       throw new HttpError(ERROR_MESSAGES.COURSE_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
     }
@@ -55,6 +55,6 @@ export class UpdateBaseUseCase implements IUpdateBaseUseCase {
     }
 
     // Update the course base information
-    await this.repo.updateBaseInfo(courseId, updateData);
+    await this._CourseRepo.updateBaseInfo(courseId, updateData);
   }
 }

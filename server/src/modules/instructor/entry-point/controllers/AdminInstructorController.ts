@@ -9,6 +9,7 @@ import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequ
 import { HttpError } from '../../../../shared/types/HttpError';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { getBackblazeSignedUrl } from '../../../../shared/utils/Backblaze';
+import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 
 /**
  * Controller for admin operations on instructors.
@@ -24,11 +25,11 @@ export class AdminInstructorController {
    * @param deleteInstructorUC - Use case for deleting instructors.
    */
   constructor(
-    private listInstructorsUC: IlistInstructorsUC,
-    private approveUC: IApproveInstructorUseCase,
-    private declineUC: IDeclineInstructorUseCase,
-    private changeStatusUC: IChangeInstructorStatusUseCase,
-    private deleteInstructorUC: IDeleteInstructorUseCase,
+    private _listInstructorsUC: IlistInstructorsUC,
+    private _approveUC: IApproveInstructorUseCase,
+    private _declineUC: IDeclineInstructorUseCase,
+    private _changeStatusUC: IChangeInstructorStatusUseCase,
+    private _deleteInstructorUC: IDeleteInstructorUseCase,
   ) {}
 
   /**
@@ -58,7 +59,7 @@ export class AdminInstructorController {
       sort = { [field]: dir === 'asc' ? 1 : -1 };
     }
 
-    const instructors = await this.listInstructorsUC.execute(query, page, limit, sort);
+    const instructors = await this._listInstructorsUC.execute(query, page, limit, sort);
     ApiResponseHelper.success(res, "Instructors retrieved successfully", instructors);
   };
 
@@ -72,7 +73,7 @@ export class AdminInstructorController {
     const instructorId = AuthenticatedRequest.body.instructorId;
     const adminId = AuthenticatedRequest.user.id;
 
-    await this.approveUC.execute(instructorId, adminId);
+    await this._approveUC.execute(instructorId, adminId);
     ApiResponseHelper.success(res, "Instructor approved");
   };
 
@@ -87,7 +88,7 @@ export class AdminInstructorController {
     const adminId = AuthenticatedRequest.user.id;
     const { reason } = req.body;
 
-    await this.declineUC.execute(instructorId, adminId, reason);
+    await this._declineUC.execute(instructorId, adminId, reason);
     ApiResponseHelper.success(res, "Instructor declined", { note: reason });
   };
 
@@ -101,10 +102,10 @@ export class AdminInstructorController {
     const { status, reason } = req.body;
 
     if (!['active', 'suspend'].includes(status)) {
-      throw new HttpError('Invalid status', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.INVALID_STATUS, HttpStatusCode.BAD_REQUEST);
     }
 
-    await this.changeStatusUC.execute(instructorId, status, reason);
+    await this._changeStatusUC.execute(instructorId, status, reason);
     ApiResponseHelper.success(res, `Instructor account status changed to ${status}`);
   };
 
@@ -115,7 +116,7 @@ export class AdminInstructorController {
    */
   deleteInstructor = async (req: Request, res: Response): Promise<void> => {
     const { instructorId } = req.params;
-    await this.deleteInstructorUC.execute(instructorId);
+    await this._deleteInstructorUC.execute(instructorId);
     ApiResponseHelper.success(res, "Instructor deleted successfully");
   };
 
@@ -128,14 +129,14 @@ export class AdminInstructorController {
     const { instructorId } = req.params;
 
     // Get instructor details to retrieve resume URL
-    const instructors = await this.listInstructorsUC.execute({ _id: instructorId }, 1, 1, {});
+    const instructors = await this._listInstructorsUC.execute({ _id: instructorId }, 1, 1, {});
     if (!instructors || !instructors.data || instructors.data.length === 0) {
-      throw new HttpError('Instructor not found', HttpStatusCode.NOT_FOUND);
+      throw new HttpError(ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND, HttpStatusCode.NOT_FOUND);
     }
 
     const instructor = instructors.data[0];
     if (!instructor.resumeUrl) {
-      throw new HttpError('Resume not found', HttpStatusCode.NOT_FOUND);
+      throw new HttpError(ERROR_MESSAGES.RESUME_NOT_FOUND, HttpStatusCode.NOT_FOUND);
     }
 
     // The resumeUrl is now the file key (e.g., "instructor-resumes/filename.pdf")

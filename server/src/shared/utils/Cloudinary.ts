@@ -1,4 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
+import { ERROR_MESSAGES } from "../constants/messages";
+import { HttpError } from "../types/HttpError";
+import { HttpStatusCode } from "../enums/HttpStatusCodes";
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -30,7 +33,7 @@ export const uploadToCloudinary = async (
     return result.secure_url;
   } catch (err) {
     console.error("Cloudinary upload error:", err);
-    throw new Error("File upload failed");
+    throw new HttpError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
   }
 };
 
@@ -47,6 +50,6 @@ export const deleteFromCloudinary = async (publicId: string): Promise<void> => {
     await cloudinary.uploader.destroy(publicId, { resource_type: "image" });
   } catch (err) {
     console.error("Cloudinary delete error:", err);
-    throw new Error("File delete failed");
+    throw new HttpError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
   }
 };

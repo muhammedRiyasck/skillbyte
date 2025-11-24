@@ -19,8 +19,8 @@ export class RegisterStudentUseCase implements IRegisterStudentUseCase {
    * @param otpService - The OTP service for verification.
    */
   constructor(
-    private studentRepo: IStudentRepository,
-    private readonly otpService: RedisOtpService,
+    private _studentRepo: IStudentRepository,
+    private readonly _otpService: RedisOtpService,
   ) {}
 
   /**
@@ -29,7 +29,7 @@ export class RegisterStudentUseCase implements IRegisterStudentUseCase {
    * @returns A promise that resolves to true if the student exists, false otherwise.
    */
   async isUserExists(email: string): Promise<boolean> {
-    const student = await this.studentRepo.findByEmail(email);
+    const student = await this._studentRepo.findByEmail(email);
     return student ? true : false;
   }
 
@@ -45,21 +45,21 @@ export class RegisterStudentUseCase implements IRegisterStudentUseCase {
       throw new HttpError(ERROR_MESSAGES.OTP_INVALID, HttpStatusCode.BAD_REQUEST);
     }
 
-    const dto = await this.otpService.getTempData(email);
+    const dto = await this._otpService.getTempData(email);
     if (!dto) {
-      throw new HttpError('No data found or Your Current Data Expired', HttpStatusCode.INTERNAL_SERVER_ERROR);
+      throw new HttpError(ERROR_MESSAGES.NO_CURRENT_DATA, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
 
-    const valid = await this.otpService.verifyOtp(email, otp);
+    const valid = await this._otpService.verifyOtp(email, otp);
 
     if (!valid) {
-      throw new HttpError('Invalid or expired OTP', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.INVALID_OTP, HttpStatusCode.BAD_REQUEST);
     }
 
-    const responseLength = Object.entries(dto).length;
-    if (responseLength !== 3) {
-      throw new HttpError("Some data's are missing", HttpStatusCode.BAD_REQUEST);
-    }
+    // const responseLength = Object.entries(dto).length;
+    // if (responseLength !== 3) {
+    //   throw new HttpError("Some data's are missing", HttpStatusCode.BAD_REQUEST);
+    // }
 
     // Validate the registration data using Zod schema
     const validationResult = StudentRegistrationSchema.safeParse(dto);
@@ -76,6 +76,6 @@ export class RegisterStudentUseCase implements IRegisterStudentUseCase {
       true, // isEmailVerified
     );
 
-    await this.studentRepo.save(student);
+    await this._studentRepo.save(student);
   }
 }

@@ -3,6 +3,10 @@ import { IInstructorRepository } from "../../domain/IRepositories/IInstructorRep
 import { Instructor } from "../../domain/entities/Instructor";
 import { InstructorMapper } from "../../mappers/InstructorMapper";
 import { Types } from "mongoose";
+import { HttpError } from "../../../../shared/types/HttpError";
+import { ERROR_MESSAGES } from "../../../../shared/constants/messages";
+import { HttpStatusCode } from "../../../../shared/enums/HttpStatusCodes";
+import logger from "../../../../shared/utils/Logger";
 
 export class MongoInstructorRepository implements IInstructorRepository {
   async save(instructor: Instructor): Promise<Instructor> {
@@ -60,8 +64,9 @@ export class MongoInstructorRepository implements IInstructorRepository {
         if(doc) return {name:doc.name,email:doc.email}
         else return 
       } catch (error) {
-        console.error("Error saving student:", error);
-        throw new Error('Failed to resent password student');
+        logger.error("Error saving student:", error);
+        throw new HttpError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
+
       }
     }
 

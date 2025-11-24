@@ -1,3 +1,6 @@
+import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { HttpError } from '../../../../shared/types/HttpError';
 import { IStudentRepository } from '../../domain/IRepositories/IStudentRepository';
 import { Student } from '../../domain/entities/Student';
 import { StudentModel } from '../models/StudentModel';
@@ -10,7 +13,7 @@ export class MongoStudentRepository implements IStudentRepository {
       
     } catch (error) {
       console.error("Error saving student:", error);
-      throw new Error('Failed to save student');
+        throw new HttpError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
     }
   }
 

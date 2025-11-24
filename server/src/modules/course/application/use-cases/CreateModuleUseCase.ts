@@ -11,9 +11,9 @@ import { ICreateModuleUseCase } from '../interfaces/ICreateModuleUseCase';
 export class CreateModuleUseCase implements ICreateModuleUseCase {
   /**
    * Constructs a new CreateModuleUseCase instance.
-   * @param moduleRepo - The repository for module data operations.
+   * @param _moduleRepo - The repository for module data operations.
    */
-  constructor(private moduleRepo: IModuleRepository) {}
+  constructor(private _moduleRepo: IModuleRepository) {}
 
   /**
    * Executes the module creation logic.
@@ -30,7 +30,7 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
 
     // If moduleId is not a valid ObjectId, create a new module
     if (!isObjectId) {
-      return await this.moduleRepo.save({
+      return await this._moduleRepo.save({
         courseId: dto.courseId,
         title: dto.title,
         description: dto.description,
@@ -38,11 +38,11 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
       });
     } else {
       // If moduleId is valid, check if the module already exists
-      const isModuleExist = await this.moduleRepo.findById(dto.moduleId);
+      const isModuleExist = await this._moduleRepo.findById(dto.moduleId);
 
       // Create the module only if it does not exist, to prevent duplicates when adding lessons
       if (!isModuleExist) {
-        return await this.moduleRepo.save({
+        return await this._moduleRepo.save({
           courseId: dto.courseId,
           title: dto.title,
           description: dto.description,

@@ -16,9 +16,9 @@ import { HttpError } from '../../../../shared/types/HttpError';
 export class LoginInstructorUseCase implements ILoginInstructorUseCase {
   /**
    * Constructs the LoginInstructorUseCase.
-   * @param instructorRepo - The instructor repository for data operations.
+   * @param _instructorRepo - The instructor repository for data operations.
    */
-  constructor(private instructorRepo: IInstructorRepository) {}
+  constructor(private _instructorRepo: IInstructorRepository) {}
 
   /**
    * Executes the instructor login process.
@@ -32,7 +32,7 @@ export class LoginInstructorUseCase implements ILoginInstructorUseCase {
     email: string,
     password: string,
   ): Promise<{ user: Instructor; accessToken: string; refreshToken: string }> {
-    const instructor = await this.instructorRepo.findByEmail(email);
+    const instructor = await this._instructorRepo.findByEmail(email);
     if (!instructor) {
       throw new HttpError(ERROR_MESSAGES.INVALID_CREDENTIALS, HttpStatusCode.UNAUTHORIZED);
     }

@@ -16,7 +16,7 @@ export class AdminAuthController {
    * Constructs the AdminAuthController.
    * @param loginAdminUseCase - Use case for admin login.
    */
-  constructor(private readonly loginAdminUseCase: ILoginAdminUseCase) {}
+  constructor(private readonly _loginAdminUseCase: ILoginAdminUseCase) {}
 
   /**
    * Handles admin login.
@@ -30,12 +30,12 @@ export class AdminAuthController {
     const validationResult = LoginAdminSchema.safeParse(req.body);
     if (!validationResult.success) {
       logger.warn(`Admin login validation failed: ${validationResult.error.message}`);
-      throw new HttpError('Invalid input', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.INVALID_INPUT, HttpStatusCode.BAD_REQUEST);
     }
 
     const { email, password } = validationResult.data;
 
-    const data = await this.loginAdminUseCase.execute({ email, password });
+    const data = await this._loginAdminUseCase.execute({ email, password });
     const { admin, accessToken, refreshToken } = data;
 
     res.cookie('access_token', accessToken, {

@@ -27,16 +27,17 @@ import {
   type PaginationQueryValidationType,
   type GetCourseQueryValidationType,
 } from '../../application/dtos/CourseValidationSchemas';
+import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 
 export class CourseController {
   constructor(
-    private createCourseUseCase: ICreateBaseUseCase,
-    private getCourseDetailsUseCase: IGetCourseUseCase,
-    private updateBaseUseCase: IUpdateBaseUseCase,
-    private deleteCourseUseCase: IDeleteCourseUseCase,
-    private updateCourseStatusUseCase: IUpdateCourseStatusUseCase,
-    private getPaginatedCoursesUseCase: IGetPaginatedCoursesUseCase,
-    private getAllCoursesForAdminUseCase: IGetAllCoursesForAdminUseCase,
+    private _createCourseUseCase: ICreateBaseUseCase,
+    private _getCourseDetailsUseCase: IGetCourseUseCase,
+    private _updateBaseUseCase: IUpdateBaseUseCase,
+    private _deleteCourseUseCase: IDeleteCourseUseCase,
+    private _updateCourseStatusUseCase: IUpdateCourseStatusUseCase,
+    private _getPaginatedCoursesUseCase: IGetPaginatedCoursesUseCase,
+    private _getAllCoursesForAdminUseCase: IGetAllCoursesForAdminUseCase,
   ) {}
 
   /**
@@ -68,9 +69,7 @@ export class CourseController {
 
     const instructorId = authenticatedReq.user.id;
 
-    console.log(customCategory,'fjfjfjfjfjfjfjf')
-
-    const course = await this.createCourseUseCase.execute({
+    const course = await this._createCourseUseCase.execute({
       instructorId,
       thumbnailUrl: thumbnail || null,
       title,
@@ -101,19 +100,19 @@ export class CourseController {
     const authenticatedReq = req as AuthenticatedRequest;
     const { courseId } = authenticatedReq.params;
     if (!courseId) {
-      throw new HttpError("Can't find the Course Id", HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.CANT_SEE_COURSEID, HttpStatusCode.BAD_REQUEST);
     }
     if (!authenticatedReq.file) {
-      throw new HttpError('No file uploaded', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.NO_FILE_UPLOADED, HttpStatusCode.BAD_REQUEST);
     }
 
     if (authenticatedReq.file.size > 2 * 1024 * 1024) {
       logger.warn('Thumbnail size exceeds 2MB');
-      throw new HttpError('Thumbnail size should be less than 2MB', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.THUMBNAIL_SIZE_EXCEEDED, HttpStatusCode.BAD_REQUEST);
     }
 
     if (!authenticatedReq.file.mimetype.startsWith('image/')) {
-      throw new HttpError('Only image files are allowed', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.ONLY_IMAGE_FILES_ALLOWED, HttpStatusCode.BAD_REQUEST);
     }
 
     const url = await uploadToCloudinary(authenticatedReq.file.path, {
@@ -123,7 +122,7 @@ export class CourseController {
       overwrite: true,
     });
 
-    await this.updateBaseUseCase.execute(courseId, authenticatedReq.user.id, {
+    await this._updateBaseUseCase.execute(courseId, authenticatedReq.user.id, {
       thumbnailUrl: url,
     });
 
@@ -149,7 +148,7 @@ export class CourseController {
     const instructorId = authenticatedReq.user.id;
     const data = authenticatedReq.body;
 
-    await this.updateBaseUseCase.execute(courseId, instructorId, data);
+    await this._updateBaseUseCase.execute(courseId, instructorId, data);
     ApiResponseHelper.success(res, 'Course updated successfully');
   };
 
@@ -167,10 +166,10 @@ export class CourseController {
     const instructorId = authenticatedReq.user.id;
 
     if (!['list', 'unlist'].includes(status)) {
-      throw new HttpError('Invalid Status', HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(ERROR_MESSAGES.INVALID_STATUS, HttpStatusCode.BAD_REQUEST);
     }
 
-    await this.updateCourseStatusUseCase.execute(
+    await this._updateCourseStatusUseCase.execute(
       courseId,
       instructorId,
       status,
@@ -188,7 +187,7 @@ export class CourseController {
     const courseId = authenticatedReq.params.courseId;
     const { include } = authenticatedReq.query;
     const role = authenticatedReq.user.role || 'student';
-    const course = await this.getCourseDetailsUseCase.execute(
+    const course = await this._getCourseDetailsUseCase.execute(
       courseId,
       role,
       include as string,
@@ -211,7 +210,7 @@ export class CourseController {
       sort = { [field]: dir === 'asc' ? 1 : -1 };
     }
 
-    const courses = await this.getPaginatedCoursesUseCase.execute(
+    const courses = await this._getPaginatedCoursesUseCase.execute(
       query,
       page,
       limit,
@@ -250,7 +249,7 @@ export class CourseController {
       sort = { [field]: dir === 'asc' ? 1 : -1 };
     }
 
-    const courses = await this.getPaginatedCoursesUseCase.execute(
+    const courses = await this._getPaginatedCoursesUseCase.execute(
       query,
       page,
       limit,
@@ -273,7 +272,7 @@ export class CourseController {
       search: req.query.search as string,
     };
 
-    const courses = await this.getAllCoursesForAdminUseCase.execute(filters);
+    const courses = await this._getAllCoursesForAdminUseCase.execute(filters);
     ApiResponseHelper.success(res, 'Courses retrieved successfully', { courses });
   };
 
@@ -288,7 +287,7 @@ export class CourseController {
     const courseId = authenticatedReq.params.courseId;
     const instructorId = authenticatedReq.user.id;
 
-    await this.deleteCourseUseCase.execute(courseId, instructorId);
+    await this._deleteCourseUseCase.execute(courseId, instructorId);
     ApiResponseHelper.success(res, 'Course deleted successfully');
   };
 }

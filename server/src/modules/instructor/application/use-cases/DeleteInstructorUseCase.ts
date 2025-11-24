@@ -10,7 +10,7 @@ export class DeleteInstructorUseCase implements IDeleteInstructorUseCase {
    * Constructs the DeleteInstructorUseCase.
    * @param repo - The instructor repository for data operations.
    */
-  constructor(private repo: IInstructorRepository) {}
+  constructor(private _instructorRepo: IInstructorRepository) {}
 
   /**
    * Executes the instructor deletion.
@@ -19,6 +19,6 @@ export class DeleteInstructorUseCase implements IDeleteInstructorUseCase {
    * @throws Error if the deletion fails.
    */
   async execute(id: string): Promise<void> {
-    await this.repo.deleteById(id);
+    await this._instructorRepo.deleteById(id);
   }
 }
