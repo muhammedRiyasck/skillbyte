@@ -12,6 +12,7 @@ import orginalLogo from "../../assets/OrginalLogo.png";
 import { Link, NavLink } from "react-router-dom";
 import { toast } from "sonner";
 import { clearUser } from "@features/auth/AuthSlice";
+import { ROUTES } from "@/core/router/paths";
 const Header = () => {
   
   
@@ -29,14 +30,14 @@ const Header = () => {
     {user?<header className="w-full sticky top-0 z-50">
       <div className="flex items-center justify-between  md:px-8  bg-gray-50 border-b border-gray-200 px-4 dark:bg-gray-900 shadow-2xl dark:border-b dark:border-gray-700 dark:text-white">
         <div className="flex items-center text-2xl font-bold">
-          <Link to="/">
+          <Link to={ROUTES.root}>
             <img className="w-30 h-20" src={orginalLogo} alt="logo" />
           </Link>
           <nav className="hidden md:flex gap-6 text-sm font-medium px-8">
-            <NavLink to="/" className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold " : "text-[16px]"}>
+            <NavLink to={ROUTES.root} className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold " : "text-[16px]"}>
               Home
             </NavLink>
-            <NavLink to="/courses" className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Courses</NavLink>
+            <NavLink to={ROUTES.student.courses} className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Courses</NavLink>
             <NavLink to="/notYet" className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>About</NavLink>
             <NavLink to="/notYet" className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Support</NavLink>
           </nav>
@@ -78,11 +79,11 @@ const Header = () => {
                 </button>
               </div>
               <nav className="space-y-2">
-                <NavLink to="/" className={({isActive}) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
+                <NavLink to={ROUTES.root} className={({isActive}) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
                   <Home size={20} className="text-indigo-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Home</span>
                 </NavLink>
-                <NavLink to="/courses" className={({isActive}) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
+                <NavLink to={ROUTES.student.courses} className={({isActive}) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
                   <BookOpen size={20} className="text-green-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Courses</span>
                 </NavLink>

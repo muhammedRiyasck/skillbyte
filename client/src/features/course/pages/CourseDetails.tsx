@@ -105,7 +105,7 @@ const CourseDetails: React.FC = () => {
               </Link>
             </div>
             <nav className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-              <Link to="/" className="hover:text-gray-900 dark:hover:text-white transition-colors">
+              <Link to={ROUTES.root} className="hover:text-gray-900 dark:hover:text-white transition-colors">
                 Home
               </Link>
               <span>/</span>

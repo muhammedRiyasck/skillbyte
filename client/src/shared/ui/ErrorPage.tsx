@@ -1,3 +1,4 @@
+import { ROUTES } from '@/core/router/paths'
 import { Link } from 'react-router-dom'
 
 interface ErrorProps  {
@@ -29,7 +30,7 @@ const ErrorPage = ({message,statusCode}:ErrorProps) => {
 
         {/* Back to Home Button */}
         <Link
-          to="/"
+          to={ROUTES.root}
           className="mt-8 inline-block px-8 py-4 bg-gradient-to-r from-gray-400 to-gray-600 hover:from-gray-400 hover:to-gray-700 text-white rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
         >
           Back to Home

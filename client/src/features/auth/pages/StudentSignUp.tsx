@@ -186,13 +186,13 @@ export default function StudentSignUp () {
 
         <p className="text-center text-sm text-gray-400 mt-4">
           Already have an account?&nbsp;
-          <Link to="/auth" className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
+          <Link to={ROUTES.auth.signIn} className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
             Sign in
           </Link>
         </p>
           <p className="text-center text-sm text-gray-400 mt-2">
             Want to become an Instructor? &nbsp;
-            <Link to="/auth/instructor-register" className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
+            <Link to={ROUTES.auth.instructorRegister} className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
               Create an account
             </Link>
            </p>

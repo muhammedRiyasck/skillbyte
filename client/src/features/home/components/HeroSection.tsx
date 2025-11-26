@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { RootState } from "@core/store/Index";
+import { ROUTES } from "@/core/router/paths";
 
 type HeroSectionProps = {
   steps: () => void;
@@ -36,7 +37,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ steps }) => {
             </button>
 
             <Link
-              to="/auth/learner-register"
+              to={ROUTES.auth.learnerRegister}
               className="border border-gray-400 dark:border-gray-500 text-sm px-5 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 lg:text-lg font-medium"
             >
               Sign Up
