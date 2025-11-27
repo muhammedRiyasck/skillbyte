@@ -15,6 +15,7 @@ server/.env
 
 server/uploads/
 # Logs
+logs/
 *.log
 
 # OS generated
