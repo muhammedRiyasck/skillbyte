@@ -13,6 +13,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
+      '@assets': resolve(__dirname, './src/assets'),
       '@shared': resolve(__dirname, './src/shared'),
       '@features': resolve(__dirname, './src/features'),
       '@core': resolve(__dirname, './src/core'),

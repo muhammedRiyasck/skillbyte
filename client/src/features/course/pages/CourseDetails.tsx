@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import default_profile from '@assets/default_profile.svg';
 import { useQuery } from '@tanstack/react-query';
 import {
   Star,
@@ -65,7 +66,7 @@ const CourseDetails: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <ErrorPage
-          message={(error as Error)?.message || 'Failed to load course details'}
+          message={(error as Error)?.message || 'This course currently unavailable.'}
           statusCode={500}
         />
       </div>
@@ -151,7 +152,7 @@ const CourseDetails: React.FC = () => {
 
               <div className="flex items-center gap-4 mb-6">
                 <img
-                  src={course.instructor?.avatar }
+                  src={course.instructor?.avatar || default_profile }
                   alt={course.instructor?.name || 'Instructor'}
                   className="w-12 h-12 rounded-full"
                 />
