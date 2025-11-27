@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useCallback } from "react";
+import { useForm } from "react-hook-form";
 
 import type { ModuleType } from "../../types/IModule";
 import type { LessonType } from "../../types/ILesson";
@@ -22,6 +23,7 @@ interface Props {
 export default function LessonItem({ lesson, moduleId, order, setModules }: Props) {
   const [title, setTitle] = useState(lesson.title);
   const [prevURL, setPrevURL] = useState<string | null>(null);
+  const prevURLRef = useRef<string | null>(null);
   const [duration, setDuration] = useState<number | null>(null);
   // const [editLesson, setEditLesson] = useState(false);
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -30,7 +32,13 @@ export default function LessonItem({ lesson, moduleId, order, setModules }: Prop
   const [isDragging, setIsDragging] = useState(false);
   const [errors, setErrors] = useState<Record<string, { success: boolean; message: string }>>({});
   const queryClient = useQueryClient();
-  const updateLesson = (changes: Partial<LessonType>) => {
+
+  const { control, watch } = useForm<{ resources: string[] }>({
+    defaultValues: { resources: lesson.resources as string[] },
+  });
+
+  const watchedResources = watch("resources");
+  const updateLesson = useCallback((changes: Partial<LessonType>) => {
     setModules((prev) =>
       prev.map((m) =>
         m.moduleId === moduleId
@@ -41,7 +49,7 @@ export default function LessonItem({ lesson, moduleId, order, setModules }: Prop
           : m
       )
     );
-  };
+  }, [moduleId, lesson.lessonId, setModules]);
 
   const removeLesson = (moduleId: string, lessonId: string) =>
     setModules((prev) =>
@@ -50,7 +58,6 @@ export default function LessonItem({ lesson, moduleId, order, setModules }: Prop
 
   const showVideoPrev = async (file: File) => {
     const url = URL.createObjectURL(file);
-    console.log(url)
     setPrevURL(url);
     setVideoFile(file);
     const duration = await getVideoDuration(file);
@@ -71,13 +78,13 @@ export default function LessonItem({ lesson, moduleId, order, setModules }: Prop
   };
 
   const handleUpload = async () => {
-      
+
     try{
     const validationErrors = validateLesson({
-      file: videoFile,
+      file: videoFile!,
       title: lesson.title,
       description: lesson.description,
-      resources: lesson.resources,
+      resources: watchedResources,
     });
     setErrors(validationErrors);
     if (Object.keys(validationErrors).length === 0 && videoFile) {
@@ -92,23 +99,31 @@ export default function LessonItem({ lesson, moduleId, order, setModules }: Prop
         fileName: videoFile.name,
         duration ,
         contentType: "video",
-        resources: lesson.resources,
+        resources: watchedResources,
         order,
       });
       queryClient.invalidateQueries({ queryKey: ["modulesAndLesson"] });
       toast.success(response.message)
     }
-  }   catch (error: any) {
-    toast.error(error.message);
-    throw error.message;
+  }   catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'An unknown error occurred';
+    toast.error(message);
+    throw message;
   }
   };
   React.useEffect(() => {
-    setPrevURL(lesson.signedVideoUrl || null)
+    setPrevURL(prevURL || lesson.signedVideoUrl || null);
+    prevURLRef.current = lesson.signedVideoUrl || null;
     return () => {
-      if (prevURL) URL.revokeObjectURL(prevURL);
+      if (prevURLRef.current) URL.revokeObjectURL(prevURLRef.current);
     };
   }, [lesson.signedVideoUrl]);
+
+  React.useEffect(() => {
+    if (JSON.stringify(lesson.resources) !== JSON.stringify(watchedResources)) {
+      updateLesson({ resources: watchedResources as readonly string[] });
+    }
+  }, [watchedResources, lesson.resources, updateLesson]);
 
   return (
     <div className="space-y-4 mb-3 rounded-2xl  bg-gray-200  dark:bg-gray-800 shadow-2xl p-4">
@@ -192,8 +207,8 @@ export default function LessonItem({ lesson, moduleId, order, setModules }: Prop
           Resources / Reference (Optional)
         </label>
         <DynamicField
-          data={lesson.resources}
-          setData={(value) => updateLesson({ resources: [...value] })}
+          control={control}
+          name="resources"
           placeholder="resource link"
         />
         <ErrorMessage error={errors.resources?.message} />

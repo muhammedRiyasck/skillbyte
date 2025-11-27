@@ -18,7 +18,7 @@ export const ROUTES = {
   student: {
     base: '/',
     courses: '/courses',
-    courseDetails: '/courses/:courseId',
+    courseDetails: '/course/:courseId',
     profile: '/profile',
   },
 

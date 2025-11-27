@@ -58,7 +58,7 @@ const CreateCourse = () => {
     },
        resolver: async (data) => {
       const validationErrors = validateCreateCourse({ ...data });
-      const fieldErrors: Record<string, any> = {};
+      const fieldErrors: Record<string, { type: string; message: string }> = {};
 
       Object.keys(validationErrors).forEach((key) => {
         if (!validationErrors[key].success) {
@@ -95,7 +95,7 @@ const CreateCourse = () => {
   };
   
   const thumbnailFile = watch("thumbnailFile");
-  const handleCropComplete = async (croppedAreaPixels: any) => {
+  const handleCropComplete = async (croppedAreaPixels: { x: number; y: number; width: number; height: number }) => {
     if (!thumbnailFile || !croppedAreaPixels) return;
 
   if (thumbnailFile?.size > 2 * 1024 * 1024) {
@@ -116,13 +116,19 @@ const CreateCourse = () => {
       const  courseId  = await createCourse({ formData: data, croppedBlob, thumbnailFile });
       navigate(ROUTES.instructor.uploadCourseContent, { state: { courseId } });
       toast.success("Course created successfully!");
-    } catch (error: any) {
-      toast.error(error?.message || "Something went wrong");
-    } finally {
-      setSpining(false);
-    }
-  };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || "Something went wrong");
+      } else {
+        toast.error("Something went wrong");
+      }
+  } finally {
+    setSpining(false);
   }
+  } else {
+    toast.error("Please select a thumbnail");
+  }
+};
   return (
     
     <div className="min-h-screen flex flex-col ">

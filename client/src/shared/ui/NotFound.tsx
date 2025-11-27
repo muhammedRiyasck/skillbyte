@@ -1,12 +1,17 @@
-import { Link , useRouteError} from "react-router-dom";
+import { Link, useRouteError } from "react-router-dom";
+
+interface RouteError {
+  status?: number;
+  [key: string]: unknown;
+}
 
 const NotFound = () => {
-  const error = useRouteError()
+  const error = useRouteError() as RouteError;
   return (
      <div className="min-h-screen bg-white dark:bg-gray-900 flex flex-col items-center justify-center px-4 text-center">
       {/* Main Content */}
       <h1 className="text-9xl font-extrabold text-gray-300 dark:text-gray-700 select-none">
-       {"status" in (error as object) && typeof (error as any).status === "number" ? (error as any).status : 404} 
+       {error.status || 404}
       </h1>
       <h2 className="mt-4 text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
         Page Not Found

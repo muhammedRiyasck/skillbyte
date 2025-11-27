@@ -9,6 +9,7 @@ import DropDown from "@shared/ui/DropDown";
 import { RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 
+
 const options = ["All Courses", "Drafted Courses", "Listed Courses", "Unlisted Courses"];
 
 const InstructorCourses: React.FC = () => {
@@ -27,7 +28,7 @@ const InstructorCourses: React.FC = () => {
 
   if (isLoading) return <Card/>
   
-  if (isError) return <p><ErrorPage message={error.message} statusCode={(error as any)?.status || 500}/></p>;
+  if (isError) return <p><ErrorPage message={error.message} statusCode={500}/></p>;
   const handleListStatus = (option: string) => {
     setIsOpen(false);
     setSelectedStatus(option);
@@ -35,9 +36,10 @@ const InstructorCourses: React.FC = () => {
 
   const handleStatusChange = (courseId: string, status: string) => {
     // Update the local state by modifying the cached data
-    queryClient.setQueryData(['courses', selectedStatus, page], (oldData: any) => {
+    queryClient.setQueryData(['courses', selectedStatus, page], (oldData: { data: { data: {_id: string;status: string;}[] } }) => {
       if (!oldData) return oldData;
-      const updatedCourses = oldData.data.data.map((course: any) =>
+      const updatedCourses = oldData.data.data.map((course: {_id: string;status: string;}
+) =>
         course._id === courseId ? { ...course, status } : course
       );
       return {

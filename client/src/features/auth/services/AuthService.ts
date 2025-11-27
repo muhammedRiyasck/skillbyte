@@ -7,8 +7,8 @@ export const studentRegister = async (payload: IStudentSignUpPayload) => {
   try {
     const response = await api.post("/student/register", payload);
     return response.data;
-  } catch (error:any) {
-    toast.error(error.message);
+  } catch (error) {
+    toast.error((error as Error).message);
     throw error;
   }
 };
@@ -43,8 +43,8 @@ export const instructorRegister = async (payload: IinstrctorSignUpPayload) => {
       },
     });
     return response.data;
-  } catch (error:any) {
-    toast.error(error.message);
+  } catch (error) {
+    toast.error((error as Error).message);
     throw error;
   }
 };
@@ -79,10 +79,10 @@ export const login = async (payload: IsingInPayload) => {
     console.log(response.data,'response data')
     return response.data;
 
-  } catch (error:any) {
+  } catch (error) {
     console.log(error)
-    toast.error(error.message);
-    throw error(error)
+    toast.error((error as Error).message);
+    throw error
   }
 };
 
@@ -90,9 +90,9 @@ export const forgotPassword = async(playload:IforgotPassword)=>{
   try {
     const response = await api.post('/auth/forgot-password',playload)
     return response.data  
-  } catch (error:any) {
-    toast.error(error.message)
-    throw error(error)
+  } catch (error) {
+    toast.error((error as Error).message)
+    throw error
   }
 }
 
@@ -100,9 +100,13 @@ export const resetPassword  = async(playload:IresetPassword)=>{
   try {
     const response = await api.post('/auth/reset-password',playload)
     return response.data  
-  } catch (error:any) {
-    toast.error(error.message)
-    throw error(error)
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      toast.error(error.message);
+    } else {
+      toast.error('An error occurred');
+    }
+    throw error;
   }
 
 }
@@ -112,8 +116,8 @@ export const logout = async () => {
 
     const response = await api.post("/auth/logout");
     return response.data;
-  } catch (error:any) {
-  
+  } catch (error) {
+
     toast.error("Logout failed. Please try again.");
     throw error
   }

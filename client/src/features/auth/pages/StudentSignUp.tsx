@@ -60,7 +60,7 @@ export default function StudentSignUp () {
       sessionStorage.setItem("role", 'student');
       navigate(ROUTES.auth.otp);
       toast.success(response.message);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Registration failed:', error);
       toast.error('Registration failed. Please try again.');
     } finally {

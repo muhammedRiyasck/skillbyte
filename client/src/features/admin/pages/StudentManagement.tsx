@@ -22,7 +22,7 @@ const StudentManagement: React.FC = () => {
   const meta = data?.students?.meta;
 
   if (isError) {
-    toast.error((error as any)?.response?.data?.message || "Failed to fetch data");
+    toast.error((error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to fetch data");
   }
 
   return (

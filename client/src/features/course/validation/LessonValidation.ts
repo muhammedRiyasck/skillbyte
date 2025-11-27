@@ -1,6 +1,13 @@
 import type { ValidationResponse } from "../types/ValidationResponse";
 
-export const validateLesson = (data: any): Record<string, ValidationResponse> => {
+interface LessonData {
+  title: string;
+  description: string;
+  file: File;
+  resources: string[];
+}
+
+export const validateLesson = (data: LessonData): Record<string, ValidationResponse> => {
   const errors: Record<string, ValidationResponse> = {};
   
   if (!data.title.trim()) {

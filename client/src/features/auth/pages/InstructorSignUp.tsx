@@ -97,7 +97,7 @@ export default function InstructorSignup() {
       sessionStorage.setItem("role", "instructor");
       navigate(ROUTES.auth.otp);
       toast.success(response.message);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Registration failed:", error);
     } finally {
       setLoading(false);

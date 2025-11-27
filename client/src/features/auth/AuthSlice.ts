@@ -21,8 +21,8 @@ export const fetchCurrentUser = createAsyncThunk<User>(
     try {
       const response = await api.get("/auth/me");
       return response?.data?.data?.userData;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.response?.data || "Failed to fetch user");
+    } catch (error) {
+      return thunkAPI.rejectWithValue((error as { response?: { data?: unknown } })?.response?.data || "Failed to fetch user");
     }
   }
 );

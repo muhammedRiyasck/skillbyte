@@ -33,8 +33,6 @@ const CourseDetails: React.FC = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  console.log("courseData",courseData);
-
   const course = courseData?.data;
 
   const toggleModule = (moduleId: string) => {
@@ -67,7 +65,7 @@ const CourseDetails: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <ErrorPage
-          message={(error as any)?.message || 'Failed to load course details'}
+          message={(error as Error)?.message || 'Failed to load course details'}
           statusCode={500}
         />
       </div>
@@ -92,13 +90,13 @@ const CourseDetails: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Breadcrumbs and Back Button */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="hidden md:flex items-center justify-between ">
+      <div className="hidden md:block bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 xl:px-8 py-4">
+          <div className="hidden md:flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link
                 to={ROUTES.student.courses}
-                className="flex items-center gap-2 text-gray-600 dark:text-gray-100 hover:text-gray-900 dark:hover:text-white transition-colors"
+                className="flex items-center gap-2 text-gray-600  dark:text-gray-100 hover:text-gray-900 dark:hover:text-white transition-colors"
               >
                 <ArrowLeft className="w-5 h-5 font-bold" />
                 <span className="font-bold">Back to Courses</span>
@@ -122,7 +120,7 @@ const CourseDetails: React.FC = () => {
       </div>
 
       {/* Hero Section */}
-      <div className="bg-gradient-to-r bg-gray-600  text-white">
+      <div className="bg-gradient-to-r bg-gray-800  text-white">
     
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 ">
         

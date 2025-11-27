@@ -47,8 +47,8 @@ const StudentTable: React.FC<StudentTableProps> = ({
       queryClient.invalidateQueries({ queryKey: ["students"] });
       toast.success(`User ${modalAction === "unblock" ? "Unblocked" : "Blocked"} Successfully`);
     },
-    onError: (error: any) => {
-      toast.error(error?.response?.data?.message || "Failed to update student status");
+    onError: (error: unknown) => {
+      toast.error((error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to update student status");
     }
   });
 
@@ -146,7 +146,7 @@ const StudentTable: React.FC<StudentTableProps> = ({
         )
       ),
     }
-  ], [handleAction, toggleStudentStatusMutation.status, currentPage]);
+  ], [handleAction, toggleStudentStatusMutation.status]);
 
   return (
     <>

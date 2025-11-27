@@ -37,10 +37,7 @@ const Login: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
   } = methods;
-
-  const watchedValues = watch();
 
   // take the error from url if any and show it as toast
   useEffect(() => {
@@ -66,7 +63,7 @@ const Login: React.FC = () => {
         navigate(ROUTES.root);
         toast.success(response.message);
       }
-    } catch (err) {
+    } catch {
       // toast is handled inside service; optional: toast.error('Login failed')
     } finally {
       setLoading(false);

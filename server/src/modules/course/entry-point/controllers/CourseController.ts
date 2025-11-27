@@ -49,7 +49,7 @@ export class CourseController {
     
     const authenticatedReq = req as AuthenticatedRequest;
     logger.info(`Create course base attempt from IP: ${authenticatedReq.ip}`);
-
+    console.log(authenticatedReq.body)
     const validatedData = CreateBaseSchema.parse(authenticatedReq.body);
     const {
       title,

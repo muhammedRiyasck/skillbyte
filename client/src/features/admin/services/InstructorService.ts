@@ -7,20 +7,20 @@ export const approveRequest = async (playload:IReqestPlayload) => {
   try {
     const response = await api.patch(`/instructors/approve`,playload);
     return response.data;
-  } catch (error:any) {
+  } catch (error) {
     console.log(error)
-    toast.error(error.message);
+    toast.error((error as Error).message);
     throw error
-  } 
+  }
 };
 
 export const declineRequest = async (playload:IReqestPlayload) => {
   try {
     const response = await api.patch(`/instructors/decline`,playload);
     return response.data;
-  } catch (error:any) {
+  } catch (error) {
     console.log(error)
-    toast.error(error.message);
+    toast.error((error as Error).message);
     throw error
   }
 };
@@ -29,9 +29,9 @@ export const deleteInstructor = async (instructorId: string) => {
   try {
     const response = await api.delete(`/instructors/${instructorId}`);
     return response.data;
-  } catch (error:any) {
+  } catch (error) {
     console.log(error)
-    toast.error(error.message);
+    toast.error((error as Error).message);
     throw error
   }
 };
@@ -41,9 +41,9 @@ export const changeInstructorStatusRequest = async (playload:IReqestPlayload) =>
     const response = await api.patch(`instructors/${playload.instructorId}/status`,playload);
     return response.data;
   }
-  catch (error:any) {
+  catch (error) {
     console.log(error)
-    toast.error(error.message);
+    toast.error((error as Error).message);
     throw error
   }
 };

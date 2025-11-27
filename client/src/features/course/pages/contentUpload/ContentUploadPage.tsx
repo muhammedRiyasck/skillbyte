@@ -51,7 +51,7 @@ const ContentUploadPage = () => {
         ...mod,
         lessons: mod.lessons.map((les: LessonType) => ({
           ...les,
-          signedVideoUrl: signedUrlsData.find((item: any) => item.fileName === les.fileName)?.url || '',
+          signedVideoUrl: signedUrlsData.find((item: { fileName: string; url: string }) => item.fileName === les.fileName)?.url || '',
         })),
       }));
       setModules(modulesWithSignedUrls);

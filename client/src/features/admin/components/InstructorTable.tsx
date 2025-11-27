@@ -10,7 +10,11 @@ import type { IReqestPlayload } from "../types/IReqestPlayload";
 import api from "@/shared/utils/AxiosInstance";
 
 interface InstructorTableProps {
-  data: any;
+  data: {
+    data: {
+      data: Instructor[];
+    };
+  };
   isLoading: boolean;
   currentPage: number;
   totalPages: number;

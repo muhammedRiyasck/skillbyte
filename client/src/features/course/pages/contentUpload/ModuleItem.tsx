@@ -1,5 +1,4 @@
 import { X } from "lucide-react";
-import TextInput from "@shared/ui/TextInput";
 import type { ModuleType } from "../../types/IModule";
 
 import LessonItem from "./LessonItem";
@@ -32,34 +31,28 @@ export default function ModuleItem({ courseId, module, order, setModules }: Prop
   const updateModule = useCallback((updated: ModuleType) => {
     setModules((prev) => prev.map((m) => (m.moduleId === module.moduleId ? updated : m)));
   }, [module.moduleId, setModules]);
-
   const addLesson = useCallback(async () => {
     const moduleValidationErrors = validateModule({ title: module.title, description: module.description });
     setErrors(moduleValidationErrors);
 
     if (Object.keys(moduleValidationErrors).length === 0) {
-      const createdModule = await createModule({
-        courseId,
-        order,
-        moduleId: module.moduleId,
-        title: module.title,
-        description: module.description,
-      });
+      let Module 
+      if(/^\d{13,}$/.test(module.moduleId)) {
+         Module = await createModule({
+          courseId,
+          order,
+          moduleId: module.moduleId,
+          title: module.title,
+          description: module.description,
+          
+        });
+      }
       updateModule({
-        ...module,
-        ...createdModule?.data,
+        
+        ...Module?.data ? Module.data : module,
         lessons: [
-          ...module.lessons,
-          {
-            lessonId: Date.now().toString(),
-            title: "",
-            description: "",
-            contentType: "vedio",
-            resources: [""],
-            order: module.lessons.length + 1,
-            moduleId: createdModule.moduleId,
-            duration: 10,
-          },
+          ...module?.lessons,
+          !/^\d{13,}$/.test(module.moduleId)&&{ lessonId: Date.now().toString(), title: "", description: "", fileName: "", resources: [], },
         ],
       });
       // Invalidate the queries to refetch fresh data
@@ -69,7 +62,6 @@ export default function ModuleItem({ courseId, module, order, setModules }: Prop
   }, [module, courseId, order, updateModule, queryClient]);
 
   const handleEditDiscard = useCallback((moduleId: string) => {
-    console.log(moduleId,'from discard button')
     setModules((prev) =>
       prev.map((m) =>
         m.moduleId === moduleId
@@ -161,10 +153,10 @@ export default function ModuleItem({ courseId, module, order, setModules }: Prop
       ))}
 
       <button
-        className="mt-2 rounded bg-gray-600 hover:bg-gray-500 px-3 py-1 text-white cursor-pointer"
+        className={`mt-2 rounded  hover:bg-gray-500 px-3 py-1 text-white cursor-pointer ${/^\d{13,}$/.test(module.moduleId) ? 'bg-gray-950':'bg-gray-600'}`}
         onClick={addLesson}
       >
-        + Add Lesson
+        {/^\d{13,}$/.test(module.moduleId)?'Create Moduele' : 'Add Lesson'}
       </button>
     </div>
   );

@@ -8,7 +8,7 @@ export interface LessonType {
   signedVideoUrl?: string;
   duration:number|null
   order:number
-  resources:string[];
+  resources: readonly string[];
   isFreePreview?: boolean;
 }
 

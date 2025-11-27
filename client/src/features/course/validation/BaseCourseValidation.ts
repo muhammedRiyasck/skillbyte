@@ -1,13 +1,27 @@
 import type { ValidationResponse } from "../types/ValidationResponse";
 
-export const validateCreateCourse = (data: any): Record<string, ValidationResponse> => {
+interface CreateCourseData {
+  thumbnailFile: File|null;
+  title: string;
+  subText: string;
+  category: string;
+  customCategory?: string;
+  courseLevel: string;
+  language: string;
+  access: string;
+  price: string;
+  tags: string[];
+  features: string[];
+  description: string;
+}
+
+export const validateCreateCourse = (data: CreateCourseData): Record<string, ValidationResponse> => {
   const errors: Record<string, ValidationResponse> = {};
 
   // Thumbnail
   if (!data.thumbnailFile) {
     errors.thumbnailFile = { success: false, message: "Thumbnail is required" };
-  }
-  if (data?.thumbnailFile?.size > 2 * 1024 * 1024) {
+  } else if (data.thumbnailFile.size > 2 * 1024 * 1024) {
     errors.thumbnailFile = { success: false, message: "Thumbnail must be less than 2 MB"};
   }
 
@@ -31,7 +45,7 @@ export const validateCreateCourse = (data: any): Record<string, ValidationRespon
   }
 
   // Custom Category (if Other is selected)
-  if (data.category === "Other" && !data.customCategory.trim()) {
+  if (data.category === "Other" && (!data.customCategory || !data.customCategory.trim())) {
     errors.customCategory = { success: false, message: "Custom category is required" };
   }
 
@@ -53,7 +67,7 @@ export const validateCreateCourse = (data: any): Record<string, ValidationRespon
   // Price
   if (!data.price.trim()) {
     errors.price = { success: false, message: "Course price is required" };
-  } else if (isNaN(data.price)) {
+  } else if (isNaN(Number(data.price))) {
     errors.price = { success: false, message: "Price must be a valid number" };
   }
 

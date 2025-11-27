@@ -13,9 +13,9 @@ const login = async (playload:loginPlayload) => {
 
     const response = await api.post("/admin/login",playload);
     return response.data;
-  } catch (error:any) {
+  } catch (error) {
     console.log(error)
-    toast.error(error.message);
+    toast.error((error as Error).message);
     throw error
   }
 };

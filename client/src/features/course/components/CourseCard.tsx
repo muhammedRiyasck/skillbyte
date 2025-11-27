@@ -21,7 +21,6 @@ interface Course {
 interface CourseCardProps {
   courses: Course[];
   isStudent?: boolean;
-  onEnroll?: (courseId: string) => void;
   onStatusChange?: (courseId: string, status: string) => void;
 }
 
@@ -29,7 +28,6 @@ interface CourseCardProps {
 const CourseCard = memo<CourseCardProps>(({
   courses,
   isStudent = false,
-  onEnroll,
   onStatusChange
 }) => {
   const navigate = useNavigate();
@@ -41,14 +39,7 @@ const CourseCard = memo<CourseCardProps>(({
 
 
 
-  const handleEnrollment = useCallback((courseId: string) => {
-    if (onEnroll) {
-      onEnroll(courseId);
-    } else {
-      // Default enrollment logic
-      console.log('Enrolling in course:', courseId);
-    }
-  }, [onEnroll]);
+
 
   const handleToggleChange = useCallback((course: Course) => {
     const newStatus = course.status === "list" ? "unlist" : "list";

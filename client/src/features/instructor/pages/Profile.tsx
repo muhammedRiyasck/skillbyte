@@ -46,13 +46,14 @@ const Profile: React.FC = () => {
       setCroppedBlob(null);
       setLoading(false);
     },
-    onError: (err: any) => {
-      toast.error(err.response?.data?.error?.message || "Failed to update profile");
+    onError: (err) => {
+      console.error(err);
+      toast.error('Failed to update profile');
       setLoading(false);
     },
   });
 
-  const { handleSubmit, reset, control, formState: {} } = useForm<FormData>({
+  const { handleSubmit, reset, control } = useForm<FormData>({
     defaultValues: data ? {
       name: data.name,
       subject: data.subject,
@@ -91,11 +92,11 @@ const Profile: React.FC = () => {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         profileUrl = response.data?.data?.url;
-      } catch (error) {
-        toast.error('Failed to upload image');
-        setLoading(false);
-        return;
-      }
+  } catch {
+    toast.error('Failed to upload image');
+    setLoading(false);
+    return;
+  }
     }
     const updatedData = { ...formData, profilePictureUrl: profileUrl };
     updateMutation.mutate(updatedData);
@@ -114,7 +115,7 @@ const Profile: React.FC = () => {
 
   const handleCropComplete = async (croppedAreaPixels: { x: number; y: number; width: number; height: number }) => {
     if (selectedFile) {
-      const blob = await getCroppedImg(URL.createObjectURL(selectedFile as Blob), croppedAreaPixels);
+      const blob = await getCroppedImg(URL.createObjectURL(selectedFile), croppedAreaPixels);
       setCroppedBlob(blob);
       const reader = new FileReader();
       reader.onload = () => setCroppedImage(reader.result as string);
@@ -124,7 +125,7 @@ const Profile: React.FC = () => {
   };
 
   if (isLoading) return <Spiner />;
-  if (isError) return <ErrorPage message={(error as any)?.message || "Failed to load profile"} statusCode={(error as any)?.status || 500} />;
+  if (isError) return <ErrorPage message={error?.message || "Failed to load profile"} statusCode={500} />;
 
   const profileImage = croppedImage || data?.profilePictureUrl || default_profile;
 
@@ -425,7 +426,7 @@ const Profile: React.FC = () => {
                   await api.delete('/instructor/profile-image');
                   toast.success('Profile image removed');
                   queryClient.invalidateQueries({ queryKey: ["instructor-profile"] });
-                } catch (error) {
+                } catch {
                   toast.error('Failed to remove image');
                 } finally {
                   setLoading(false);

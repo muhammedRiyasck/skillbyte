@@ -10,10 +10,17 @@ interface CropImageModalProps {
   aspect?: number;
 }
 
+interface CroppedAreaPixels {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export default function CropImageModal({ isOpen, onClose, file, onCropComplete, aspect = 16 / 9 }: CropImageModalProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<CroppedAreaPixels | null>(null);
   const [imageSrc, setImageSrc] = useState<string>("");
 
   useEffect(() => {
@@ -50,7 +57,7 @@ export default function CropImageModal({ isOpen, onClose, file, onCropComplete, 
             aspect={aspect}
             onCropChange={setCrop}
             onZoomChange={setZoom}
-            onCropComplete={(_, croppedArea) => setCroppedAreaPixels(croppedArea)}
+            onCropComplete={(_, croppedArea) => setCroppedAreaPixels(croppedArea as CroppedAreaPixels)}
           />
         )}
       </div>

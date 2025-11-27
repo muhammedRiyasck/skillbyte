@@ -22,7 +22,7 @@ const OAuthSuccess = () => {
         toast.success("Learner Registration Successfull Via Google")
         navigate(ROUTES.auth.signIn);
       });
-  }, [navigate]);
+  }, [navigate, dispatch]);
 
   return <Home/>
 

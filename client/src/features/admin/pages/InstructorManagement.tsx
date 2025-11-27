@@ -116,7 +116,7 @@ const InstructorManagement: React.FC = () => {
   if (isError) {
     return (
       <div className="p-6 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex justify-center items-center">
-        <p>{(error as any)?.message || "An error occurred"}</p>
+        <p>{(error as Error)?.message || "An error occurred"}</p>
       </div>
     );
   }

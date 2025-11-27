@@ -1,6 +1,11 @@
 import type { ValidationResponse } from "../types/ValidationResponse";
 
-export const validateModule = (data: any): Record<string, ValidationResponse> => {
+interface ModuleData {
+  title: string;
+  description: string;
+}
+
+export const validateModule = (data: ModuleData): Record<string, ValidationResponse> => {
   const errors: Record<string, ValidationResponse> = {};
 
   if(!data.title.trim()){

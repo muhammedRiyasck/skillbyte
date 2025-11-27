@@ -5,6 +5,7 @@ export const useOptimizedCallback = <T extends (...args: unknown[]) => unknown>(
   callback: T,
   deps: React.DependencyList
 ): T => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   return useCallback(callback, deps);
 };
 
@@ -13,6 +14,7 @@ export const useOptimizedMemo = <T>(
   factory: () => T,
   deps: React.DependencyList
 ): T => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   return useMemo(factory, deps);
 };
 
@@ -27,6 +29,7 @@ export const useDebouncedCallback = <T extends (...args: unknown[]) => unknown>(
       const timeoutId = setTimeout(() => callback(...args), delay);
       return () => clearTimeout(timeoutId);
     }) as T,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [callback, delay, ...deps]
   );
 };

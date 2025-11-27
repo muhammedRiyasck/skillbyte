@@ -11,7 +11,7 @@ export default function PersonalDetailsStep({
   showPassword,
   setShowPassword,
 }: PersonalDetailsStepProps) {
-  const { register, formState: { errors }, watch, setValue } = useFormContext();
+  const { register, formState: { errors }, watch } = useFormContext();
   const watchedValues = watch();
 
   return (

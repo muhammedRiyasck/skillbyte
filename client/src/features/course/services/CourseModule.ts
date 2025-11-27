@@ -5,8 +5,9 @@ export const createModule = async (data: {courseId:string,order:number,moduleId:
   try {
     const response = await api.post("/course/createmodule", data);
     return response.data;
-  } catch (error: any) {
-    toast.error(error.message);
-    throw new Error(error);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'An unknown error occurred';
+    toast.error(message);
+    throw new Error(message);
   }
 };

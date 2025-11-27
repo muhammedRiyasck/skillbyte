@@ -20,7 +20,7 @@ const StudentCourses: React.FC = () => {
   });
   if (isLoading) return <Card/>
   console.log(data,'course data');
-  if (isError) return <p><ErrorPage message={error.message} statusCode={(error as any)?.status || 500}/></p>;
+  if (isError) return <p><ErrorPage message={error.message} statusCode={500}/></p>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br bg-white dark:bg-gray-900   pb-8">

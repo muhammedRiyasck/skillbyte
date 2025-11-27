@@ -21,7 +21,7 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState({ emailError: "", passwordError: ""});
+  const [formErrors, setFormErrors] = useState({ emailError: "", passwordError: ""});
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>()
@@ -31,9 +31,9 @@ const Login: React.FC = () => {
     try {
       const emailValidation = isEmailValid(email);
       const passwordValidation = isPasswordEntered(password);
-      setError({
+      setFormErrors({
         emailError: emailValidation.success ? "" : emailValidation.message,
-        passwordError: passwordValidation.success ? "" : passwordValidation.message,        
+        passwordError: passwordValidation.success ? "" : passwordValidation.message,
       });
 
       if (emailValidation.success && passwordValidation.success ){
@@ -45,7 +45,9 @@ const Login: React.FC = () => {
           toast.success(response.message)
       }
 
-    } catch (error) {
+    } catch (err) {
+      console.error('Login error:', err);
+      toast.error('Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -91,7 +93,7 @@ const Login: React.FC = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-            {error.emailError && <ErrorMessage error={error.emailError} />}
+            {formErrors.emailError && <ErrorMessage error={formErrors.emailError} />}
           </div>
 
           <div>
@@ -113,7 +115,7 @@ const Login: React.FC = () => {
                 />
               )}
             />
-            {error.passwordError && <ErrorMessage error={error.passwordError} />}
+            {formErrors.passwordError && <ErrorMessage error={formErrors.passwordError} />}
           </div>
 
         
