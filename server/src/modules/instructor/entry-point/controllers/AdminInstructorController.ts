@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Readable } from 'node:stream';
 import { IlistInstructorsUC } from '../../application/interfaces/IlistInstructorsUseCase';
 import { IApproveInstructorUseCase } from '../../application/interfaces/IApproveInstructorUseCase';
 import { IDeclineInstructorUseCase } from '../../application/interfaces/IDeclineInstructorUseCase';
@@ -59,8 +60,17 @@ export class AdminInstructorController {
       sort = { [field]: dir === 'asc' ? 1 : -1 };
     }
 
-    const instructors = await this._listInstructorsUC.execute(query, page, limit, sort);
-    ApiResponseHelper.success(res, "Instructors retrieved successfully", instructors);
+    const instructors = await this._listInstructorsUC.execute(
+      query,
+      page,
+      limit,
+      sort,
+    );
+    ApiResponseHelper.success(
+      res,
+      'Instructors retrieved successfully',
+      instructors,
+    );
   };
 
   /**
@@ -74,7 +84,7 @@ export class AdminInstructorController {
     const adminId = AuthenticatedRequest.user.id;
 
     await this._approveUC.execute(instructorId, adminId);
-    ApiResponseHelper.success(res, "Instructor approved");
+    ApiResponseHelper.success(res, 'Instructor approved');
   };
 
   /**
@@ -89,7 +99,7 @@ export class AdminInstructorController {
     const { reason } = req.body;
 
     await this._declineUC.execute(instructorId, adminId, reason);
-    ApiResponseHelper.success(res, "Instructor declined", { note: reason });
+    ApiResponseHelper.success(res, 'Instructor declined', { note: reason });
   };
 
   /**
@@ -97,16 +107,25 @@ export class AdminInstructorController {
    * @param req - Request object with instructor ID in params and status/reason in body.
    * @param res - Express response object.
    */
-  changeInstructorStatus = async (req: Request, res: Response): Promise<void> => {
+  changeInstructorStatus = async (
+    req: Request,
+    res: Response,
+  ): Promise<void> => {
     const { instructorId } = req.params;
     const { status, reason } = req.body;
 
     if (!['active', 'suspend'].includes(status)) {
-      throw new HttpError(ERROR_MESSAGES.INVALID_STATUS, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_STATUS,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     await this._changeStatusUC.execute(instructorId, status, reason);
-    ApiResponseHelper.success(res, `Instructor account status changed to ${status}`);
+    ApiResponseHelper.success(
+      res,
+      `Instructor account status changed to ${status}`,
+    );
   };
 
   /**
@@ -117,7 +136,7 @@ export class AdminInstructorController {
   deleteInstructor = async (req: Request, res: Response): Promise<void> => {
     const { instructorId } = req.params;
     await this._deleteInstructorUC.execute(instructorId);
-    ApiResponseHelper.success(res, "Instructor deleted successfully");
+    ApiResponseHelper.success(res, 'Instructor deleted successfully');
   };
 
   /**
@@ -129,14 +148,25 @@ export class AdminInstructorController {
     const { instructorId } = req.params;
 
     // Get instructor details to retrieve resume URL
-    const instructors = await this._listInstructorsUC.execute({ _id: instructorId }, 1, 1, {});
+    const instructors = await this._listInstructorsUC.execute(
+      { _id: instructorId },
+      1,
+      1,
+      {},
+    );
     if (!instructors || !instructors.data || instructors.data.length === 0) {
-      throw new HttpError(ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND, HttpStatusCode.NOT_FOUND);
+      throw new HttpError(
+        ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND,
+        HttpStatusCode.NOT_FOUND,
+      );
     }
 
     const instructor = instructors.data[0];
     if (!instructor.resumeUrl) {
-      throw new HttpError(ERROR_MESSAGES.RESUME_NOT_FOUND, HttpStatusCode.NOT_FOUND);
+      throw new HttpError(
+        ERROR_MESSAGES.RESUME_NOT_FOUND,
+        HttpStatusCode.NOT_FOUND,
+      );
     }
 
     // The resumeUrl is now the file key (e.g., "instructor-resumes/filename.pdf")
@@ -145,8 +175,19 @@ export class AdminInstructorController {
     // Generate a fresh signed URL with 1 hour expiration
     const freshSignedUrl = await getBackblazeSignedUrl(fileKey);
 
-    // Redirect to the fresh signed URL
-    res.redirect(freshSignedUrl);
+    const fileResponse = await fetch(freshSignedUrl);
+
+    if (!fileResponse.ok)
+      throw new Error('Failed to fetch file from Backblaze');
+
+    // 5. Set headers to view inline
+    res.setHeader(
+      'Content-Type',
+      fileResponse.headers.get('content-type') || 'application/pdf',
+    );
+    res.setHeader('Content-Disposition', 'inline');
+
+    const nodeStream = Readable.fromWeb(fileResponse.body as any);
+    nodeStream.pipe(res);
   };
 }
-  

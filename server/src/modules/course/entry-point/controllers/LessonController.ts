@@ -100,7 +100,7 @@ export class LessonController {
           Bucket: process.env.B2_S3_BUCKET,
           Key: fileName,
         });
-        const url = await getSignedUrl(s3, command, { expiresIn: 60 * 30 }); // 30 minutes
+        const url = await getSignedUrl(s3, command, { expiresIn: 10  }); // 60*30 = 30minutes
         return { fileName, url };
       })
     );
