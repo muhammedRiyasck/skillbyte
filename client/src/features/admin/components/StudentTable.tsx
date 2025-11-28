@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from "react";
-import default_profile from "../../../assets/defualt_profile.svg";
+import default_profile from "@assets/default_profile.svg";
 import { CheckCircle, UserX,  } from "lucide-react";
 
 import Table from "@shared/ui/Table";

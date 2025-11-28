@@ -8,7 +8,7 @@ import Modal from "@shared/ui/Modal";
 import getCroppedImg from "@shared/utils/GetCroppedImg";
 import Spiner from "@shared/ui/Spiner";
 import ErrorPage from "@shared/ui/ErrorPage";
-import default_profile from "../../../assets/defualt_profile.svg";
+import default_profile from "@assets/default_profile.svg";
 import TextInput from "@shared/ui/TextInput";
 
 interface FormData {
