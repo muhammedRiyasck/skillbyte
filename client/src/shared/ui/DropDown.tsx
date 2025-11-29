@@ -18,7 +18,7 @@ const DropDown: React.FC<DropDownProps> = ({
 }) => {
     return <div className="relative">
           <div
-            className="border border-gray-300 text-center w-full sm:w-48 rounded-xl px-5 py-3 dark:text-gray-200 shadow-md cursor-pointer bg-gradient-to-r from-white to-gray-50 dark:from-gray-700 dark:to-gray-600 hover:from-gray-100 hover:to-gray-200 dark:hover:from-gray-600 dark:hover:to-gray-500 transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50"
+            className="border border-gray-300 text-center w-full sm:w-48 rounded-lg px-5 py-3 dark:text-gray-200 shadow-md cursor-pointer bg-gradient-to-r from-white to-gray-50 dark:from-gray-700 dark:to-gray-600 hover:from-gray-100 hover:to-gray-200 dark:hover:from-gray-600 dark:hover:to-gray-500 transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50"
             onClick={() => setIsOpen(!isOpen)}>
             <div className="flex items-center justify-between">
               <span className="font-medium">{selectedValue}</span>

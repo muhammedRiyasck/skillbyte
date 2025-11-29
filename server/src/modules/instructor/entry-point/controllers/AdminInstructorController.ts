@@ -54,6 +54,20 @@ export class AdminInstructorController {
       query = { accountStatus: 'suspended', approved: true };
     }
 
+    const search = req.query.search as string;
+    if (search && search.trim()) {
+      const searchFilter = {
+        $or: [
+          { name: { $regex: search.trim(), $options: 'i' } },
+          { email: { $regex: search.trim(), $options: 'i' } },
+          { expertise: { $regex: search.trim(), $options: 'i' } },
+          { jobTitle: { $regex: search.trim(), $options: 'i' } },
+          { subject: { $regex: search.trim(), $options: 'i' } },
+        ]
+      };
+      query = { ...query, ...searchFilter };
+    }
+
     let sort: Record<string, 1 | -1> = { createdAt: -1 };
     if (typeof req.query.sort === 'string') {
       const [field, dir] = (req.query.sort as string).split(':');

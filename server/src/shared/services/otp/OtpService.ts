@@ -38,7 +38,8 @@ export class RedisOtpService implements IOtpService {
     logger.info('sendOtp: Rate limiter passed');
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString().slice(0, 4);
-    logger.info('sendOtp: Setting OTP in Redis' , otp);
+    console.log('Generated OTP:', otp);
+    logger.info(`sendOtp: Setting OTP in Redis ${otp}` , otp);
     await this._redis.set(`otp:${email}`, otp, "EX", this._OTP_EXPIRE);
     // Queue email sending instead of sending synchronously
     const emailData: EmailJobData = {

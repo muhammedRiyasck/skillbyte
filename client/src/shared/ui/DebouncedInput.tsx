@@ -13,7 +13,7 @@ type DebouncedInput = {
 
 const DebouncedInput = ({id,type,placeholder,value,setValue,showPassword,icon}:DebouncedInput)=> {
     const [inputValue, setInputValue] = useState(value);
-    const debouncedValue = useDebounce(inputValue, 300);
+    const debouncedValue = useDebounce(inputValue, 500);
 
     useEffect(() => {
         setValue(debouncedValue);

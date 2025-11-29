@@ -3,18 +3,20 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import api from "@shared/utils/AxiosInstance";
 import { toast } from "sonner";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Search } from "lucide-react";
 import StudentTable from "../components/StudentTable";
+import { DebouncedInput } from "@/shared/ui";
 
 const ITEMS_PER_PAGE = 6;
 
 const StudentManagement: React.FC = () => {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
 
   const { data, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['students', page],
+    queryKey: ['students', page, search],
     queryFn: () =>
-      api.get(`/students/allStudents?page=${page}&limit=${ITEMS_PER_PAGE}`).then(r => r.data?.data),
+      api.get(`/students/allStudents?page=${page}&limit=${ITEMS_PER_PAGE}&search=${search}`).then(r => r.data?.data),
     staleTime: 5 * 60 * 1000,
   });
 
@@ -33,7 +35,7 @@ const StudentManagement: React.FC = () => {
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6 border border-gray-200 dark:border-gray-700">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">
               <RefreshCw className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
@@ -43,14 +45,24 @@ const StudentManagement: React.FC = () => {
               <p className="text-lg text-gray-500 dark:text-gray-400">Manage student accounts and access</p>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full lg:w-auto">
+            <div className="flex-1 sm:flex-initial">
+              <DebouncedInput
+                id="search"
+                type="text"
+                placeholder="Search name or email..."
+                value={search}
+                setValue={setSearch}
+                icon={()=><Search className="w-5 h-5 text-gray-400" />}
+              />
+            </div>
             <button
               onClick={() => {
                 refetch();
                 toast.success("User Data refreshed");
               }}
               disabled={isLoading}
-              className="p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+              className="p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors cursor-pointer disabled:opacity-50 whitespace-nowrap"
               title="Refresh data"
             >
               <RefreshCw className={`w-5 h-5 text-gray-600 dark:text-gray-300 ${isLoading ? 'animate-spin' : ''}`} />

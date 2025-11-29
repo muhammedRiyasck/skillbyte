@@ -27,7 +27,20 @@ export class AdminStudentController {
       sort = { [field]: dir === 'asc' ? 1 : -1 };
     }
 
-    const students = await this._getPaginatedStudentsUC.execute({}, page, limit, sort);
+    let filter: Record<string, any> = {};
+    const search = req.query.search as string;
+    if (search && search.trim()) {
+      filter = {
+        $or: [
+          { name: { $regex: search.trim(), $options: 'i' } },
+          { email: { $regex: search.trim(), $options: 'i' } },
+          { registeredVia: { $regex: search.trim(), $options: 'i' } },
+          { accountStatus: { $regex: search.trim(), $options: 'i' } },
+        ]
+      };
+    }
+
+    const students = await this._getPaginatedStudentsUC.execute(filter, page, limit, sort);
     ApiResponseHelper.success(res, "Students retrieved successfully", { students });
   };
   /**
