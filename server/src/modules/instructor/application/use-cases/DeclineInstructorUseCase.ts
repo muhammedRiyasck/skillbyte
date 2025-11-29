@@ -1,7 +1,11 @@
 import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRepository';
 import { declinedInstructorEmailTemplate } from '../../../../shared/templates/DeclinedInstructor';
 import { IDeclineInstructorUseCase } from '../interfaces/IDeclineInstructorUseCase';
-import { EmailJobData, JOB_NAMES, QUEUE_NAMES } from '../../../../shared/services/job-queue/JobTypes';
+import {
+  EmailJobData,
+  JOB_NAMES,
+  QUEUE_NAMES,
+} from '../../../../shared/services/job-queue/JobTypes';
 import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
 
 /**
@@ -14,9 +18,7 @@ export class DeclineInstructorUseCase implements IDeclineInstructorUseCase {
    * @param repo - The instructor repository for data operations.
    * @param mailer - The mailer service for sending emails.
    */
-  constructor(
-    private _instructorRepo: IInstructorRepository
-  ) {}
+  constructor(private _instructorRepo: IInstructorRepository) {}
 
   /**
    * Executes the instructor decline process.
@@ -31,14 +33,24 @@ export class DeclineInstructorUseCase implements IDeclineInstructorUseCase {
 
     const instructor = await this._instructorRepo.findById(id);
     if (instructor) {
-
       const emailData: EmailJobData = {
-      to: instructor.email,
-      subject: '⚠️ SkillByte Instructor Application Declined',
-      html: declinedInstructorEmailTemplate(instructor.name, reason)
-    };
+        to: instructor.email,
+        subject: '⚠️ SkillByte Instructor Application Declined',
+        html: declinedInstructorEmailTemplate(instructor.name, reason),
+      };
 
-    await jobQueueService.addJob(QUEUE_NAMES.EMAIL, JOB_NAMES.SEND_EMAIL, emailData);
+      await jobQueueService.addJob(
+        QUEUE_NAMES.EMAIL,
+        JOB_NAMES.SEND_EMAIL,
+        emailData,
+      );
     }
+
+    await jobQueueService.addJob(
+      QUEUE_NAMES.CLEANUP,
+      JOB_NAMES.DELETE_DECLINED_INSTRUCTOR,
+      { instructorId: id },
+      { delay: 2 * 24 * 60 * 60 * 1000 }, // 2 days
+    );
   }
 }

@@ -24,7 +24,7 @@ export function declinedInstructorEmailTemplate(name: string, reason?: string): 
     <ul style="font-size: 15px; line-height: 1.8; padding-left: 20px;">
       <li><strong>Review our Instructor Guidelines</strong> to understand our quality standards</li>
       <li><strong>Update your profile and teaching materials</strong> based on the feedback</li>
-      <li><strong>Reapply in the future</strong> once you're ready</li>
+      <li><strong>Reapply right after 2 days</strong> once you're ready</li>
     </ul>
 
     <p style="font-size: 16px; margin-top: 20px;">

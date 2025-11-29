@@ -3,6 +3,7 @@ import { ResumeUploadProcessor } from './processors/ResumeUploadProcessor';
 import { EmailProcessor } from './processors/EmailProcessor';
 import { MongoInstructorRepository } from '../../../modules/instructor/infrastructure/repositories/MongoInstructorRepository';
 import logger from '../../utils/Logger';
+import { DeleteDeclinedInstructorProcessor } from './processors/DeleteDeclinedInstructorProcessor';
 
 /**
  * Initializes job queue processors and services
@@ -21,6 +22,7 @@ export class JobQueueInitializer {
       const instructorRepo = new MongoInstructorRepository();
       new ResumeUploadProcessor(instructorRepo);
       new EmailProcessor();
+      new DeleteDeclinedInstructorProcessor(instructorRepo);
 
       logger.info('Job queue processors initialized successfully');
       this._initialized = true;
