@@ -3,8 +3,8 @@ import type { ValidationResponse } from "../types/ValidationResponse";
 interface LessonData {
   title: string;
   description: string;
-  file: File;
   resources: string[];
+  file?: File;
 }
 
 export const validateLesson = (data: LessonData): Record<string, ValidationResponse> => {
@@ -18,7 +18,7 @@ export const validateLesson = (data: LessonData): Record<string, ValidationRespo
     errors.title = { success: false, message: "Only letters, numbers, and spaces allowed." };
   }
   if (!data.description.trim()) {
-    errors.description = { success: false, message: "Title is description" };
+    errors.description = { success: false, message: "description is required" };
   } else if (data.description.length < 10 || data.description.length > 500) {
     errors.description = { success: false, message: "Description must be between 10 and 500 characters." };
   }
@@ -27,12 +27,14 @@ export const validateLesson = (data: LessonData): Record<string, ValidationRespo
   const maxSizeInMB = 900; // Maximum 200 MB
   const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
 
-  if (!data.file){
+  if (data.file !== undefined){
+    if (!data.file){
     errors.video = { success: false, message: "Lesson video is required" };
   } else if(!allowedTypes.includes(data.file.type)) {
-    errors.video = { success: false, message: "Invalid file type. Only MP4, WebM, and OGG videos are allowed." };
-  } else if (data.file.size > maxSizeInBytes) {
-    errors.video = { success: false, message: `File is too large. Maximum allowed size is ${maxSizeInMB} MB.` };
+      errors.video = { success: false, message: "Invalid file type. Only MP4, WebM, and OGG videos are allowed." };
+    } else if (data.file.size > maxSizeInBytes) {
+      errors.video = { success: false, message: `File is too large. Maximum allowed size is ${maxSizeInMB} MB.` };
+    }
   }
 
 

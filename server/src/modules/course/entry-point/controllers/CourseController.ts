@@ -28,6 +28,8 @@ import {
   type GetCourseQueryValidationType,
 } from '../../application/dtos/CourseValidationSchemas';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
+import { custom } from 'zod';
+import { duration } from 'zod/v4/classic/iso.cjs';
 
 export class CourseController {
   constructor(
@@ -46,10 +48,8 @@ export class CourseController {
    * @param res - Express response object.
    */
   createBase = async (req: Request, res: Response): Promise<void> => {
-    
     const authenticatedReq = req as AuthenticatedRequest;
     logger.info(`Create course base attempt from IP: ${authenticatedReq.ip}`);
-    console.log(authenticatedReq.body)
     const validatedData = CreateBaseSchema.parse(authenticatedReq.body);
     const {
       title,
@@ -66,15 +66,13 @@ export class CourseController {
       features,
     } = validatedData;
 
-
     const instructorId = authenticatedReq.user.id;
-
     const course = await this._createCourseUseCase.execute({
       instructorId,
       thumbnailUrl: thumbnail || null,
       title,
       subText: subText || '',
-      category: customCategory && customCategory ? customCategory : (category || ''),
+      category: customCategory ? customCategory : category || '',
       courseLevel: courseLevel || '',
       language: language || '',
       price: Number(price) || 0,
@@ -85,8 +83,12 @@ export class CourseController {
       status: 'draft',
     });
 
-    logger.info(`Course base created successfully for instructor ${instructorId}`);
-    ApiResponseHelper.created(res, 'Details added successfully', {courseId:course.courseId});
+    logger.info(
+      `Course base created successfully for instructor ${instructorId}`,
+    );
+    ApiResponseHelper.created(res, 'Details added successfully', {
+      courseId: course.courseId,
+    });
   };
 
   /**
@@ -100,19 +102,31 @@ export class CourseController {
     const authenticatedReq = req as AuthenticatedRequest;
     const { courseId } = authenticatedReq.params;
     if (!courseId) {
-      throw new HttpError(ERROR_MESSAGES.CANT_SEE_COURSEID, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.CANT_SEE_COURSEID,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
     if (!authenticatedReq.file) {
-      throw new HttpError(ERROR_MESSAGES.NO_FILE_UPLOADED, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.NO_FILE_UPLOADED,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     if (authenticatedReq.file.size > 2 * 1024 * 1024) {
       logger.warn('Thumbnail size exceeds 2MB');
-      throw new HttpError(ERROR_MESSAGES.THUMBNAIL_SIZE_EXCEEDED, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.THUMBNAIL_SIZE_EXCEEDED,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     if (!authenticatedReq.file.mimetype.startsWith('image/')) {
-      throw new HttpError(ERROR_MESSAGES.ONLY_IMAGE_FILES_ALLOWED, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.ONLY_IMAGE_FILES_ALLOWED,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     const url = await uploadToCloudinary(authenticatedReq.file.path, {
@@ -126,7 +140,9 @@ export class CourseController {
       thumbnailUrl: url,
     });
 
-    ApiResponseHelper.success(res,'Course Base Created Successfully', { courseId });
+    ApiResponseHelper.success(res, 'Course Base Created Successfully', {
+      courseId,
+    });
 
     // Delete the local uploaded file
     try {
@@ -146,7 +162,13 @@ export class CourseController {
     const authenticatedReq = req as AuthenticatedRequest;
     const courseId = authenticatedReq.params.courseId;
     const instructorId = authenticatedReq.user.id;
-    const data = authenticatedReq.body;
+    const data = {
+      ...authenticatedReq.body,
+      duration: authenticatedReq.body.access,
+      category: authenticatedReq.body.customCategory
+        ? authenticatedReq.body.customCategory
+        : authenticatedReq.body.category,
+    };
 
     await this._updateBaseUseCase.execute(courseId, instructorId, data);
     ApiResponseHelper.success(res, 'Course updated successfully');
@@ -159,14 +181,16 @@ export class CourseController {
    * @throws HttpError if status is invalid or update fails.
    */
   updateCourseStatus = async (req: Request, res: Response): Promise<void> => {
-    console.log('Update Course Status called');
     const authenticatedReq = req as AuthenticatedRequest;
     const courseId = authenticatedReq.params.courseId;
     const { status } = authenticatedReq.body;
     const instructorId = authenticatedReq.user.id;
 
     if (!['list', 'unlist'].includes(status)) {
-      throw new HttpError(ERROR_MESSAGES.INVALID_STATUS, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_STATUS,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     await this._updateCourseStatusUseCase.execute(
@@ -217,7 +241,9 @@ export class CourseController {
       sort,
     );
 
-    ApiResponseHelper.success(res, 'Courses retrieved successfully', { courses });
+    ApiResponseHelper.success(res, 'Courses retrieved successfully', {
+      courses,
+    });
   };
 
   /**
@@ -273,7 +299,9 @@ export class CourseController {
     };
 
     const courses = await this._getAllCoursesForAdminUseCase.execute(filters);
-    ApiResponseHelper.success(res, 'Courses retrieved successfully', { courses });
+    ApiResponseHelper.success(res, 'Courses retrieved successfully', {
+      courses,
+    });
   };
 
   /**
@@ -291,4 +319,3 @@ export class CourseController {
     ApiResponseHelper.success(res, 'Course deleted successfully');
   };
 }
-

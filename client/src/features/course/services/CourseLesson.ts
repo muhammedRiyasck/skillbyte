@@ -25,29 +25,20 @@ export const uploadFile = async (presignUrl: string, file: File, setProgress: (p
 };
 
 export const createLesson = async (data: LessonType): Promise<{message:string}> => {
-  
+
     const response = await api.post("/course/createlesson", data);
     return response.data;
 
 };
 
-// export async function uploadToB2({ uploadUrl, uploadAuthToken, file, setVideoURL, setUploadProgress }: uploadToB2Props) {
-//     try {
-//          const response = await api.post(uploadUrl, file, {
-//     headers: {
-//       Authorization: uploadAuthToken,
-//       "X-Bz-File-Name": encodeURIComponent(file.name),
-//       "Content-Type": "b2/x-auto",
-//     },
-//     onUploadProgress: (progressEvent) => {
-//       const percent = progressEvent.total ? Math.round((progressEvent.loaded * 100) / progressEvent.total) : 0;
-//       setUploadProgress(percent);
-//     },
-//   });
-//   setVideoURL(response.data.fileUrl);
-//   setUploadProgress(0);
-//     } catch (error:any) {
-//         toast.error(error.message)
-//         throw error.message
-//     }
-// }
+export const updateLesson = async (data: {lessonId: string, title?: string, description?: string, resources?: string[]}) => {
+  try {
+    const { lessonId, ...updateData } = data;
+    const response = await api.patch(`/course/lesson/${lessonId}`, updateData);
+    return response.data;
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'An unknown error occurred';
+    throw new Error(message);
+  }
+};
+

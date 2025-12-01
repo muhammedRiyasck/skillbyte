@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import TextInput from "@shared/ui/TextInput";
 import AboutCourseField from "../components/DynamicField";
@@ -6,12 +6,14 @@ import TagsInput from "../components/TagsInput";
 import ErrorMessage from "@shared/ui/ErrorMessage";
 import { validateCreateCourse } from "../validation/BaseCourseValidation";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ROUTES } from "@core/router/paths";
 import Spiner from "@shared/ui/Spiner";
 import CropImageModal from "@shared/ui/CropImageModal";
 import getCroppedImg from "@shared/utils/GetCroppedImg";
 import useCreateCourse from "../hooks/useCreateCourse";
+import { getCourseDetails } from "../services/CourseDetails";
+import { updateBase, uploadThumbnail } from "../services/CourseBase";
 
 type FormData = {
   title: string;
@@ -26,21 +28,27 @@ type FormData = {
   tags: string[];
   features: string[];
   thumbnailFile: File | null;
+  thumbnailUrl?: string;
 };
 
 const CreateCourse = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [spining, setSpining] = useState(false);
   const [isCropOpen, setIsCropOpen] = useState(false);
   const [croppedBlob, setCroppedBlob] = useState<Blob | null>(null);
   const [thumbnail, setThumbnail] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [originalData, setOriginalData] = useState<FormData | null>(null);
 
   const {
     handleSubmit,
     control,
     watch,
     formState: { errors },
-    setValue
+    setValue,
+    getValues,
+    reset,
   } = useForm<FormData>({
     defaultValues: {
       title: "",
@@ -56,13 +64,16 @@ const CreateCourse = () => {
       features: [""] as string[],
       thumbnailFile: null,
     },
-       resolver: async (data) => {
+    resolver: async (data) => {
       const validationErrors = validateCreateCourse({ ...data });
       const fieldErrors: Record<string, { type: string; message: string }> = {};
 
       Object.keys(validationErrors).forEach((key) => {
-        if (!validationErrors[key].success) {
-          fieldErrors[key] = { type: "manual", message: validationErrors[key].message };
+        if (!validationErrors["thumbnailFile"]?.success && thumbnail) {
+          delete validationErrors["thumbnailFile"];
+        }
+        if (validationErrors[key]?.success === false) {
+          fieldErrors[key] = { type: "manual", message: validationErrors[key]?.message };
         }
       });
 
@@ -74,9 +85,13 @@ const CreateCourse = () => {
   });
 
   const watchedCategory = watch("category");
-  
+
+  if (watchedCategory !== "Other") {
+    setValue("customCategory", "");
+  }
+
   const Category = ["Marketing", "Programming", "Designing", "Business", "Other"];
-  
+
   const Levels = [
     "Beginner",
     "Intermediate",
@@ -85,72 +100,151 @@ const CreateCourse = () => {
     "Intermediate - Advanced",
     "All Level",
   ];
-  
+
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setValue("thumbnailFile", file, { shouldValidate: true });
       setIsCropOpen(true);
+      e.target.value = "";
     }
   };
-  
+
   const thumbnailFile = watch("thumbnailFile");
   const handleCropComplete = async (croppedAreaPixels: { x: number; y: number; width: number; height: number }) => {
     if (!thumbnailFile || !croppedAreaPixels) return;
 
-  if (thumbnailFile?.size > 2 * 1024 * 1024) {
+    if (thumbnailFile?.size > 2 * 1024 * 1024) {
       toast.error("Thumbnail must be less than 2 MB");
       return;
-  }
+    }
     const croppedBlob = await getCroppedImg(URL.createObjectURL(thumbnailFile), croppedAreaPixels);
     setThumbnail(URL.createObjectURL(croppedBlob));
     setCroppedBlob(croppedBlob);
   };
 
+  // Pre-fill form if courseId is in location.state
+  const courseId = location.state?.courseId;
+  const isDisabled = courseId && !isEditing;
+  useEffect(() => {
+    if (courseId) {
+      getCourseDetails(courseId)
+        .then((courseData) => {
+          const course = courseData.data;
+          const category = Category.includes(course.category) ? course.category : "Other";
+          setThumbnail(course.thumbnailUrl || "");
+          setValue("title", course.title || "");
+          setValue("subText", course.subText || "");
+          setValue("category", category || "");
+          if (category === "Other") setValue("customCategory", course.category || "");
+          setValue("courseLevel", course.courseLevel || "");
+          setValue("language", course.language || "");
+          setValue("access", course.duration || "");
+          setValue("price", course.price + "" || "");
+          setValue("description", course.description || "");
+          setValue("tags", course.tags || []);
+          setValue("features", course.features || [""]);
+          setValue("thumbnailUrl", course.thumbnailUrl || "");
+          // Store original data for reset
+          setOriginalData(getValues());
+          setIsEditing(false);
+        })
+        .catch((error) => {
+          console.error("Failed to fetch course details:", error);
+          toast.error("Failed to load course data");
+        });
+    }
+  }, [location.state, setValue, getValues]);
+
   const createCourse = useCreateCourse();
 
   const onSubmit = async (data: FormData) => {
+    if (courseId) return;
     if (croppedBlob && thumbnailFile) {
+      try {
+        setSpining(true);
+        const courseId = await createCourse({ formData: data, croppedBlob, thumbnailFile });
+        navigate(ROUTES.instructor.uploadCourseContent, { state: { courseId } });
+        toast.success("Course created successfully!");
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          toast.error(error.message || "Something went wrong");
+        } else {
+          toast.error("Something went wrong");
+        }
+      } finally {
+        setSpining(false);
+      }
+    } else {
+      toast.error("Please select a thumbnail");
+    }
+  };
+
+  const handleDiscard = () => {
+    if (originalData) {
+      reset(originalData);
+      setThumbnail(originalData.thumbnailUrl || "");
+    }
+    setIsEditing(false);
+  };
+
+  const handleChange = async (data: FormData) => {
+    if (!courseId) return;
     try {
       setSpining(true);
-      const  courseId  = await createCourse({ formData: data, croppedBlob, thumbnailFile });
-      navigate(ROUTES.instructor.uploadCourseContent, { state: { courseId } });
-      toast.success("Course created successfully!");
+      await updateBase(courseId, data);
+      if (croppedBlob && thumbnailFile) {
+        await uploadThumbnail({
+          courseId,
+          blob: croppedBlob,
+          fileName: thumbnailFile.name,
+        });
+      }
+      toast.success("Course updated successfully!");
+      setIsEditing(false);
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message || "Something went wrong");
       } else {
         toast.error("Something went wrong");
       }
-  } finally {
-    setSpining(false);
-  }
-  } else {
-    toast.error("Please select a thumbnail");
-  }
-};
+    } finally {
+      setSpining(false);
+    }
+  };
   return (
-    
     <div className="min-h-screen flex flex-col ">
-      
       {spining && <Spiner />}
 
       {/* Top Navigation */}
-      <div className="bg-gray-200 dark:bg-gray-700  px-6 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-gray-800 dark:text-white">Create Course</h1>
-        <button className="border border-gray-300 text-center w-48 rounded-lg px-5 py-2 dark:text-gray-300 shadow-lg cursor-pointer bg-white dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500">
-          Save as Draft
-        </button>
+      <div className="bg-gray-200 z-10 fixed w-full dark:bg-gray-700 p-6 flex justify-between items-center">
+        <div className="flex flex-wrap items-center space-x-2">
+          <Link
+            to={ROUTES.instructor.myCourses}
+            className="text-blue-600 hover:text-blue-800 font-bold dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+          >
+            My Courses
+          </Link>
+          <span className="text-gray-500 dark:text-gray-400">{">"}</span>
+          <span className="text-xl font-bold text-gray-800 dark:text-white">Create Course</span>
+        </div>
       </div>
 
-      <div className="flex-col bg-white dark:bg-gray-800 min-h-screen">
+      <div className="flex-col pt-28 bg-white dark:bg-gray-800 min-h-screen">
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={(e) => e.preventDefault()}
           className={` lg:w-4/6 rounded-lg shadow-2xl p-6 m-6 mx-auto  dark:bg-gray-700 dark:text-gray-100 dark:border ${
             Object.keys(errors).length > 0 ? "border border-red-600" : ""
           } `}
         >
-          <h2 className="text-lg font-semibold mb-6">Basics</h2>
+          <div className="flex justify-between mb-6 ">
+            <h2 className=" font-semibold text-lg">Basics</h2>
+            {courseId && (
+              <button onClick={() => setIsEditing(true)} className=" text-2xl cursor-pointer">
+                &#128393;
+              </button>
+            )}
+          </div>
 
           {/* Thumbnail */}
           <div className="mb-6">
@@ -171,26 +265,39 @@ const CreateCourse = () => {
                 <p className="text-gray-400">No image selected</p>
               )}
               <div className="flex gap-3 mt-2">
-                <label className="cursor-pointer bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+                <label
+                  className={`cursor-pointer bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition ${
+                    isDisabled ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                >
                   Change
-                  <input type="file" accept="image/*" className="hidden" onChange={handleThumbnailChange} />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleThumbnailChange}
+                    disabled={isDisabled}
+                  />
                 </label>
                 {thumbnail && (
                   <button
                     onClick={() => {
                       setThumbnail("");
-                      setValue("thumbnailFile", null, { shouldValidate: true }); // ✅ also clears validation
-
+                      setValue("thumbnailFile", null);
                       setCroppedBlob(null);
                     }}
-                    className="cursor-pointer border border-gray-300 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition"
+                    className={`cursor-pointer border border-gray-300 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition ${
+                      isDisabled ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                    disabled={isDisabled}
                   >
                     Remove
                   </button>
                 )}
               </div>
             </div>
-           {errors.thumbnailFile?.message && <ErrorMessage error={errors.thumbnailFile.message} />}
+            {errors.thumbnailFile?.message && <ErrorMessage error={errors.thumbnailFile.message} />}
+            {/* {isEditing&&!thumbnail?'Thumbnail is requiredd':isEditing&&!thumbnail?errors.thumbnailFile?.message && <ErrorMessage error={errors.thumbnailFile.message} />:''} */}
           </div>
 
           {/* Two Column Form */}
@@ -208,6 +315,7 @@ const CreateCourse = () => {
                     type="text"
                     placeholder="Enter course title"
                     className="dark:border-white"
+                    disabled={isDisabled}
                   />
                 )}
               />
@@ -227,6 +335,7 @@ const CreateCourse = () => {
                     rows={2}
                     placeholder="Enter short sentence"
                     className="w-full border border-gray-400 rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    disabled={isDisabled}
                   />
                 )}
               />
@@ -244,6 +353,7 @@ const CreateCourse = () => {
                     {...field}
                     value={field.value || ""}
                     className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
+                    disabled={isDisabled}
                   >
                     <option disabled value="">
                       Select Category
@@ -267,12 +377,13 @@ const CreateCourse = () => {
                       type="text"
                       placeholder="Enter custom category"
                       className="mt-4 dark:border-white"
+                      disabled={isDisabled}
                     />
                   )}
                 />
               )}
               {errors.category?.message && <ErrorMessage error={errors.category.message} />}
-              {errors.customCategory?.message&& <ErrorMessage error={errors.customCategory.message} />}
+              {errors.customCategory?.message && <ErrorMessage error={errors.customCategory.message} />}
             </div>
 
             {/* Course Level */}
@@ -286,6 +397,7 @@ const CreateCourse = () => {
                     {...field}
                     value={field.value || ""}
                     className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
+                    disabled={isDisabled}
                   >
                     <option disabled value="">
                       Select Level
@@ -312,6 +424,7 @@ const CreateCourse = () => {
                     {...field}
                     value={field.value || ""}
                     className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
+                    disabled={isDisabled}
                   >
                     <option disabled value="">
                       Select Language
@@ -334,6 +447,7 @@ const CreateCourse = () => {
                     {...field}
                     value={field.value || ""}
                     className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
+                    disabled={isDisabled}
                   >
                     <option disabled value="">
                       Select Duration
@@ -360,6 +474,7 @@ const CreateCourse = () => {
                     type="text"
                     placeholder="Enter Price"
                     className="dark:border-white"
+                    disabled={isDisabled}
                   />
                 )}
               />
@@ -378,6 +493,7 @@ const CreateCourse = () => {
                     onChange={field.onChange}
                     placeholder="Add tags (e.g., #javascript, #react, #webdev)"
                     className="dark:bg-gray-700"
+                    disabled={isDisabled}
                   />
                 )}
               />
@@ -388,11 +504,7 @@ const CreateCourse = () => {
           {/* About Course */}
           <div className="mt-6">
             <label className="block text-gray-700 dark:text-white mb-2">About This Course (features)</label>
-            <AboutCourseField
-              control={control}
-              name="features"
-              placeholder="point"
-            />
+            <AboutCourseField control={control} name="features" placeholder="point" isDisabled={isDisabled} />
             {errors.features?.message && <ErrorMessage error={errors.features.message} />}
           </div>
 
@@ -409,6 +521,7 @@ const CreateCourse = () => {
                     rows={5}
                     placeholder="Write course description..."
                     className="w-full border border-gray-400 rounded-lg px-4 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    disabled={isDisabled}
                   />
                 )}
               />
@@ -417,15 +530,44 @@ const CreateCourse = () => {
           </div>
 
           {/* Next Button */}
-          <div className="flex justify-end mt-8">
-            <button
-              type="submit"
-              className={`bg-indigo-600 text-white rounded-lg px-6 py-2 hover:bg-indigo-700 transition cursor-pointer ${
-                Object.keys(errors).length > 0 ? "opacity-50 cursor-not-allowed" : ""
-              }`}
-            >
-              Next →
-            </button>
+          <div className="flex justify-end mt-8 gap-4">
+            {!courseId ? (
+              <button
+                type="submit"
+                onClick={handleSubmit(onSubmit)}
+                className={`bg-indigo-600 text-white rounded-lg px-6 py-2 hover:bg-indigo-700 transition cursor-pointer ${
+                  Object.keys(errors).length > 0 ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                Next →
+              </button>
+            ) : isEditing ? (
+              <>
+                <button
+                  onClick={handleDiscard}
+                  className="border border-gray-300 text-gray-400 px-6 py-2 rounded-lg hover:bg-gray-100 transition cursor-pointer"
+                >
+                  Discard
+                </button>
+                <button
+                  onClick={handleSubmit(handleChange)}
+                  className={`bg-indigo-600 text-white rounded-lg px-6 py-2 hover:bg-indigo-700 transition cursor-pointer ${
+                    Object.keys(errors).length > 0 ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                >
+                  Change
+                </button>
+              </>
+            ) : (
+              // navigate to content upload page if courseId exists and not editing
+              <Link
+                to={ROUTES.instructor.uploadCourseContent}
+                state={{ courseId }}
+                className="bg-indigo-600 text-white rounded-lg px-6 py-2 hover:bg-indigo-700 transition cursor-pointer"
+              >
+                Next →
+              </Link>
+            )}
           </div>
         </form>
       </div>

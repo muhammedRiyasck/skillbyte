@@ -88,7 +88,7 @@ const CourseCard = memo<CourseCardProps>(({
     // Status Badge
     return (
       <span className={cn(
-        "text-white z-10 absolute right-2 top-2 px-3 py-1 rounded-md text-xs font-medium",
+        "text-white absolute right-2 top-2 px-3 py-1 rounded-md text-xs font-medium",
         config.className
       )}>
         {config.label}

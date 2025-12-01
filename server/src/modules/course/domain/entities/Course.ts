@@ -11,7 +11,7 @@ export class Course {
     public price: number,
     public features: string[],
     public description: string,
-    public duration: Date,
+    public duration: string,
     public tags: string[],
     public status: "draft" | "list" | "unlist" = "draft",
     public courseId?: string,

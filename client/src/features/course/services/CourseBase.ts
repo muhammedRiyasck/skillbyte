@@ -13,6 +13,17 @@ export const createBase = async (data: Ibase) => {
   }
 };
 
+export const updateBase = async (courseId: string, data: any) => {
+  try {
+    const response = await api.patch(`/course/${courseId}`, data);
+    return response.data;
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'An unknown error occurred';
+    toast.error(message);
+    throw new Error(message);
+  }
+};
+
 export const uploadThumbnail = async ({courseId,blob,fileName}: {
   courseId: string;
   blob: Blob;

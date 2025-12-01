@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { string } from "zod";
 
 const CourseSchema = new mongoose.Schema({
   instructorId: { type: mongoose.Schema.Types.ObjectId, ref: "Instructor", required: true },
@@ -18,7 +19,7 @@ const CourseSchema = new mongoose.Schema({
   price: { type: Number, default: 0  },
   features: [{type:String, required:true}],
   description: { type: String, required: true },
-  duration: {type:Date, required:true},
+  duration: {type:String, required:true},
   tags: [{type:String, required:true}],
   status: {
   type: String,

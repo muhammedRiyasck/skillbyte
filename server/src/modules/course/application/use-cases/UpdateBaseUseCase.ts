@@ -1,4 +1,4 @@
-import DurationConverter from '../../../../shared/utils/DurationConverter';
+
 import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
 import { Course } from '../../domain/entities/Course';
 import { IUpdateBaseUseCase } from '../interfaces/IUpdateBaseUseCase';
@@ -20,7 +20,6 @@ export class UpdateBaseUseCase implements IUpdateBaseUseCase {
   /**
    * Executes the course update logic.
    * Validates the course exists and the instructor has permission, then updates the provided fields.
-   * Converts duration if provided as a string.
    * @param courseId - The ID of the course to update.
    * @param instructorId - The ID of the instructor making the update.
    * @param data - The partial course data to update.
@@ -43,18 +42,8 @@ export class UpdateBaseUseCase implements IUpdateBaseUseCase {
       throw new HttpError(ERROR_MESSAGES.UNAUTHORIZED, HttpStatusCode.FORBIDDEN);
     }
 
-    // Prepare update data, handling duration conversion if needed
-    const { duration, ...rest } = data;
-    const updateData: Partial<Course> = rest;
-    if (duration !== undefined) {
-      if (typeof duration === 'string') {
-        updateData.duration = DurationConverter(duration);
-      } else {
-        updateData.duration = duration;
-      }
-    }
-
+    
     // Update the course base information
-    await this._CourseRepo.updateBaseInfo(courseId, updateData);
+    await this._CourseRepo.updateBaseInfo(courseId, data);
   }
 }

@@ -1,7 +1,6 @@
 import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
 import { CreateCourseDTO } from "../dtos/CreateBaseDTO";
 import { Course } from "../../domain/entities/Course";
-import DurationConverter from "../../../../shared/utils/DurationConverter";
 import { ICreateBaseUseCase } from "../interfaces/ICreateBaseUseCase";
 
 /**
@@ -22,9 +21,7 @@ export class CreateBaseUseCase implements ICreateBaseUseCase {
    * @returns A promise that resolves to the created Course entity.
    */
   async execute(dto: CreateCourseDTO): Promise<Course> {
-    const calculatedDate = DurationConverter(dto.duration);
-    const tagsArray = dto.tags;
-    console.log(dto.category,'category')
+     ;
     const course = new Course(
       dto.instructorId,
       dto.thumbnailUrl,
@@ -36,8 +33,8 @@ export class CreateBaseUseCase implements ICreateBaseUseCase {
       dto.price,
       dto.features,
       dto.description,
-      calculatedDate,
-      tagsArray,
+      dto.duration,
+      dto.tags,
     );
     return await this._courseRepo.save(course);
   }

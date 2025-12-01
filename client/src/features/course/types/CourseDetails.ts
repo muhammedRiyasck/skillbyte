@@ -14,6 +14,7 @@ export interface CourseDetails {
   title: string;
   subText: string;
   category: string;
+  customCategory: string;
   courseLevel: string;
   language: string;
   price: number;

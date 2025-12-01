@@ -7,20 +7,22 @@ type DynamicFieldProps = {
   control: Control<any>;
   name: string;
   placeholder: string;
+  isDisabled?: boolean;
 };
 
-export default function DynamicField({ control, name, placeholder }: DynamicFieldProps) {
+export default function DynamicField({ control, name, placeholder,isDisabled }: DynamicFieldProps) {
   const { fields, append, remove } = useFieldArray({
     control,
     name
   });
 
   const handleAddField = () => {
-    if (fields.length >= 6) return;
+    if (isDisabled || fields.length >= 6) return;
     append("");
   };
 
   const handleRemoveField = (index: number) => {
+    if (isDisabled) return;
     remove(index);
   };
 
@@ -39,6 +41,7 @@ export default function DynamicField({ control, name, placeholder }: DynamicFiel
                   placeholder={`Enter ${placeholder} ${index + 1}`}
                   value={field.value}
                   onChange={field.onChange}
+                  disabled={isDisabled}
                   onBlur={field.onBlur}
                   name={field.name}
                   className="dark:bg-gray-700 dark:border dark:border-white"

@@ -11,3 +11,15 @@ export const createModule = async (data: {courseId:string,order:number,moduleId:
     throw new Error(message);
   }
 };
+
+export const updateModule = async (data: {moduleId:string,title:string,description:string}) => {
+  try {
+    const { moduleId, ...updateData } = data;
+    const response = await api.patch(`/course/module/${moduleId}`, updateData);
+    return response.data;
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'An unknown error occurred';
+    toast.error(message);
+    throw new Error(message);
+  }
+};
