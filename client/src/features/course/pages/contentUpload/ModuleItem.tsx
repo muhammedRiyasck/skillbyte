@@ -5,8 +5,10 @@ import LessonItem from "./LessonItem";
 import { validateModule } from "../../validation/ModuleValidation";
 import ErrorMessage from "@shared/ui/ErrorMessage";
 import { useState, useCallback } from "react";
-import { createModule, updateModule } from "../../services/CourseModule";
+import { createModule, updateModule, deleteModule } from "../../services/CourseModule";
 import { useQueryClient } from "@tanstack/react-query";
+import { Modal } from "@/shared/ui";
+import { toast } from "sonner";
 
 interface Props {
   courseId: string;
@@ -29,6 +31,8 @@ export default function ModuleItem({ courseId, module, order, moduleLength, setM
     initial: /^\d{13,}$/.test(module.moduleId),
     prevState: { moduleTitle: "", moduleDescription: "" },
   });
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  
   const updateModuleState = useCallback(
     (updated: ModuleType) => {
       setModules((prev) => prev.map((m) => (m.moduleId === module.moduleId ? updated : m)));
@@ -105,11 +109,33 @@ export default function ModuleItem({ courseId, module, order, moduleLength, setM
     [setModules]
   );
 
+  const handleDelete = useCallback(async () => {
+    try {
+      await deleteModule(module.moduleId);
+      removeModule(module.moduleId);
+      queryClient.invalidateQueries({ queryKey: ["modulesAndLesson", courseId, "modules,lessons"] });
+      toast.success("Module deleted successfully");
+      setIsDeleteModalOpen(false);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "An unknown error occurred";
+      toast.error(message);
+    }
+  }, [module.moduleId, removeModule, queryClient, courseId]);
+
   return (
     <div className=" space-y-4 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
       <div className="flex ">
         {moduleLength > 1 && (
-          <button className="cursor-pointer" onClick={() => removeModule(module.moduleId)}>
+          <button
+            className="cursor-pointer"
+            onClick={() => {
+              if (!/^\d{13,}$/.test(module.moduleId)) {
+                setIsDeleteModalOpen(true);
+              } else {
+                removeModule(module.moduleId);
+              }
+            }}
+          >
             <X size={32} />
           </button>
         )}
@@ -195,6 +221,16 @@ export default function ModuleItem({ courseId, module, order, moduleLength, setM
       >
         {/^\d{13,}$/.test(module.moduleId) ? "Create Moduele" : "Add Lesson"}
       </button>
+            <Modal
+              isOpen={isDeleteModalOpen}
+              onClose={() => setIsDeleteModalOpen(false)}
+              title="Confirm Deletion"
+              onConfirm={handleDelete}
+              confirmLabel="Delete"
+              cancelLabel="Cancel"
+            >
+              <p className="dark:text-white">Are you sure you want to delete this module you uploaded?<br /><br /> <strong>This action cannot be undone.</strong></p>
+            </Modal>
     </div>
   );
 }

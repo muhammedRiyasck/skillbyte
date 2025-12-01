@@ -42,3 +42,13 @@ export const updateLesson = async (data: {lessonId: string, title?: string, desc
   }
 };
 
+export const deleteLesson = async (lessonId: string) => {
+  try {
+    const response = await api.delete(`/course/lesson/${lessonId}`);
+    return response.data;
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'An unknown error occurred';
+    throw new Error(message);
+  }
+};
+

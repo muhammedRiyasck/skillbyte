@@ -8,10 +8,11 @@ import TextInput from "@shared/ui/TextInput";
 import DynamicField from "../../components/DynamicField";
 import { validateLesson } from "../../validation/LessonValidation";
 import ErrorMessage from "@shared/ui/ErrorMessage";
-import { createLesson, getPresignedUrl, uploadFile, updateLesson } from "../../services/CourseLesson";
+import { createLesson, getPresignedUrl, uploadFile, updateLesson, deleteLesson } from "../../services/CourseLesson";
 import { getVideoDuration } from "../../utility/GetVideoDuration";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import Modal from "@shared/ui/Modal";
 
 interface Props {
   lesson: LessonType;
@@ -40,6 +41,7 @@ export default function LessonItem({ lesson, courseId, moduleId, order, setModul
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [errors, setErrors] = useState<Record<string, { success: boolean; message: string }>>({});
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const { control, watch } = useForm<{ resources: string[] }>({
@@ -168,6 +170,19 @@ export default function LessonItem({ lesson, courseId, moduleId, order, setModul
     }
   }, [lesson, watchedResources, queryClient]);
 
+  const handleDelete = useCallback(async () => {
+    try {
+      await deleteLesson(lesson.lessonId);
+      removeLesson(moduleId, lesson.lessonId);
+      queryClient.invalidateQueries({ queryKey: ["modulesAndLesson", courseId, "modules,lessons"] });
+      toast.success("Lesson deleted successfully");
+      setIsDeleteModalOpen(false);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "An unknown error occurred";
+      toast.error(message);
+    }
+  }, [lesson.lessonId, moduleId, removeLesson, queryClient, courseId]);
+
   return (
     <div className="space-y-4 mb-3 rounded-2xl  bg-gray-200  dark:bg-gray-800 shadow-2xl p-4">
       <div className="flex-col space-y-4">
@@ -278,7 +293,11 @@ export default function LessonItem({ lesson, courseId, moduleId, order, setModul
           <div className="flex justify-between items-center ">
             <button
               type="button"
-              onClick={() => removeLesson(moduleId, lesson.lessonId)}
+              onClick={() => {
+                if(!/^\d{13,}$/.test(lesson.lessonId) ) setIsDeleteModalOpen(true)
+                else removeLesson(moduleId, lesson.lessonId)
+                }
+              }
               className="cursor-pointer border border-gray-400 p-2 rounded-lg my-4 "
             >
               Delete🗑️
@@ -305,6 +324,16 @@ export default function LessonItem({ lesson, courseId, moduleId, order, setModul
         )}
       </div>
       {uploadProgress > 0 && <UploadProgressBar progress={uploadProgress} />}
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="Confirm Deletion"
+        onConfirm={handleDelete}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+      >
+        <p className="dark:text-white">Are you sure you want to delete this lesson you uploaded?<br /><br /> <strong>This action cannot be undone.</strong></p>
+      </Modal>
     </div>
   );
 }

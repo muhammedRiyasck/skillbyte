@@ -23,3 +23,14 @@ export const updateModule = async (data: {moduleId:string,title:string,descripti
     throw new Error(message);
   }
 };
+
+export const deleteModule = async (moduleId: string) => {
+  try {
+    const response = await api.delete(`/course/module/${moduleId}`);
+    return response.data;
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'An unknown error occurred';
+    toast.error(message);
+    throw new Error(message);
+  }
+};
