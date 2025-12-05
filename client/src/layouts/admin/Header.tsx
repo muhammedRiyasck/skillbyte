@@ -13,12 +13,12 @@ import { toast } from "sonner";
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const user = useSelector((store: RootState) => store.auth.user);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const handleLogout = async () => {
     const response = await logout();
     dispatch(clearUser());
-    navigate(ROUTES.root, { replace: true })
+    navigate(ROUTES.root, { replace: true });
     toast.success(response.message);
   };
   return (
@@ -55,6 +55,7 @@ const Header = () => {
                 </button>
               </div>
               <nav className="space-y-2">
+
                 <Link
                   to={ROUTES.root}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm"
@@ -64,6 +65,14 @@ const Header = () => {
                   <span className="font-medium">Dashboard</span>
                 </Link>
                 <Link
+                  to={ROUTES.admin.courseManagement}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <BookOpen size={20} className="text-purple-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">Courses Management</span>
+                </Link>
+                <Link
                   to={ROUTES.admin.instructorManagement}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm"
                   onClick={() => setIsOpen(false)}
@@ -71,6 +80,7 @@ const Header = () => {
                   <Users size={20} className="text-green-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Instructor Management</span>
                 </Link>
+
                 <Link
                   to={ROUTES.admin.studentManagement}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm"
@@ -79,14 +89,7 @@ const Header = () => {
                   <UserCheck size={20} className="text-blue-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Student Management</span>
                 </Link>
-                <Link
-                  to="#"
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <BookOpen size={20} className="text-purple-600 group-hover:scale-110 transition-transform" />
-                  <span className="font-medium">Courses Management</span>
-                </Link>
+
                 <Link
                   to="#"
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm"

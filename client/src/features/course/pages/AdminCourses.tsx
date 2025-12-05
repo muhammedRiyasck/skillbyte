@@ -7,26 +7,25 @@ import DropDown from "@shared/ui/DropDown";
 import { BookOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import CourseRender from "../components/CourseRender";
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/core/store/Index';
 
 
 const options = ["All Courses", "Drafted Courses", "Listed Courses", "Unlisted Courses"];
 
-const InstructorCourses: React.FC = () => {
+const AdminCourses: React.FC = () => {
   const [page, setPage] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(options[0]);
   const queryClient = useQueryClient();
-  const role = useSelector((state: RootState) => state.auth.user?.role);
 
   const limit = 6
 
   const { data, isLoading, isError,error ,refetch } = useQuery({
-    queryKey: ['courses', selectedStatus, page, role],
-    queryFn: () => api.get(`/course/instructor-courses?status=${selectedStatus}&page=${page}&limit=${limit}`).then(r => r.data),
+    queryKey: ['courses',selectedStatus, page],
+    queryFn: () => api.get(`/course/admin/courses?status=${selectedStatus}&page=${page}&limit=${limit}`).then(r => r.data),
     staleTime: 5 * 60 * 1000
   });
+
+  console.log(data,'from admin courses page');
 
   if (isLoading) return <Card/>
   
@@ -38,7 +37,7 @@ const InstructorCourses: React.FC = () => {
 
   const handleStatusChange = (courseId: string, status: string) => {
     // Update the local state by modifying the cached data
-    queryClient.setQueryData(['courses', selectedStatus, page, role], (oldData: { data: { data: {_id: string;status: string;}[] } }) => {
+    queryClient.setQueryData(['courses', selectedStatus, page, ], (oldData: { data: { data: {_id: string;status: string;}[] } }) => {
       if (!oldData) return oldData;
       const updatedCourses = oldData.data.data.map((course: {_id: string;status: string;}
 ) =>
@@ -72,10 +71,10 @@ const InstructorCourses: React.FC = () => {
         </div>
       </div>
 
-      <CourseRender data={data?.data?.data} page={page} totalPages={data?.data?.meta?.totalPages || 1} setPage={setPage} role={'instructor'} onStatusChange={handleStatusChange}  />
+      <CourseRender data={data?.data?.courses?.data} page={page} totalPages={data?.data?.courses?.meta?.totalPages || 1} setPage={setPage} role={'admin'} onStatusChange={handleStatusChange}  />
   
     </div>
   );
 };
 
-export default InstructorCourses;
+export default AdminCourses;

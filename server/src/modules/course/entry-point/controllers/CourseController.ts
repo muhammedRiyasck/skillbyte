@@ -291,14 +291,36 @@ export class CourseController {
    * @param res - Express response object.
    */
   getAllCourses = async (req: Request, res: Response): Promise<void> => {
-    const filters = {
-      instructorId: req.query.instructorId as string,
-      status: req.query.status as string,
-      category: req.query.category as string,
-      search: req.query.search as string,
-    };
+     const authenticatedReq = req as AuthenticatedRequest;
 
-    const courses = await this._getAllCoursesForAdminUseCase.execute(filters);
+    const status = authenticatedReq.query.status as string;
+    const page = Number(authenticatedReq.query.page) || 1;
+    const limit = Number(authenticatedReq.query.limit) || 6;
+    let query: Record<string, string> = {};
+
+    // Filter by status if provided
+    if (status === 'Drafted Courses') {
+      query.status = 'draft';
+    } else if (status === 'Listed Courses') {
+      query.status = 'list';
+    } else if (status === 'Unlisted Courses') {
+      query.status = 'unlist';
+    }
+    console.log('Query Status:', query.status);
+
+    let sort: Record<string, 1 | -1> = { createdAt: -1 };
+    if (typeof authenticatedReq.query.sort === 'string') {
+      const [field, dir] = (authenticatedReq.query.sort as string).split(':');
+      sort = { [field]: dir === 'asc' ? 1 : -1 };
+    }
+
+    const courses = await this._getPaginatedCoursesUseCase.execute(
+      query,
+      page,
+      limit,
+      sort,
+    );   
+
     ApiResponseHelper.success(res, 'Courses retrieved successfully', {
       courses,
     });

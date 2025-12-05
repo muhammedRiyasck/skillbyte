@@ -6,28 +6,18 @@ import ToggleSwitch from "@/shared/ui/ToggleSwitch";
 import Modal from "@/shared/ui/Modal";
 import { updateCourseStatus } from "../services/CourseStatus";
 
-interface Course {
-  _id: string;
-  title: string;
-  subText: string;
-  description: string;
-  rating: number;
-  reviews: string;
-  language: string;
-  thumbnailUrl: string;
-  status: 'draft' | 'list' | 'unlist';
-}
+import type { Ibase } from "../types/IBase";
 
 interface CourseCardProps {
-  courses: Course[];
-  isStudent?: boolean;
-  onStatusChange?: (courseId: string, status: string) => void;
+  courses: Ibase[];
+  role?: string;
+  onStatusChange?: (courseId: string, status: string) => void  ;
 }
 
 
 const CourseCard = memo<CourseCardProps>(({
   courses,
-  isStudent = false,
+  role = 'student',
   onStatusChange
 }) => {
   const navigate = useNavigate();
@@ -37,11 +27,7 @@ const CourseCard = memo<CourseCardProps>(({
     newStatus: "list"
   });
 
-
-
-
-
-  const handleToggleChange = useCallback((course: Course) => {
+  const handleToggleChange = useCallback((course: Ibase) => {
     const newStatus = course.status === "list" ? "unlist" : "list";
     setConfirmModal({
       isOpen: true,
@@ -67,7 +53,7 @@ const CourseCard = memo<CourseCardProps>(({
     setConfirmModal({ isOpen: false, courseId: "", newStatus: "list" });
   }, []);
 
-  const getStatusBadge = (status: Course['status']) => {
+  const getStatusBadge = (status: Ibase['status']) => {
     const statusConfig = {
       draft: { label: 'Drafted', className: 'bg-orange-400' },
       unlist: { label: 'Unlisted', className: 'bg-red-600' },
@@ -88,7 +74,7 @@ const CourseCard = memo<CourseCardProps>(({
     // Status Badge
     return (
       <span className={cn(
-        "text-white absolute right-2 top-2 px-3 py-1 rounded-md text-xs font-medium",
+        "text-white z-1 absolute right-2 top-2 px-3 py-1 rounded-md text-xs font-medium",
         config.className
       )}>
         {config.label}
@@ -96,20 +82,20 @@ const CourseCard = memo<CourseCardProps>(({
     );
   };
   
-  const getActionButton = (course: Course) => {
+  const getActionButton = (course: Ibase) => {
 
-    if (isStudent) {
+    if (role === 'student') {
       // Action Button for Students
       return (
         <button
-        onClick={() => navigate(ROUTES.student.courseDetails.replace(':courseId', course._id))}
+        onClick={() => navigate(ROUTES.course.details.replace(':courseId', course._id))}
         className="mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
         >
           Enroll Now
           {/* View Course */}
         </button>
       );
-    }
+    }else if(role === 'instructor' ){
 
     // Action Button for Instructors
     return (
@@ -123,7 +109,18 @@ const CourseCard = memo<CourseCardProps>(({
         Continue Upload
       </button>
     );
-  };
+  }else if(role === 'admin'){
+    return (
+      <button
+        onClick={() => navigate(ROUTES.course.details.replace(':courseId', course._id))}
+        className={
+          "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none cursor-pointer bg-orange-500 hover:bg-orange-600"}
+      >
+        Manage Course
+      </button>
+    );
+  }
+}
 
   // Main Render
   return (
@@ -134,7 +131,7 @@ const CourseCard = memo<CourseCardProps>(({
           className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 p-6 flex flex-col group hover:-translate-y-2 border border-gray-100 dark:border-gray-700"
         >
           <div className="rounded-lg overflow-hidden mb-4 relative">
-            {!isStudent && getStatusBadge(course.status)}
+            {role !== 'student' && getStatusBadge(course.status)}
             <img
               src={course.thumbnailUrl}
               alt={course.title}
@@ -146,7 +143,7 @@ const CourseCard = memo<CourseCardProps>(({
 
           <h2 className="flex justify-between text-gray-900 dark:text-white text-xl font-bold mb-3 line-clamp-2 leading-tight">
             {course.title}
-            {!isStudent && (
+            {role === 'instructor' && (
               <ToggleSwitch
                 checked={course.status === "list"}
                 onChange={() => handleToggleChange(course)}

@@ -52,3 +52,13 @@ export const deleteLesson = async (lessonId: string) => {
   }
 };
 
+export const blockLesson = async (lessonId: string, isBlocked: boolean) => {
+  try {
+    const response = await api.patch(`/course/lesson/${lessonId}/block`, { isBlocked });
+    return response.data;
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'An unknown error occurred';
+    throw new Error(message);
+  }
+};
+

@@ -11,6 +11,7 @@ export class Lesson {
       public resources: string[],
       public isFreePreview: boolean = false,
       public isPublished: boolean = false,
+      public isBlocked: boolean = false,
       public lessonId?: string ,
       public createdAt?: Date,
       public updatedAt?: Date,

@@ -13,7 +13,7 @@ const PublicRoute = ({ children , endPoint }: { children: React.ReactElement ,en
     } 
   if(user?.role==='admin'){
     console.log('instructor route')
-    return <Navigate to={ROUTES.admin.studentManagement} replace={true} />;
+    return <Navigate to={ROUTES.admin.courseManagement} replace={true} />;
     } 
   if(endPoint) if (user) return <Navigate to={endPoint} replace />;
 

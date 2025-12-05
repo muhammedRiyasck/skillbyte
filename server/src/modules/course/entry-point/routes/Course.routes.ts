@@ -31,6 +31,7 @@ router.post("/createlesson", authenticate, requireRole('instructor'), asyncHandl
 router.post("/presign", authenticate, requireRole('instructor'), asyncHandler(lessonController.getUploadUrl))
 router.post("/signedUrl", authenticate, requireRole('instructor'), asyncHandler(lessonController.getVideoSignedUrls))
 router.patch("/lesson/:lessonId", authenticate, requireRole('instructor'), asyncHandler(lessonController.updateLesson));
+router.patch("/lesson/:lessonId/block", authenticate, requireRole('admin'), asyncHandler(lessonController.blockLesson));
 router.delete("/lesson/:lessonId", authenticate, requireRole('instructor'), asyncHandler(lessonController.deleteLesson));
 
 

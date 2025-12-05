@@ -8,6 +8,7 @@ import { DeleteLessonUseCase } from "../../application/use-cases/DeleteLessonUse
 import { MongoCourseRepository } from "../../infrastructure/repositories/MongoCourseRepository";
 import { MongoModuleRepository } from "../../infrastructure/repositories/MongoModuleRepository";
 import { MongoLessonRepository } from "../../infrastructure/repositories/MongoLessonRepository";
+import { BlockLessonUseCase } from "../../application/use-cases/BlockLessonUseCase";
 
 const moduleRepository = new MongoModuleRepository();
 const courseRepository = new MongoCourseRepository();
@@ -25,10 +26,14 @@ const updateLessonUC = new UpdateLessonUseCase(
     courseRepository
 );
 
+const blockLessonUC = new BlockLessonUseCase(
+    LessonRepo
+);
+
 const deleteLessonUC = new DeleteLessonUseCase(
     LessonRepo,
     moduleRepository,
     courseRepository
 );
 
-export const lessonController = new LessonController(createLessonUC , updateLessonUC , deleteLessonUC);
+export const lessonController = new LessonController(createLessonUC , updateLessonUC , blockLessonUC, deleteLessonUC  );

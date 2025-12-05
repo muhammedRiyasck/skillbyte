@@ -47,7 +47,6 @@ const Login: React.FC = () => {
 
     } catch (err) {
       console.error('Login error:', err);
-      toast.error('Login failed. Please try again.');
     } finally {
       setLoading(false);
     }

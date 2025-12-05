@@ -10,7 +10,8 @@ const LessonSchema = new mongoose.Schema({
   duration: Number,
   resources: [{ type: String }],
   isFreePreview: { type: Boolean, default: false },
-  isPublished: { type: Boolean, default: false }
+  isPublished: { type: Boolean, default: false },
+  isBlocked: { type: Boolean, default: false },
 }, { timestamps: true });
 
 LessonSchema.index({ moduleId: 1, order: 1 });

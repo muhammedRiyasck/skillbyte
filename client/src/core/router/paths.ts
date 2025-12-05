@@ -18,8 +18,11 @@ export const ROUTES = {
   student: {
     base: '/',
     courses: '/courses',
-    courseDetails: '/course/:courseId',
     profile: '/profile',
+  },
+
+  course: {
+    details: '/course/:courseId',
   },
 
   instructor: {
@@ -36,6 +39,7 @@ export const ROUTES = {
     signIn: '/admin',
     instructorManagement: '/admin/instructor-management',
     studentManagement: '/admin/student-management',
+    courseManagement: '/admin/course-management',
   },
 } as const;
 

@@ -187,7 +187,7 @@ export default function LessonItem({ lesson, courseId, moduleId, order, setModul
     <div className="space-y-4 mb-3 rounded-2xl  bg-gray-200  dark:bg-gray-800 shadow-2xl p-4">
       <div className="flex-col space-y-4">
         <p className="text-right font-semibold mb-2">Lession No : {order}</p>
-        {editModule.disable && !editModule.initial && (
+        {editModule.disable && !editModule.initial &&!lesson.isBlocked && (
           <button
             onClick={() =>
               setEditLesson({
@@ -201,9 +201,12 @@ export default function LessonItem({ lesson, courseId, moduleId, order, setModul
             &#128393;
           </button>
         )}
+        {lesson.isBlocked && (
+          <p className="text-red-500 font-semibold text-center">This lesson is blocked by admin and cannot be edited.</p>
+        )}
         <div
           className={`border-2 border-dashed rounded-lg p-4 flex flex-col items-center justify-center transition
-      ${isDragging ? "border-indigo-500 bg-indigo-50" : "border-gray-300"}`}
+      ${isDragging ? "border-indigo-500 bg-indigo-50" : "border-gray-300"} ${lesson.isBlocked ? "opacity-50 pointer-events-none" : ""}`}
           onDragOver={(e) => {
             e.preventDefault();
             setIsDragging(true);

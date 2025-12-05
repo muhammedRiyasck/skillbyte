@@ -6,7 +6,6 @@ import {
   Star,
   Clock,
   Users,
-  ArrowLeft,
   Play,
   FileText,
   ChevronDown,
@@ -18,23 +17,31 @@ import {
 } from 'lucide-react';
 import { ROUTES } from '@/core/router/paths';
 import { getCourseDetails } from '../services/CourseDetails';
+import { blockLesson } from '../services/CourseLesson';
 
 import ErrorPage from '@shared/ui/ErrorPage';
 import type {ModuleType} from '../types/IModule';
+import { useSelector } from 'react-redux';
+import type { RootState } from '@/core/store/Index';
+import ToggleSwitch from '@/shared/ui/ToggleSwitch';
 
 const CourseDetails: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [isEnrolled, setIsEnrolled] = useState(false);
+  const [blockedLessons, setBlockedLessons] = useState<Set<string>>(new Set());
+
+  const role = useSelector((state:RootState) => state.auth.user?.role);
 
   const { data: courseData, isLoading, isError, error } = useQuery({
-    queryKey: ['courseDetails', courseId],
+    queryKey: ['courseDetails', courseId, role],
     queryFn: () => getCourseDetails(courseId!),
     enabled: !!courseId,
     staleTime: 5 * 60 * 1000,
   });
 
   const course = courseData?.data;
+  console.log('Course Data:', course);
 
   const toggleModule = (moduleId: string) => {
     const newExpanded = new Set(expandedModules);
@@ -49,6 +56,26 @@ const CourseDetails: React.FC = () => {
   const handleEnroll = () => {
     setIsEnrolled(true);
     // In real app, this would call an API
+  };
+
+  const handleBlockLesson = async (lessonId: string) => {
+    console.log('Toggling block for lesson:', lessonId);
+    const isCurrentlyBlocked = blockedLessons.has(lessonId);
+    const newBlockedStatus = !isCurrentlyBlocked;
+
+    try {
+      await blockLesson(lessonId, newBlockedStatus);
+      const newBlocked = new Set(blockedLessons);
+      if (newBlockedStatus) {
+        newBlocked.add(lessonId);
+      } else {
+        newBlocked.delete(lessonId);
+      }
+      setBlockedLessons(newBlocked);
+    } catch (error) {
+      console.error('Failed to block/unblock lesson:', error);
+      // You might want to show a toast notification here
+    }
   };
 
   if (isLoading) {
@@ -91,28 +118,20 @@ const CourseDetails: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Breadcrumbs and Back Button */}
-      <div className="hidden md:block bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-700">
+      <div className=" md:block bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 xl:px-8 py-4">
-          <div className="hidden md:flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link
-                to={ROUTES.student.courses}
-                className="flex items-center gap-2 text-gray-600  dark:text-gray-100 hover:text-gray-900 dark:hover:text-white transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 font-bold" />
-                <span className="font-bold">Back to Courses</span>
-              </Link>
-            </div>
-            <nav className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+          <div className=" flex items-center justify-between">
+          
+            <nav className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
               <Link to={ROUTES.root} className="hover:text-gray-900 dark:hover:text-white transition-colors">
                 Home
               </Link>
-              <span>/</span>
-              <Link to={ROUTES.student.courses} className="hover:text-gray-900 dark:hover:text-white transition-colors">
+              <span>{'>'}</span>
+              <Link to={'/'} className="hover:text-gray-900 font-medium dark:hover:text-white transition-colors">
                  Courses
               </Link>
-              <span>/</span>
-              <span className="text-gray-900 dark:text-white font-medium">
+              <span>{'>'}</span>
+              <span className="text-gray-900 dark:text-white font-semibold">
                 {course.title}
               </span>
             </nav>
@@ -279,9 +298,11 @@ const CourseDetails: React.FC = () => {
                     </button>
 
                     {expandedModules.has(module.moduleId) && (
+
                       <div className="border-t border-gray-200 dark:border-gray-700 ">
                         {module.lessons?.map((lesson) => (
-                          <div
+                        
+                          ((lesson.isBlocked && role === 'admin') || !lesson.isBlocked)?<div
                             key={lesson.lessonId}
                             className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                           >
@@ -307,8 +328,15 @@ const CourseDetails: React.FC = () => {
                                 </span>
                               )}
                               <span>{lesson.duration} min</span>
+                              {role === 'admin' && (
+                                <ToggleSwitch
+                                  checked={blockedLessons.has(lesson.lessonId)}
+                                  onChange={() => handleBlockLesson(lesson.lessonId)}
+                                  label='Block'
+                                />
+                              )}
                             </div>
-                          </div>
+                          </div>: <p className="text-red-500 font-semibold text-center p-4">This lesson is removed currently.</p>
                         ))}
                       </div>
                     )}

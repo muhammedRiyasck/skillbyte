@@ -22,6 +22,7 @@ export class MongoLessonRepository implements ILessonRepository {
       doc.resources,
       doc.isFreePreview,
       doc.isPublished,
+      doc.isBlocked,
       doc._id.toString(),
       doc.createdAt,
       doc.updatedAt,
@@ -32,7 +33,7 @@ export class MongoLessonRepository implements ILessonRepository {
     return docs.map(
       (doc) =>
         new Lesson(
-           doc.moduleId.toString(),
+      doc.moduleId.toString(),
       doc.title,
       doc.description,
       doc.contentType,
@@ -42,6 +43,7 @@ export class MongoLessonRepository implements ILessonRepository {
       doc.resources,
       doc.isFreePreview,
       doc.isPublished,
+      doc.isBlocked,
       doc._id.toString(),
       doc.createdAt,
       doc.updatedAt,
@@ -61,6 +63,7 @@ export class MongoLessonRepository implements ILessonRepository {
       resources: lesson.resources,
       isFreePreview: lesson.isFreePreview,
       isPublished: lesson.isPublished,
+      isBlocked: lesson.isBlocked,
     });
 
       return new Lesson(
@@ -74,6 +77,7 @@ export class MongoLessonRepository implements ILessonRepository {
       doc.resources,
       doc.isFreePreview,
       doc.isPublished,
+      doc.isBlocked,
       doc._id.toString(),
       doc.createdAt,
       doc.updatedAt,
@@ -99,6 +103,7 @@ export class MongoLessonRepository implements ILessonRepository {
       doc.resources,
       doc.isFreePreview,
       doc.isPublished,
+      doc.isBlocked,
       doc._id.toString(),
       doc.createdAt,
       doc.updatedAt,

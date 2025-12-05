@@ -10,6 +10,7 @@ export interface LessonType {
   order:number
   resources: readonly string[];
   isFreePreview?: boolean;
+  isBlocked?: boolean;
 }
 
 // export interface uploadToB2Props {

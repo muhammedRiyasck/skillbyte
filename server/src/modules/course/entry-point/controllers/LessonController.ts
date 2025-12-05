@@ -7,6 +7,7 @@ import { HttpError } from "../../../../shared/types/HttpError";
 import { ICreateLessonUseCase } from "../../application/interfaces/ICreateLessonUseCase";
 import { IUpdateLessonUseCase } from "../../application/interfaces/IUpdateLessonUseCase";
 import { IDeleteLessonUseCase } from "../../application/interfaces/IDeleteLessonUseCase";
+import { IBlockLessonUseCase } from "../../application/interfaces/IBlockLessonUseCase";
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import logger from '../../../../shared/utils/Logger';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
@@ -16,6 +17,7 @@ export class LessonController {
   constructor(
     private _createUseCase: ICreateLessonUseCase,
     private _updateUseCase: IUpdateLessonUseCase,
+    private _blockUseCase : IBlockLessonUseCase,
     private _deleteUseCase: IDeleteLessonUseCase
   ) {}
 
@@ -42,6 +44,7 @@ export class LessonController {
       duration: authenticatedReq.body.duration,
       resources,
       isFreePreview: authenticatedReq.body.isFreePreview || false,
+      isBlocked:false,
       isPublished: authenticatedReq.body.isPublished || true,
     });
 
@@ -140,5 +143,26 @@ export class LessonController {
     await this._deleteUseCase.execute(lessonId, instructorId);
     logger.info(`Lesson ${lessonId} deleted successfully`);
     ApiResponseHelper.success(res, "Lesson deleted successfully.");
+  };
+
+  /**
+   * Blocks or unblocks a lesson.
+   * @param req - Authenticated request object.
+   * @param res - Express response object.
+   */
+  blockLesson = async (req: Request, res: Response): Promise<void> => {
+    logger.info(`Block lesson attempt from IP: ${req.ip}`);
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const lessonId = authenticatedReq.params.lessonId;
+    const { isBlocked } = authenticatedReq.body;
+
+    if (typeof isBlocked !== 'boolean') {
+      throw new HttpError("isBlocked must be a boolean", HttpStatusCode.BAD_REQUEST);
+    }
+
+    const lesson = await this._blockUseCase.execute(lessonId, isBlocked);
+    logger.info(`Lesson ${lessonId} ${isBlocked ? 'blocked' : 'unblocked'} successfully`);
+    ApiResponseHelper.success(res, `Lesson ${isBlocked ? 'blocked' : 'unblocked'} successfully`, lesson);
   };
 }

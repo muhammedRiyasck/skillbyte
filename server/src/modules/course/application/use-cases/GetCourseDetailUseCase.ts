@@ -74,7 +74,6 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
       if (includeArr.includes('lessons')) {
         const moduleIds = modules.map((m) => m.moduleId!.toString());
         const lessons = await this._lessonRepo.findByModuleId(moduleIds);
-
         // Associate lessons with their respective modules
         modules.forEach((mod) => {
           mod.lessons = lessons.filter(
