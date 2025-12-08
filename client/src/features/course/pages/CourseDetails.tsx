@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import default_profile from '@assets/default_profile.svg';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -13,7 +13,9 @@ import {
   Award,
   CheckCircle,
   Globe,
-  Loader2
+  Loader2,
+  Home,
+  BookOpen
 } from 'lucide-react';
 import { ROUTES } from '@/core/router/paths';
 import { getCourseDetails } from '../services/CourseDetails';
@@ -28,10 +30,10 @@ import ToggleSwitch from '@/shared/ui/ToggleSwitch';
 const CourseDetails: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
-  const [isEnrolled, setIsEnrolled] = useState(false);
   const [blockedLessons, setBlockedLessons] = useState<Set<string>>(new Set());
 
   const role = useSelector((state:RootState) => state.auth.user?.role);
+  const navigate = useNavigate();
 
   const { data: courseData, isLoading, isError, error } = useQuery({
     queryKey: ['courseDetails', courseId, role],
@@ -54,8 +56,11 @@ const CourseDetails: React.FC = () => {
   };
 
   const handleEnroll = () => {
-    setIsEnrolled(true);
-    // In real app, this would call an API
+    if (!role) {
+        navigate(ROUTES.auth.signIn); 
+        return;
+    }
+    navigate(ROUTES.student.checkout.replace(':courseId', courseId!));
   };
 
   const handleBlockLesson = async (lessonId: string) => {
@@ -119,19 +124,24 @@ const CourseDetails: React.FC = () => {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Breadcrumbs and Back Button */}
       <div className=" md:block bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 xl:px-8 py-4">
-          <div className=" flex items-center justify-between">
+        <div className="max-w-7xl px-4 sm:px-6 xl:px-8 py-4">
+          <div className=" flex items-start justify-start">
           
-            <nav className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-              <Link to={ROUTES.root} className="hover:text-gray-900 dark:hover:text-white transition-colors">
+            <nav className="flex items-center gap-3 bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-full text-lg shadow-sm">
+              <Link to={ROUTES.root} className="flex items-center gap-2 hover:text-indigo-600 dark:hover:text-indigo-400 dark:text-gray-200 transition-colors">
+                <Home className="w-4 h-4" />
                 Home
               </Link>
-              <span>{'>'}</span>
-              <Link to={'/'} className="hover:text-gray-900 font-medium dark:hover:text-white transition-colors">
-                 Courses
-              </Link>
-              <span>{'>'}</span>
-              <span className="text-gray-900 dark:text-white font-semibold">
+              <ChevronRight className="w-4 h-4 text-gray-400 " />
+              <button
+                onClick={() => navigate(-1)}
+                className="flex items-center gap-2 hover:text-indigo-600 dark:hover:text-indigo-400 dark:text-gray-200 transition-colors cursor-pointer"
+              >
+                <BookOpen className="w-4 h-4" />
+                Courses
+              </button>
+              <ChevronRight className="w-4 h-4 text-gray-400" />
+              <span className="text-gray-900 dark:text-white font-semibold truncate max-w-xs">
                 {course.title}
               </span>
             </nav>
@@ -212,21 +222,9 @@ const CourseDetails: React.FC = () => {
 
                   <button
                     onClick={handleEnroll}
-                    disabled={isEnrolled}
-                    className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 cursor-pointer ${
-                      isEnrolled
-                        ? 'bg-green-600 hover:bg-green-700 text-white'
-                        : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                    }`}
+                    className="w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white"
                   >
-                    {isEnrolled ? (
-                      <div className="flex items-center justify-center gap-2">
-                        <CheckCircle className="w-5 h-5" />
-                        Enrolled
-                      </div>
-                    ) : (
-                      'Enroll Now'
-                    )}
+                    Enroll Now
                   </button>
 
                   <div className="mt-4 text-center text-sm text-gray-600">

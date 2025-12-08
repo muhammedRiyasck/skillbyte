@@ -22,10 +22,11 @@ const CourseSchema = new mongoose.Schema({
   duration: {type:String, required:true},
   tags: [{type:String, required:true}],
   status: {
-  type: String,
-  enum: ["draft", "list", "unlist"],
-  default: "draft"
-}
+    type: String,
+    enum: ["draft", "list", "unlist"],
+    default: "draft",
+  },
+  stripePriceId: { type: String, default: "" }
 }, { timestamps: true });
 
 CourseSchema.index({ instructorId: 1 }); 

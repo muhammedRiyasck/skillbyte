@@ -25,6 +25,15 @@ import "./shared/config/passport/GoogleStrategy";
 import "./shared/config/passport/FacebookStrategy"
 
 import errorHandler from "./shared/middlewares/GlobalErrorMiddleware";
+import EnrollmentRoutes from "./modules/enrollment/entry-point/routes/Enrollment.routes";
+import { EnrollmentController } from "./modules/enrollment/entry-point/EnrollmentController";
+
+const enrollmentController = new EnrollmentController();
+
+// Webhook must be before express.json() to capture raw body
+app.post("/api/enrollment/webhook", express.raw({ type: "application/json" }), async (req, res) => {
+    await enrollmentController.handleWebhook(req, res);
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -67,6 +76,7 @@ app.use("/api/instructor", InstructorProfileRoutes);
 app.use("/api/instructors/", AdminInstructorRoutes)
 
 app.use("/api/course", CourseRoutes);
+app.use("/api/enrollment", EnrollmentRoutes);
 
 app.use("/api/admin", AdminAuthRoutes);
 

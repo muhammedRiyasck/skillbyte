@@ -19,6 +19,8 @@ export const ROUTES = {
     base: '/',
     courses: '/courses',
     profile: '/profile',
+    checkout: '/checkout/:courseId',
+    paymentSuccess: '/enrollment/success',
   },
 
   course: {

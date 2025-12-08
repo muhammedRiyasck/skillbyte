@@ -41,6 +41,8 @@ const InstructorCourses = lazy(() => import("@features/course/pages/InstructorCo
 const StudentCourses = lazy(() => import("@features/course/pages/StudentCourses.tsx"));
 const AdminCourses = lazy(() => import("@features/course/pages/AdminCourses.tsx"));
 const CourseDetails = lazy(() => import("@features/course/pages/CourseDetails.tsx"));
+const CheckoutPage = lazy(() => import("@features/enrollment").then(module => ({ default: module.CheckoutPage })));
+const SuccessPage = lazy(() => import("@features/enrollment").then(module => ({ default: module.SuccessPage })));
 
 const router = createBrowserRouter([
   {
@@ -148,22 +150,38 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-    
-    ],
-    errorElement: <ErrorHandler />,
-  },
-
-    {
-        path: ROUTES.course.details,
+      {
+        path: getRelativePath(ROUTES.student.checkout, ROUTES.root),
         element: (
-          <ProtectedRoute roles={["student", "admin"]}>
-            <Fallback>
-              <CourseDetails />
-            </Fallback>
+          <ProtectedRoute roles={["student"]}>
+             <Fallback>
+               <CheckoutPage />
+             </Fallback>
           </ProtectedRoute>
         ),
       },
-
+      {
+        path: "enrollment/success",
+        element: (
+          <ProtectedRoute roles={["student"]}>
+             <Fallback>
+               <SuccessPage />
+             </Fallback>
+          </ProtectedRoute>
+        ),
+      },
+    ],
+  },
+   {
+    path: ROUTES.course.details,
+    element: (
+      <ProtectedRoute roles={["student", "admin"]}>
+        <Fallback>
+          <CourseDetails />
+        </Fallback>
+      </ProtectedRoute>
+    ),
+  },
   {
     path: ROUTES.instructor.base,
     element: <InstructorLayout />,

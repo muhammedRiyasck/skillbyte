@@ -23,6 +23,8 @@ const InstructorSchema = new mongoose.Schema({
   doneAt: { type: Date, default: null }, // Timestamp of approval
   averageRating: { type: Number, default: 0 }, // Average rating from students
   totalReviews: { type: Number, default: 0 }, // Total number of reviews received
+  stripeAccountId: { type: String, default: null }, // Connected Stripe Account ID
+
 
 },{timestamps: true});
 
