@@ -56,13 +56,13 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-import AuthRoutes from "./modules/auth/entry-point/routes/Auth.Routes";
+import AuthRoutes from "./modules/auth/entry-point/routes/Auth.routes";
 import AdminAuthRoutes from "./modules/admin/entry-points/routes/Auth.routes";
 import StudentauthRoutes from "./modules/student/entry-points/routes/Auth.routes";
 import AdminStudentRoutes from "./modules/student/entry-points/routes/AdminStudent.routes";
-import InstructorauthRoutes from "./modules/instructor/entry-point/routes/Auth.Routes";
+import InstructorauthRoutes from "./modules/instructor/entry-point/routes/Auth.routes";
 import InstructorProfileRoutes from "./modules/instructor/entry-point/routes/InstructorProfile.routes";
-import AdminInstructorRoutes from './modules/instructor/entry-point/routes/AdminInstructor.Routes'
+import AdminInstructorRoutes from './modules/instructor/entry-point/routes/AdminInstructor.routes'
 import CourseRoutes from "./modules/course/entry-point/routes/Course.routes";
 // import AdminCourseRoutes from "./modules/course/entry-point/routes/AdminCourse.Routes";
 // Load auth routes

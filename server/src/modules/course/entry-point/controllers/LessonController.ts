@@ -8,6 +8,7 @@ import { ICreateLessonUseCase } from "../../application/interfaces/ICreateLesson
 import { IUpdateLessonUseCase } from "../../application/interfaces/IUpdateLessonUseCase";
 import { IDeleteLessonUseCase } from "../../application/interfaces/IDeleteLessonUseCase";
 import { IBlockLessonUseCase } from "../../application/interfaces/IBlockLessonUseCase";
+import { IGetLessonPlayUrlUseCase } from "../../application/interfaces/IGetLessonPlayUrlUseCase";
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import logger from '../../../../shared/utils/Logger';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
@@ -18,7 +19,8 @@ export class LessonController {
     private _createUseCase: ICreateLessonUseCase,
     private _updateUseCase: IUpdateLessonUseCase,
     private _blockUseCase : IBlockLessonUseCase,
-    private _deleteUseCase: IDeleteLessonUseCase
+    private _deleteUseCase: IDeleteLessonUseCase,
+    private _getLessonPlayUrlUseCase: IGetLessonPlayUrlUseCase
   ) {}
 
   /**
@@ -164,5 +166,25 @@ export class LessonController {
     const lesson = await this._blockUseCase.execute(lessonId, isBlocked);
     logger.info(`Lesson ${lessonId} ${isBlocked ? 'blocked' : 'unblocked'} successfully`);
     ApiResponseHelper.success(res, `Lesson ${isBlocked ? 'blocked' : 'unblocked'} successfully`, lesson);
+  };
+
+  /**
+   * Gets the signed play URL for a lesson video.
+   * Verifies enrollment before providing access.
+   * @param req - Authenticated request object.
+   * @param res - Express response object.
+   */
+  getLessonPlayUrl = async (req: Request, res: Response): Promise<void> => {
+    logger.info(`Get lesson play URL attempt from IP: ${req.ip}`);
+    const authenticatedReq = req as AuthenticatedRequest;
+
+    const lessonId = authenticatedReq.params.lessonId;
+    const userId = authenticatedReq.user.id;
+    const role = authenticatedReq.user.role;
+
+    const { signedUrl } = await this._getLessonPlayUrlUseCase.execute(userId, lessonId, role);
+    
+    logger.info(`Lesson play URL generated for lesson ${lessonId}`);
+    ApiResponseHelper.success(res, "Play URL generated successfully", { signedUrl });
   };
 }

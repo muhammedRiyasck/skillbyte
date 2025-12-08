@@ -14,5 +14,6 @@ export interface Ibase {
     features: string[];
     status: 'draft' | 'list' | 'unlist';
     rating: number;
-    reviews:number
+    reviews:number;
+    isEnrolled?: boolean;
 }

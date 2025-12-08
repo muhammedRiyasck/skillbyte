@@ -15,35 +15,52 @@ import {
   Globe,
   Loader2,
   Home,
-  BookOpen
+  BookOpen,
+  Check,
+  RefreshCw
 } from 'lucide-react';
 import { ROUTES } from '@/core/router/paths';
 import { getCourseDetails } from '../services/CourseDetails';
 import { blockLesson } from '../services/CourseLesson';
+import { checkEnrollmentStatus } from '@features/enrollment/services/EnrollmentService';
+import LessonPlayer from '../components/LessonPlayer';
 
 import ErrorPage from '@shared/ui/ErrorPage';
 import type {ModuleType} from '../types/IModule';
+import type { LessonType } from '../types/ILesson';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/core/store/Index';
 import ToggleSwitch from '@/shared/ui/ToggleSwitch';
+import { toast } from 'sonner';
 
 const CourseDetails: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [blockedLessons, setBlockedLessons] = useState<Set<string>>(new Set());
+  const [currentLessonId, setCurrentLessonId] = useState<string | null>(null);
 
   const role = useSelector((state:RootState) => state.auth.user?.role);
+  const userId = useSelector((state:RootState) => state.auth.user?.id);
   const navigate = useNavigate();
 
-  const { data: courseData, isLoading, isError, error } = useQuery({
+  const { data: courseData, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['courseDetails', courseId, role],
     queryFn: () => getCourseDetails(courseId!),
     enabled: !!courseId,
     staleTime: 5 * 60 * 1000,
   });
 
+  // Check enrollment status for students
+  const { data: enrollmentData } = useQuery({
+    queryKey: ['enrollmentStatus', courseId, userId],
+    queryFn: () => checkEnrollmentStatus(courseId!),
+    enabled: !!courseId && role === 'student',
+    staleTime: 5 * 60 * 1000,
+  });
+
   const course = courseData?.data;
-  console.log('Course Data:', course);
+  const isEnrolled = enrollmentData?.isEnrolled || false;
+  
 
   const toggleModule = (moduleId: string) => {
     const newExpanded = new Set(expandedModules);
@@ -115,10 +132,31 @@ const CourseDetails: React.FC = () => {
     );
   }
 
+  // Helper function to format duration from seconds to readable format
+  const formatDuration = (seconds: number): string => {
+    if (seconds < 60) {
+      return `${seconds}s`;
+    }
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    
+    if (minutes < 60) {
+      return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
+    }
+    
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+  };
+
   const totalLessons = course.modules?.reduce((acc: number, mod:ModuleType) => acc + (mod.lessons?.length || 0), 0) || 0;
-  const totalDuration = course.modules?.reduce((acc: number, mod:ModuleType) =>
+  const totalDurationSeconds = course.modules?.reduce((acc: number, mod:ModuleType) =>
     acc + (mod.lessons?.reduce((lessonAcc: number, les) => lessonAcc + (les.duration || 0), 0) || 0), 0
   ) || 0;
+
+  const currentLesson = currentLessonId 
+    ? course.modules?.flatMap((m: ModuleType) => m.lessons || []).find((l: LessonType) => l.lessonId === currentLessonId)
+    : null;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -144,13 +182,26 @@ const CourseDetails: React.FC = () => {
               <span className="text-gray-900 dark:text-white font-semibold truncate max-w-xs">
                 {course.title}
               </span>
+            
             </nav>
           </div>
         </div>
       </div>
 
-      {/* Hero Section */}
+      {/* Hero Section or Player */}
+      {currentLessonId ? (
+         <div className="bg-gray-900 py-8 border-b border-gray-700">
+           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+             <LessonPlayer 
+                lessonId={currentLessonId} 
+                onClose={() => setCurrentLessonId(null)}
+                title={currentLesson?.title || ''}
+             />
+           </div>
+         </div>
+      ) : (
       <div className="bg-gradient-to-r bg-gray-800  text-white">
+
     
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 ">
         
@@ -165,7 +216,7 @@ const CourseDetails: React.FC = () => {
                 </span>
               </div>
               <h1 className="text-4xl font-bold mb-4">{course.title}</h1>
-              <p className="text-xl text-indigo-100 mb-6">{course.subText}</p>
+              <p className="text-xl text-indigo-100 font-semibold mb-6">{course.subText}</p>
 
               <div className="flex items-center gap-6 mb-6">
                 <div className="flex items-center gap-2">
@@ -204,38 +255,56 @@ const CourseDetails: React.FC = () => {
             </div>
 
             <div className="lg:pl-8">
-              <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-                <img
-                  src={course.thumbnailUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=400&fit=crop'}
-                  alt={course.title}
-                  className="w-full h-64 object-cover"
-                />
-                <div className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="text-3xl font-bold text-gray-900">
-                      ₹{course.price.toLocaleString()}
+                <button
+                  onClick={() =>{ refetch(); toast.success('Course details refreshed!')}}
+                  disabled={isLoading}
+                  className="w-12 h-12 ml-auto mb-4 cursor-pointer flex items-center justify-center bg-gray-600 hover:bg-gray-700 rounded-full transition-colors flex-shrink-0"
+                >
+                  <RefreshCw className={`w-6 h-6 ${isLoading ? 'animate-spin' : ''}`} />
+                </button>
+              <div className='flex flex-col lg:flex-row w-full gap-4 items-center'>
+                <div className="bg-white flex-1 rounded-2xl shadow-2xl overflow-hidden">
+                  <img
+                    src={course.thumbnailUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=400&fit=crop'}
+                    alt={course.title}
+                    className="w-full h-64 object-cover"
+                  />
+                  <div className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="text-3xl font-bold text-gray-900">
+                        ₹{course.price.toLocaleString()}
+                      </div>
+                      <div className="text-sm text-gray-500 line-through">
+                        ₹{Math.round(course.price * 1.5)}
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-500 line-through">
-                      ₹{Math.round(course.price * 1.5)}
+
+                    {role === 'student' && isEnrolled ? (
+                      <div className="w-full py-3 px-6 rounded-lg font-semibold bg-green-100 text-green-800 flex items-center justify-center gap-2">
+                        <Check className="w-5 h-5" />
+                        Already Enrolled
+                      </div>
+                    ) : (
+                      <button
+                        onClick={handleEnroll}
+                        className="w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white"
+                      >
+                        Enroll Now
+                      </button>
+                    )}
+
+                    <div className="mt-4 text-center text-sm text-gray-600">
+                      {course.duration}
                     </div>
-                  </div>
-
-                  <button
-                    onClick={handleEnroll}
-                    className="w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white"
-                  >
-                    Enroll Now
-                  </button>
-
-                  <div className="mt-4 text-center text-sm text-gray-600">
-                    Lifetime Access
                   </div>
                 </div>
+              
               </div>
             </div>
           </div>
         </div>
       </div>
+      )}
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -264,7 +333,7 @@ const CourseDetails: React.FC = () => {
                   Course content
                 </h2>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {course.modules?.length || 0} modules • {totalLessons} lessons • {totalDuration} min
+                  {course.modules?.length || 0} modules • {totalLessons} lessons • {(formatDuration(totalDurationSeconds))}
                 </div>
               </div>
 
@@ -304,13 +373,13 @@ const CourseDetails: React.FC = () => {
                             key={lesson.lessonId}
                             className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                           >
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3 flex-1">
                               {lesson.contentType === 'video' ? (
                                 <Play className="w-4 h-4 text-gray-500" />
                               ) : (
                                 <FileText className="w-4 h-4 text-gray-500" />
                               )}
-                              <div>
+                              <div className="flex-1">
                                 <p className="font-medium text-gray-900 dark:text-white">
                                   {lesson.title}
                                 </p>
@@ -325,7 +394,19 @@ const CourseDetails: React.FC = () => {
                                   Preview
                                 </span>
                               )}
-                              <span>{lesson.duration} min</span>
+                              <span>{formatDuration(lesson.duration || 0)}</span>
+                              {role === 'student' && (lesson.isFreePreview || isEnrolled) && (
+                                <button
+                                  onClick={() => {
+                                      setCurrentLessonId(lesson.lessonId);
+                                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                                  }}
+                                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2"
+                                >
+                                  <Play className="w-4 h-4" />
+                                  Watch
+                                </button>
+                              )}
                               {role === 'admin' && (
                                 <ToggleSwitch
                                   checked={blockedLessons.has(lesson.lessonId)}
@@ -399,7 +480,7 @@ const CourseDetails: React.FC = () => {
                 <div className="flex items-center gap-3">
                   <Play className="w-5 h-5 text-indigo-600" />
                   <span className="text-gray-700 dark:text-gray-300">
-                    {totalDuration} minutes of video content
+                    {formatDuration(totalDurationSeconds)} of video content
                   </span>
                 </div>
                 <div className="flex items-center gap-3">

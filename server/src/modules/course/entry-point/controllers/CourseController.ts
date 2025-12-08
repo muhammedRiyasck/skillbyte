@@ -7,7 +7,6 @@ import { IUpdateBaseUseCase } from '../../application/interfaces/IUpdateBaseUseC
 import { IDeleteCourseUseCase } from '../../application/interfaces/IDeleteCourseUseCase';
 import { IUpdateCourseStatusUseCase } from '../../application/interfaces/IUpdateCourseStatusUseCase';
 import { IGetPaginatedCoursesUseCase } from '../../application/interfaces/IGetPaginatedCoursesUseCase';
-import { IGetAllCoursesForAdminUseCase } from '../../application/interfaces/IGetAllCoursesForAdminUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { HttpError } from '../../../../shared/types/HttpError';
 import logger from '../../../../shared/utils/Logger';
@@ -15,21 +14,9 @@ import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequ
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import {
   CreateBaseSchema,
-  UpdateBaseSchema,
-  UpdateStatusSchema,
-  CourseIdParamSchema,
-  PaginationQuerySchema,
-  GetCourseQuerySchema,
-  type CreateBaseValidationType,
-  type UpdateBaseValidationType,
-  type UpdateStatusValidationType,
-  type CourseIdParamValidationType,
-  type PaginationQueryValidationType,
-  type GetCourseQueryValidationType,
 } from '../../application/dtos/CourseValidationSchemas';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
-import { custom } from 'zod';
-import { duration } from 'zod/v4/classic/iso.cjs';
+import { IEnrollmentRepository } from '../../../enrollment/domain/IEnrollmentRepository';
 
 export class CourseController {
   constructor(
@@ -39,7 +26,7 @@ export class CourseController {
     private _deleteCourseUseCase: IDeleteCourseUseCase,
     private _updateCourseStatusUseCase: IUpdateCourseStatusUseCase,
     private _getPaginatedCoursesUseCase: IGetPaginatedCoursesUseCase,
-    private _getAllCoursesForAdminUseCase: IGetAllCoursesForAdminUseCase,
+    private _enrollmentRepository: IEnrollmentRepository,
   ) {}
 
   /**
@@ -211,10 +198,12 @@ export class CourseController {
     const courseId = authenticatedReq.params.courseId;
     const { include } = authenticatedReq.query;
     const role = authenticatedReq.user.role || 'student';
+    const userId = authenticatedReq.user.id;
     const course = await this._getCourseDetailsUseCase.execute(
       courseId,
       role,
       include as string,
+      userId,
     );
     ApiResponseHelper.success(res, 'Course retrieved successfully', course);
   };
@@ -225,6 +214,7 @@ export class CourseController {
    * @param res - Express response object.
    */
   getPublishedCourses = async (req: Request, res: Response): Promise<void> => {
+    const authenticatedReq = req as AuthenticatedRequest;
     const query = { status: 'list' };
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 6;
@@ -240,6 +230,23 @@ export class CourseController {
       limit,
       sort,
     );
+
+    // Check enrollment status for each course if user is a student
+    if (authenticatedReq.user && authenticatedReq.user.role === 'student' && courses && courses.data) {
+      const userId = authenticatedReq.user.id;
+      
+      // Optimize: Fetch all enrollments in one query instead of N+1
+      const courseIds = courses.data.map((course: any) => course._id);
+      const enrollments = await this._enrollmentRepository.findEnrollmentsForUser(userId, courseIds);
+      
+      const enrolledCourseIdSet = new Set(enrollments.map(e => e.courseId.toString()));
+
+      // Add isEnrolled field
+      courses.data = courses.data.map((course: any) => ({
+        ...course,
+        isEnrolled: enrolledCourseIdSet.has(course._id.toString())
+      }));
+    }
 
     ApiResponseHelper.success(res, 'Courses retrieved successfully', {
       courses,

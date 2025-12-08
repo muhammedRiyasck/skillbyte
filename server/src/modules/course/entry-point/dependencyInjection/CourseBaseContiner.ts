@@ -6,16 +6,17 @@ import { MongoCourseRepository } from "../../infrastructure/repositories/MongoCo
 import { MongoModuleRepository } from "../../infrastructure/repositories/MongoModuleRepository";
 import { MongoLessonRepository } from "../../infrastructure/repositories/MongoLessonRepository";
 import { MongoInstructorRepository } from "../../../instructor/infrastructure/repositories/MongoInstructorRepository";
+import { EnrollmentRepository } from "../../../enrollment/infrastructure/repositories/EnrollmentRepository";
 import { UpdateBaseUseCase } from "../../application/use-cases/UpdateBaseUseCase";
 import { DeleteCourseUseCase } from "../../application/use-cases/DeleteCourseUseCase";
 import { UpdateCourseStatusUseCase } from "../../application/use-cases/UpdateCourseStatusUseCase";
 import { GetPaginatedCoursesUseCase } from "../../application/use-cases/GetPaginatedCoursesUseCase";
-import { GetAllCoursesForAdminUseCase } from "../../application/use-cases/GetAllCoursesForAdminUseCase";
 
 const courseRepository = new MongoCourseRepository();
 const moduleRepository = new MongoModuleRepository();
 const lessonRepository = new MongoLessonRepository();
 const instructorRepository = new MongoInstructorRepository();
+const enrollmentRepository = new EnrollmentRepository();
 
 const createCourseUC = new CreateBaseUseCase(courseRepository);
 
@@ -23,7 +24,7 @@ const getCourseDetailsUC = new GetCourseDetailUseCase(
     courseRepository,
     moduleRepository,
     lessonRepository,
-    instructorRepository
+    instructorRepository,
 );
 
 const updateBaseUC = new UpdateBaseUseCase(courseRepository);
@@ -32,7 +33,6 @@ const updateCourseStatusUC = new UpdateCourseStatusUseCase(courseRepository, mod
 
 const getPaginatedCoursesUC = new GetPaginatedCoursesUseCase(courseRepository);
 
-const getAllCoursesForAdminUC = new GetAllCoursesForAdminUseCase(courseRepository);
 
 const deleteCourseUC = new DeleteCourseUseCase(
     courseRepository,
@@ -47,5 +47,5 @@ export const courseController = new CourseController(createCourseUC,
   deleteCourseUC,
   updateCourseStatusUC,
   getPaginatedCoursesUC,
-  getAllCoursesForAdminUC
+  enrollmentRepository
 ); 

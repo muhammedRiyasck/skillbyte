@@ -8,3 +8,12 @@ export const createPaymentIntent = async (courseId: string) => {
     throw error;
   }
 };
+
+export const checkEnrollmentStatus = async (courseId: string) => {
+  try {
+    const response = await api.get(`/enrollment/check/${courseId}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
