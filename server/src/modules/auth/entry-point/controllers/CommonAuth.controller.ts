@@ -36,6 +36,7 @@ export class CommonAuthController {
     logger.info(`User logged in status: ${user ? true : false}`);
     ApiResponseHelper.success(res, 'User is logged in', {
       userData: {
+        id: decodedUserData.id,
         name: user?.name,
         email: user?.email,
         profilePicture: user?.profilePictureUrl,
@@ -93,6 +94,7 @@ export class CommonAuthController {
 
     ApiResponseHelper.success(res, 'Login successful', {
       userData: {
+        id: role === 'student' ? (user as any).studentId : (user as any).instructorId,
         name: user.name,
         email: user.email,
         role,

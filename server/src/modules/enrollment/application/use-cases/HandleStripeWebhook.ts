@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { IEnrollmentRepository } from "../domain/IEnrollmentRepository";
+import { IEnrollmentRepository } from "../../domain/IEnrollmentRepository";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
     apiVersion: "2025-11-17.clover",

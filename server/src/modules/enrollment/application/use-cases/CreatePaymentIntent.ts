@@ -1,20 +1,21 @@
 import Stripe from "stripe";
-import { IEnrollmentRepository } from "../domain/IEnrollmentRepository";
-import { CourseModel } from "../../course/infrastructure/models/CourseModel";
-import { IPayment } from "../infrastructure/models/PaymentModel";
+import { IEnrollmentRepository } from "../../domain/IEnrollmentRepository";
+import { CourseModel } from "../../../course/infrastructure/models/CourseModel";
+import { IPayment } from "../../infrastructure/models/PaymentModel";
+import { ICreatePaymentIntent } from "../interface/ICreatePaymentIntent";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2025-11-17.clover", // Use latest or configured API version
 });
 
-export class CreatePaymentIntent {
+export class CreatePaymentIntent implements ICreatePaymentIntent {
   private enrollmentRepository: IEnrollmentRepository;
 
   constructor(enrollmentRepository: IEnrollmentRepository) {
     this.enrollmentRepository = enrollmentRepository;
   }
 
-  async execute(userId: string, courseId: string) {
+  async execute(userId: string, courseId: string):Promise<{ clientSecret: string | null,paymentId:string }> {
     // 1. Fetch Course details to get Price
     const course = await CourseModel.findById(courseId);
     if (!course) {
@@ -69,7 +70,7 @@ export class CreatePaymentIntent {
 
     return {
       clientSecret: paymentIntent.client_secret,
-      paymentId: payment._id,
+      paymentId: payment._id as string,
     };
   }
 }

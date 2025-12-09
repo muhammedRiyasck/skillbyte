@@ -54,8 +54,8 @@ export const CheckoutPage: React.FC = () => {
   if (!clientSecret || !course) {
       return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 text-gray-500 dark:text-gray-400">
-            Unable to load checkout. Please try again.
-            back to &nbsp;<Link to={ROUTES.course.details.replace(':courseId',courseId!)} className="text-indigo-600 hover:underline">course page</Link>.
+            Unable to load checkout due to newtwork work issue or may be you enrolled already in this course.
+            back to &nbsp;<Link to={ROUTES.course.details.replace(':courseId',courseId!)} className="text-indigo-600 hover:underline">course page</Link> .
         </div>
       );
   }

@@ -5,5 +5,6 @@ export interface IGetCourseUseCase{
     courseId: string,
     role: string,
     include?: string,
+    userId?: string,
   ): Promise<Course | null>
 }
