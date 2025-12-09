@@ -2,6 +2,7 @@ import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository'
 import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
 import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
+import { IEnrollmentRepository } from '../../../enrollment/domain/IEnrollmentRepository';
 import { Course } from '../../domain/entities/Course';
 import { IGetCourseUseCase } from '../interfaces/IGetCourseDetailsUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
@@ -38,6 +39,7 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
    * @param courseId - The ID of the course to retrieve.
    * @param role - The role of the user requesting the course (instructor, student, admin).
    * @param include - Optional comma-separated string of related entities to include (e.g., 'modules,lessons').
+   * @param userId - The ID of the user requesting the course .
    * @returns A promise that resolves to the Course entity with optional includes, or null if not found.
    * @throws HttpError with appropriate status code if validation fails or access is denied.
    */
@@ -45,6 +47,7 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
     courseId: string,
     role: UserRole,
     include?: string,
+    userId?: string,
   ): Promise<Course | null> {
     // Find the course by ID
     const course = await this._courseRepo.findById(courseId);
@@ -56,6 +59,13 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
     const validRoles: UserRole[] = ['instructor', 'student', 'admin'];
     if (!validRoles.includes(role)) {
       throw new HttpError(ERROR_MESSAGES.INVALID_ROLE, HttpStatusCode.BAD_REQUEST);
+    }
+
+    // Check instructor ownership - instructors can only view their own courses
+    if (role === 'instructor') {
+      if (!userId || course.instructorId !== userId) {
+        throw new HttpError('You can only view your own courses.', HttpStatusCode.FORBIDDEN);
+      }
     }
 
     // Check if students can access unlisted courses
@@ -74,7 +84,10 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
       if (includeArr.includes('lessons')) {
         const moduleIds = modules.map((m) => m.moduleId!.toString());
         const lessons = await this._lessonRepo.findByModuleId(moduleIds);
+        
         // Associate lessons with their respective modules
+        // All students can see lesson metadata (titles, descriptions)
+        // Access control for video playback is handled in GetLessonPlayUrlUseCase
         modules.forEach((mod) => {
           mod.lessons = lessons.filter(
             (les) => les.moduleId.toString() === mod.moduleId,

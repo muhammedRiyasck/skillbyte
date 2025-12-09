@@ -11,6 +11,10 @@ export class EnrollmentRepository implements IEnrollmentRepository {
     return await EnrollmentModel.findOne({ userId, courseId });
   }
 
+  async findEnrollmentsForUser(userId: string, courseIds: string[]): Promise<IEnrollment[]> {
+    return await EnrollmentModel.find({ userId, courseId: { $in: courseIds } });
+  }
+
   async updateEnrollmentStatus(enrollmentId: string, status: string): Promise<IEnrollment | null> {
     return await EnrollmentModel.findByIdAndUpdate(enrollmentId, { status }, { new: true });
   }
