@@ -26,9 +26,7 @@ import "./shared/config/passport/FacebookStrategy"
 
 import errorHandler from "./shared/middlewares/GlobalErrorMiddleware";
 import EnrollmentRoutes from "./modules/enrollment/entry-point/routes/Enrollment.routes";
-import { EnrollmentController } from "./modules/enrollment/entry-point/EnrollmentController";
-
-const enrollmentController = new EnrollmentController();
+import { enrollmentController } from "./modules/enrollment/entry-point/EnrollmentContiner";
 
 // Webhook must be before express.json() to capture raw body
 app.post("/api/enrollment/webhook", express.raw({ type: "application/json" }), async (req, res) => {

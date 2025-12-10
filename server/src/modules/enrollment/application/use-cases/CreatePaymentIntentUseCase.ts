@@ -8,7 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2025-11-17.clover", // Use latest or configured API version
 });
 
-export class CreatePaymentIntent implements ICreatePaymentIntent {
+export class CreatePaymentIntentUseCase implements ICreatePaymentIntent {
   private enrollmentRepository: IEnrollmentRepository;
 
   constructor(enrollmentRepository: IEnrollmentRepository) {

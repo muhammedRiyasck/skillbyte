@@ -10,12 +10,10 @@ import { ChangeInstructorStatusUseCase } from "../../application/use-cases/Chang
 import { DeleteInstructorUseCase } from "../../application/use-cases/DeleteInstructorUseCase";
 const instructorRepo = new MongoInstructorRepository();
 
-const nodeMalierUc = new NodeMailerService()
-
 const listInstructorUC = new ListInstructorsUseCase(instructorRepo)
-const approveUC = new ApproveInstructorUseCase(instructorRepo,nodeMalierUc)
-const declineUC = new DeclineInstructorUseCase(instructorRepo,nodeMalierUc)
-const changeInstructorStatusUC = new ChangeInstructorStatusUseCase(instructorRepo,nodeMalierUc)
+const approveUC = new ApproveInstructorUseCase(instructorRepo)
+const declineUC = new DeclineInstructorUseCase(instructorRepo)
+const changeInstructorStatusUC = new ChangeInstructorStatusUseCase(instructorRepo)
 const deleteInstructorUC = new DeleteInstructorUseCase(instructorRepo)  
 
 export const adminInstructorController = new AdminInstructorController(
