@@ -40,6 +40,7 @@ export class EnrollmentController {
     }
 
     try {
+      console.log("Received Stripe webhook", this._handleStripeWebhookUc);
       await this._handleStripeWebhookUc.execute(sig as string, payload);
       res.status(200).send({ received: true });
     } catch (error: any) {

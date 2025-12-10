@@ -1,7 +1,7 @@
 import { IEnrollmentRepository } from "../../domain/IEnrollmentRepository";
 import { ICheckEnrollment } from "../interface/ICheckEnrollment";
 
-export class CheckEnrollment implements ICheckEnrollment {
+export class CheckEnrollmentUseCase implements ICheckEnrollment {
   
     constructor(private enrollmentRepository: IEnrollmentRepository) {  
     }

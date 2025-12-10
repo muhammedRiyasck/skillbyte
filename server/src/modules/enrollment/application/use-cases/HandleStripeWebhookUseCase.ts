@@ -1,11 +1,12 @@
 import Stripe from "stripe";
 import { IEnrollmentRepository } from "../../domain/IEnrollmentRepository";
+import { IHandleStripeWebhook } from "../interface/IHandleStripeWebhook";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
     apiVersion: "2025-11-17.clover",
 });
 
-export class HandleStripeWebhook {
+export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
 
   constructor(private enrollmentRepository: IEnrollmentRepository) {}
 
