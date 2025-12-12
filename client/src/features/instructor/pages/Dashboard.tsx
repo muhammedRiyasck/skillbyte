@@ -1,143 +1,194 @@
+import React, { useState, useEffect } from 'react';
+import { getInstructorEnrollments } from '../../enrollment/services/EnrollmentService';
+import { toast } from 'sonner';
+import Spiner from '@shared/ui/Spiner';
 
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+// Types for the enrollment data
+interface StudentEnrollment {
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  enrollmentDate: string;
+  status: string;
+  progress: number;
+}
 
-// Dummy chart data
-const data = [
-  { name: "10", students: 380 },
-  { name: "20", students: 360 },
-  { name: "30", students: 330 },
-  { name: "40", students: 500 },
-  { name: "50", students: 250 },
-  { name: "60", students: 380 },
-  { name: "70", students: 400 },
-  { name: "80", students: 190 },
-  { name: "90", students: 480 },
-  { name: "100", students: 150 },
-];
+interface CourseEnrollments {
+  courseId: string;
+  courseTitle: string;
+  courseThumbnail?: string;
+  coursePrice: number;
+  enrollments: StudentEnrollment[];
+}
 
-const Dashboard = () => {
+const Dashboard: React.FC = () => {
+  const [enrollments, setEnrollments] = useState<CourseEnrollments[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchEnrollments();
+  }, []);
+
+  const fetchEnrollments = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getInstructorEnrollments();
+      console.log(data,'enrollment data');
+      setEnrollments(data.enrollments);
+    } catch (err) {
+      setError('Failed to load enrollment data');
+      toast.error('Failed to load enrollment data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'active':
+        return 'bg-green-100 text-green-800';
+      case 'completed':
+        return 'bg-blue-100 text-blue-800';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Spiner />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Data</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button
+            onClick={fetchEnrollments}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Top Header */}
-      <div className="bg-indigo-600 px-8 py-6 rounded-b-xl shadow-md">
-        <div className="flex flex-col md:flex-row justify-between md:items-center">
-          <div>
-            <h1 className="text-white text-2xl font-bold">
-              Welcome back, Emily Carter!
-            </h1>
-            <div className="flex gap-3 mt-4">
-              <button className="bg-white text-indigo-600 px-5 py-2 rounded-lg shadow hover:bg-indigo-50 transition">
-                Create New Course
-              </button>
-              <button className="bg-indigo-500 text-white px-5 py-2 rounded-lg shadow hover:bg-indigo-400 transition">
-                View My Courses
-              </button>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Instructor Dashboard</h1>
+          <p className="text-gray-600">View all student enrollments for your courses</p>
+        </div>
+
+        {enrollments.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-400 mb-4">
+              <svg className="mx-auto h-24 w-24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
             </div>
+            <h3 className="text-xl font-medium text-gray-900 mb-2">No Enrollments Yet</h3>
+            <p className="text-gray-500">Students haven't enrolled in your courses yet.</p>
           </div>
+        ) : (
+          <div className="space-y-8">
+            {enrollments.map((course) => (
+              <div key={course.courseId} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                {/* Course Header */}
+                <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 text-white">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      {course.courseThumbnail ? (
+                        <img
+                          src={course.courseThumbnail}
+                          alt={course.courseTitle}
+                          className="w-16 h-16 rounded-lg object-cover"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 bg-white/20 rounded-lg flex items-center justify-center">
+                          <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.84L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.84l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
+                          </svg>
+                        </div>
+                      )}
+                      <div>
+                        <h2 className="text-xl font-bold">{course.courseTitle}</h2>
+                        <p className="text-blue-100">${course.coursePrice}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold">{course.enrollments.length}</div>
+                      <div className="text-blue-100">Students Enrolled</div>
+                    </div>
+                  </div>
+                </div>
 
-          <div className="flex gap-4 mt-5 md:mt-0">
-            <div className="bg-indigo-500 text-white px-6 py-4 rounded-xl text-center shadow">
-              <p className="text-lg font-semibold">13</p>
-              <p className="text-sm opacity-80">Total Published Courses</p>
-            </div>
-            <div className="bg-indigo-500 text-white px-6 py-4 rounded-xl text-center shadow">
-              <p className="text-lg font-semibold">450</p>
-              <p className="text-sm opacity-80">Active Students</p>
-            </div>
-          </div>
-        </div>
-      </div>
+                {/* Students List */}
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Enrolled Students</h3>
+                  <div className="space-y-4">
+                    {course.enrollments.map((enrollment, index) => (
+                      <div key={enrollment.studentId} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-4">
+                            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+                              {enrollment?.studentName?.toUpperCase()}
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-gray-900">{enrollment.studentName}</h4>
+                              <p className="text-sm text-gray-600">{enrollment.studentEmail}</p>
+                            </div>
+                          </div>
+                          <div className="text-right space-y-2">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(enrollment.status)}`}>
+                              {enrollment.status}
+                            </span>
+                            <div className="text-sm text-gray-600">
+                              Enrolled: {formatDate(enrollment.enrollmentDate)}
+                            </div>
+                          </div>
+                        </div>
 
-      {/* Students Summary */}
-      <div className="px-8 mt-8">
-        <h2 className="text-lg font-semibold mb-4">Students Summary</h2>
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="bg-white border rounded-lg p-6 shadow hover:shadow-md transition">
-            <p className="text-2xl font-bold text-indigo-600">1,200</p>
-            <p className="text-gray-600">Total Enrolled Students</p>
-          </div>
-          <div className="bg-white border rounded-lg p-6 shadow hover:shadow-md transition">
-            <p className="text-2xl font-bold text-pink-500">150</p>
-            <p className="text-gray-600">New Enrollments This Month</p>
-          </div>
-          <div className="bg-white border rounded-lg p-6 shadow hover:shadow-md transition">
-            <p className="text-2xl font-bold text-green-500">85%</p>
-            <p className="text-gray-600">Retention Rate (Last 3 Months)</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Performance Overview */}
-      <div className="px-8 mt-10">
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Performance Overview</h2>
-          <a href="#" className="text-indigo-600 text-sm hover:underline">
-            View Detail
-          </a>
-        </div>
-        <div className="bg-white border rounded-lg shadow p-6 mt-4">
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={data}>
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="students" fill="#6366F1" radius={[5, 5, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Top Published Courses */}
-      <div className="px-8 mt-10 mb-8">
-        <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold">Top Published Course</h2>
-          <a href="#" className="text-indigo-600 text-sm hover:underline">
-            View More
-          </a>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-6 mt-5">
-          {/* Course Card */}
-          {[
-            {
-              title: "Advanced Digital Marketing",
-              img: "https://via.placeholder.com/400x250",
-            },
-            {
-              title: "Social Media Strategy",
-              img: "https://via.placeholder.com/400x250",
-            },
-            {
-              title: "Branding & Positioning",
-              img: "https://via.placeholder.com/400x250",
-            },
-          ].map((course, idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-xl shadow hover:shadow-lg transition p-4"
-            >
-              <img
-                src={course.img}
-                alt={course.title}
-                className="rounded-lg w-full h-40 object-cover"
-              />
-              <h3 className="text-base font-semibold mt-3">{course.title}</h3>
-              <div className="text-sm text-gray-500 mt-1">
-                ⭐ 4.5 (123) • Students Enrolled: 350
+                        {/* Progress Bar */}
+                        <div className="mt-4">
+                          <div className="flex items-center justify-between text-sm text-gray-600 mb-1">
+                            <span>Progress</span>
+                            <span>{enrollment.progress}%</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                              className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${enrollment.progress}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-              <div className="text-xs text-gray-400 mt-1">
-                Last Updated: <span className="font-semibold">Sep 28, 2024</span>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -56,7 +56,7 @@ const Login: React.FC = () => {
       dispatch(setUser(response.data.userData));
       if (data.role === 'instructor') {
         setTimeout(() => {
-          navigate(ROUTES.instructor.myCourses, { replace: true });
+          navigate(ROUTES.instructor.dashboard, { replace: true });
         }, 0);
         toast.success('instructor login successful');
       } else {

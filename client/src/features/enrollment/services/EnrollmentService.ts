@@ -17,3 +17,12 @@ export const checkEnrollmentStatus = async (courseId: string) => {
     throw error;
   }
 };
+
+export const getInstructorEnrollments = async () => {
+  try {
+    const response = await api.get('/enrollment/instructor-enrollments');
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

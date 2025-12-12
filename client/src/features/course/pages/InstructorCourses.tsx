@@ -18,12 +18,12 @@ const InstructorCourses: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(options[0]);
   const queryClient = useQueryClient();
-  const role = useSelector((state: RootState) => state.auth.user?.role);
+  const email = useSelector((state: RootState) => state.auth.user?.email);
 
   const limit = 6
 
   const { data, isLoading, isError,error ,refetch } = useQuery({
-    queryKey: ['courses', selectedStatus, page, role],
+    queryKey: ['courses', selectedStatus, page, email],
     queryFn: () => api.get(`/course/instructor-courses?status=${selectedStatus}&page=${page}&limit=${limit}`).then(r => r.data),
     staleTime: 5 * 60 * 1000
   });
@@ -38,7 +38,7 @@ const InstructorCourses: React.FC = () => {
 
   const handleStatusChange = (courseId: string, status: string) => {
     // Update the local state by modifying the cached data
-    queryClient.setQueryData(['courses', selectedStatus, page, role], (oldData: { data: { data: {_id: string;status: string;}[] } }) => {
+    queryClient.setQueryData(['courses', selectedStatus, page, email], (oldData: { data: { data: {_id: string;status: string;}[] } }) => {
       if (!oldData) return oldData;
       const updatedCourses = oldData.data.data.map((course: {_id: string;status: string;}
 ) =>

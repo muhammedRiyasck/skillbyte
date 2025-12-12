@@ -1,6 +1,7 @@
 import express from "express";
 import { enrollmentController } from "../EnrollmentContiner";
 import { authenticate } from "../../../../shared/middlewares/AuthMiddleware"; 
+import { requireRole } from "../../../../shared/middlewares/RequireRole";
 
 const router = express.Router();
 
@@ -20,6 +21,21 @@ router.get("/check/:courseId", authenticate, async (req, res) => {
 // must be ensured in the main app configuration if global parsers interfere.
 router.post("/webhook", async (req, res) => {
     await enrollmentController.handleWebhook(req, res);
+});
+
+
+router.get("/check/:courseId", authenticate, async (req, res) => {
+    await enrollmentController.checkEnrollmentStatus(req, res);
+});
+
+// Check Enrollment Status - Protected Route
+router.get("/check/:courseId", authenticate, async (req, res) => {
+    await enrollmentController.checkEnrollmentStatus(req, res);
+});
+
+// Get Instructor Enrollments - Protected Route
+router.get("/instructor-enrollments", authenticate, requireRole('instructor'), async (req, res) => {
+    await enrollmentController.getInstructorEnrollments(req, res);
 });
 
 export default router;

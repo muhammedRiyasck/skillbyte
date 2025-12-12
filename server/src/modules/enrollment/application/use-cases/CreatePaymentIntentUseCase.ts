@@ -2,7 +2,7 @@ import Stripe from "stripe";
 import { IEnrollmentRepository } from "../../domain/IEnrollmentRepository";
 import { CourseModel } from "../../../course/infrastructure/models/CourseModel";
 import { IPayment } from "../../infrastructure/models/PaymentModel";
-import { ICreatePaymentIntent } from "../interface/ICreatePaymentIntent";
+import { ICreatePaymentIntent } from "../interfaces/ICreatePaymentIntent";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
   apiVersion: "2025-11-17.clover", // Use latest or configured API version

@@ -11,12 +11,12 @@ import type { RootState } from '@/core/store/Index';
 
 const StudentCourses: React.FC = () => {
   const [page, setPage] = useState(1);
-  const role = useSelector((state: RootState) => state.auth.user?.role);
+  const email = useSelector((state: RootState) => state.auth.user?.email);
 
   const limit = 6
 
   const { data, isLoading, isError,error ,refetch } = useQuery({
-    queryKey: [page, role],
+    queryKey: [page, email],
     queryFn: () => api.get(`/course/published-courses?status=list&page=${page}&limit=${limit}`).then(r => r.data),
     staleTime: 5 * 60 * 1000
   });

@@ -1,5 +1,5 @@
 import { IEnrollmentRepository } from "../../domain/IEnrollmentRepository";
-import { ICheckEnrollment } from "../interface/ICheckEnrollment";
+import { ICheckEnrollment } from "../interfaces/ICheckEnrollment";
 
 export class CheckEnrollmentUseCase implements ICheckEnrollment {
   

@@ -1,10 +1,13 @@
+import {Types } from "mongoose";
 import { IEnrollment } from "../infrastructure/models/EnrollmentModel";
 import { IPayment } from "../infrastructure/models/PaymentModel";
+import { IInstructorEnrollment } from "../types/IInstructorEnrollment";
 
 export interface IEnrollmentRepository {
   createEnrollment(enrollmentData: Partial<IEnrollment>): Promise<IEnrollment>;
   findEnrollment(userId: string, courseId: string): Promise<IEnrollment | null>;
   findEnrollmentsForUser(userId: string, courseIds: string[]): Promise<IEnrollment[]>;
+  findEnrollmentsByInstructor(instructorId: Types.ObjectId): Promise<IInstructorEnrollment[]>;
   updateEnrollmentStatus(enrollmentId: string, status: string): Promise<IEnrollment | null>;
   createPayment(paymentData: Partial<IPayment>): Promise<IPayment>;
   findPaymentByIntentId(paymentIntentId: string): Promise<IPayment | null>;

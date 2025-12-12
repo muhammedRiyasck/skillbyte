@@ -59,9 +59,19 @@ const CourseDetails: React.FC = () => {
   });
 
   const course = courseData?.data;
+
+  const blockedLessonIds = course?.modules?.flatMap((mod: ModuleType) => 
+    mod.lessons?.filter((les: LessonType) => les.isBlocked).map((les: LessonType) => les.lessonId) || []
+  ) || [];
+
+
+  React.useEffect(() => {
+    setBlockedLessons(new Set(blockedLessonIds));
+  }, [course?.title]);
+
+
   const isEnrolled = enrollmentData?.isEnrolled || false;
   
-
   const toggleModule = (moduleId: string) => {
     const newExpanded = new Set(expandedModules);
     if (newExpanded.has(moduleId)) {
@@ -81,7 +91,6 @@ const CourseDetails: React.FC = () => {
   };
 
   const handleBlockLesson = async (lessonId: string) => {
-    console.log('Toggling block for lesson:', lessonId);
     const isCurrentlyBlocked = blockedLessons.has(lessonId);
     const newBlockedStatus = !isCurrentlyBlocked;
 
@@ -278,7 +287,7 @@ const CourseDetails: React.FC = () => {
                         ₹{Math.round(course.price * 1.5)}
                       </div>
                     </div>
-
+                    {role === 'student' && <div>
                     {role === 'student' && isEnrolled ? (
                       <div className="w-full py-3 px-6 rounded-lg font-semibold bg-green-100 text-green-800 flex items-center justify-center gap-2">
                         <Check className="w-5 h-5" />
@@ -296,6 +305,7 @@ const CourseDetails: React.FC = () => {
                     <div className="mt-4 text-center text-sm text-gray-600">
                       {course.duration}
                     </div>
+                    </div>}
                   </div>
                 </div>
               
