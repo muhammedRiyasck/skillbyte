@@ -1,12 +1,10 @@
 import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
 import { Course } from "../../domain/entities/Course";
 import { CourseModel } from "../models/CourseModel";
-import { ModuleModel } from "../models/ModuleModel";
-import { LessonModel } from "../models/LessonModel";
-import { Types } from "mongoose";
-import { ModuleWithLessons } from "../../domain/entities/IModuleWithLessons";
 
-export class MongoCourseRepository implements ICourseRepository {
+import { Types } from "mongoose";
+
+export class CourseRepository implements ICourseRepository {
 
   async save(course: Course): Promise<Course> {
     const created = await CourseModel.create({

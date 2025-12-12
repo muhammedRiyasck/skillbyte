@@ -8,7 +8,7 @@ import { ERROR_MESSAGES } from "../../../../shared/constants/messages";
 import { HttpStatusCode } from "../../../../shared/enums/HttpStatusCodes";
 import logger from "../../../../shared/utils/Logger";
 
-export class MongoInstructorRepository implements IInstructorRepository {
+export class InstructorRepository implements IInstructorRepository {
   async save(instructor: Instructor): Promise<Instructor> {
     const data = InstructorMapper.toPersistence(instructor);
     const doc = await InstructorModel.create(data);

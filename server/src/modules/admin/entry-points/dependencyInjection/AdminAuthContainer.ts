@@ -1,9 +1,9 @@
 import {AdminAuthController} from '../controllers/AuthController'
-import {MongoAdminRepository} from '../../infrastructure/repositories/MongoAdminRepository';
+import {AdminRepository} from '../../infrastructure/repositories/AdminRepository';
 
 import {LoginAdminUseCase} from '../../application/use-cases/LoginAdminUseCase';
 
-const adminRepo = new MongoAdminRepository();
+const adminRepo = new AdminRepository();
 const loginAdminUC = new LoginAdminUseCase(adminRepo);
 
 export const adminAuthContainer = new AdminAuthController(

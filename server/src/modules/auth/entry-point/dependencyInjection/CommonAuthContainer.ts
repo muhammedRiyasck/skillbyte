@@ -12,13 +12,13 @@ import { AmILoggedInUseCase } from '../../application/use-cases/AmILoggedInUseCa
 import { OtpRateLimiter } from '../../../../shared/services/otp/OtpRateLimiter'
 import { RedisOtpService } from '../../../../shared/services/otp/OtpService'
 
-import {MongoStudentRepository} from '../../../student/infrastructure/repositories/MongoStudentRepository'
-import {MongoInstructorRepository} from '../../../instructor/infrastructure/repositories/MongoInstructorRepository'
-import {MongoAdminRepository} from '../../../admin/infrastructure/repositories/MongoAdminRepository'
+import {StudentRepository} from '../../../student/infrastructure/repositories/StudentRepository'
+import {InstructorRepository} from '../../../instructor/infrastructure/repositories/InstructorRepository'
+import {AdminRepository} from '../../../admin/infrastructure/repositories/AdminRepository'
 
-const studentRepo = new MongoStudentRepository();   
-const instructorRepo = new MongoInstructorRepository();
-const adminRepo = new MongoAdminRepository();
+const studentRepo = new StudentRepository();   
+const instructorRepo = new InstructorRepository();
+const adminRepo = new AdminRepository();
 
 
 const studentLoginUC = new LoginStudentUseCase(studentRepo);

@@ -2,7 +2,7 @@ import { Module } from "../../domain/entities/Module";
 import { IModuleRepository } from "../../domain/IRepositories/IModuleRepository";
 import { ModuleModel } from "../models/ModuleModel";
 
-export class MongoModuleRepository implements IModuleRepository {
+export class ModuleRepository implements IModuleRepository {
   async save(data: { courseId: string; title: string; description: string; order: number; }): Promise<Module> {
     const doc = await ModuleModel.create(data);
     return new Module(

@@ -2,7 +2,7 @@ import { Lesson } from '../../domain/entities/Lesson';
 import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
 import { LessonModel } from '../models/LessonModel';
 
-export class MongoLessonRepository implements ILessonRepository {
+export class LessonRepository implements ILessonRepository {
   async save(data: {
     moduleId: string;
     title: string;

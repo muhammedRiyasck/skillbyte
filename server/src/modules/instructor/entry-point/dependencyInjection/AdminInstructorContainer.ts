@@ -5,10 +5,10 @@ import { ApproveInstructorUseCase } from "../../application/use-cases/ApproveIns
 import { DeclineInstructorUseCase } from "../../application/use-cases/DeclineInstructorUseCase";
 import { NodeMailerService } from "../../../../shared/services/mail/NodeMailerService";
 
-import { MongoInstructorRepository } from "../../infrastructure/repositories/MongoInstructorRepository";
+import { InstructorRepository } from "../../infrastructure/repositories/InstructorRepository";
 import { ChangeInstructorStatusUseCase } from "../../application/use-cases/ChangeInstructorStatusUseCase";
 import { DeleteInstructorUseCase } from "../../application/use-cases/DeleteInstructorUseCase";
-const instructorRepo = new MongoInstructorRepository();
+const instructorRepo = new InstructorRepository();
 
 const listInstructorUC = new ListInstructorsUseCase(instructorRepo)
 const approveUC = new ApproveInstructorUseCase(instructorRepo)

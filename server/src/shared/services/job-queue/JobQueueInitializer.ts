@@ -1,7 +1,7 @@
 import { jobQueueService } from './JobQueueService';
 import { ResumeUploadProcessor } from './processors/ResumeUploadProcessor';
 import { EmailProcessor } from './processors/EmailProcessor';
-import { MongoInstructorRepository } from '../../../modules/instructor/infrastructure/repositories/MongoInstructorRepository';
+import { InstructorRepository } from '../../../modules/instructor/infrastructure/repositories/InstructorRepository';
 import logger from '../../utils/Logger';
 import { DeleteDeclinedInstructorProcessor } from './processors/DeleteDeclinedInstructorProcessor';
 
@@ -19,7 +19,7 @@ export class JobQueueInitializer {
 
     try {
       // Initialize processors
-      const instructorRepo = new MongoInstructorRepository();
+      const instructorRepo = new InstructorRepository();
       new ResumeUploadProcessor(instructorRepo);
       new EmailProcessor();
       new DeleteDeclinedInstructorProcessor(instructorRepo);

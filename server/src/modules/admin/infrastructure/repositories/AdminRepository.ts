@@ -2,7 +2,7 @@
 import { IAdminRepository } from "../../domain/IRepositories/IAdminRepository";
 import { Admin } from "../../domain/entities/Admin";
 import { AdminModel } from "../models/AdminModel";
-export class MongoAdminRepository implements IAdminRepository { 
+export class AdminRepository implements IAdminRepository { 
   
   async findById(id: string): Promise<Admin | null> {
     const admin = await AdminModel.findById(id).select('-passwordHash');

@@ -6,15 +6,15 @@ import { UpdateLessonUseCase } from "../../application/use-cases/UpdateLessonUse
 import { DeleteLessonUseCase } from "../../application/use-cases/DeleteLessonUseCase";
 import { GetLessonPlayUrlUseCase } from "../../application/use-cases/GetLessonPlayUrlUseCase";
 
-import { MongoCourseRepository } from "../../infrastructure/repositories/MongoCourseRepository";
-import { MongoModuleRepository } from "../../infrastructure/repositories/MongoModuleRepository";
-import { MongoLessonRepository } from "../../infrastructure/repositories/MongoLessonRepository";
+import { CourseRepository } from "../../infrastructure/repositories/CourseRepository";
+import { ModuleRepository } from "../../infrastructure/repositories/ModuleRepository";
+import { LessonRepository } from "../../infrastructure/repositories/LessonRepository";
 import { EnrollmentRepository } from "../../../enrollment/infrastructure/repositories/EnrollmentRepository";
 import { BlockLessonUseCase } from "../../application/use-cases/BlockLessonUseCase";
 
-const moduleRepository = new MongoModuleRepository();
-const courseRepository = new MongoCourseRepository();
-const LessonRepo = new MongoLessonRepository();
+const moduleRepository = new ModuleRepository();
+const courseRepository = new CourseRepository();
+const LessonRepo = new LessonRepository();
 const enrollmentRepository = new EnrollmentRepository();
 
 const createLessonUC = new CreateLessonUseCase(

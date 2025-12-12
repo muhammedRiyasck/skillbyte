@@ -2,20 +2,20 @@ import { CourseController } from "../controllers/CourseController";
 import { GetCourseDetailUseCase } from "../../application/use-cases/GetCourseDetailUseCase";
 import { CreateBaseUseCase } from "../../application/use-cases/CreateBaseUseCase";
 
-import { MongoCourseRepository } from "../../infrastructure/repositories/MongoCourseRepository";
-import { MongoModuleRepository } from "../../infrastructure/repositories/MongoModuleRepository";
-import { MongoLessonRepository } from "../../infrastructure/repositories/MongoLessonRepository";
-import { MongoInstructorRepository } from "../../../instructor/infrastructure/repositories/MongoInstructorRepository";
+import { CourseRepository } from "../../infrastructure/repositories/CourseRepository";
+import { ModuleRepository } from "../../infrastructure/repositories/ModuleRepository";
+import { LessonRepository } from "../../infrastructure/repositories/LessonRepository";
+import { InstructorRepository } from "../../../instructor/infrastructure/repositories/InstructorRepository";
 import { EnrollmentRepository } from "../../../enrollment/infrastructure/repositories/EnrollmentRepository";
 import { UpdateBaseUseCase } from "../../application/use-cases/UpdateBaseUseCase";
 import { DeleteCourseUseCase } from "../../application/use-cases/DeleteCourseUseCase";
 import { UpdateCourseStatusUseCase } from "../../application/use-cases/UpdateCourseStatusUseCase";
 import { GetPaginatedCoursesUseCase } from "../../application/use-cases/GetPaginatedCoursesUseCase";
 
-const courseRepository = new MongoCourseRepository();
-const moduleRepository = new MongoModuleRepository();
-const lessonRepository = new MongoLessonRepository();
-const instructorRepository = new MongoInstructorRepository();
+const courseRepository = new CourseRepository();
+const moduleRepository = new ModuleRepository();
+const lessonRepository = new LessonRepository();
+const instructorRepository = new InstructorRepository();
 const enrollmentRepository = new EnrollmentRepository();
 
 const createCourseUC = new CreateBaseUseCase(courseRepository);

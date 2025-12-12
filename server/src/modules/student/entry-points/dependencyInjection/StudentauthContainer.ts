@@ -4,10 +4,10 @@ import { RegisterStudentUseCase } from "../../application/use-cases/RegisterStud
 import { LoginStudentUseCase } from "../../application/use-cases/LoginStudentUseCase";
 import { RedisOtpService } from "../../../../shared/services/otp/OtpService";
 
-import { MongoStudentRepository } from "../../infrastructure/repositories/MongoStudentRepository";
+import { StudentRepository } from "../../infrastructure/repositories/StudentRepository";
 
 // Instantiate services
-const studentRepo = new MongoStudentRepository();
+const studentRepo = new StudentRepository();
 
 // Instantiate use cases
 const registerStudentUC = new RegisterStudentUseCase(studentRepo, new RedisOtpService());

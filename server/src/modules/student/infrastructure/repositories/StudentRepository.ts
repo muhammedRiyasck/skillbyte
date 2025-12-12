@@ -5,7 +5,7 @@ import { IStudentRepository } from '../../domain/IRepositories/IStudentRepositor
 import { Student } from '../../domain/entities/Student';
 import { StudentModel } from '../models/StudentModel';
 
-export class MongoStudentRepository implements IStudentRepository {
+export class StudentRepository implements IStudentRepository {
   async save(student: Student): Promise<void> {
     try {
       // Check if student already exists

@@ -3,8 +3,8 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 // import { StudentModel } from "../../../modules/student/infrastructure/models/StudentModel"; 
 
-import { MongoStudentRepository } from "../../../modules/student/infrastructure/repositories/MongoStudentRepository";
-const StudentModel = new MongoStudentRepository();
+import { StudentRepository } from "../../../modules/student/infrastructure/repositories/StudentRepository";
+const StudentModel = new StudentRepository();
 
 import { Student } from "../../../modules/student/domain/entities/Student";
 import { InstructorModel } from "../../../modules/instructor/infrastructure/models/InstructorModel"; 
