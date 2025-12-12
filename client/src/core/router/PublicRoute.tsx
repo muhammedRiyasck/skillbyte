@@ -8,11 +8,9 @@ const PublicRoute = ({ children , endPoint }: { children: React.ReactElement ,en
   const user = useSelector((state: RootState) => state.auth.user);
 
   if(user?.role==='instructor'){
-    console.log('instructor route')
     return <Navigate to={ROUTES.instructor.dashboard} replace={true} />;
     } 
   if(user?.role==='admin'){
-    console.log('instructor route')
     return <Navigate to={ROUTES.admin.courseManagement} replace={true} />;
     } 
   if(endPoint) if (user) return <Navigate to={endPoint} replace />;

@@ -5,48 +5,43 @@ import { ROUTES } from "./paths";
 import ErrorHandler from "./ErrorHandler";
 import ErrorPage from "@shared/ui/ErrorPage";
 
-// Helper function to get relative path from full path
-const getRelativePath = (fullPath: string, basePath: string) => {
-  return fullPath.replace(`${basePath}/`, "");
-};
 
 import PublicLayout from "@layouts/auth/PublicLayout.tsx";
-const SignIn = lazy(() => import("@features/auth/pages/SignIn.tsx"));
-const StudentSignup = lazy(() => import("@features/auth/pages/StudentSignUp.tsx"));
 const Otp = lazy(() => import("@features/auth/pages/Otp.tsx"));
-const ForgotPassword = lazy(() => import("@features/auth/pages/ForgotPassword.tsx"));
 const ResetPassword = lazy(() => import("@features/auth/pages/ResetPassword.tsx"));
-
-const LandingPage = lazy(() => import("@features/home/pages/Landing.tsx"));
-import StudentLayout from "@layouts/student/StudentLayout.tsx";
 const OAuthSuccess = lazy(() => import("@/features/auth/hooks/UseOAuthSuccess.tsx"));
-
-const InstructorSignup = lazy(() => import("@features/auth/pages/InstructorSignUp.tsx"));
-
-import AdminLayout from "@layouts/admin/AdminLayout.tsx";
-const AdminSignIn = lazy(() => import("@features/admin/pages/SignIn.tsx"));
+const ForgotPassword = lazy(() => import("@features/auth/pages/ForgotPassword.tsx"));
 
 import PublicRoute from "./PublicRoute.tsx";
 import ProtectedRoute from "./RoleBaseRoute.tsx";
 
-import InstructorLayout from "@layouts/instructor/InstructorLayout.tsx";
+import AdminLayout from "@layouts/admin/AdminLayout.tsx";
+const AdminSignIn = lazy(() => import("@features/admin/pages/SignIn.tsx"));
+const AdminCourses = lazy(() => import("@features/course/pages/AdminCourses.tsx"));
 const InstructorManagement = lazy(() => import("@features/admin/pages/InstructorManagement.tsx"));
-const InstructorDashboard = lazy(() => import("@features/instructor/pages/Dashboard.tsx"));
-const InstructorProfile = lazy(() => import("@features/instructor/pages/Profile.tsx"));
-const ContentUploadPage = lazy(() => import("@features/course/pages/contentUpload/ContentUploadPage.tsx"));
 const StudentManagement = lazy(() => import("@features/admin/pages/StudentManagement.tsx"));
 
+import InstructorLayout from "@layouts/instructor/InstructorLayout.tsx";
+const InstructorSignup = lazy(() => import("@features/auth/pages/InstructorSignUp.tsx"));
+const InstructorDashboard = lazy(() => import("@features/instructor/pages/Dashboard.tsx"));
+const InstructorProfile = lazy(() => import("@features/instructor/pages/Profile.tsx"));
 const CreateCourse = lazy(() => import("@features/course/pages/CreateCourse.tsx"));
+const ContentUploadPage = lazy(() => import("@features/course/pages/contentUpload/ContentUploadPage.tsx"));
 const InstructorCourses = lazy(() => import("@features/course/pages/InstructorCourses.tsx"));
+
+
+import StudentLayout from "@layouts/student/StudentLayout.tsx";
+const SignIn = lazy(() => import("@features/auth/pages/SignIn.tsx"));
+const StudentSignup = lazy(() => import("@features/auth/pages/StudentSignUp.tsx"));
+const LandingPage = lazy(() => import("@features/home/pages/Landing.tsx"));
 const StudentCourses = lazy(() => import("@features/course/pages/StudentCourses.tsx"));
-const AdminCourses = lazy(() => import("@features/course/pages/AdminCourses.tsx"));
 const CourseDetails = lazy(() => import("@features/course/pages/CourseDetails.tsx"));
 const CheckoutPage = lazy(() => import("@features/enrollment").then(module => ({ default: module.CheckoutPage })));
 const SuccessPage = lazy(() => import("@features/enrollment").then(module => ({ default: module.SuccessPage })));
 
 const router = createBrowserRouter([
   {
-    path: ROUTES.auth.base,
+    path: ROUTES.auth.signIn,
     element: <PublicLayout />,
     children: [
       {
@@ -60,7 +55,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: getRelativePath(ROUTES.auth.learnerRegister, ROUTES.auth.base),
+        path: ROUTES.auth.learnerRegister,
         element: (
           <PublicRoute endPoint={ROUTES.root}>
             <Fallback>
@@ -71,7 +66,7 @@ const router = createBrowserRouter([
       },
 
       {
-        path: getRelativePath(ROUTES.auth.instructorRegister, ROUTES.auth.base),
+        path: ROUTES.auth.instructorRegister,
         element: (
           <PublicRoute endPoint={ROUTES.root}>
             <Fallback>
@@ -81,7 +76,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: getRelativePath(ROUTES.auth.oauthSuccess, ROUTES.auth.base),
+        path: ROUTES.auth.oauthSuccess,
         element: (
           <PublicRoute endPoint={ROUTES.root}>
             <Fallback>
@@ -91,7 +86,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: getRelativePath(ROUTES.auth.forgotPassword, ROUTES.auth.base),
+        path: ROUTES.auth.forgotPassword,
         element: (
           <PublicRoute endPoint={ROUTES.root}>
             <Fallback>
@@ -141,7 +136,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: getRelativePath(ROUTES.student.courses, ROUTES.root),
+        path: ROUTES.student.courses,
         element: (
           <ProtectedRoute roles={["student"]}>
             <Fallback>
@@ -151,7 +146,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: getRelativePath(ROUTES.student.checkout, ROUTES.root),
+        path: ROUTES.student.checkout,
         element: (
           <ProtectedRoute roles={["student"]}>
              <Fallback>
@@ -183,11 +178,11 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: ROUTES.instructor.base,
+    path: ROUTES.instructor.dashboard,
     element: <InstructorLayout />,
     children: [
       {
-        index: true,
+        path: ROUTES.instructor.dashboard  ,
         element: (
           <ProtectedRoute roles={["instructor"]}>
             <Fallback>
@@ -197,7 +192,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: getRelativePath(ROUTES.instructor.profile, ROUTES.instructor.base),
+        path: ROUTES.instructor.profile, 
         element: (
           <ProtectedRoute roles={["instructor"]}>
             <Fallback>
@@ -207,7 +202,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: getRelativePath(ROUTES.instructor.createCourseBase, ROUTES.instructor.base),
+        path: ROUTES.instructor.createCourseBase, 
         element: (
           <ProtectedRoute roles={["instructor"]}>
             <Fallback>
@@ -217,7 +212,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: getRelativePath(ROUTES.instructor.uploadCourseContent, ROUTES.instructor.base),
+        path: ROUTES.instructor.uploadCourseContent, 
         element: (
           <ProtectedRoute roles={["instructor"]}>
             <Fallback>
@@ -227,7 +222,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: getRelativePath(ROUTES.instructor.myCourses, ROUTES.instructor.base),
+        path: ROUTES.instructor.myCourses, 
         element: (
           <ProtectedRoute roles={["instructor"]}>
             <Fallback>
@@ -244,7 +239,7 @@ const router = createBrowserRouter([
     element: <ErrorPage message="Page Not Found" statusCode={404} />,
   },
   {
-    path: ROUTES.admin.base,
+    path: ROUTES.admin.signIn,
     element: <AdminLayout />,
     children: [
       {
@@ -258,7 +253,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: getRelativePath(ROUTES.admin.instructorManagement, ROUTES.admin.base),
+        path: ROUTES.admin.instructorManagement, 
         element: (
           <ProtectedRoute roles={["admin"]}>
             <Fallback>
@@ -268,7 +263,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: getRelativePath(ROUTES.admin.studentManagement, ROUTES.admin.base),
+        path: ROUTES.admin.studentManagement, 
         element: (
           <ProtectedRoute roles={["admin"]}>
             <Fallback>
@@ -278,7 +273,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: getRelativePath(ROUTES.admin.courseManagement, ROUTES.admin.base),
+        path: ROUTES.admin.courseManagement, 
         element: (
           <ProtectedRoute roles={["admin"]}>
             <Fallback>
