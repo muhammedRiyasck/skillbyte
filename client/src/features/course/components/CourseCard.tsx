@@ -139,7 +139,7 @@ const CourseCard = memo<CourseCardProps>(({
           <div className="rounded-lg overflow-hidden mb-4 relative">
             {role !== 'student' && getStatusBadge(course.status)}
             {role === 'student' && course.isEnrolled && (
-              <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 bg-gradient-to-r bg-green-800 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm">
+              <div className="absolute top-3 left-3  flex items-center gap-1.5 bg-gradient-to-r bg-green-800 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm">
                 
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />

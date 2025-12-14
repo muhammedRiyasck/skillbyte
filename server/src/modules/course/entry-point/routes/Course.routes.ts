@@ -14,6 +14,7 @@ import asyncHandler from "../../../../shared/utils/AsyncHandler";
 
 router.post("/createbase",authenticate,requireRole('instructor'),asyncHandler(courseController.createBase));
 router.post("/upload-thumbnail/:courseId", authenticate, requireRole('instructor'), upload.single('thumbnail'), asyncHandler(courseController.uploadThumbnail));
+router.get("/categories", authenticate, asyncHandler(courseController.getCategories));
 router.get("/instructor-courses",CustomLimit(5,'list courses'), authenticate, requireRole('instructor'), asyncHandler(courseController.getInstructorCourses));
 router.get("/details/:courseId", authenticate, requireRole('instructor','student','admin'), asyncHandler(courseController.getCourseById));
 router.get("/published-courses",CustomLimit(5,'list all courses'), authenticate,requireRole('student'), asyncHandler(courseController.getPublishedCourses));

@@ -10,5 +10,6 @@ export interface ICourseRepository {
   findPublishedCourses(filters: {search?: string;category?: string}): Promise<Course[]>
   listPaginated(filter:Record<string, any>,page:number,limit:number,sort: Record<string, 1 | -1>): Promise<{data:Course[],total:number}>
   findAllForAdmin(filters: {instructorId?: string; status?: string; category?: string;search?: string;}): Promise<Course[]>;
+  getCategories(): Promise<string[]>;
 }
 

@@ -17,6 +17,7 @@ import {
 } from '../../application/dtos/CourseValidationSchemas';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { IEnrollmentRepository } from '../../../enrollment/domain/IEnrollmentRepository';
+import { GetCategories } from '../../application/use-cases/GetCategoriesUseCase';
 
 export class CourseController {
   constructor(
@@ -27,7 +28,9 @@ export class CourseController {
     private _updateCourseStatusUseCase: IUpdateCourseStatusUseCase,
     private _getPaginatedCoursesUseCase: IGetPaginatedCoursesUseCase,
     private _enrollmentRepository: IEnrollmentRepository,
+    private _getCategoriesUseCase: GetCategories,
   ) {}
+
 
   /**
    * Creates the base details for a new course.
@@ -215,13 +218,49 @@ export class CourseController {
    */
   getPublishedCourses = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
-    const query = { status: 'list' };
+    const query: any = { status: 'list' };
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 6;
+
+    // Advanced Filtering
+    const { category, level, language, minPrice, maxPrice, search } = req.query;
+
+    if (category) {
+      query.category = { $regex: category as string, $options: 'i' };
+    }
+
+    if (level) {
+      query.courseLevel = { $regex: level as string, $options: 'i' };
+    }
+
+    if (language) {
+      query.language = { $regex: language as string, $options: 'i' };
+    }
+
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
+    
+    if (search) {
+       query.$or = [
+        { title: { $regex: search as string, $options: 'i' } },
+        { tags: { $regex: search as string, $options: 'i' } }
+      ];
+    }
+
     let sort: Record<string, 1 | -1> = { createdAt: -1 };
     if (typeof req.query.sort === 'string') {
       const [field, dir] = (req.query.sort as string).split(':');
-      sort = { [field]: dir === 'asc' ? 1 : -1 };
+      // Map frontend sort fields to database fields if necessary
+      if (field === 'price') {
+        sort = { price: dir === 'asc' ? 1 : -1 };
+      } else if (field === 'title') {
+        sort = { title: dir === 'asc' ? 1 : -1 };
+      } else {
+        sort = { [field]: dir === 'asc' ? 1 : -1 };
+      }
     }
 
     const courses = await this._getPaginatedCoursesUseCase.execute(
@@ -252,6 +291,17 @@ export class CourseController {
       courses,
     });
   };
+
+    /**
+   * Retrieves all unique categories from courses.
+   * @param req - Request object.
+   * @param res - Express response object.
+   */
+  getCategories = async (req: Request, res: Response): Promise<void> => {
+    const categories = await this._getCategoriesUseCase.execute();
+    ApiResponseHelper.success(res, 'Categories retrieved successfully', categories);
+  };
+
 
   /**
    * Retrieves courses for the authenticated instructor with optional status filtering, pagination, and sorting.

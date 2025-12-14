@@ -198,5 +198,10 @@ async deleteById(courseId: string): Promise<void> {
   await CourseModel.findByIdAndDelete(courseId);
 }
 
+async getCategories(): Promise<string[]> {
+  const categories = await CourseModel.distinct("category");
+  return categories.filter((c): c is string => typeof c === 'string');
+}
+
  
 }
