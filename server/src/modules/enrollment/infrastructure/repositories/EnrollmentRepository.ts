@@ -3,6 +3,8 @@ import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
 import { IInstructorEnrollment } from '../../types/IInstructorEnrollment';
 import { EnrollmentModel, IEnrollment } from '../models/EnrollmentModel';
 import { PaymentModel, IPayment } from '../models/PaymentModel';
+import { ModuleModel } from '../../../course/infrastructure/models/ModuleModel';
+import { LessonModel } from '../../../course/infrastructure/models/LessonModel';
 
 export class EnrollmentRepository implements IEnrollmentRepository {
   async createEnrollment(
@@ -113,4 +115,98 @@ export class EnrollmentRepository implements IEnrollmentRepository {
       { new: true },
     );
   }
+  async updateLessonProgress(
+    enrollmentId: string,
+    lessonId: string,
+    progressData: {
+      lastWatchedSecond: number;
+      totalDuration: number;
+      isCompleted: boolean;
+    },
+  ): Promise<IEnrollment | null> {
+    const enrollment = await EnrollmentModel.findOne({
+      _id: enrollmentId,
+      'lessonProgress.lessonId': lessonId,
+    });
+    console.log(1111)
+    if (enrollment) {
+      // Update existing
+       await EnrollmentModel.findOneAndUpdate(
+        { _id: enrollmentId, 'lessonProgress.lessonId': lessonId },
+        {
+          $set: {
+            'lessonProgress.$.lastWatchedSecond': progressData.lastWatchedSecond,
+            'lessonProgress.$.totalDuration': progressData.totalDuration,
+            'lessonProgress.$.isCompleted': progressData.isCompleted,
+            'lessonProgress.$.lastUpdated': new Date(),
+          },
+        },
+        { new: true },
+      );
+    } else {
+      // Push new
+      await EnrollmentModel.findByIdAndUpdate(
+        enrollmentId,
+        {
+          $push: {
+            lessonProgress: {
+              lessonId,
+              ...progressData,
+              lastUpdated: new Date(),
+            },
+          },
+        },
+        { new: true },
+      );
+    }
+
+    // --- Recalculate Overall Progress ---
+    const updatedEnrollment = await EnrollmentModel.findById(enrollmentId);
+    if (!updatedEnrollment) return null;
+
+    // 1. Get total lessons count for the course
+    //    Find all modules for this course
+    const modules = await ModuleModel.find({ courseId: updatedEnrollment.courseId }).select('_id');
+    const moduleIds = modules.map((m) => m._id);
+
+    //    Count all published lessons in these modules
+    //    (Assuming we only count published lessons as 'total' for the student)
+    //    TEMPORARY: Removing isPublished check to see if that's the cause, or logging it.
+    const totalLessons = await LessonModel.countDocuments({
+      moduleId: { $in: moduleIds },
+      // isPublished: true, // Commenting out strictly for debug if needed, but let's log first
+    });
+
+    // 2. Count completed lessons in enrollment
+    const completedLessons = updatedEnrollment.lessonProgress?.filter(
+      (p: any) => p.isCompleted
+    ).length || 0;
+
+    console.log("Recalculate Progress Debug:");
+    console.log(`EnrollmentID: ${enrollmentId}, CourseID: ${updatedEnrollment.courseId}`);
+    console.log(`Module IDs: ${moduleIds.length} found`);
+    console.log(`Total Lessons (DB): ${totalLessons}`);
+    console.log(`Completed Lessons (User): ${completedLessons}`);
+
+    // 3. Calculate percentage
+    const progressPercentage = totalLessons > 0 
+      ? Math.round((completedLessons / totalLessons) * 100) 
+      : 0;
+    
+    console.log(`Calculated Percentage: ${progressPercentage}`);
+
+    // 4. Update the enrollment with new progress
+    const updateData: any = { progress: progressPercentage };
+    if (progressPercentage === 100 && updatedEnrollment.status !== 'completed') {
+        updateData.status = 'completed';
+        updateData.completedAt = new Date();
+    }
+
+    return await EnrollmentModel.findByIdAndUpdate(
+      enrollmentId,
+      updateData,
+      { new: true }
+    );
+  }
 }
+

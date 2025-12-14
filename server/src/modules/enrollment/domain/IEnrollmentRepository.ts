@@ -12,4 +12,5 @@ export interface IEnrollmentRepository {
   createPayment(paymentData: Partial<IPayment>): Promise<IPayment>;
   findPaymentByIntentId(paymentIntentId: string): Promise<IPayment | null>;
   updatePaymentStatus(paymentIntentId: string, status: string): Promise<IPayment | null>;
+  updateLessonProgress(enrollmentId: string, lessonId: string, progressData: { lastWatchedSecond: number; totalDuration: number; isCompleted: boolean }): Promise<IEnrollment | null>;
 }

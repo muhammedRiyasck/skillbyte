@@ -3,6 +3,7 @@ import { ICreatePaymentIntent } from '../application/interfaces/ICreatePaymentIn
 import { IHandleStripeWebhook } from '../application/interfaces/IHandleStripeWebhook';
 import { ICheckEnrollment } from '../application/interfaces/ICheckEnrollment';
 import { IGetInstructorEnrollmentsUseCase } from '../application/interfaces/IGetInstructorEnrollments';
+import { IUpdateLessonProgressUseCase } from '../application/interfaces/IUpdateLessonProgress';
 
 export class EnrollmentController {
 
@@ -10,7 +11,8 @@ export class EnrollmentController {
     private _createPaymentIntentUc: ICreatePaymentIntent,
     private _handleStripeWebhookUc: IHandleStripeWebhook,
     private _checkEnrollmentUc : ICheckEnrollment,
-    private _getInstructorEnrollmentsUc: IGetInstructorEnrollmentsUseCase
+    private _getInstructorEnrollmentsUc: IGetInstructorEnrollmentsUseCase,
+    private _updateLessonProgressUc: IUpdateLessonProgressUseCase, 
   ) {}
 
   async createPaymentIntent(req: Request, res: Response) {
@@ -88,6 +90,27 @@ export class EnrollmentController {
       res.status(200).json({
         enrollments,
       });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  async updateProgress(req: Request, res: Response) {
+    try {
+      const { lessonId, lastWatchedSecond, totalDuration, isCompleted } = req.body;
+      const { enrollmentId } = req.params;
+      const userId = (req.user as any)?.id;
+
+      if (!userId) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+
+      const result = await this._updateLessonProgressUc.execute(
+        enrollmentId,
+        lessonId,
+        { lastWatchedSecond, totalDuration, isCompleted }
+      );
+      res.status(200).json(result);
     } catch (error: any) {
       res.status(400).json({ error: error.message });
     }

@@ -8,6 +8,12 @@ export interface IEnrollment extends Document {
   enrolledAt: Date;
   completedAt?: Date;
   progress: number;
+  lessonProgress: {
+    lessonId: mongoose.Types.ObjectId;
+    lastWatchedSecond: number;
+    totalDuration: number;
+    isCompleted: boolean;
+  }[];
 }
 
 const EnrollmentSchema = new Schema(
@@ -23,6 +29,15 @@ const EnrollmentSchema = new Schema(
     enrolledAt: { type: Date, default: Date.now },
     completedAt: { type: Date },
     progress: { type: Number, default: 0 }, // Percentage 0-100
+    lessonProgress: [
+      {
+        lessonId: { type: mongoose.Schema.Types.ObjectId, ref: "Lesson" },
+        lastWatchedSecond: { type: Number, default: 0 },
+        totalDuration: { type: Number, default: 0 },
+        isCompleted: { type: Boolean, default: false },
+        lastUpdated: { type: Date, default: Date.now }
+      }
+    ]
   },
   { timestamps: true }
 );

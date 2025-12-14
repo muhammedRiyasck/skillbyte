@@ -38,7 +38,6 @@ export class GetInstructorEnrollmentsUseCase implements IGetInstructorEnrollment
         progress: enrollment.progress
       });
     }
-    console.log(Array.from(courseMap.values()),'course map values');
     return Array.from(courseMap.values());
   }
 }

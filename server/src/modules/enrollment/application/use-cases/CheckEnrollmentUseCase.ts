@@ -7,6 +7,6 @@ export class CheckEnrollmentUseCase implements ICheckEnrollment {
     }
     async execute(userId: string, courseId: string) {
         const enrollment = await this.enrollmentRepository.findEnrollment(userId, courseId);
-        return enrollment !== null;
+        return enrollment;
     }
 }

@@ -38,4 +38,9 @@ router.get("/instructor-enrollments", authenticate, requireRole('instructor'), a
     await enrollmentController.getInstructorEnrollments(req, res);
 });
 
+// Update Lesson Progress - Protected Route
+router.patch("/:enrollmentId/lesson-progress", authenticate, async (req, res) => {
+    await enrollmentController.updateProgress(req, res);
+});
+
 export default router;

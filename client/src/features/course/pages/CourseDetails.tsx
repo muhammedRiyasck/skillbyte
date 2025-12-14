@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import default_profile from '@assets/default_profile.svg';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Star,
   Clock,
@@ -42,6 +42,7 @@ const CourseDetails: React.FC = () => {
   const role = useSelector((state:RootState) => state.auth.user?.role);
   const userId = useSelector((state:RootState) => state.auth.user?.id);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { data: courseData, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['courseDetails', courseId, role],
@@ -167,6 +168,13 @@ const CourseDetails: React.FC = () => {
     ? course.modules?.flatMap((m: ModuleType) => m.lessons || []).find((l: LessonType) => l.lessonId === currentLessonId)
     : null;
 
+  const currentLessonProgress = enrollmentData?.enrollment?.lessonProgress?.find(
+    (p: any) => p.lessonId === currentLessonId
+  );
+  
+  const initialProgress = currentLessonProgress?.lastWatchedSecond || 0;
+  const enrollmentId = enrollmentData?.enrollment?._id;
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Breadcrumbs and Back Button */}
@@ -203,8 +211,13 @@ const CourseDetails: React.FC = () => {
            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
              <LessonPlayer 
                 lessonId={currentLessonId} 
-                onClose={() => setCurrentLessonId(null)}
+                onClose={() => {
+                    setCurrentLessonId(null);
+                    queryClient.invalidateQueries({ queryKey: ['enrollmentStatus', courseId, userId] });
+                }}
                 title={currentLesson?.title || ''}
+                enrollmentId={enrollmentId}
+                initialProgress={initialProgress}
              />
            </div>
          </div>
@@ -378,54 +391,78 @@ const CourseDetails: React.FC = () => {
 
                       <div className="border-t border-gray-200 dark:border-gray-700 ">
                         {module.lessons?.map((lesson) => (
-                        
-                          ((lesson.isBlocked && role === 'admin') || !lesson.isBlocked)?<div
-                            key={lesson.lessonId}
-                            className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                          >
-                            <div className="flex items-center gap-3 flex-1">
-                              {lesson.contentType === 'video' ? (
-                                <Play className="w-4 h-4 text-gray-500" />
-                              ) : (
-                                <FileText className="w-4 h-4 text-gray-500" />
-                              )}
-                              <div className="flex-1">
-                                <p className="font-medium text-gray-900 dark:text-white">
-                                  {lesson.title}
-                                </p>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">
-                                  {lesson.description}
-                                </p>
+                          ((lesson.isBlocked && role === 'admin') || !lesson.isBlocked) ? (
+                            <div
+                              key={lesson.lessonId}
+                              className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                            >
+                              <div className="flex items-center justify-between p-4">
+                                <div className="flex items-center gap-3 flex-1">
+                                  {lesson.contentType === 'video' ? (
+                                    <Play className="w-4 h-4 text-gray-500" />
+                                  ) : (
+                                    <FileText className="w-4 h-4 text-gray-500" />
+                                  )}
+                                  <div className="flex-1">
+                                    <p className="font-medium text-gray-900 dark:text-white">
+                                      {lesson.title}
+                                    </p>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                                      {lesson.description}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-4 text-sm text-gray-500">
+                                  {lesson.isFreePreview && (
+                                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
+                                      Preview
+                                    </span>
+                                  )}
+                                  <span>{formatDuration(lesson.duration || 0)}</span>
+                                  {role === 'student' && (lesson.isFreePreview || isEnrolled) && (
+                                    <button
+                                      onClick={() => {
+                                          setCurrentLessonId(lesson.lessonId);
+                                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                                      }}
+                                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2"
+                                    >
+                                      <Play className="w-4 h-4" />
+                                      {(enrollmentData?.enrollment?.lessonProgress?.find((p:any) => p.lessonId === lesson.lessonId)?.lastWatchedSecond || 0) > 0 ? 'Resume' : 'Watch'}
+                                    </button>
+                                  )}
+                                  {role === 'admin' && (
+                                    <ToggleSwitch
+                                      checked={blockedLessons.has(lesson.lessonId)}
+                                      onChange={() => handleBlockLesson(lesson.lessonId)}
+                                      label='Block'
+                                    />
+                                  )}
+                                </div>
                               </div>
+                              {/* Progress Bar for Enrolled Students */}
+                              {role === 'student' && isEnrolled && (function() {
+                                  const prog = enrollmentData?.enrollment?.lessonProgress?.find((p:any) => p.lessonId === lesson.lessonId);
+                                  const pct = prog ? Math.min(100, Math.max(0, (prog.lastWatchedSecond / (prog.totalDuration || lesson.duration || 1)) * 100)) : 0;
+                                  // Only show progress bar if there is some progress or it's completed
+                                  if (!prog && pct === 0) return null;
+                                  
+                                  return (
+                                    <div className="px-4 pb-2">
+                                       <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5">
+                                          <div 
+                                            className={`bg-indigo-600 h-1.5 rounded-full transition-all duration-300 ${prog?.isCompleted ? 'bg-green-500' : ''}`} 
+                                            style={{ width: `${prog?.isCompleted ? 100 : pct}%` }}
+                                          />
+                                       </div>
+                                       {prog?.isCompleted && <p className="text-xs text-green-600 mt-1 flex items-center gap-1"><CheckCircle className="w-3 h-3"/> Completed</p>}
+                                    </div>
+                                  );
+                              })()}
                             </div>
-                            <div className="flex items-center gap-4 text-sm text-gray-500">
-                              {lesson.isFreePreview && (
-                                <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
-                                  Preview
-                                </span>
-                              )}
-                              <span>{formatDuration(lesson.duration || 0)}</span>
-                              {role === 'student' && (lesson.isFreePreview || isEnrolled) && (
-                                <button
-                                  onClick={() => {
-                                      setCurrentLessonId(lesson.lessonId);
-                                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                                  }}
-                                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2"
-                                >
-                                  <Play className="w-4 h-4" />
-                                  Watch
-                                </button>
-                              )}
-                              {role === 'admin' && (
-                                <ToggleSwitch
-                                  checked={blockedLessons.has(lesson.lessonId)}
-                                  onChange={() => handleBlockLesson(lesson.lessonId)}
-                                  label='Block'
-                                />
-                              )}
-                            </div>
-                          </div>: <p className="text-red-500 font-semibold text-center p-4">This lesson is removed currently.</p>
+                          ) : (
+                            <p className="text-red-500 font-semibold text-center p-4">This lesson is removed currently.</p>
+                          )
                         ))}
                       </div>
                     )}
