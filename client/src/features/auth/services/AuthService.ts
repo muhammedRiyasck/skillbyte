@@ -70,7 +70,7 @@ export const reapplyInstructor = async (payload: IinstrctorSignUpPayload) => {
     });
     return response.data;
   } catch (error) {
-    toast.error('errr reapply failed');
+    toast.error((error as Error).message);
     throw error;
   }
 };

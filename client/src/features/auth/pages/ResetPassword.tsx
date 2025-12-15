@@ -76,7 +76,7 @@ const ResetPassword = () => {
               type="password"
               value={password}
               placeholder="************"
-              onChange={setPassword}
+              onChange={(e)=>setPassword(e.target.value)}
               showPassword={showPassword}
               icon={<ShowPassword showPassword={showPassword} setShowPassword={setShowPassword}/>}
             />
@@ -93,7 +93,7 @@ const ResetPassword = () => {
             type='password'
             value={confirmPassword}
             placeholder="************"
-            onChange={setConfirmPassword}
+            onChange={(e)=>setConfirmPassword(e.target.value)}
             showPassword={showPassword}
              />
           </div>
