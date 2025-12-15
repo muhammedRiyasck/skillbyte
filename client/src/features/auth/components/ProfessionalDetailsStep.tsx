@@ -6,11 +6,13 @@ import { isValidSubject, isValidJobTitle, isValidExperience, isValidSocialMedia,
 interface ProfessionalDetailsStepProps {
   subjectOptions: string[];
   jobTitleOptions: string[];
+  isReapply?: boolean;
 }
 
 export default function ProfessionalDetailsStep({
   subjectOptions,
   jobTitleOptions,
+  isReapply = false,
 }: ProfessionalDetailsStepProps) {
   const { register, setValue, formState: { errors }, watch } = useFormContext();
   const watchedValues = watch();
@@ -55,8 +57,9 @@ export default function ProfessionalDetailsStep({
               type="file"
               accept=".pdf,.doc,.docx"
               {...register("resume", {
-                required: "Resume is required",
+                required: isReapply ? false : "Resume is required",
                 validate: (value) => {
+                  if (!value) return true;
                   const result = isValidResume(value);
                   return result.success || result.message;
                 },
@@ -288,9 +291,9 @@ export default function ProfessionalDetailsStep({
               href="#"
               className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500"
             >
-              Terms and Conditions
+              Terms and Conditions &nbsp;
             </a>
-            and
+            and &nbsp;
             <a
               href="#"
               className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500"

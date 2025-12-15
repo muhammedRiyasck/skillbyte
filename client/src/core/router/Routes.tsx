@@ -95,6 +95,16 @@ const router = createBrowserRouter([
           </PublicRoute>
         ),
       },
+       {
+        path: ROUTES.auth.reapply, 
+        element: (
+          <PublicRoute endPoint={ROUTES.root}>
+            <Fallback>
+              <InstructorSignup />
+            </Fallback>
+         </PublicRoute>
+        ),
+      }
     ],
     errorElement: <ErrorHandler />,
   },
@@ -231,6 +241,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+     
     ],
     errorElement: <ErrorHandler />,
   },

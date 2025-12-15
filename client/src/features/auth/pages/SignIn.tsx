@@ -52,13 +52,22 @@ const Login: React.FC = () => {
     try {
       setLoading(true);
       const response = await login(data);
-
-      dispatch(setUser(response.data.userData));
+      if(response.data.userData.accountStatus !== 'rejected') dispatch(setUser(response.data.userData));
       if (data.role === 'instructor') {
-        setTimeout(() => {
-          navigate(ROUTES.instructor.dashboard, { replace: true });
-        }, 0);
-        toast.success('instructor login successful');
+        const userData = response.data.userData;
+        if (userData.accountStatus === 'rejected') {
+          toast.error('Your application was rejected. Please update your details.');
+          setTimeout(() => {
+            navigate(ROUTES.auth.reapply, { 
+              state: { reapplyData: userData } 
+            });
+          }, 0);
+        } else {
+          setTimeout(() => {
+            navigate(ROUTES.instructor.dashboard, { replace: true });
+          }, 0);
+          toast.success('instructor login successful');
+        }
       } else {
         navigate(ROUTES.root);
         toast.success(response.message);

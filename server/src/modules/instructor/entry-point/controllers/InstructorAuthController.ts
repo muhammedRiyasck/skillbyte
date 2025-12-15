@@ -5,6 +5,8 @@ import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
+import { IReapplyInstructorUseCase } from '../../application/interfaces/IReapplyInstructorUseCase';
+import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 
 /**
  * Controller for instructor authentication operations.
@@ -19,6 +21,8 @@ export class InstructorAuthController {
   constructor(
     private readonly _registerInstructorUseCase: IRegisterInstructorUseCase,
     private readonly _generateOtpUseCase: IOtpService,
+    private readonly _reapplyInstructorUseCase: IReapplyInstructorUseCase,
+
   ) {}
 
   /**
@@ -82,5 +86,18 @@ export class InstructorAuthController {
     const { Otp, email } = req.body;
     await this._registerInstructorUseCase.execute(email, Otp);
     ApiResponseHelper.created(res, "Successfully registered. You'll receive an email once approved.");
+  };
+
+   /**
+   * Re-applies a rejected instructor application.
+   * @param req - Authenticated request object with update data and optional resume file.
+   * @param res - Express response object.
+   */
+  reapply = async (req: Request, res: Response): Promise<void> => {
+    const reAppliedInstructorEmail = req.body.email;
+    const updates = req.body;
+    const file = req.file;
+    await this._reapplyInstructorUseCase.execute(reAppliedInstructorEmail, updates, file);
+    ApiResponseHelper.success(res, 'Application re-submitted successfully');
   };
 }

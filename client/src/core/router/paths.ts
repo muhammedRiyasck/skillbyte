@@ -12,6 +12,7 @@ export const ROUTES = {
     resetPassword: '/auth/reset-password',
     forgotPassword: '/auth/forgot-password',
     oauthSuccess: '/auth/oauth-success',
+    reapply: '/auth/reapply',
   },
 
   student: {

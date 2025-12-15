@@ -8,7 +8,12 @@ import { ILoginStudentUseCase } from '../../../student/application/interfaces/IL
 import { ILoginInstructorUseCase } from '../../../instructor/application/interfaces/ILoginInstructorUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { HttpError } from '../../../../shared/types/HttpError';
-import { LoginSchema, ResendOtpSchema, ForgotPasswordSchema, ResetPasswordSchema } from '../../../../shared/validations/AuthValidation';
+import {
+  LoginSchema,
+  ResendOtpSchema,
+  ForgotPasswordSchema,
+  ResetPasswordSchema,
+} from '../../../../shared/validations/AuthValidation';
 import logger from '../../../../shared/utils/Logger';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
@@ -19,9 +24,9 @@ export class CommonAuthController {
     private readonly _instructorLoginUC: ILoginInstructorUseCase,
     private readonly _accessTokenUseCase: IAccessTokenUseCase,
     private readonly _resendOtpUseCase: IResendOtpUseCase,
-    private readonly _forgotPasswordUseCase : IForgotPasswordUseCase,
-    private readonly _resetPasswordUseCase : IResetPasswordUseCase,
-    private readonly _amILoggedInUseCase : IAmILoggedInUseCase
+    private readonly _forgotPasswordUseCase: IForgotPasswordUseCase,
+    private readonly _resetPasswordUseCase: IResetPasswordUseCase,
+    private readonly _amILoggedInUseCase: IAmILoggedInUseCase,
   ) {}
 
   /**
@@ -32,7 +37,10 @@ export class CommonAuthController {
   amILoggedIn = async (req: Request, res: Response): Promise<void> => {
     logger.info(`AmILoggedIn check from IP: ${req.ip}`);
     const decodedUserData = req.user as { id: string; role: string };
-    const user = await this._amILoggedInUseCase.execute(decodedUserData.id, decodedUserData.role);
+    const user = await this._amILoggedInUseCase.execute(
+      decodedUserData.id,
+      decodedUserData.role,
+    );
     logger.info(`User logged in status: ${user ? true : false}`);
     ApiResponseHelper.success(res, 'User is logged in', {
       userData: {
@@ -40,8 +48,8 @@ export class CommonAuthController {
         name: user?.name,
         email: user?.email,
         profilePicture: user?.profilePictureUrl,
-        role: decodedUserData.role
-      }
+        role: decodedUserData.role,
+      },
     });
   };
 
@@ -56,7 +64,10 @@ export class CommonAuthController {
     const validationResult = LoginSchema.safeParse(req.body);
     if (!validationResult.success) {
       logger.warn(`Login validation failed: ${validationResult.error.message}`);
-      throw new HttpError(ERROR_MESSAGES.INVALID_INPUT, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_INPUT,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     const { email, password, role } = validationResult.data;
@@ -72,33 +83,41 @@ export class CommonAuthController {
         break;
       default:
         logger.warn(`Invalid role attempted: ${role}`);
-        throw new HttpError(ERROR_MESSAGES.INVALID_INPUT, HttpStatusCode.BAD_REQUEST);
+        throw new HttpError(
+          ERROR_MESSAGES.INVALID_INPUT,
+          HttpStatusCode.BAD_REQUEST,
+        );
     }
     const { user, accessToken, refreshToken } = data;
+    if (user.accountStatus !== 'rejected') {
+      res.cookie('access_token', accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 15 * 60 * 1000,
+      });
 
-    res.cookie('access_token', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 15 * 60 * 1000,
-    });
-
-    res.cookie('refresh_token', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-
+      res.cookie('refresh_token', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+    }
     logger.info(`Login successful for ${role}: ${email}`);
 
     ApiResponseHelper.success(res, 'Login successful', {
       userData: {
-        id: role === 'student' ? (user as any).studentId : (user as any).instructorId,
+        id:
+          role === 'student'
+            ? (user as any).studentId
+            : (user as any).instructorId,
         name: user.name,
         email: user.email,
         role,
-        profilePicture: user.profilePictureUrl
+        profilePicture: user.profilePictureUrl,
+        accountStatus:
+          role === 'instructor' ? (user as any).accountStatus : undefined,
       },
     });
   };
@@ -114,22 +133,24 @@ export class CommonAuthController {
     const refreshToken = req.cookies.refresh_token;
     if (!refreshToken) {
       logger.warn('Refresh token missing');
-      throw new HttpError(ERROR_MESSAGES.NO_REFRESH_TOKEN_PROVIDED, HttpStatusCode.UNAUTHORIZED);
+      throw new HttpError(
+        ERROR_MESSAGES.NO_REFRESH_TOKEN_PROVIDED,
+        HttpStatusCode.UNAUTHORIZED,
+      );
     }
 
     const newAccessToken = this._accessTokenUseCase.execute(refreshToken);
 
-    res.cookie("access_token", newAccessToken, {
+    res.cookie('access_token', newAccessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 15 * 60 * 1000 // 15 min
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000, // 15 min
     });
 
     logger.info('Access token refreshed successfully');
-    ApiResponseHelper.success(res, "Access token refreshed");
+    ApiResponseHelper.success(res, 'Access token refreshed');
   };
-
 
   /**
    * Resends OTP to the user's email.
@@ -141,15 +162,20 @@ export class CommonAuthController {
 
     const validationResult = ResendOtpSchema.safeParse(req.body);
     if (!validationResult.success) {
-      logger.warn(`Resend OTP validation failed: ${validationResult.error.message}`);
-      throw new HttpError(ERROR_MESSAGES.INVALID_INPUT, HttpStatusCode.BAD_REQUEST);
+      logger.warn(
+        `Resend OTP validation failed: ${validationResult.error.message}`,
+      );
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_INPUT,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     const { email } = validationResult.data;
 
     await this._resendOtpUseCase.execute(email);
     logger.info(`OTP resent successfully to: ${email}`);
-    ApiResponseHelper.success(res, "OTP resent successfully");
+    ApiResponseHelper.success(res, 'OTP resent successfully');
   };
 
   /**
@@ -162,8 +188,13 @@ export class CommonAuthController {
 
     const validationResult = ForgotPasswordSchema.safeParse(req.body);
     if (!validationResult.success) {
-      logger.warn(`Forgot password validation failed: ${validationResult.error.message}`);
-      throw new HttpError(ERROR_MESSAGES.INVALID_INPUT, HttpStatusCode.BAD_REQUEST);
+      logger.warn(
+        `Forgot password validation failed: ${validationResult.error.message}`,
+      );
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_INPUT,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     const { email, role } = validationResult.data;
@@ -172,11 +203,14 @@ export class CommonAuthController {
     // Delay to prevent timing attacks
     if (user === false) {
       logger.info(`Non-existent user delay for email: ${email}`);
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise((resolve) => setTimeout(resolve, 5000));
     } else {
       logger.info(`Forgot password link sent to: ${email} for role: ${role}`);
     }
-    ApiResponseHelper.success(res, 'If the email exists, a reset link has been sent.');
+    ApiResponseHelper.success(
+      res,
+      'If the email exists, a reset link has been sent.',
+    );
   };
 
   /**
@@ -189,8 +223,13 @@ export class CommonAuthController {
 
     const validationResult = ResetPasswordSchema.safeParse(req.body);
     if (!validationResult.success) {
-      logger.warn(`Reset password validation failed: ${validationResult.error.message}`);
-      throw new HttpError(ERROR_MESSAGES.INVALID_INPUT, HttpStatusCode.BAD_REQUEST);
+      logger.warn(
+        `Reset password validation failed: ${validationResult.error.message}`,
+      );
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_INPUT,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     const { token, password, role } = validationResult.data;
@@ -199,7 +238,6 @@ export class CommonAuthController {
     logger.info(`Password reset successful for role: ${role}`);
     ApiResponseHelper.success(res, 'Password reset successfully');
   };
-
 
   /**
    * Logs out the user by clearing authentication cookies.
@@ -223,6 +261,4 @@ export class CommonAuthController {
     logger.info('User logged out successfully');
     ApiResponseHelper.success(res, 'Logout successful');
   };
-
-  
 }

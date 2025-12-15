@@ -5,11 +5,13 @@ import { useFormContext } from "react-hook-form";
 interface PersonalDetailsStepProps {
   showPassword: boolean;
   setShowPassword: (value: boolean) => void;
+  isReapply?: boolean;
 }
 
 export default function PersonalDetailsStep({
   showPassword,
   setShowPassword,
+  isReapply = false,
 }: PersonalDetailsStepProps) {
   const { register, formState: { errors }, watch } = useFormContext();
   const watchedValues = watch();
@@ -48,6 +50,7 @@ export default function PersonalDetailsStep({
           id="email"
           type="email"
           placeholder="Email Address"
+          disabled={isReapply}
           {...register("email", {
             required: "Email is required",
             pattern: {
@@ -103,7 +106,7 @@ export default function PersonalDetailsStep({
               />
             }
             {...register("password", {
-              required: "Password is required",
+              required: isReapply ? false : "Password is required",
               minLength: { value: 8, message: "Password must be at least 8 characters" },
               pattern: {
                 value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
@@ -126,9 +129,11 @@ export default function PersonalDetailsStep({
             placeholder="Confirm Password"
             showPassword={showPassword}
             {...register("confirmPassword", {
-              required: "Please confirm your password",
-              validate: (value) =>
-                value === watchedValues.password || "Passwords do not match",
+              required: isReapply ? false : "Please confirm your password",
+              validate: (value) => {
+                 if (isReapply && !value && !watchedValues.password) return true;
+                 return value === watchedValues.password || "Passwords do not match"
+              },
             })}
           />
           <ErrorMessage error={errors.confirmPassword?.message as string} />

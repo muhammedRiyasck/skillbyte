@@ -48,10 +48,7 @@ export class LoginInstructorUseCase implements ILoginInstructorUseCase {
       throw new HttpError(ERROR_MESSAGES.ACCOUNT_NOT_APPROVED, HttpStatusCode.FORBIDDEN);
     } else if (accountStatus === 'suspended') {
       throw new HttpError(ERROR_MESSAGES.ACCOUNT_SUSPENDED, HttpStatusCode.FORBIDDEN);
-    } else if (accountStatus === 'rejected') {
-      throw new HttpError(ERROR_MESSAGES.ACCOUNT_REJECTED, HttpStatusCode.FORBIDDEN);
     }
-    console.log(instructor.instructorId,'instructor id from login use case')
     const accessToken = generateAccessToken({ id: instructor.instructorId, role: 'instructor' });
     const refreshToken = generateRefreshToken({ id: instructor.instructorId, role: 'instructor' });
     return { user: instructor, accessToken, refreshToken };
