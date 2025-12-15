@@ -13,7 +13,10 @@ import CropImageModal from "@shared/ui/CropImageModal";
 import getCroppedImg from "@shared/utils/GetCroppedImg";
 import useCreateCourse from "../hooks/useCreateCourse";
 import { getCourseDetails } from "../services/CourseDetails";
-import { updateBase, uploadThumbnail } from "../services/CourseBase";
+import { updateBase, uploadThumbnail, deleteCourse } from "../services/CourseBase";
+
+import { QueryClient } from "@tanstack/react-query";
+const queryClient = new QueryClient();
 
 type FormData = {
   title: string;
@@ -212,6 +215,29 @@ const CreateCourse = () => {
       setSpining(false);
     }
   };
+
+  const handleDelete = async () => {
+    if (!courseId) return;
+
+    const confirmed = window.confirm("Are you sure you want to delete this course permanently? This action cannot be undone.");
+    if (!confirmed) return;
+
+    try {
+      setSpining(true);
+      await deleteCourse(courseId);
+      toast.success("Course deleted successfully!");
+      navigate(ROUTES.instructor.myCourses);
+      queryClient.invalidateQueries({ queryKey: ['instructorCourses'] });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || "Failed to delete course");
+      } else {
+        toast.error("Failed to delete course");
+      }
+    } finally {
+      setSpining(false);
+    }
+  };
   return (
     <div className="min-h-screen flex flex-col ">
       {spining && <Spiner />}
@@ -229,8 +255,15 @@ const CreateCourse = () => {
           <span className="text-xl font-bold text-gray-800 dark:text-white">Create Course</span>
         </div>
       </div>
-
       <div className="flex-col pt-28 bg-white dark:bg-gray-800 min-h-screen">
+          {courseId &&<button
+              type="button"
+              title="Delete this course permanently!!"
+              className="cursor-pointer border border-gray-400 p-2 rounded-lg my-4 ml-3 "
+              onClick={handleDelete}
+            >
+             🗑️ Delete  
+          </button>}
         <form
           onSubmit={(e) => e.preventDefault()}
           className={` lg:w-4/6 rounded-lg shadow-2xl p-6 m-6 mx-auto  dark:bg-gray-700 dark:text-gray-100 dark:border ${

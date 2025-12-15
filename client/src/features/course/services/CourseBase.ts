@@ -34,3 +34,14 @@ export const uploadThumbnail = async ({courseId,blob,fileName}: {
   const { data } = await api.post(`/course/upload-thumbnail/${courseId}`, photo);
   return data;
 };
+
+export const deleteCourse = async (courseId: string) => {
+  try {
+    const response = await api.delete(`/course/${courseId}`);
+    return response.data;
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'An unknown error occurred';
+    toast.error(message);
+    throw new Error(message);
+  }
+};
