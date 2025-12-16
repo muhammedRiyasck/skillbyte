@@ -23,7 +23,7 @@ const StudentManagement = lazy(() => import("@features/admin/pages/StudentManage
 
 import InstructorLayout from "@layouts/instructor/InstructorLayout.tsx";
 const InstructorSignup = lazy(() => import("@features/auth/pages/InstructorSignUp.tsx"));
-const InstructorDashboard = lazy(() => import("@features/instructor/pages/Dashboard.tsx"));
+const InstructorEnrollments = lazy(() => import("@/features/instructor/pages/Enrollments.tsx"));
 const InstructorProfile = lazy(() => import("@features/instructor/pages/Profile.tsx"));
 const CreateCourse = lazy(() => import("@features/course/pages/CreateCourse.tsx"));
 const ContentUploadPage = lazy(() => import("@features/course/pages/contentUpload/ContentUploadPage.tsx"));
@@ -196,7 +196,7 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute roles={["instructor"]}>
             <Fallback>
-              <InstructorDashboard />
+              <InstructorEnrollments />
             </Fallback>
           </ProtectedRoute>
         ),

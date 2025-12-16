@@ -58,17 +58,17 @@ const Header = () => {
                   <LayoutDashboard size={20} className="text-indigo-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Dashboard</span>
                 </Link>
-                <Link to={ROUTES.instructor.profile} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
-                  <User size={20} className="text-blue-600 group-hover:scale-110 transition-transform" />
-                  <span className="font-medium">My Profile</span>
+                <Link to={ROUTES.instructor.createCourseBase} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
+                  <Plus size={20} className="text-purple-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">Create Course</span>
                 </Link>
                 <Link to={ROUTES.instructor.myCourses} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
                   <BookOpen size={20} className="text-green-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">My Courses</span>
                 </Link>
-                <Link to={ROUTES.instructor.createCourseBase} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
-                  <Plus size={20} className="text-purple-600 group-hover:scale-110 transition-transform" />
-                  <span className="font-medium">Create Course</span>
+                <Link to={ROUTES.instructor.myCourses} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
+                  <User size={20} className="text-red-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">Enrollments</span>
                 </Link>
                 <Link to="#" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
                   <Megaphone size={20} className="text-orange-600 group-hover:scale-110 transition-transform" />
@@ -77,6 +77,10 @@ const Header = () => {
                 <Link to="#" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
                   <Calendar size={20} className="text-teal-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Schedule Session</span>
+                </Link>
+                <Link to={ROUTES.instructor.profile} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
+                  <User size={20} className="text-blue-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">My Profile</span>
                 </Link>
                 {user && (
                   <button
