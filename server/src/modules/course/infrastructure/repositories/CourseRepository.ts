@@ -37,6 +37,7 @@ export class CourseRepository implements ICourseRepository {
     created.duration  ,
     created.tags,
     created.status,
+    created.isBlocked,
     created._id.toString()
     );
   }
@@ -58,6 +59,7 @@ export class CourseRepository implements ICourseRepository {
   doc.duration  ,
   doc.tags,
   doc.status,
+  doc.isBlocked,
   doc._id.toString()
   );
 }
@@ -104,6 +106,7 @@ async findPublishedCourses(filters: {
   doc.duration  ,
   doc.tags,
   doc.status,
+  doc.isBlocked,
   doc._id.toString()
   ));
 }
@@ -181,6 +184,7 @@ async findAllForAdmin(filters: {
   doc.duration  ,
   doc.tags,
   doc.status,
+  doc.isBlocked,
   doc._id.toString()
   ));
 }
@@ -189,9 +193,12 @@ async updateBaseInfo(courseId: string, updatedFields: Partial<Course>): Promise<
   await CourseModel.findByIdAndUpdate(courseId, updatedFields, { new: true });
 }
 
-
 async updateStatus(courseId: string, status: "list" | "unlist"): Promise<void> {
   await CourseModel.findByIdAndUpdate(courseId, { status });
+}
+
+async blockCourse(courseId: string, isBlocked: boolean): Promise<void> {
+  await CourseModel.findByIdAndUpdate(courseId, { isBlocked });
 }
 
 async deleteById(courseId: string): Promise<void> {
@@ -202,6 +209,5 @@ async getCategories(): Promise<string[]> {
   const categories = await CourseModel.distinct("category");
   return categories.filter((c): c is string => typeof c === 'string');
 }
-
  
 }

@@ -26,6 +26,7 @@ const CourseSchema = new mongoose.Schema({
     enum: ["draft", "list", "unlist"],
     default: "draft",
   },
+  isBlocked: { type: Boolean, default: false },
   stripePriceId: { type: String, default: "" }
 }, { timestamps: true });
 

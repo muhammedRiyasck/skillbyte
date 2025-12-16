@@ -14,6 +14,7 @@ export class Course {
     public duration: string,
     public tags: string[],
     public status: "draft" | "list" | "unlist" = "draft",
+    public isBlocked: boolean = false,
     public courseId?: string,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),

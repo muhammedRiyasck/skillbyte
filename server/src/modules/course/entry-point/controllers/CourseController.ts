@@ -7,6 +7,7 @@ import { IUpdateBaseUseCase } from '../../application/interfaces/IUpdateBaseUseC
 import { IDeleteCourseUseCase } from '../../application/interfaces/IDeleteCourseUseCase';
 import { IUpdateCourseStatusUseCase } from '../../application/interfaces/IUpdateCourseStatusUseCase';
 import { IGetPaginatedCoursesUseCase } from '../../application/interfaces/IGetPaginatedCoursesUseCase';
+import { IBlockCourseUseCase } from '../../application/interfaces/IBlockCourseUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { HttpError } from '../../../../shared/types/HttpError';
 import logger from '../../../../shared/utils/Logger';
@@ -33,6 +34,7 @@ export class CourseController {
     private _getPaginatedCoursesUseCase: IGetPaginatedCoursesUseCase,
     private _enrollmentRepository: IEnrollmentRepository,
     private _getCategoriesUseCase: GetCategories,
+    private _blockCourseUseCase: IBlockCourseUseCase,
   ) {}
 
 
@@ -163,6 +165,25 @@ export class CourseController {
   };
 
   /**
+   * Blocks or unblocks a course.
+   * @param req - Authenticated request object with course ID and isBlocked status.
+   * @param res - Express response object.
+   */
+  blockCourse = async (req: Request, res: Response): Promise<void> => {
+    const authenticatedReq = req as AuthenticatedRequest;
+    const courseId = authenticatedReq.params.courseId;
+    const { isBlocked } = authenticatedReq.body; 
+
+    // Basic validation, could add Zod schema if needed
+    if (typeof isBlocked !== 'boolean') {
+       throw new HttpError("Invalid isBlocked value", HttpStatusCode.BAD_REQUEST);
+    }
+
+    await this._blockCourseUseCase.execute(courseId, isBlocked);
+    ApiResponseHelper.success(res, `Course ${isBlocked ? 'blocked' : 'unblocked'} successfully`);
+  };
+
+  /**
    * Retrieves a course by its ID, considering the user's role for access control.
    * @param req - Authenticated request object with course ID and optional include query.
    * @param res - Express response object.
@@ -191,7 +212,7 @@ export class CourseController {
     const authenticatedReq = req as AuthenticatedRequest;
     const validatedQuery = PaginationQuerySchema.parse(req.query);
     
-    const query: any = { status: 'list' };
+    const query: any = { status: 'list' , isBlocked: false };
     const page = validatedQuery.page || 1;
     const limit = validatedQuery.limit || 6;
     const { category, courseLevel: level, language, search } = req.query; // Assuming validation doesn't strip extra fields unless strict
@@ -358,7 +379,7 @@ export class CourseController {
       limit,
       sort,
     );   
-
+    console.log(courses,'courses')
     ApiResponseHelper.success(res, 'Courses retrieved successfully', {
       courses,
     });

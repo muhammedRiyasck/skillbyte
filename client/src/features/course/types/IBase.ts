@@ -16,4 +16,5 @@ export interface Ibase {
     rating: number;
     reviews:number;
     isEnrolled?: boolean;
+    isBlocked?: boolean;
 }

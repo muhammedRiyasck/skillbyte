@@ -21,6 +21,7 @@ router.get("/published-courses",CustomLimit(5,'list all courses'), authenticate,
 router.get("/admin/courses", authenticate, requireRole('admin'), asyncHandler(courseController.getAllCourses));
 router.patch("/:courseId", authenticate, requireRole('instructor','admin'), asyncHandler(courseController.updateBase));
 router.patch("/:courseId/status", authenticate, requireRole('instructor'), asyncHandler(courseController.updateCourseStatus));
+router.patch("/:courseId/block", authenticate, requireRole('admin'), asyncHandler(courseController.blockCourse));
 router.delete("/:courseId", authenticate, requireRole('instructor'), asyncHandler(courseController.deleteCourse));
 
 // router.get('/modulesAndLessons/:courseId',authenticate, requireRole('instructor'), moduleWithLessonController.getModulesAndLessons)

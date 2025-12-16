@@ -12,6 +12,7 @@ import { DeleteCourseUseCase } from "../../application/use-cases/DeleteCourseUse
 import { UpdateCourseStatusUseCase } from "../../application/use-cases/UpdateCourseStatusUseCase";
 import { GetPaginatedCoursesUseCase } from "../../application/use-cases/GetPaginatedCoursesUseCase";
 import { GetCategories } from "../../application/use-cases/GetCategoriesUseCase";
+import { BlockCourseUseCase } from "../../application/use-cases/BlockCourseUseCase";
 
 const courseRepository = new CourseRepository();
 const moduleRepository = new ModuleRepository();
@@ -41,6 +42,7 @@ const deleteCourseUC = new DeleteCourseUseCase(
 );
 
 const getCategoriesUC = new GetCategories(courseRepository);
+const blockCourseUC = new BlockCourseUseCase(courseRepository);
 
 
 export const courseController = new CourseController(createCourseUC,
@@ -50,5 +52,6 @@ export const courseController = new CourseController(createCourseUC,
   updateCourseStatusUC,
   getPaginatedCoursesUC,
   enrollmentRepository,
-  getCategoriesUC
+  getCategoriesUC,
+  blockCourseUC
 ); 

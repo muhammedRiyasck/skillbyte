@@ -4,53 +4,84 @@ import { ROUTES } from "@core/router/paths";
 import { cn } from "@shared/utils/cn";
 import ToggleSwitch from "@/shared/ui/ToggleSwitch";
 import Modal from "@/shared/ui/Modal";
-import { updateCourseStatus } from "../services/CourseStatus";
+import { updateCourseStatus, blockCourse } from "../services/CourseStatus";
 
 import type { Ibase } from "../types/IBase";
 
 interface CourseCardProps {
   courses: Ibase[];
   role?: string;
-  onStatusChange?: (courseId: string, status: string) => void  ;
+  onStatusChange?: ((courseId: string, status: string) => void) | undefined;
+  onBlockChange?: ((courseId: string, isBlocked?: boolean) => void) | undefined;
 }
 
 
 const CourseCard = memo<CourseCardProps>(({
   courses,
   role = 'student',
-  onStatusChange
+  onStatusChange,
+  onBlockChange
 }) => {
-  const navigate = useNavigate();
-  const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; courseId: string; newStatus: "list" | "unlist" }>({
+const navigate = useNavigate();
+  const [confirmModal, setConfirmModal] = useState<{ 
+    isOpen: boolean; 
+    courseId: string; 
+    newStatus: string; // "list" | "unlist" or boolean string representation for block? Better keep generic or add type
+    action: "status" | "block";
+    isBlocked?: boolean; // For block action
+  }>({
     isOpen: false,
     courseId: "",
-    newStatus: "list"
+    newStatus: "list",
+    action: "status"
   });
 
   const handleToggleChange = useCallback((course: Ibase) => {
-    const newStatus = course.status === "list" ? "unlist" : "list";
-    setConfirmModal({
-      isOpen: true,
-      courseId: course._id,
-      newStatus
-    });
-  }, []);
+    if (role === 'admin') {
+      
+       setConfirmModal({
+        isOpen: true,
+        courseId: course._id,
+        newStatus: "", 
+        action: "block",
+        isBlocked: !course.isBlocked
+      });
+    } else {
+      const newStatus = course.status === "list" ? "unlist" : "list";
+      setConfirmModal({
+        isOpen: true,
+        courseId: course._id,
+        newStatus,
+        action: "status"
+      });
+    }
+  }, [role]);
 
   const confirmStatusChange = useCallback(async () => {
     try {
-      await updateCourseStatus(confirmModal.courseId, confirmModal.newStatus);
-      if (onStatusChange) {
-        onStatusChange(confirmModal.courseId, confirmModal.newStatus);
+      if (confirmModal.action === "status") {
+        await updateCourseStatus(confirmModal.courseId, confirmModal.newStatus as "list" | "unlist");
+        if (onStatusChange) {
+          onStatusChange(confirmModal.courseId, confirmModal.newStatus);
+        }
+      } else if (confirmModal.action === "block") {
+         await blockCourse(confirmModal.courseId, confirmModal.isBlocked!);
+         
+         // The parent component's state will be updated via onBlockChange, triggering a re-render.
+
+         if (onBlockChange) {
+            onBlockChange(confirmModal.courseId, confirmModal.isBlocked  );
+         }
       }
     } catch (error) {
       console.error("Failed to update course status:", error);
     } finally {
-      setConfirmModal({ isOpen: false, courseId: "", newStatus: "list" });
+      setConfirmModal({ isOpen: false, courseId: "", newStatus: "list", action: "status" });
     }
   }, [confirmModal, onStatusChange]);
 
   const cancelStatusChange = useCallback(() => {
-    setConfirmModal({ isOpen: false, courseId: "", newStatus: "list" });
+    setConfirmModal({ isOpen: false, courseId: "", newStatus: "list", action: "status" });
   }, []);
 
   const getStatusBadge = (status: Ibase['status']) => {
@@ -134,10 +165,17 @@ const CourseCard = memo<CourseCardProps>(({
       {courses.map((course) => (
         <div
           key={course._id}
-          className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 p-6 flex flex-col group hover:-translate-y-2 border border-gray-100 dark:border-gray-700"
+          className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 p-6 flex flex-col group hover:-translate-y-2 border border-gray-100 dark:border-gray-700 ${role === 'instructor' && course.isBlocked ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <div className="rounded-lg overflow-hidden mb-4 relative">
-            {role !== 'student' && getStatusBadge(course.status)}
+
+            {role === 'instructor' && course.isBlocked && (
+              <div className="absolute top-3 z-10 left-3  flex items-center gap-1.5 bg-gradient-to-r bg-yellow-800 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm">
+            
+                <span className="font-light">! Blocked by Admin</span>
+              </div>
+            )}
+            {role !== 'student' && course.isBlocked === false && getStatusBadge(course.status)}
             {role === 'student' && course.isEnrolled && (
               <div className="absolute top-3 left-3  flex items-center gap-1.5 bg-gradient-to-r bg-green-800 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm">
                 
@@ -158,12 +196,17 @@ const CourseCard = memo<CourseCardProps>(({
 
           <h2 className="flex justify-between text-gray-900 dark:text-white text-xl font-bold mb-3 line-clamp-2 leading-tight">
             {course.title}
-            {role === 'instructor' && (
+            {role === 'instructor' && course.isBlocked === false ? (
               <ToggleSwitch
                 checked={course.status === "list"}
                 onChange={() => handleToggleChange(course)}
               />
-            )}
+            ):role==='admin'?
+            <ToggleSwitch
+                checked={course.isBlocked || false} // Default to false if undefined
+                label="block"
+                onChange={() => handleToggleChange(course)}
+              />:null}
           </h2>
 
           <div className="flex items-center gap-3 mb-4 text-sm flex-wrap">
@@ -187,13 +230,20 @@ const CourseCard = memo<CourseCardProps>(({
       <Modal
         isOpen={confirmModal.isOpen}
         onClose={cancelStatusChange}
-        title={`Confirm ${confirmModal.newStatus === "list" ? "List" : "Unlist"} Course`}
+        title={
+          confirmModal.action === 'block' 
+            ? `Confirm ${confirmModal.isBlocked ? 'Block' : 'Unblock'} Course`
+            : `Confirm ${confirmModal.newStatus === "list" ? "List" : "Unlist"} Course`
+        }
         onConfirm={confirmStatusChange}
         confirmLabel="Confirm"
         cancelLabel="Cancel"
       >
         <p className="text-gray-700 dark:text-gray-300">
-          Are you sure you want to {confirmModal.newStatus === "list" ? "list" : "unlist"} this course?
+           {confirmModal.action === 'block'
+            ? `Are you sure you want to ${confirmModal.isBlocked ? 'block' : 'unblock'} this course?`
+            : `Are you sure you want to ${confirmModal.newStatus === "list" ? "list" : "unlist"} this course?`
+          }
         </p>
       </Modal>
     </div>
