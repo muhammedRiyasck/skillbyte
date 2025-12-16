@@ -10,7 +10,7 @@ export const CreateBaseSchema = z.object({
   courseLevel: z.string(),
   language: z.string(),
   access: z.string(),
-  price: z.string(),
+  price: z.coerce.number(),
   description: z.string(),
   tags: z.array(z.string()),
   features: z.array(z.string()),

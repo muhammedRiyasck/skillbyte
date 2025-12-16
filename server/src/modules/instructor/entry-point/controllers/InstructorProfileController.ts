@@ -11,6 +11,8 @@ import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequ
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
+import { InstructorProfileUpdateSchema } from '../../application/dtos/InstructorDtos';
+import { InstructorMapper } from '../../application/mappers/InstructorMapper';
 
 /**
  * Controller for instructor profile operations.
@@ -55,7 +57,10 @@ export class InstructorProfileController {
   updateProfile = async (req: Request, res: Response): Promise<void> => {
     const AuthenticatedRequest = req as AuthenticatedRequest;
     const instructorId = AuthenticatedRequest.user.id;
-    const updates = AuthenticatedRequest.body;
+    
+    const validatedData = InstructorProfileUpdateSchema.parse(AuthenticatedRequest.body);
+    const updates = InstructorMapper.toUpdateProfileEntity(validatedData);
+
     await this._updateInstructorProfileUseCase.execute(instructorId, updates);
     ApiResponseHelper.success(res, 'Profile updated successfully');
   };

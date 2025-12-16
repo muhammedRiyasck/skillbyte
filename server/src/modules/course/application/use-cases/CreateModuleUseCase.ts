@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import { Module } from '../../domain/entities/Module';
 import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
-import { CreateModuleDTO } from '../dtos/CreateModuleDTO';
 import { ICreateModuleUseCase } from '../interfaces/ICreateModuleUseCase';
 
 /**
@@ -22,7 +21,7 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
    * @param dto - The data transfer object containing module creation details.
    * @returns A promise that resolves to the created Module entity or null if no module was created.
    */
-  async execute(dto: CreateModuleDTO): Promise<Module | null> {
+  async execute(dto: any): Promise<Module | null> {
     // Check if the provided moduleId is a valid MongoDB ObjectId
     const isObjectId =
       mongoose.Types.ObjectId.isValid(dto.moduleId) &&

@@ -8,6 +8,8 @@ import { IUpdateModuleUseCase } from "../../application/interfaces/UpdateModuleU
 import { IDeleteModuleUseCase } from "../../application/interfaces/IDeleteModuleUseCase";
 import { AuthenticatedRequest } from "../../../../shared/types/AuthenticatedRequestType";
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
+import { CreateModuleSchema, UpdateModuleSchema } from "../../application/dtos/ModuleDtos";
+import { ModuleMapper } from "../../application/mappers/ModuleMapper";
 
 /**
  * Interface for authenticated request with user data.
@@ -31,17 +33,20 @@ export class ModuleController {
     const authenticatedReq = req as AuthenticatedRequest;
     logger.info(`Create module attempt from IP: ${authenticatedReq.ip}`);
 
+    const validatedData = CreateModuleSchema.parse(authenticatedReq.body);
     const instructorId = authenticatedReq.user.id;
-    const { courseId, moduleId, title, description, order, lessons } = authenticatedReq.body;
 
-    const course = await this._courseRepo.findById(courseId);
+    // Check ownership
+    const course = await this._courseRepo.findById(validatedData.courseId);
     if (!course || course.instructorId !== instructorId) {
-      logger.warn(`Unauthorized module creation attempt for course ${courseId} by instructor ${instructorId}`);
+      logger.warn(`Unauthorized module creation attempt for course ${validatedData.courseId} by instructor ${instructorId}`);
       throw new HttpError("You do not own this course.", HttpStatusCode.UNAUTHORIZED);
     }
+    
+    const moduleEntity = ModuleMapper.toCreateEntity(validatedData);
 
-    const module = await this._createUseCase.execute({ courseId, moduleId, title, description, order, lessons });
-    logger.info(`Module created successfully for course ${courseId}`);
+    const module = await this._createUseCase.execute(moduleEntity);
+    logger.info(`Module created successfully for course ${validatedData.courseId}`);
     ApiResponseHelper.created(res, "Module created successfully.", module);
   };
 
@@ -56,7 +61,8 @@ export class ModuleController {
 
     const moduleId = authenticatedReq.params.moduleId;
     const instructorId = authenticatedReq.user.id;
-    const updates = authenticatedReq.body;
+    const validatedUpdates = UpdateModuleSchema.parse(authenticatedReq.body);
+    const updates = ModuleMapper.toUpdateEntity(validatedUpdates);
 
     await this._updateModuleUseCase.execute(moduleId, instructorId, updates);
     logger.info(`Module ${moduleId} updated successfully`);

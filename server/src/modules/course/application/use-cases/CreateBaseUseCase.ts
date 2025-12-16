@@ -1,5 +1,4 @@
 import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
-import { CreateCourseDTO } from "../dtos/CreateBaseDTO";
 import { Course } from "../../domain/entities/Course";
 import { ICreateBaseUseCase } from "../interfaces/ICreateBaseUseCase";
 
@@ -20,7 +19,7 @@ export class CreateBaseUseCase implements ICreateBaseUseCase {
    * @param dto - The data transfer object containing course creation details.
    * @returns A promise that resolves to the created Course entity.
    */
-  async execute(dto: CreateCourseDTO): Promise<Course> {
+  async execute(dto: any): Promise<Course> {
      ;
     const course = new Course(
       dto.instructorId,

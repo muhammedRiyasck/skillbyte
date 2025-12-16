@@ -5,6 +5,8 @@ import { IGetPaginatedStudentsUseCase } from "../../application/interfaces/IGetP
 import { HttpStatusCode } from "../../../../shared/enums/HttpStatusCodes";
 import { ApiResponseHelper } from "../../../../shared/utils/ApiResponseHelper";
 import { HttpError } from "../../../../shared/types/HttpError";
+import { AdminStudentPaginationSchema, ChangeStudentStatusSchema } from "../../application/dtos/AdminStudentDtos";
+import { AdminStudentMapper } from "../../application/mappers/AdminStudentMapper";
 
 export class AdminStudentController {
   constructor(
@@ -19,28 +21,11 @@ export class AdminStudentController {
    * @returns Promise<void>
    */
   listAll = async (req: Request, res: Response)=>  {
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 6;
-    let sort: Record<string, 1 | -1> = { createdAt: -1 };
-    if (typeof req.query.sort === 'string') {
-      const [field, dir] = (req.query.sort as string).split(':');
-      sort = { [field]: dir === 'asc' ? 1 : -1 };
-    }
+    const validatedQuery = AdminStudentPaginationSchema.parse(req.query);
+    const filter = AdminStudentMapper.toListAllFilter(validatedQuery);
+    const sort = AdminStudentMapper.toSort(validatedQuery.sort);
 
-    let filter: Record<string, any> = {};
-    const search = req.query.search as string;
-    if (search && search.trim()) {
-      filter = {
-        $or: [
-          { name: { $regex: search.trim(), $options: 'i' } },
-          { email: { $regex: search.trim(), $options: 'i' } },
-          { registeredVia: { $regex: search.trim(), $options: 'i' } },
-          { accountStatus: { $regex: search.trim(), $options: 'i' } },
-        ]
-      };
-    }
-
-    const students = await this._getPaginatedStudentsUC.execute(filter, page, limit, sort);
+    const students = await this._getPaginatedStudentsUC.execute(filter, validatedQuery.page, validatedQuery.limit, sort);
     ApiResponseHelper.success(res, "Students retrieved successfully", { students });
   };
   /**
@@ -50,12 +35,8 @@ export class AdminStudentController {
    * @returns Promise<void>
    */
   changeStatus = async (req: Request, res: Response) => {
-  // const { id } = req.params;
-
-  const { status,studentId } = req.body;
-  if (!["active", "blocked"].includes(status))
-    throw new HttpError("Invalid status", HttpStatusCode.BAD_REQUEST);
-  await this._changeStatusUC.execute(studentId, status);
-  ApiResponseHelper.success(res, `Student account status changed to ${status}`);
-};
+    const validatedData = ChangeStudentStatusSchema.parse(req.body);
+    await this._changeStatusUC.execute(validatedData.studentId, validatedData.status);
+    ApiResponseHelper.success(res, `Student account status changed to ${validatedData.status}`);
+  };
 }

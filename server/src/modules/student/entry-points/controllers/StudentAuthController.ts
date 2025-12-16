@@ -5,6 +5,8 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
+import { StudentRegistrationSchema, StudentVerifyOtpSchema } from '../../application/dtos/StudentDtos';
+import { StudentMapper } from '../../application/mappers/StudentMapper';
 
 /**
  * Controller for student authentication operations.
@@ -27,11 +29,8 @@ export class StudentAuthController {
    * @param res - Express response object.
    */
   registerStudent = async (req: Request, res: Response): Promise<void> => {
-    const { fullName, email, password, confirmPassword } = req.body;
-
-    if (password !== confirmPassword) {
-      throw new HttpError(ERROR_MESSAGES.CONFIMED_PASSWORD_MISMATCH, HttpStatusCode.BAD_REQUEST);
-    }
+    const validatedData = StudentRegistrationSchema.parse(req.body);
+    const { fullName, email, password } = StudentMapper.toRegisterStudentEntity(validatedData);
 
     const isUserExists = await this._registerStudentUseCase.isUserExists(email);
     if (!isUserExists) {
@@ -49,8 +48,9 @@ export class StudentAuthController {
    * @param res - Express response object.
    */
   verifyOtp = async (req: Request, res: Response): Promise<void> => {
-    const { Otp, email } = req.body;
-    await this._registerStudentUseCase.execute(email, Otp);
+    const validatedData = StudentVerifyOtpSchema.parse(req.body);
+    const { email, otp } = StudentMapper.toVerifyOtpEntity(validatedData);
+    await this._registerStudentUseCase.execute(email, otp);
     ApiResponseHelper.created(res, 'Student Registration Successful.');
   };
 }

@@ -6,7 +6,8 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { IReapplyInstructorUseCase } from '../../application/interfaces/IReapplyInstructorUseCase';
-import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
+import { InstructorRegistrationSchema, InstructorVerifyOtpSchema, InstructorReapplySchema } from '../../application/dtos/InstructorDtos';
+import { InstructorMapper } from '../../application/mappers/InstructorMapper';
 
 /**
  * Controller for instructor authentication operations.
@@ -31,50 +32,23 @@ export class InstructorAuthController {
    * @param res - Express response object.
    */
   registerInstructor = async (req: Request, res: Response): Promise<void> => {
-    let {
-      fullName,
-      email,
-      password,
-      phoneNumber,
-      subject,
-      jobTitle,
-      socialMediaLink,
-      experience,
-      portfolioLink,
-      bio,
-      customJobTitle,
-      customSubject,
-    } = req.body;
-
-
-    // Handle custom subject and job title
-    subject = subject.trim() === 'Other' ? customSubject : subject;
-    jobTitle = jobTitle.trim() === 'Other' ? customJobTitle : jobTitle;
-    
-
-    const isUserExists = await this._registerInstructorUseCase.isUserExists(email);
-    if(isUserExists)  throw new HttpError(ERROR_MESSAGES.EMAIL_ALREADY_EXISTS, HttpStatusCode.BAD_REQUEST);
     if (!req.file) {
       throw new HttpError("We can't see your resume", HttpStatusCode.BAD_REQUEST);
     }
-
-
-      await this._generateOtpUseCase.storeTempData(email,{
-        fullName,
-        email,
-        password,
-        phoneNumber,
-        subject,
-        jobTitle,
-        socialMediaLink,
-        experience: Number(experience),
-        portfolioLink,
-        bio,
-        resumeFile: req.file,
-      });
-      await this._generateOtpUseCase.sendOtp(email, fullName, 'Instructor Registration OTP');
-      ApiResponseHelper.created(res, 'An OTP sent to your mail.');
     
+    // Parse and validate body
+    const validatedData = InstructorRegistrationSchema.parse(req.body);
+    
+    // Check if user exists
+    const isUserExists = await this._registerInstructorUseCase.isUserExists(validatedData.email);
+    if(isUserExists)  throw new HttpError(ERROR_MESSAGES.EMAIL_ALREADY_EXISTS, HttpStatusCode.BAD_REQUEST);
+
+    // Map to entity
+    const instructorEntity = InstructorMapper.toRegisterInstructorEntity(validatedData, req.file);
+
+    await this._generateOtpUseCase.storeTempData(validatedData.email, instructorEntity);
+    await this._generateOtpUseCase.sendOtp(validatedData.email, validatedData.fullName, 'Instructor Registration OTP');
+    ApiResponseHelper.created(res, 'An OTP sent to your mail.');
   };
 
   /**
@@ -83,8 +57,9 @@ export class InstructorAuthController {
    * @param res - Express response object.
    */
   verifyOtp = async (req: Request, res: Response): Promise<void> => {
-    const { Otp, email } = req.body;
-    await this._registerInstructorUseCase.execute(email, Otp);
+    const validatedData = InstructorVerifyOtpSchema.parse(req.body);
+    const { email, otp } = InstructorMapper.toVerifyOtpEntity(validatedData);
+    await this._registerInstructorUseCase.execute(email, otp);
     ApiResponseHelper.created(res, "Successfully registered. You'll receive an email once approved.");
   };
 
@@ -94,10 +69,11 @@ export class InstructorAuthController {
    * @param res - Express response object.
    */
   reapply = async (req: Request, res: Response): Promise<void> => {
-    const reAppliedInstructorEmail = req.body.email;
-    const updates = req.body;
+    const validatedData = InstructorReapplySchema.parse(req.body);
     const file = req.file;
-    await this._reapplyInstructorUseCase.execute(reAppliedInstructorEmail, updates, file);
+    const { email, updates } = InstructorMapper.toReapplyEntity(validatedData);
+    
+    await this._reapplyInstructorUseCase.execute(email, updates, file);
     ApiResponseHelper.success(res, 'Application re-submitted successfully');
   };
 }

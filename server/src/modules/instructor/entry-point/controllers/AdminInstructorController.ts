@@ -11,6 +11,8 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { getBackblazeSignedUrl } from '../../../../shared/utils/Backblaze';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
+import { AdminInstructorPaginationSchema, ApproveInstructorSchema, DeclineInstructorSchema, ChangeInstructorStatusSchema } from '../../application/dtos/AdminInstructorDtos';
+import { AdminInstructorMapper } from '../../application/mappers/AdminInstructorMapper';
 
 /**
  * Controller for admin operations on instructors.
@@ -39,45 +41,14 @@ export class AdminInstructorController {
    * @param res - Express response object.
    */
   getInstructors = async (req: Request, res: Response): Promise<void> => {
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 12;
-
-    let query: Record<string, any> = {};
-    const status = req.query.status as string;
-    if (status?.trim() === 'Pending Instructors') {
-      query = { accountStatus: 'pending' };
-    } else if (status?.trim() === 'Approved Instructors') {
-      query = { accountStatus: 'active', approved: true };
-    } else if (status?.trim() === 'Rejected Instructors') {
-      query = { accountStatus: 'rejected', rejected: true };
-    } else if (status?.trim() === 'Suspended Instructors') {
-      query = { accountStatus: 'suspended', approved: true };
-    }
-
-    const search = req.query.search as string;
-    if (search && search.trim()) {
-      const searchFilter = {
-        $or: [
-          { name: { $regex: search.trim(), $options: 'i' } },
-          { email: { $regex: search.trim(), $options: 'i' } },
-          { expertise: { $regex: search.trim(), $options: 'i' } },
-          { jobTitle: { $regex: search.trim(), $options: 'i' } },
-          { subject: { $regex: search.trim(), $options: 'i' } },
-        ]
-      };
-      query = { ...query, ...searchFilter };
-    }
-
-    let sort: Record<string, 1 | -1> = { createdAt: -1 };
-    if (typeof req.query.sort === 'string') {
-      const [field, dir] = (req.query.sort as string).split(':');
-      sort = { [field]: dir === 'asc' ? 1 : -1 };
-    }
+    const validatedQuery = AdminInstructorPaginationSchema.parse(req.query);
+    const query = AdminInstructorMapper.toGetInstructorsFilter(validatedQuery);
+    const sort = AdminInstructorMapper.toSort(validatedQuery.sort);
 
     const instructors = await this._listInstructorsUC.execute(
       query,
-      page,
-      limit,
+      validatedQuery.page,
+      validatedQuery.limit,
       sort,
     );
     ApiResponseHelper.success(
@@ -94,10 +65,10 @@ export class AdminInstructorController {
    */
   approve = async (req: Request, res: Response): Promise<void> => {
     const AuthenticatedRequest = req as AuthenticatedRequest;
-    const instructorId = AuthenticatedRequest.body.instructorId;
+    const validatedData = ApproveInstructorSchema.parse(AuthenticatedRequest.body);
     const adminId = AuthenticatedRequest.user.id;
 
-    await this._approveUC.execute(instructorId, adminId);
+    await this._approveUC.execute(validatedData.instructorId, adminId);
     ApiResponseHelper.success(res, 'Instructor approved');
   };
 
@@ -108,12 +79,11 @@ export class AdminInstructorController {
    */
   decline = async (req: Request, res: Response): Promise<void> => {
     const AuthenticatedRequest = req as AuthenticatedRequest;
-    const instructorId = AuthenticatedRequest.body.instructorId;
+    const validatedData = DeclineInstructorSchema.parse(AuthenticatedRequest.body);
     const adminId = AuthenticatedRequest.user.id;
-    const { reason } = req.body;
 
-    await this._declineUC.execute(instructorId, adminId, reason);
-    ApiResponseHelper.success(res, 'Instructor declined', { note: reason });
+    await this._declineUC.execute(validatedData.instructorId, adminId, validatedData.reason);
+    ApiResponseHelper.success(res, 'Instructor declined', { note: validatedData.reason });
   };
 
   /**
@@ -126,19 +96,12 @@ export class AdminInstructorController {
     res: Response,
   ): Promise<void> => {
     const { instructorId } = req.params;
-    const { status, reason } = req.body;
+    const validatedData = ChangeInstructorStatusSchema.parse(req.body);
 
-    if (!['active', 'suspend'].includes(status)) {
-      throw new HttpError(
-        ERROR_MESSAGES.INVALID_STATUS,
-        HttpStatusCode.BAD_REQUEST,
-      );
-    }
-
-    await this._changeStatusUC.execute(instructorId, status, reason);
+    await this._changeStatusUC.execute(instructorId, validatedData.status, validatedData.reason);
     ApiResponseHelper.success(
       res,
-      `Instructor account status changed to ${status}`,
+      `Instructor account status changed to ${validatedData.status}`,
     );
   };
 

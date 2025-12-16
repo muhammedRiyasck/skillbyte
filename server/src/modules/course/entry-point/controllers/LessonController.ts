@@ -2,17 +2,16 @@ import { Request, Response } from "express";
 import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { s3, updateCors } from '../../../../shared/config/backblaze/S3Client';
-import { HttpStatusCode } from "../../../../shared/enums/HttpStatusCodes";
-import { HttpError } from "../../../../shared/types/HttpError";
 import { ICreateLessonUseCase } from "../../application/interfaces/ICreateLessonUseCase";
 import { IUpdateLessonUseCase } from "../../application/interfaces/IUpdateLessonUseCase";
 import { IDeleteLessonUseCase } from "../../application/interfaces/IDeleteLessonUseCase";
 import { IBlockLessonUseCase } from "../../application/interfaces/IBlockLessonUseCase";
 import { IGetLessonPlayUrlUseCase } from "../../application/interfaces/IGetLessonPlayUrlUseCase";
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
-import logger from '../../../../shared/utils/Logger';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
-import { ERROR_MESSAGES } from "../../../../shared/constants/messages";
+import { CreateLessonSchema, GetUploadUrlSchema, GetVideoSignedUrlsSchema, BlockLessonSchema, UpdateLessonSchema } from "../../application/dtos/LessonDtos";
+import { LessonMapper } from "../../application/mappers/LessonMapper";
+import logger from '../../../../shared/utils/Logger';
 
 export class LessonController {
   constructor(
@@ -33,24 +32,12 @@ export class LessonController {
     logger.info(`Create lesson attempt from IP: ${req.ip}`);
 
     const instructorId = authenticatedReq.user.id;
-    const { moduleId, title, description, contentType, fileName, order, resources } = authenticatedReq.body;
+    const validatedData = CreateLessonSchema.parse(authenticatedReq.body);
+    const lessonEntity = LessonMapper.toCreateEntity(validatedData, instructorId);
 
-    const data = await this._createUseCase.execute({
-      moduleId,
-      instructorId,
-      title,
-      description,
-      contentType,
-      fileName,
-      order,
-      duration: authenticatedReq.body.duration,
-      resources,
-      isFreePreview: authenticatedReq.body.isFreePreview || false,
-      isBlocked:false,
-      isPublished: authenticatedReq.body.isPublished || true,
-    });
+    const data = await this._createUseCase.execute(lessonEntity);
 
-    logger.info(`Lesson created successfully for module ${moduleId}`);
+    logger.info(`Lesson created successfully for module ${validatedData.moduleId}`);
     ApiResponseHelper.created(res, "Lesson created successfully.", data);
   };
 
@@ -63,17 +50,15 @@ export class LessonController {
      const authenticatedReq = req as AuthenticatedRequest;
     logger.info(`Get upload URL attempt from IP: ${req.ip}`);
 
-    const { fileName } = authenticatedReq.body;
-
-    if (!fileName) {
-      logger.warn('File name missing in get upload URL');
-      throw new HttpError("File name required", HttpStatusCode.BAD_REQUEST);
-    }
+    const validatedData = GetUploadUrlSchema.parse(authenticatedReq.body);
+    const { fileName } = validatedData;
+    
+    // ... logic mostly same but fileName is validated ...
 
     const command = new PutObjectCommand({
       Bucket: process.env.B2_S3_BUCKET!,
       Key: fileName,
-      ContentType: 'video',
+      ContentType: 'video', // or validatedData.contentType
     });
 
     const signedUrl = await getSignedUrl(s3, command, { expiresIn: 60 * 5 });
@@ -92,12 +77,8 @@ export class LessonController {
       const authenticatedReq = req as AuthenticatedRequest;
     logger.info(`Get video signed URLs attempt from IP: ${req.ip}`);
 
-    const fileNames: string[] = authenticatedReq.body.fileNames;
-
-    if (!fileNames || !Array.isArray(fileNames) || fileNames.length === 0) {
-      logger.warn('Invalid fileNames array in get video signed URLs');
-      throw new HttpError(ERROR_MESSAGES.INVALID_INPUT, HttpStatusCode.BAD_REQUEST);
-    }
+    const validatedData = GetVideoSignedUrlsSchema.parse(authenticatedReq.body);
+    const fileNames = validatedData.fileNames;
 
     const urls = await Promise.all(
       fileNames.map(async (fileName) => {
@@ -123,7 +104,8 @@ export class LessonController {
      const authenticatedReq = req as AuthenticatedRequest;
     const lessonId = authenticatedReq.params.lessonId;
     const instructorId = authenticatedReq.user.id;
-    const updates = authenticatedReq.body;
+    // can validate updates if schema is strict, or use record
+    const updates = UpdateLessonSchema.parse(authenticatedReq.body);
 
     await this._updateUseCase.execute(lessonId, instructorId, updates);
     logger.info(`Lesson ${lessonId} updated successfully`);
@@ -157,11 +139,8 @@ export class LessonController {
     const authenticatedReq = req as AuthenticatedRequest;
 
     const lessonId = authenticatedReq.params.lessonId;
-    const { isBlocked } = authenticatedReq.body;
-
-    if (typeof isBlocked !== 'boolean') {
-      throw new HttpError("isBlocked must be a boolean", HttpStatusCode.BAD_REQUEST);
-    }
+    const validatedData = BlockLessonSchema.parse(authenticatedReq.body);
+    const { isBlocked } = validatedData;
 
     const lesson = await this._blockUseCase.execute(lessonId, isBlocked);
     logger.info(`Lesson ${lessonId} ${isBlocked ? 'blocked' : 'unblocked'} successfully`);
