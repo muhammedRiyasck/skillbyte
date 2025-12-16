@@ -1,4 +1,4 @@
-import {Module} from '../entities/Module'
+import { Module } from '../entities/Module';
 export class Course {
   constructor(
     public instructorId: string,
@@ -6,18 +6,18 @@ export class Course {
     public title: string,
     public subText: string,
     public category: string,
-    public courseLevel:string,
-    public language:string,
+    public courseLevel: string,
+    public language: string,
     public price: number,
     public features: string[],
     public description: string,
     public duration: string,
     public tags: string[],
-    public status: "draft" | "list" | "unlist" = "draft",
+    public status: 'draft' | 'list' | 'unlist' = 'draft',
     public isBlocked: boolean = false,
     public courseId?: string,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
-    public modules?: Module[]
+    public modules?: Module[],
   ) {}
 }

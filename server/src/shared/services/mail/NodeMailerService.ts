@@ -17,8 +17,8 @@ export class NodeMailerService implements IMailerService {
 
   async sendMail(email: string, subject: string, html: string): Promise<void> {
     try {
-     const result = await this.transporter.verify();
-     logger.info('send mail verify',result,email,' email')
+      const result = await this.transporter.verify();
+      logger.info('send mail verify', result, email, ' email');
       await this.transporter.sendMail({
         from: 'SkillByte" <no-reply@skillbyte.com>',
         to: email,
@@ -27,7 +27,10 @@ export class NodeMailerService implements IMailerService {
       });
     } catch (error) {
       logger.error('Error verifying email transporter:', error);
-    throw new HttpError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      throw new HttpError(
+        ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

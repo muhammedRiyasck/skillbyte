@@ -6,7 +6,9 @@ import { Instructor } from '../../domain/entities/Instructor';
  * Use case for retrieving an instructor's profile.
  * Fetches the instructor details by their ID.
  */
-export class GetInstructorProfileUseCase implements IGetInstructorProfileUseCase {
+export class GetInstructorProfileUseCase
+  implements IGetInstructorProfileUseCase
+{
   /**
    * Constructs the GetInstructorProfileUseCase.
    * @param _instructorRepo - The instructor repository for data operations.

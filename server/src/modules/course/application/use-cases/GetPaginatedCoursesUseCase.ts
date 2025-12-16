@@ -1,7 +1,7 @@
-import { Course } from "../../domain/entities/Course";
-import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
-import { IGetPaginatedCoursesUseCase } from "../interfaces/IGetPaginatedCoursesUseCase";
-import { PaginatedResult } from "../../../../shared/types/PaginationType";
+import { Course } from '../../domain/entities/Course';
+import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
+import { IGetPaginatedCoursesUseCase } from '../interfaces/IGetPaginatedCoursesUseCase';
+import { PaginatedResult } from '../../../../shared/types/PaginationType';
 
 /**
  * Query filters for paginated courses.
@@ -46,10 +46,16 @@ export class GetPaginatedCoursesUseCase implements IGetPaginatedCoursesUseCase {
     const safePage = Number.isFinite(page) && page > 0 ? page : 1;
 
     // Validate and sanitize the limit, with a maximum cap
-    const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.min(limit, 50) : 6;
+    const safeLimit =
+      Number.isFinite(limit) && limit > 0 ? Math.min(limit, 50) : 6;
 
     // Fetch paginated data from the repository
-    const { data, total } = await this._courseRepo.listPaginated(query, safePage, safeLimit, sort);
+    const { data, total } = await this._courseRepo.listPaginated(
+      query,
+      safePage,
+      safeLimit,
+      sort,
+    );
 
     // Calculate total pages
     const totalPages = Math.ceil(total / safeLimit);

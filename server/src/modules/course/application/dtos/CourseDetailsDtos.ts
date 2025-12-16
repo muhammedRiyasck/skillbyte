@@ -16,7 +16,7 @@ export const CreateBaseSchema = z.object({
   features: z.array(z.string()),
 });
 
-export const UpdateBaseSchema = z.record(z.string(), z.any()); // Flexible for updates
+export const UpdateBaseSchema = CreateBaseSchema.partial();
 
 export const UpdateStatusSchema = z.object({
   status: z.enum(['list', 'unlist']),
@@ -27,8 +27,14 @@ export const CourseIdParamSchema = z.object({
 });
 
 export const PaginationQuerySchema = z.object({
-  page: z.string().optional().transform(val => val ? parseInt(val, 10) : 1),
-  limit: z.string().optional().transform(val => val ? parseInt(val, 10) : 6),
+  page: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : 1)),
+  limit: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : 6)),
   sort: z.string().optional(),
   status: z.string().optional(),
   instructorId: z.string().optional(),
@@ -45,5 +51,7 @@ export type CreateBaseValidationType = z.infer<typeof CreateBaseSchema>;
 export type UpdateBaseValidationType = z.infer<typeof UpdateBaseSchema>;
 export type UpdateStatusValidationType = z.infer<typeof UpdateStatusSchema>;
 export type CourseIdParamValidationType = z.infer<typeof CourseIdParamSchema>;
-export type PaginationQueryValidationType = z.infer<typeof PaginationQuerySchema>;
+export type PaginationQueryValidationType = z.infer<
+  typeof PaginationQuerySchema
+>;
 export type GetCourseQueryValidationType = z.infer<typeof GetCourseQuerySchema>;

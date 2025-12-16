@@ -40,8 +40,14 @@ export class ListInstructorsUseCase implements IlistInstructorsUC {
     };
   }> {
     const safePage = Number.isFinite(page) && page > 0 ? page : 1;
-    const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.min(limit, 50) : 6;
-    const { data, total } = await this._instructorRepo.listPaginatedInstructor(query, page, limit, sort);
+    const safeLimit =
+      Number.isFinite(limit) && limit > 0 ? Math.min(limit, 50) : 6;
+    const { data, total } = await this._instructorRepo.listPaginatedInstructor(
+      query,
+      page,
+      limit,
+      sort,
+    );
     const totalPages = Math.ceil(total / safeLimit);
     return {
       data,

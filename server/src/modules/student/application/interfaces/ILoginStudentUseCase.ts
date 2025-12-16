@@ -1,6 +1,8 @@
+import { Student } from '../../domain/entities/Student';
 
-import { Student } from "../../domain/entities/Student";
-
-export interface ILoginStudentUseCase{
-execute(email: string, password: string): Promise<{user:Student,accessToken:string,refreshToken:string}>
+export interface ILoginStudentUseCase {
+  execute(
+    email: string,
+    password: string,
+  ): Promise<{ user: Student; accessToken: string; refreshToken: string }>;
 }

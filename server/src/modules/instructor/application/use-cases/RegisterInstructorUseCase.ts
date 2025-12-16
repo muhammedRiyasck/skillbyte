@@ -7,7 +7,11 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { InstructorRegistrationSchema } from '../../../../shared/validations/AuthValidation';
 import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
-import { JOB_NAMES, QUEUE_NAMES, ResumeUploadJobData } from '../../../../shared/services/job-queue/JobTypes';
+import {
+  JOB_NAMES,
+  QUEUE_NAMES,
+  ResumeUploadJobData,
+} from '../../../../shared/services/job-queue/JobTypes';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 
 /**
@@ -45,25 +49,39 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
   async execute(email: string, otp: string): Promise<void> {
     const dto = await this._otpService.getTempData(email);
     if (!dto) {
-      throw new HttpError(ERROR_MESSAGES.NO_CURRENT_DATA, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      throw new HttpError(
+        ERROR_MESSAGES.NO_CURRENT_DATA,
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
     }
     const valid = await this._otpService.verifyOtp(email, otp);
     if (!valid) {
-      throw new HttpError(ERROR_MESSAGES.INVALID_OTP, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_OTP,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
     const responseLength = Object.entries(dto).length;
     if (responseLength !== 11) {
-      throw new HttpError("Some data's are missing", HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        "Some data's are missing",
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     // Validate the registration data using Zod schema
     const validationResult = InstructorRegistrationSchema.safeParse(dto);
     if (!validationResult.success) {
-      throw new HttpError(validationResult.error.issues.map((e) => e.message).join(', '), HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        validationResult.error.issues.map((e) => e.message).join(', '),
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
-    const hashedPassword = await bcrypt.hash(validationResult.data.password, 10);
-    console.log('Password hashed successfully');
+    const hashedPassword = await bcrypt.hash(
+      validationResult.data.password,
+      10,
+    );
     const instructor = new Instructor(
       validationResult.data.fullName,
       validationResult.data.email,
@@ -103,9 +121,8 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
       await jobQueueService.addJob(
         QUEUE_NAMES.INSTRUCTOR_REGISTRATION,
         JOB_NAMES.RESUME_UPLOAD,
-        resumeUploadData
+        resumeUploadData,
       );
-
     }
   }
 }

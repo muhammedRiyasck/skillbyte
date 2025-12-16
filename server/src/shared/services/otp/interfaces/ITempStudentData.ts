@@ -1,6 +1,5 @@
-export interface TempStudentData{
-    fullName:string,
-    email:string,
-    password:string,
-    
+export interface TempStudentData {
+  fullName: string;
+  email: string;
+  password: string;
 }

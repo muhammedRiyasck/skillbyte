@@ -1,4 +1,3 @@
-
 import { generateRefreshToken } from '../../../../shared/utils/RefreshToken';
 import { generateAccessToken } from '../../../../shared/utils/AccessToken';
 import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRepository';
@@ -34,23 +33,41 @@ export class LoginInstructorUseCase implements ILoginInstructorUseCase {
   ): Promise<{ user: Instructor; accessToken: string; refreshToken: string }> {
     const instructor = await this._instructorRepo.findByEmail(email);
     if (!instructor) {
-      throw new HttpError(ERROR_MESSAGES.INVALID_CREDENTIALS, HttpStatusCode.UNAUTHORIZED);
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_CREDENTIALS,
+        HttpStatusCode.UNAUTHORIZED,
+      );
     }
 
     const isMatch = await bcrypt.compare(password, instructor.passwordHash);
     if (!isMatch) {
-      throw new HttpError(ERROR_MESSAGES.INVALID_CREDENTIALS, HttpStatusCode.UNAUTHORIZED);
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_CREDENTIALS,
+        HttpStatusCode.UNAUTHORIZED,
+      );
     }
 
     const accountStatus = instructor.accountStatus;
 
     if (accountStatus === 'pending') {
-      throw new HttpError(ERROR_MESSAGES.ACCOUNT_NOT_APPROVED, HttpStatusCode.FORBIDDEN);
+      throw new HttpError(
+        ERROR_MESSAGES.ACCOUNT_NOT_APPROVED,
+        HttpStatusCode.FORBIDDEN,
+      );
     } else if (accountStatus === 'suspended') {
-      throw new HttpError(ERROR_MESSAGES.ACCOUNT_SUSPENDED, HttpStatusCode.FORBIDDEN);
+      throw new HttpError(
+        ERROR_MESSAGES.ACCOUNT_SUSPENDED,
+        HttpStatusCode.FORBIDDEN,
+      );
     }
-    const accessToken = generateAccessToken({ id: instructor.instructorId, role: 'instructor' });
-    const refreshToken = generateRefreshToken({ id: instructor.instructorId, role: 'instructor' });
+    const accessToken = generateAccessToken({
+      id: instructor.instructorId,
+      role: 'instructor',
+    });
+    const refreshToken = generateRefreshToken({
+      id: instructor.instructorId,
+      role: 'instructor',
+    });
     return { user: instructor, accessToken, refreshToken };
   }
 }

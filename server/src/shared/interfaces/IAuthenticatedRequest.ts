@@ -10,7 +10,7 @@
 //     };
 //     body: {
 //         title: string;
-//         description?: string;  
+//         description?: string;
 //         thumbnailUrl?: string;
 //         price?: number;
 //         category?: string;
@@ -25,4 +25,3 @@
 //     };
 
 // }
-

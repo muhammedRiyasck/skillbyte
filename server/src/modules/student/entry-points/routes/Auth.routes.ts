@@ -1,13 +1,17 @@
-import { Router } from "express";
-import { studentAuthController } from "../dependencyInjection/StudentauthContainer";
+import { Router } from 'express';
+import { studentAuthController } from '../dependencyInjection/StudentauthContainer';
 
-import asyncHandler from "../../../../shared/utils/AsyncHandler";
-import { CustomLimit } from "../../../../shared/utils/RateLimiter";
+import asyncHandler from '../../../../shared/utils/AsyncHandler';
+import { CustomLimit } from '../../../../shared/utils/RateLimiter';
 
 const router = Router();
 
-router.post("/register", asyncHandler(studentAuthController.registerStudent));
-router.post("/verify-otp",CustomLimit(10,'verify OTP'), asyncHandler(studentAuthController.verifyOtp));
+router.post('/register', asyncHandler(studentAuthController.registerStudent));
+router.post(
+  '/verify-otp',
+  CustomLimit(10, 'verify OTP'),
+  asyncHandler(studentAuthController.verifyOtp),
+);
 
 // router.post("/resend-otp", studentAuthController.resendOtp);
 // router.post("/forgot-password", studentAuthController.forgotPassword);
@@ -27,6 +31,5 @@ router.post("/verify-otp",CustomLimit(10,'verify OTP'), asyncHandler(studentAuth
 // router.get("/instructor/:instructorId", studentAuthController.getInstructorProfile);
 // router.get("/instructors", studentAuthController.getInstructors);
 // router.post("/report-issue", studentAuthController.reportIssue);
-
 
 export default router;

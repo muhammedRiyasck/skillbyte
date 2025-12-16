@@ -1,11 +1,11 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
 
-import { generateAccessToken } from "../../../../shared/utils/AccessToken";
-import { IAccessTokenUseCase } from "../interfaces/IAccessTokenUseCase";
-import { HttpStatusCode } from "../../../../shared/enums/HttpStatusCodes";
-import { ERROR_MESSAGES } from "../../../../shared/constants/messages";
-import logger from "../../../../shared/utils/Logger";
-import { HttpError } from "../../../../shared/types/HttpError";
+import { generateAccessToken } from '../../../../shared/utils/AccessToken';
+import { IAccessTokenUseCase } from '../interfaces/IAccessTokenUseCase';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
+import logger from '../../../../shared/utils/Logger';
+import { HttpError } from '../../../../shared/types/HttpError';
 
 /**
  * Use case for generating a new access token using a refresh token.
@@ -20,21 +20,35 @@ export class AccessTokenUseCase implements IAccessTokenUseCase {
    */
   execute(refreshToken: string): string {
     if (!refreshToken) {
-      throw new HttpError(ERROR_MESSAGES.NO_REFRESH_TOKEN_PROVIDED, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.NO_REFRESH_TOKEN_PROVIDED,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     if (!process.env.JWT_REFRESH_SECRET) {
-      throw new HttpError("JWT_REFRESH_SECRET is not configured", HttpStatusCode.INTERNAL_SERVER_ERROR);
+      throw new HttpError(
+        'JWT_REFRESH_SECRET is not configured',
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
     }
 
-    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET) as {
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET,
+    ) as {
       id: string;
       role: string;
     };
 
-    logger.info(`Access token refreshed for user ID: ${decoded.id}, role: ${decoded.role}`);
+    logger.info(
+      `Access token refreshed for user ID: ${decoded.id}, role: ${decoded.role}`,
+    );
 
-    const accessToken = generateAccessToken({ id: decoded.id, role: decoded.role });
+    const accessToken = generateAccessToken({
+      id: decoded.id,
+      role: decoded.role,
+    });
 
     return accessToken;
   }

@@ -9,8 +9,9 @@
     "start": "node dist/app.js",
     "test": "jest --config jest.config.js",
     "test:cov": "jest --coverage",
-    "lint": "eslint 'src/**/*.{js,mjs,cjs,ts,mts,cts}' --report-unused-disable-directives --max-warnings 0",
-    "lint:fix": "eslint 'src/**/*.{js,mjs,cjs,ts,mts,cts}' --fix"
+    "lint": "eslint src/**/*.{js,mjs,cjs,ts,mts,cts} --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint src/**/*.{js,mjs,cjs,ts,mts,cts} --fix",
+    "type-check": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",

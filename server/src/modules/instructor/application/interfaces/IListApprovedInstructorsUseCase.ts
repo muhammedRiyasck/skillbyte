@@ -1,5 +1,5 @@
-import { Instructor } from "../../domain/entities/Instructor";
+import { Instructor } from '../../domain/entities/Instructor';
 
 export interface IListApprovedInstructorsUseCase {
-  execute(): Promise<Instructor[]|null>; 
+  execute(): Promise<Instructor[] | null>;
 }

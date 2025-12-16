@@ -2,7 +2,7 @@
  * Standard API response structure.
  * Provides a consistent format for all API responses.
  */
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   /** Indicates if the request was successful */
   success: boolean;
   /** Human-readable message describing the response */
@@ -18,7 +18,7 @@ export interface ApiResponse<T = any> {
 /**
  * Success response type for type safety.
  */
-export interface ApiSuccessResponse<T = any> extends ApiResponse<T> {
+export interface ApiSuccessResponse<T = unknown> extends ApiResponse<T> {
   success: true;
   data: T;
 }

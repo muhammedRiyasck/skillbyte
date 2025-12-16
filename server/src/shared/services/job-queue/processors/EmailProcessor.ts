@@ -16,7 +16,8 @@ export class EmailProcessor {
     jobQueueService.processJob(
       QUEUE_NAMES.EMAIL,
       JOB_NAMES.SEND_EMAIL,
-      this._processEmail.bind(this) as any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this._processEmail.bind(this) as any,
     );
   }
 
@@ -30,7 +31,7 @@ export class EmailProcessor {
 
       logger.info(`Email sent successfully to ${to}`);
     } catch (error) {
-      console.error(`Failed to send email to ${to}:`, error);
+      logger.error(`Failed to send email to ${to}:`, error);
       throw error; // Re-throw to mark job as failed
     }
   }

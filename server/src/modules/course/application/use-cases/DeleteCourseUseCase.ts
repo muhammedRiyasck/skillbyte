@@ -1,10 +1,10 @@
-import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
-import { ILessonRepository } from "../../domain/IRepositories/ILessonRepository";
-import { IModuleRepository } from "../../domain/IRepositories/IModuleRepository";
-import { IDeleteCourseUseCase } from "../interfaces/IDeleteCourseUseCase";
-import { ERROR_MESSAGES } from "../../../../shared/constants/messages";
-import { HttpError } from "../../../../shared/types/HttpError";
-import { HttpStatusCode } from "../../../../shared/enums/HttpStatusCodes";
+import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
+import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
+import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
+import { IDeleteCourseUseCase } from '../interfaces/IDeleteCourseUseCase';
+import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 /**
  * Use case for deleting a course.
@@ -21,7 +21,7 @@ export class DeleteCourseUseCase implements IDeleteCourseUseCase {
   constructor(
     private _courseRepo: ICourseRepository,
     private _moduleRepo: IModuleRepository,
-    private _lessonRepo: ILessonRepository
+    private _lessonRepo: ILessonRepository,
   ) {}
 
   /**
@@ -35,17 +35,25 @@ export class DeleteCourseUseCase implements IDeleteCourseUseCase {
     // Find the course to ensure it exists
     const course = await this._courseRepo.findById(courseId);
     if (!course) {
-      throw new HttpError(ERROR_MESSAGES.COURSE_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.COURSE_NOT_FOUND,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     // Verify the instructor owns the course
     if (course.instructorId !== instructorId) {
-      throw new HttpError(ERROR_MESSAGES.UNAUTHORIZED, HttpStatusCode.FORBIDDEN);
+      throw new HttpError(
+        ERROR_MESSAGES.UNAUTHORIZED,
+        HttpStatusCode.FORBIDDEN,
+      );
     }
 
     // Retrieve all modules associated with the course
     const modules = await this._moduleRepo.findModulesByCourseId(courseId);
-    const moduleIds = modules.map(m => m.moduleId).filter((id): id is string => typeof id === "string");
+    const moduleIds = modules
+      .map((m) => m.moduleId)
+      .filter((id): id is string => typeof id === 'string');
 
     // Delete all lessons under the modules to avoid orphaned data
     await this._lessonRepo.deleteManyByModuleIds(moduleIds);

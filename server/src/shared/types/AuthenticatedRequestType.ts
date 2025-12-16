@@ -1,4 +1,4 @@
-import { Request } from "express";
+import { Request } from 'express';
 
 /**
  * Interface for authenticated request with user data.

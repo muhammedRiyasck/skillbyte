@@ -2,9 +2,9 @@ import { AdminInstructorPaginationDto } from '../dtos/AdminInstructorDtos';
 
 export class AdminInstructorMapper {
   static toGetInstructorsFilter(dto: AdminInstructorPaginationDto) {
-    let query: Record<string, any> = {};
+    let query: Record<string, unknown> = {};
     const status = dto.status;
-    
+
     if (status?.trim() === 'Pending Instructors') {
       query = { accountStatus: 'pending' };
     } else if (status?.trim() === 'Approved Instructors') {
@@ -24,7 +24,7 @@ export class AdminInstructorMapper {
           { expertise: { $regex: search.trim(), $options: 'i' } },
           { jobTitle: { $regex: search.trim(), $options: 'i' } },
           { subject: { $regex: search.trim(), $options: 'i' } },
-        ]
+        ],
       };
       query = { ...query, ...searchFilter };
     }
@@ -32,11 +32,11 @@ export class AdminInstructorMapper {
   }
 
   static toSort(sortParam: string | undefined): Record<string, 1 | -1> {
-      let sort: Record<string, 1 | -1> = { createdAt: -1 };
-      if (sortParam) {
-        const [field, dir] = sortParam.split(':');
-        sort = { [field]: dir === 'asc' ? 1 : -1 };
-      }
-      return sort;
+    let sort: Record<string, 1 | -1> = { createdAt: -1 };
+    if (sortParam) {
+      const [field, dir] = sortParam.split(':');
+      sort = { [field]: dir === 'asc' ? 1 : -1 };
+    }
+    return sort;
   }
 }

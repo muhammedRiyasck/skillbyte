@@ -110,14 +110,16 @@ export class CommonAuthController {
       userData: {
         id:
           role === 'student'
-            ? (user as any).studentId
-            : (user as any).instructorId,
+            ? (user as { studentId: string }).studentId
+            : (user as { instructorId: string }).instructorId,
         name: user.name,
         email: user.email,
         role,
         profilePicture: user.profilePictureUrl,
         accountStatus:
-          role === 'instructor' ? (user as any).accountStatus : undefined,
+          role === 'instructor'
+            ? (user as { accountStatus: string }).accountStatus
+            : undefined,
       },
     });
   };

@@ -1,20 +1,26 @@
 import mongoose from 'mongoose';
 import { IGetInstructorEnrollmentsUseCase } from '../interfaces/IGetInstructorEnrollments';
 import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
-import { IInstructorEnrollment } from '../../types/IInstructorEnrollment';
+import {
+  IInstructorEnrollment,
+  ICourseEnrollmentSummary,
+} from '../../types/IInstructorEnrollment';
 
 // Type for aggregation result
 
-
-export class GetInstructorEnrollmentsUseCase implements IGetInstructorEnrollmentsUseCase {
+export class GetInstructorEnrollmentsUseCase
+  implements IGetInstructorEnrollmentsUseCase
+{
   constructor(private enrollmentRepository: IEnrollmentRepository) {}
 
-  async execute(instructorId: string): Promise<any[]> {
-
+  async execute(instructorId: string): Promise<ICourseEnrollmentSummary[]> {
     const instructorObjectId = new mongoose.Types.ObjectId(instructorId);
-    const enrollments = await this.enrollmentRepository.findEnrollmentsByInstructor(instructorObjectId) as IInstructorEnrollment[];
+    const enrollments =
+      (await this.enrollmentRepository.findEnrollmentsByInstructor(
+        instructorObjectId,
+      )) as IInstructorEnrollment[];
     // Group enrollments by course and enrich with course/student data
-    const courseMap = new Map();
+    const courseMap = new Map<string, ICourseEnrollmentSummary>();
 
     for (const enrollment of enrollments) {
       const courseId = enrollment.courseId._id.toString();
@@ -25,18 +31,21 @@ export class GetInstructorEnrollmentsUseCase implements IGetInstructorEnrollment
           courseTitle: enrollment.courseId.title,
           courseThumbnail: enrollment.courseId.thumbnailUrl,
           coursePrice: enrollment.courseId.price,
-          enrollments: []
+          enrollments: [],
         });
       }
 
-      courseMap.get(courseId).enrollments.push({
-        studentId: enrollment.userId._id,
-        studentName: enrollment.userId.name,
-        studentEmail: enrollment.userId.email,
-        enrollmentDate: enrollment.enrolledAt,
-        status: enrollment.status,
-        progress: enrollment.progress
-      });
+      const courseSummary = courseMap.get(courseId);
+      if (courseSummary) {
+        courseSummary.enrollments.push({
+          studentId: enrollment.userId._id,
+          studentName: enrollment.userId.name,
+          studentEmail: enrollment.userId.email,
+          enrollmentDate: enrollment.enrolledAt,
+          status: enrollment.status,
+          progress: enrollment.progress,
+        });
+      }
     }
     return Array.from(courseMap.values());
   }

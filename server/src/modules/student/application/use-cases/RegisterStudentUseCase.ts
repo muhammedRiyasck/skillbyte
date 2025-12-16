@@ -42,18 +42,27 @@ export class RegisterStudentUseCase implements IRegisterStudentUseCase {
    */
   async execute(email: string, otp: string): Promise<void> {
     if (otp.length !== 4) {
-      throw new HttpError(ERROR_MESSAGES.OTP_INVALID, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.OTP_INVALID,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     const dto = await this._otpService.getTempData(email);
     if (!dto) {
-      throw new HttpError(ERROR_MESSAGES.NO_CURRENT_DATA, HttpStatusCode.INTERNAL_SERVER_ERROR);
+      throw new HttpError(
+        ERROR_MESSAGES.NO_CURRENT_DATA,
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
     }
 
     const valid = await this._otpService.verifyOtp(email, otp);
 
     if (!valid) {
-      throw new HttpError(ERROR_MESSAGES.INVALID_OTP, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_OTP,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     // const responseLength = Object.entries(dto).length;
@@ -64,10 +73,16 @@ export class RegisterStudentUseCase implements IRegisterStudentUseCase {
     // Validate the registration data using Zod schema
     const validationResult = StudentRegistrationSchema.safeParse(dto);
     if (!validationResult.success) {
-      throw new HttpError(validationResult.error.issues.map((e) => e.message).join(', '), HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        validationResult.error.issues.map((e) => e.message).join(', '),
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
-    const hashedPassword = await bcrypt.hash(validationResult.data.password, 10);
+    const hashedPassword = await bcrypt.hash(
+      validationResult.data.password,
+      10,
+    );
 
     const student = new Student(
       validationResult.data.fullName,

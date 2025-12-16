@@ -6,7 +6,9 @@ import { z } from 'zod';
 export const LoginSchema = z.object({
   email: z.string().email('Invalid email format'),
   password: z.string().min(1, 'Password is required'),
-  role: z.enum(['student', 'instructor'], { message: 'Role must be student or instructor' }),
+  role: z.enum(['student', 'instructor'], {
+    message: 'Role must be student or instructor',
+  }),
 });
 
 /**
@@ -21,7 +23,9 @@ export const ResendOtpSchema = z.object({
  */
 export const ForgotPasswordSchema = z.object({
   email: z.string().email('Invalid email format'),
-  role: z.enum(['student', 'instructor'], { message: 'Role must be student or instructor' }),
+  role: z.enum(['student', 'instructor'], {
+    message: 'Role must be student or instructor',
+  }),
 });
 
 /**
@@ -30,14 +34,19 @@ export const ForgotPasswordSchema = z.object({
 export const ResetPasswordSchema = z.object({
   token: z.string().min(1, 'Token is required'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
-  role: z.enum(['student', 'instructor'], { message: 'Role must be student or instructor' }),
+  role: z.enum(['student', 'instructor'], {
+    message: 'Role must be student or instructor',
+  }),
 });
 
 /**
  * Zod schema for validating instructor registration data.
  */
 export const InstructorRegistrationSchema = z.object({
-  fullName: z.string().min(1, 'Full name is required').max(100, 'Full name must be less than 100 characters'),
+  fullName: z
+    .string()
+    .min(1, 'Full name is required')
+    .max(100, 'Full name must be less than 100 characters'),
   email: z.string().email('Invalid email format'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   phoneNumber: z.string().min(1, 'Phone number is required'),
@@ -47,7 +56,7 @@ export const InstructorRegistrationSchema = z.object({
   socialMediaLink: z.string().url('Invalid social media link').optional(),
   portfolio: z.string().url('Invalid portfolio URL').optional(),
   bio: z.string().min(1, 'Bio is required'),
-  resumeFile: z.any(),
+  resumeFile: z.unknown(),
   profilePictureUrl: z.string().url('Invalid profile picture URL').optional(),
 });
 
@@ -58,4 +67,6 @@ export type LoginValidationType = z.infer<typeof LoginSchema>;
 export type ResendOtpValidationType = z.infer<typeof ResendOtpSchema>;
 export type ForgotPasswordValidationType = z.infer<typeof ForgotPasswordSchema>;
 export type ResetPasswordValidationType = z.infer<typeof ResetPasswordSchema>;
-export type InstructorRegistrationValidationType = z.infer<typeof InstructorRegistrationSchema>;
+export type InstructorRegistrationValidationType = z.infer<
+  typeof InstructorRegistrationSchema
+>;

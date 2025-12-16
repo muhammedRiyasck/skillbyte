@@ -30,15 +30,24 @@ export class LoginAdminUseCase implements ILoginAdminUseCase {
   ): Promise<{ admin: Admin; accessToken: string; refreshToken: string }> {
     const admin = await this._adminRepo.findByEmail(dto.email);
     if (!admin) {
-      throw new HttpError(ERROR_MESSAGES.INVALID_CREDENTIALS, HttpStatusCode.UNAUTHORIZED);
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_CREDENTIALS,
+        HttpStatusCode.UNAUTHORIZED,
+      );
     }
     const isMatch = await bcrypt.compare(dto.password, admin.passwordHash);
     if (!isMatch) {
-      throw new HttpError(ERROR_MESSAGES.INVALID_CREDENTIALS, HttpStatusCode.UNAUTHORIZED);
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_CREDENTIALS,
+        HttpStatusCode.UNAUTHORIZED,
+      );
     }
     const isBlocked = admin.accountStatus === 'blocked';
     if (isBlocked) {
-      throw new HttpError(ERROR_MESSAGES.ACCOUNT_BLOCKED, HttpStatusCode.FORBIDDEN);
+      throw new HttpError(
+        ERROR_MESSAGES.ACCOUNT_BLOCKED,
+        HttpStatusCode.FORBIDDEN,
+      );
     }
 
     const accessToken = generateAccessToken({ id: admin._id, role: 'admin' });

@@ -18,7 +18,7 @@ export class UpdateModuleUseCase implements IUpdateModuleUseCase {
    */
   constructor(
     private _moduleRepo: IModuleRepository,
-    private _courseRepo: ICourseRepository
+    private _courseRepo: ICourseRepository,
   ) {}
 
   /**
@@ -33,18 +33,24 @@ export class UpdateModuleUseCase implements IUpdateModuleUseCase {
   async execute(
     moduleId: string,
     instructorId: string,
-    updates: Partial<Omit<Module, 'createdAt' | 'updatedAt' | 'courseId'>>
+    updates: Partial<Omit<Module, 'createdAt' | 'updatedAt' | 'courseId'>>,
   ): Promise<void> {
     // Find the module to ensure it exists
     const module = await this._moduleRepo.findById(moduleId);
     if (!module) {
-      throw new HttpError(ERROR_MESSAGES.MODULE_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.MODULE_NOT_FOUND,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     // Find the course and check if the instructor owns it
     const course = await this._courseRepo.findById(module.courseId);
     if (!course || course.instructorId !== instructorId) {
-      throw new HttpError(ERROR_MESSAGES.UNAUTHORIZED_UPDATE_MODULE, HttpStatusCode.FORBIDDEN);
+      throw new HttpError(
+        ERROR_MESSAGES.UNAUTHORIZED_UPDATE_MODULE,
+        HttpStatusCode.FORBIDDEN,
+      );
     }
 
     // Update the module with the provided data

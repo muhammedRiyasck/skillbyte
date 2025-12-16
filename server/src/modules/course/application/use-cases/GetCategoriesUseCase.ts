@@ -1,6 +1,5 @@
-
-import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
-import { IGetCategories } from "../interfaces/IGetCategories";
+import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
+import { IGetCategories } from '../interfaces/IGetCategories';
 
 export class GetCategories implements IGetCategories {
   constructor(private courseRepository: ICourseRepository) {}

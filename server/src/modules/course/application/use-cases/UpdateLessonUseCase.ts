@@ -1,11 +1,11 @@
-import { ILessonRepository } from "../../domain/IRepositories/ILessonRepository";
-import { IModuleRepository } from "../../domain/IRepositories/IModuleRepository";
-import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
-import { Lesson } from "../../domain/entities/Lesson";
-import { IUpdateLessonUseCase } from "../interfaces/IUpdateLessonUseCase";
-import { ERROR_MESSAGES } from "../../../../shared/constants/messages";
-import { HttpError } from "../../../../shared/types/HttpError";
-import { HttpStatusCode } from "../../../../shared/enums/HttpStatusCodes";
+import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
+import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
+import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
+import { Lesson } from '../../domain/entities/Lesson';
+import { IUpdateLessonUseCase } from '../interfaces/IUpdateLessonUseCase';
+import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 /**
  * Use case for updating lesson information.
@@ -21,7 +21,7 @@ export class UpdateLessonUseCase implements IUpdateLessonUseCase {
   constructor(
     private _lessonRepo: ILessonRepository,
     private _moduleRepo: IModuleRepository,
-    private _courseRepo: ICourseRepository
+    private _courseRepo: ICourseRepository,
   ) {}
 
   /**
@@ -36,24 +36,33 @@ export class UpdateLessonUseCase implements IUpdateLessonUseCase {
   async execute(
     lessonId: string,
     instructorId: string,
-    updates: Partial<Omit<Lesson, 'createdAt' | 'updatedAt' | 'courseId'>>
+    updates: Partial<Omit<Lesson, 'createdAt' | 'updatedAt' | 'courseId'>>,
   ): Promise<void> {
     // Find the lesson to ensure it exists
     const lesson = await this._lessonRepo.findById(lessonId);
     if (!lesson) {
-      throw new HttpError(ERROR_MESSAGES.LESSON_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.LESSON_NOT_FOUND,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     // Find the module to ensure it exists
     const module = await this._moduleRepo.findById(lesson.moduleId.toString());
     if (!module) {
-      throw new HttpError(ERROR_MESSAGES.MODULE_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.MODULE_NOT_FOUND,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     // Find the course and check if the instructor owns it
     const course = await this._courseRepo.findById(module.courseId);
     if (!course || course.instructorId !== instructorId) {
-      throw new HttpError(ERROR_MESSAGES.UNAUTHORIZED_UPDATE_LESSON, HttpStatusCode.FORBIDDEN);
+      throw new HttpError(
+        ERROR_MESSAGES.UNAUTHORIZED_UPDATE_LESSON,
+        HttpStatusCode.FORBIDDEN,
+      );
     }
 
     // Update the lesson with the provided data

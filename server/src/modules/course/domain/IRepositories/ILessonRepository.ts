@@ -1,16 +1,16 @@
-import { Lesson } from "../entities/Lesson";
+import { Lesson } from '../entities/Lesson';
 
 export interface ILessonRepository {
   save(data: {
     moduleId: string;
     title: string;
-    contentType: "video" | "pdf";
+    contentType: 'video' | 'pdf';
     contentUrl: string;
     order: number;
     isFreePreview?: boolean;
     isPublished?: boolean;
   }): Promise<Lesson>;
-  
+
   findByModuleId(moduleId: string[]): Promise<Lesson[]>;
   create(lesson: Lesson): Promise<Lesson>;
   updateLessonById(lessonId: string, updates: Partial<Lesson>): Promise<void>;

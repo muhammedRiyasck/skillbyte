@@ -1,4 +1,4 @@
-import { Course } from "../../domain/entities/Course";
+import { Course } from '../../domain/entities/Course';
 
 type UpdatableCourseFields = Omit<
   Course,
@@ -6,19 +6,10 @@ type UpdatableCourseFields = Omit<
 >;
 type IUpdateBaseInfo = Partial<UpdatableCourseFields>;
 
-
 export interface IUpdateBaseUseCase {
- execute(
+  execute(
     courseId: string,
     instructorId: string,
     updates: IUpdateBaseInfo,
-  ): Promise<void>
+  ): Promise<void>;
 }
-
-
-
-
-
-
-
-

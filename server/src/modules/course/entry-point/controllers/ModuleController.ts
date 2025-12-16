@@ -1,27 +1,29 @@
-import { Request, Response } from "express";
-import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
-import { HttpStatusCode } from "../../../../shared/enums/HttpStatusCodes";
-import { HttpError } from "../../../../shared/types/HttpError";
-import logger from "../../../../shared/utils/Logger";
-import { ICreateModuleUseCase } from "../../application/interfaces/ICreateModuleUseCase";
-import { IUpdateModuleUseCase } from "../../application/interfaces/UpdateModuleUseCase ";
-import { IDeleteModuleUseCase } from "../../application/interfaces/IDeleteModuleUseCase";
-import { AuthenticatedRequest } from "../../../../shared/types/AuthenticatedRequestType";
+import { Request, Response } from 'express';
+import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { HttpError } from '../../../../shared/types/HttpError';
+import logger from '../../../../shared/utils/Logger';
+import { ICreateModuleUseCase } from '../../application/interfaces/ICreateModuleUseCase';
+import { IUpdateModuleUseCase } from '../../application/interfaces/UpdateModuleUseCase ';
+import { IDeleteModuleUseCase } from '../../application/interfaces/IDeleteModuleUseCase';
+import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
-import { CreateModuleSchema, UpdateModuleSchema } from "../../application/dtos/ModuleDtos";
-import { ModuleMapper } from "../../application/mappers/ModuleMapper";
+import {
+  CreateModuleSchema,
+  UpdateModuleSchema,
+} from '../../application/dtos/ModuleDtos';
+import { ModuleMapper } from '../../application/mappers/ModuleMapper';
 
 /**
  * Interface for authenticated request with user data.
  */
-
 
 export class ModuleController {
   constructor(
     private _createUseCase: ICreateModuleUseCase,
     private _courseRepo: ICourseRepository,
     private _updateModuleUseCase: IUpdateModuleUseCase,
-    private _deleteModuleUseCase: IDeleteModuleUseCase
+    private _deleteModuleUseCase: IDeleteModuleUseCase,
   ) {}
 
   /**
@@ -39,15 +41,22 @@ export class ModuleController {
     // Check ownership
     const course = await this._courseRepo.findById(validatedData.courseId);
     if (!course || course.instructorId !== instructorId) {
-      logger.warn(`Unauthorized module creation attempt for course ${validatedData.courseId} by instructor ${instructorId}`);
-      throw new HttpError("You do not own this course.", HttpStatusCode.UNAUTHORIZED);
+      logger.warn(
+        `Unauthorized module creation attempt for course ${validatedData.courseId} by instructor ${instructorId}`,
+      );
+      throw new HttpError(
+        'You do not own this course.',
+        HttpStatusCode.UNAUTHORIZED,
+      );
     }
-    
+
     const moduleEntity = ModuleMapper.toCreateEntity(validatedData);
 
     const module = await this._createUseCase.execute(moduleEntity);
-    logger.info(`Module created successfully for course ${validatedData.courseId}`);
-    ApiResponseHelper.created(res, "Module created successfully.", module);
+    logger.info(
+      `Module created successfully for course ${validatedData.courseId}`,
+    );
+    ApiResponseHelper.created(res, 'Module created successfully.', module);
   };
 
   /**
@@ -66,7 +75,7 @@ export class ModuleController {
 
     await this._updateModuleUseCase.execute(moduleId, instructorId, updates);
     logger.info(`Module ${moduleId} updated successfully`);
-    ApiResponseHelper.success(res, "Module updated successfully");
+    ApiResponseHelper.success(res, 'Module updated successfully');
   };
 
   /**
@@ -83,6 +92,6 @@ export class ModuleController {
 
     await this._deleteModuleUseCase.execute(moduleId, instructorId);
     logger.info(`Module ${moduleId} deleted successfully`);
-    ApiResponseHelper.success(res, "Module deleted successfully.");
+    ApiResponseHelper.success(res, 'Module deleted successfully.');
   };
 }

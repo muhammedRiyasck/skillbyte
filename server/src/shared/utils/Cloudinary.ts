@@ -1,7 +1,7 @@
-import { v2 as cloudinary } from "cloudinary";
-import { ERROR_MESSAGES } from "../constants/messages";
-import { HttpError } from "../types/HttpError";
-import { HttpStatusCode } from "../enums/HttpStatusCodes";
+import { v2 as cloudinary } from 'cloudinary';
+import { ERROR_MESSAGES } from '../constants/messages';
+import { HttpError } from '../types/HttpError';
+import { HttpStatusCode } from '../enums/HttpStatusCodes';
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -11,29 +11,32 @@ cloudinary.config({
 
 interface UploadOptions {
   folder: string;
-  resourceType?: "image" | "raw"
+  resourceType?: 'image' | 'raw';
   publicId?: string;
   overwrite?: boolean;
-  accessMode?: "public" | "authenticated";
+  accessMode?: 'public' | 'authenticated';
 }
 
 export const uploadToCloudinary = async (
   filePath: string,
-  options: UploadOptions
+  options: UploadOptions,
 ): Promise<string> => {
   try {
     const result = await cloudinary.uploader.upload(filePath, {
       folder: options.folder,
-      resource_type: options.resourceType || "image",
+      resource_type: options.resourceType || 'image',
       public_id: options.publicId,
       overwrite: options.overwrite ?? false,
-      access_mode: options.accessMode || "public",
+      access_mode: options.accessMode || 'public',
     });
 
     return result.secure_url;
   } catch (err) {
-    console.error("Cloudinary upload error:", err);
-    throw new HttpError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    console.error('Cloudinary upload error:', err);
+    throw new HttpError(
+      ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+      HttpStatusCode.INTERNAL_SERVER_ERROR,
+    );
   }
 };
 
@@ -47,9 +50,12 @@ export const getPublicIdFromUrl = (url: string): string => {
 
 export const deleteFromCloudinary = async (publicId: string): Promise<void> => {
   try {
-    await cloudinary.uploader.destroy(publicId, { resource_type: "image" });
+    await cloudinary.uploader.destroy(publicId, { resource_type: 'image' });
   } catch (err) {
-    console.error("Cloudinary delete error:", err);
-    throw new HttpError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    console.error('Cloudinary delete error:', err);
+    throw new HttpError(
+      ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+      HttpStatusCode.INTERNAL_SERVER_ERROR,
+    );
   }
 };

@@ -1,9 +1,19 @@
-import { InstructorRegistrationDto, InstructorVerifyOtpDto, InstructorReapplyDto, InstructorProfileUpdateDto } from '../dtos/InstructorDtos';
+import {
+  InstructorRegistrationDto,
+  InstructorVerifyOtpDto,
+  InstructorReapplyDto,
+  InstructorProfileUpdateDto,
+} from '../dtos/InstructorDtos';
 
 export class InstructorMapper {
-  static toRegisterInstructorEntity(dto: InstructorRegistrationDto, file?: Express.Multer.File) {
-    const subject = dto.subject.trim() === 'Other' ? dto.customSubject : dto.subject;
-    const jobTitle = dto.jobTitle.trim() === 'Other' ? dto.customJobTitle : dto.jobTitle;
+  static toRegisterInstructorEntity(
+    dto: InstructorRegistrationDto,
+    file?: Express.Multer.File,
+  ) {
+    const subject =
+      dto.subject.trim() === 'Other' ? dto.customSubject : dto.subject;
+    const jobTitle =
+      dto.jobTitle.trim() === 'Other' ? dto.customJobTitle : dto.jobTitle;
 
     return {
       fullName: dto.fullName,
@@ -28,19 +38,19 @@ export class InstructorMapper {
   }
 
   static toReapplyEntity(dto: InstructorReapplyDto) {
-      const { email, ...rest } = dto; 
-      const updates: any = { ...rest };
-      if (updates.experience) {
-        updates.experience = Number(updates.experience);
-      }
-      return { email, updates };
+    const { email, ...rest } = dto;
+    const updates: Record<string, unknown> = { ...rest };
+    if (updates.experience) {
+      updates.experience = Number(updates.experience);
+    }
+    return { email, updates };
   }
 
   static toUpdateProfileEntity(dto: InstructorProfileUpdateDto) {
-      const updates: any = { ...dto };
-      if (updates.experience) {
-        updates.experience = Number(updates.experience);
-      }
-      return updates;
+    const updates: Record<string, unknown> = { ...dto };
+    if (updates.experience) {
+      updates.experience = Number(updates.experience);
+    }
+    return updates;
   }
 }

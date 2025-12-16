@@ -1,10 +1,14 @@
-import { PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { s3 } from "../config/backblaze/S3Client";
-import fs from "fs";
-import { HttpError } from "../types/HttpError";
-import { ERROR_MESSAGES } from "../constants/messages";
-import { HttpStatusCode } from "../enums/HttpStatusCodes";
+import {
+  PutObjectCommand,
+  GetObjectCommand,
+  DeleteObjectCommand,
+} from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { s3 } from '../config/backblaze/S3Client';
+import fs from 'fs';
+import { HttpError } from '../types/HttpError';
+import { ERROR_MESSAGES } from '../constants/messages';
+import { HttpStatusCode } from '../enums/HttpStatusCodes';
 
 interface UploadOptions {
   folder: string;
@@ -14,7 +18,7 @@ interface UploadOptions {
 
 export const uploadToBackblaze = async (
   filePath: string,
-  options: UploadOptions
+  options: UploadOptions,
 ): Promise<string> => {
   try {
     const fileContent = fs.readFileSync(filePath);
@@ -24,7 +28,7 @@ export const uploadToBackblaze = async (
       Bucket: process.env.B2_S3_BUCKET!,
       Key: fileName,
       Body: fileContent,
-      ContentType: options.contentType || "application/octet-stream",
+      ContentType: options.contentType || 'application/octet-stream',
     };
 
     const command = new PutObjectCommand(uploadParams);
@@ -33,13 +37,17 @@ export const uploadToBackblaze = async (
     // Return the file key instead of signed URL for storage
     return fileName;
   } catch (err) {
-    console.error("Backblaze upload error:", err);
-    throw new HttpError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
-
+    console.error('Backblaze upload error:', err);
+    throw new HttpError(
+      ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+      HttpStatusCode.INTERNAL_SERVER_ERROR,
+    );
   }
 };
 
-export const getBackblazeSignedUrl = async (fileName: string): Promise<string> => {
+export const getBackblazeSignedUrl = async (
+  fileName: string,
+): Promise<string> => {
   try {
     const command = new GetObjectCommand({
       Bucket: process.env.B2_S3_BUCKET!,
@@ -50,8 +58,11 @@ export const getBackblazeSignedUrl = async (fileName: string): Promise<string> =
     const signedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
     return signedUrl;
   } catch (err) {
-    console.error("Backblaze signed URL error:", err);
-    throw new HttpError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    console.error('Backblaze signed URL error:', err);
+    throw new HttpError(
+      ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+      HttpStatusCode.INTERNAL_SERVER_ERROR,
+    );
   }
 };
 
@@ -63,9 +74,12 @@ export const deleteFromBackblaze = async (fileName: string): Promise<void> => {
     });
 
     await s3.send(command);
-    console.log(`File ${fileName} deleted successfully from Backblaze`);
+    // console.log(`File ${fileName} deleted successfully from Backblaze`);
   } catch (err) {
-    console.error("Backblaze delete error:", err);
-    throw new HttpError(ERROR_MESSAGES.INTERNAL_SERVER_ERROR, HttpStatusCode.INTERNAL_SERVER_ERROR);
+    console.error('Backblaze delete error:', err);
+    throw new HttpError(
+      ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+      HttpStatusCode.INTERNAL_SERVER_ERROR,
+    );
   }
 };

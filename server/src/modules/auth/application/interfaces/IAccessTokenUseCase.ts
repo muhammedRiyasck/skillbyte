@@ -1,3 +1,3 @@
 export interface IAccessTokenUseCase {
-  execute(refreshToken: string): string 
+  execute(refreshToken: string): string;
 }

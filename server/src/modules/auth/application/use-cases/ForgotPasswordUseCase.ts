@@ -1,4 +1,3 @@
-
 import { IStudentRepository } from '../../../student/domain/IRepositories/IStudentRepository';
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
 import { createPasswordResetToken } from '../../../../shared/utils/TokenGenrator';
@@ -40,22 +39,31 @@ export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
    */
   async execute(email: string, role: string): Promise<false | void> {
     if (!email || !role) {
-      throw new HttpError("Email and role are required", HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        'Email and role are required',
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
-    if (role !== "student" && role !== "instructor") {
-      throw new HttpError("Invalid role provided", HttpStatusCode.BAD_REQUEST);
+    if (role !== 'student' && role !== 'instructor') {
+      throw new HttpError('Invalid role provided', HttpStatusCode.BAD_REQUEST);
     }
 
-    const repo = role === "student" ? this._studentRepo : this._instructorRepo;
+    const repo = role === 'student' ? this._studentRepo : this._instructorRepo;
     const user = await repo.findByEmail(email);
     if (!user) {
       return false;
     }
 
-    const id = role === "student" ? (user as Student).studentId : (user as Instructor).instructorId;
+    const id =
+      role === 'student'
+        ? (user as Student).studentId
+        : (user as Instructor).instructorId;
     if (!id) {
-      throw new HttpError("User ID not found", HttpStatusCode.INTERNAL_SERVER_ERROR);
+      throw new HttpError(
+        'User ID not found',
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
     }
 
     const token = await createPasswordResetToken(id);
@@ -64,7 +72,7 @@ export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
     try {
       await this._nodeMailer.sendMail(
         user.email,
-        "Reset your password",
+        'Reset your password',
         ResetPasswordTemplate(user.name, resetUrl),
       );
       logger.info(`Password reset email sent to ${email}`);

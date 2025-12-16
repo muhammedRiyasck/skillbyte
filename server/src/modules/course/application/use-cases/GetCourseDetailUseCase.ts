@@ -2,7 +2,7 @@ import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository'
 import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
 import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
-import { IEnrollmentRepository } from '../../../enrollment/domain/IEnrollmentRepository';
+
 import { Course } from '../../domain/entities/Course';
 import { IGetCourseUseCase } from '../interfaces/IGetCourseDetailsUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
@@ -52,25 +52,37 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
     // Find the course by ID
     const course = await this._courseRepo.findById(courseId);
     if (!course) {
-      throw new HttpError(ERROR_MESSAGES.COURSE_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.COURSE_NOT_FOUND,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     // Validate the user role
     const validRoles: UserRole[] = ['instructor', 'student', 'admin'];
     if (!validRoles.includes(role)) {
-      throw new HttpError(ERROR_MESSAGES.INVALID_ROLE, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_ROLE,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     // Check instructor ownership - instructors can only view their own courses
     if (role === 'instructor') {
       if (!userId || course.instructorId !== userId) {
-        throw new HttpError('You can only view your own courses.', HttpStatusCode.FORBIDDEN);
+        throw new HttpError(
+          'You can only view your own courses.',
+          HttpStatusCode.FORBIDDEN,
+        );
       }
     }
 
     // Check if students can access unlisted courses
     if (role === 'student' && course.status !== 'list') {
-      throw new HttpError(ERROR_MESSAGES.COURSE_UNLISTED_OR_NOT_AVAILABLE, HttpStatusCode.FORBIDDEN);
+      throw new HttpError(
+        ERROR_MESSAGES.COURSE_UNLISTED_OR_NOT_AVAILABLE,
+        HttpStatusCode.FORBIDDEN,
+      );
     }
 
     // Parse include parameters
@@ -84,7 +96,7 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
       if (includeArr.includes('lessons')) {
         const moduleIds = modules.map((m) => m.moduleId!.toString());
         const lessons = await this._lessonRepo.findByModuleId(moduleIds);
-        
+
         // Associate lessons with their respective modules
         // All students can see lesson metadata (titles, descriptions)
         // Access control for video playback is handled in GetLessonPlayUrlUseCase
@@ -100,10 +112,14 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
 
     // Include instructor if requested
     if (includeArr.includes('instructor')) {
-      const instructor = await this._instructorRepo.findById(course.instructorId);
+      const instructor = await this._instructorRepo.findById(
+        course.instructorId,
+      );
       if (instructor) {
         // Attach instructor data to course
-        (course as any).instructor = {
+        (
+          course as Course & { instructor: Record<string, unknown> }
+        ).instructor = {
           name: instructor.name,
           title: instructor.jobTitle,
           avatar: instructor.profilePictureUrl,

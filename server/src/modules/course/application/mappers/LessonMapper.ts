@@ -18,7 +18,7 @@ export class LessonMapper {
     };
   }
 
-  static toUpdateEntity(dto: any) {
-      return dto;
+  static toUpdateEntity(dto: Record<string, unknown>) {
+    return dto;
   }
 }

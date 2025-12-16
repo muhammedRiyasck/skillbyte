@@ -29,8 +29,13 @@ export class AdminAuthController {
 
     const validationResult = LoginAdminSchema.safeParse(req.body);
     if (!validationResult.success) {
-      logger.warn(`Admin login validation failed: ${validationResult.error.message}`);
-      throw new HttpError(ERROR_MESSAGES.INVALID_INPUT, HttpStatusCode.BAD_REQUEST);
+      logger.warn(
+        `Admin login validation failed: ${validationResult.error.message}`,
+      );
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_INPUT,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     const { email, password } = validationResult.data;

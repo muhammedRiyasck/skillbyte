@@ -9,45 +9,39 @@ router.get(
   '/getInstructors',
   authenticate,
   requireRole('admin'),
-  asyncHandler(
-  adminInstructorController.getInstructors)
+  asyncHandler(adminInstructorController.getInstructors),
 );
 router.patch(
   '/approve',
   authenticate,
   requireRole('admin'),
-  asyncHandler(
-  adminInstructorController.approve)
+  asyncHandler(adminInstructorController.approve),
 );
 router.patch(
   '/decline',
   authenticate,
   requireRole('admin'),
-  asyncHandler(
-  adminInstructorController.decline)
+  asyncHandler(adminInstructorController.decline),
 );
 router.patch(
   '/:instructorId/status',
   authenticate,
   requireRole('admin'),
-  asyncHandler(
-  adminInstructorController.changeInstructorStatus)
+  asyncHandler(adminInstructorController.changeInstructorStatus),
 );
 
 router.delete(
   '/:instructorId',
   authenticate,
   requireRole('admin'),
-  asyncHandler(
-  adminInstructorController.deleteInstructor)
+  asyncHandler(adminInstructorController.deleteInstructor),
 );
 
 router.get(
   '/:instructorId/resume',
   authenticate,
   requireRole('admin'),
-  asyncHandler(
-  adminInstructorController.getInstructorResume)
+  asyncHandler(adminInstructorController.getInstructorResume),
 );
 
 export default router;

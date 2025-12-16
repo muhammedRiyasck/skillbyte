@@ -1,6 +1,3 @@
-
-
-
 export class Instructor {
   constructor(
     public name: string,
@@ -9,26 +6,22 @@ export class Instructor {
     public subject: string,
     public jobTitle: string,
     public experience: number,
-    public socialProfile:string,
-    public portfolio:string,
+    public socialProfile: string,
+    public portfolio: string,
     public bio: string | null,
     public phoneNumber: string | null,
     public resumeUrl: string | null,
     public profilePictureUrl: string | null,
     public isEmailVerified: boolean,
-    public accountStatus: "pending" | "active" | "suspended" | "rejected" ,
+    public accountStatus: 'pending' | 'active' | 'suspended' | 'rejected',
     public approved: boolean,
     public suspendNote: string | null,
     public rejected: boolean,
-    public rejectedNote:string|null,
+    public rejectedNote: string | null,
     public doneBy: string | null,
     public doneAt: Date | null,
     public averageRating: number,
     public totalReviews: number,
-    public instructorId?: string
+    public instructorId?: string,
   ) {}
-
-
 }
-
-

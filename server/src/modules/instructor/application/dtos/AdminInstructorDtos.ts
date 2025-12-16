@@ -1,14 +1,22 @@
 import { z } from 'zod';
 
 export const AdminInstructorPaginationSchema = z.object({
-  page: z.string().optional().transform(val => val ? parseInt(val, 10) : 1),
-  limit: z.string().optional().transform(val => val ? parseInt(val, 10) : 12),
+  page: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : 1)),
+  limit: z
+    .string()
+    .optional()
+    .transform((val) => (val ? parseInt(val, 10) : 12)),
   sort: z.string().optional(),
   status: z.string().optional(),
   search: z.string().optional(),
 });
 
-export type AdminInstructorPaginationDto = z.infer<typeof AdminInstructorPaginationSchema>;
+export type AdminInstructorPaginationDto = z.infer<
+  typeof AdminInstructorPaginationSchema
+>;
 
 export const ApproveInstructorSchema = z.object({
   instructorId: z.string().min(1, 'Instructor ID is required'),
@@ -29,4 +37,6 @@ export const ChangeInstructorStatusSchema = z.object({
   reason: z.string().optional(),
 });
 
-export type ChangeInstructorStatusDto = z.infer<typeof ChangeInstructorStatusSchema>;
+export type ChangeInstructorStatusDto = z.infer<
+  typeof ChangeInstructorStatusSchema
+>;

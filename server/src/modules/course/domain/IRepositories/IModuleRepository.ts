@@ -1,4 +1,4 @@
-import { Module } from "../../domain/entities/Module";
+import { Module } from '../../domain/entities/Module';
 
 export interface IModuleRepository {
   save(data: {

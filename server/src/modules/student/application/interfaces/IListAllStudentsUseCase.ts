@@ -1,6 +1,5 @@
+import { Student } from '../../domain/entities/Student';
 
-import { Student } from "../../domain/entities/Student";
-
-export interface IListAllStudentsUseCase{
-execute(): Promise<Student[]|null>
+export interface IListAllStudentsUseCase {
+  execute(): Promise<Student[] | null>;
 }

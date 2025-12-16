@@ -1,6 +1,7 @@
 import { Module } from '../../domain/entities/Module';
 
+import { CreateModuleDto } from '../dtos/ModuleDtos';
 
 export interface ICreateModuleUseCase {
-  execute(dto: any): Promise<Module | null>; 
+  execute(dto: CreateModuleDto): Promise<Module | null>;
 }

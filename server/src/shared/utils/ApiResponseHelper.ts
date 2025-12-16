@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { ApiResponse, ApiSuccessResponse, ApiErrorResponse } from '../types/ApiResponse';
+import { ApiSuccessResponse, ApiErrorResponse } from '../types/ApiResponse';
 import { HttpStatusCode } from '../enums/HttpStatusCodes';
 
 /**
@@ -15,7 +15,7 @@ export class ApiResponseHelper {
    * @param statusCode - HTTP status code (default: 200)
    * @returns Express response object
    */
-  static success<T = any>(
+  static success<T = unknown>(
     res: Response,
     message: string,
     data?: T,
@@ -60,7 +60,7 @@ export class ApiResponseHelper {
    * @param data - Optional data payload
    * @returns Express response object
    */
-  static created<T = any>(
+  static created<T = unknown>(
     res: Response,
     message: string,
     data?: T,
@@ -74,8 +74,16 @@ export class ApiResponseHelper {
    * @param message - Success message
    * @returns Express response object
    */
-  static noContent(res: Response, message: string): Response<ApiSuccessResponse> {
-    return this.success(res, message, undefined, HttpStatusCode.NO_CONTENT);
+  static noContent(
+    res: Response,
+    message: string,
+  ): Response<ApiSuccessResponse> {
+    return this.success<unknown>(
+      res,
+      message,
+      undefined,
+      HttpStatusCode.NO_CONTENT,
+    );
   }
 
   /**
@@ -85,7 +93,11 @@ export class ApiResponseHelper {
    * @param error - Optional detailed error information
    * @returns Express response object
    */
-  static badRequest(res: Response, message: string, error?: string): Response<ApiErrorResponse> {
+  static badRequest(
+    res: Response,
+    message: string,
+    error?: string,
+  ): Response<ApiErrorResponse> {
     return this.error(res, message, error, HttpStatusCode.BAD_REQUEST);
   }
 
@@ -96,7 +108,11 @@ export class ApiResponseHelper {
    * @param error - Optional detailed error information
    * @returns Express response object
    */
-  static unauthorized(res: Response, message: string, error?: string): Response<ApiErrorResponse> {
+  static unauthorized(
+    res: Response,
+    message: string,
+    error?: string,
+  ): Response<ApiErrorResponse> {
     return this.error(res, message, error, HttpStatusCode.UNAUTHORIZED);
   }
 
@@ -107,7 +123,11 @@ export class ApiResponseHelper {
    * @param error - Optional detailed error information
    * @returns Express response object
    */
-  static forbidden(res: Response, message: string, error?: string): Response<ApiErrorResponse> {
+  static forbidden(
+    res: Response,
+    message: string,
+    error?: string,
+  ): Response<ApiErrorResponse> {
     return this.error(res, message, error, HttpStatusCode.FORBIDDEN);
   }
 
@@ -118,7 +138,11 @@ export class ApiResponseHelper {
    * @param error - Optional detailed error information
    * @returns Express response object
    */
-  static notFound(res: Response, message: string, error?: string): Response<ApiErrorResponse> {
+  static notFound(
+    res: Response,
+    message: string,
+    error?: string,
+  ): Response<ApiErrorResponse> {
     return this.error(res, message, error, HttpStatusCode.NOT_FOUND);
   }
 
@@ -129,7 +153,11 @@ export class ApiResponseHelper {
    * @param error - Optional detailed error information
    * @returns Express response object
    */
-  static conflict(res: Response, message: string, error?: string): Response<ApiErrorResponse> {
+  static conflict(
+    res: Response,
+    message: string,
+    error?: string,
+  ): Response<ApiErrorResponse> {
     return this.error(res, message, error, HttpStatusCode.CONFLICT);
   }
 }

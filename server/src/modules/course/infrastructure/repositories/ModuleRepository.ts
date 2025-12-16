@@ -1,9 +1,14 @@
-import { Module } from "../../domain/entities/Module";
-import { IModuleRepository } from "../../domain/IRepositories/IModuleRepository";
-import { ModuleModel } from "../models/ModuleModel";
+import { Module } from '../../domain/entities/Module';
+import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
+import { ModuleModel } from '../models/ModuleModel';
 
 export class ModuleRepository implements IModuleRepository {
-  async save(data: { courseId: string; title: string; description: string; order: number; }): Promise<Module> {
+  async save(data: {
+    courseId: string;
+    title: string;
+    description: string;
+    order: number;
+  }): Promise<Module> {
     const doc = await ModuleModel.create(data);
     return new Module(
       doc.courseId.toString(),
@@ -12,21 +17,24 @@ export class ModuleRepository implements IModuleRepository {
       doc.order,
       doc.createdAt,
       doc.updatedAt,
-      doc._id.toString()
+      doc._id.toString(),
     );
   }
 
   async findModulesByCourseId(courseId: string): Promise<Module[]> {
     const docs = await ModuleModel.find({ courseId }).sort({ order: 1 });
-    return docs.map(doc => new Module(
-      doc.courseId.toString(),
-      doc.title,
-      doc.description,
-      doc.order,
-      doc.createdAt,
-      doc.updatedAt,
-      doc._id.toString()
-    ));
+    return docs.map(
+      (doc) =>
+        new Module(
+          doc.courseId.toString(),
+          doc.title,
+          doc.description,
+          doc.order,
+          doc.createdAt,
+          doc.updatedAt,
+          doc._id.toString(),
+        ),
+    );
   }
 
   async findById(moduleId: string): Promise<Module | null> {
@@ -41,11 +49,14 @@ export class ModuleRepository implements IModuleRepository {
       doc.order,
       doc.createdAt,
       doc.updatedAt,
-      doc._id.toString()
+      doc._id.toString(),
     );
   }
 
-  async updateModuleById(moduleId: string, updates: Partial<Module>): Promise<void> {
+  async updateModuleById(
+    moduleId: string,
+    updates: Partial<Module>,
+  ): Promise<void> {
     await ModuleModel.findByIdAndUpdate(moduleId, updates, { new: true });
   }
 

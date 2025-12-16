@@ -1,4 +1,7 @@
-import { StudentRegistrationDto, StudentVerifyOtpDto } from '../dtos/StudentDtos';
+import {
+  StudentRegistrationDto,
+  StudentVerifyOtpDto,
+} from '../dtos/StudentDtos';
 
 export class StudentMapper {
   static toRegisterStudentEntity(dto: StudentRegistrationDto) {

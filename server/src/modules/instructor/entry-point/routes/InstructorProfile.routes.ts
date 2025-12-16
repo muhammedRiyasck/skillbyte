@@ -1,42 +1,40 @@
-import { Router } from "express";
-import { instructorProfileController } from "../dependencyInjection/InstructorProfileContainer";
-import { authenticate } from "../../../../shared/middlewares/AuthMiddleware";
-import { requireRole } from "../../../../shared/middlewares/RequireRole";
-import asyncHandler from "../../../../shared/utils/AsyncHandler";
-import multer from "multer";
+import { Router } from 'express';
+import { instructorProfileController } from '../dependencyInjection/InstructorProfileContainer';
+import { authenticate } from '../../../../shared/middlewares/AuthMiddleware';
+import { requireRole } from '../../../../shared/middlewares/RequireRole';
+import asyncHandler from '../../../../shared/utils/AsyncHandler';
+import multer from 'multer';
 
 const router = Router();
-const upload = multer({ dest: "uploads/" });
+const upload = multer({ dest: 'uploads/' });
 
 router.get(
-  "/profile",
+  '/profile',
   authenticate,
-  requireRole("instructor"),
-  asyncHandler(instructorProfileController.getProfile)
+  requireRole('instructor'),
+  asyncHandler(instructorProfileController.getProfile),
 );
 
 router.put(
-  "/profile",
+  '/profile',
   authenticate,
-  requireRole("instructor"),
-  asyncHandler(instructorProfileController.updateProfile)
+  requireRole('instructor'),
+  asyncHandler(instructorProfileController.updateProfile),
 );
 
 router.post(
-  "/upload-profile-image",
+  '/upload-profile-image',
   authenticate,
-  requireRole("instructor"),
-  upload.single("profileImage"),
-  asyncHandler(instructorProfileController.uploadProfileImage)
+  requireRole('instructor'),
+  upload.single('profileImage'),
+  asyncHandler(instructorProfileController.uploadProfileImage),
 );
 
 router.delete(
-  "/profile-image",
+  '/profile-image',
   authenticate,
-  requireRole("instructor"),
-  asyncHandler(instructorProfileController.removeProfileImage)
+  requireRole('instructor'),
+  asyncHandler(instructorProfileController.removeProfileImage),
 );
-
-
 
 export default router;

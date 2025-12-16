@@ -6,13 +6,17 @@ import multer from 'multer';
 const router = Router();
 const upload = multer({ dest: 'uploads/' });
 
-router.post( '/register',upload.single('resume'),
+router.post(
+  '/register',
+  upload.single('resume'),
   asyncHandler(instructorAuthController.registerInstructor),
 );
 
 router.post('/verify-otp', asyncHandler(instructorAuthController.verifyOtp));
 
-router.put('/reapply',upload.single('resume'),
+router.put(
+  '/reapply',
+  upload.single('resume'),
   asyncHandler(instructorAuthController.reapply),
 );
 export default router;

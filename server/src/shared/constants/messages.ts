@@ -7,5 +7,5 @@ export const ERROR_MESSAGES = {
   ...COMMON_ERRORS,
   ...AUTH_ERRORS,
   ...COURSE_ERRORS,
-  ...VALIDATION_ERRORS
+  ...VALIDATION_ERRORS,
 } as const;

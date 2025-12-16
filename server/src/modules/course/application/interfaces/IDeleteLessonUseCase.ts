@@ -1,4 +1,3 @@
-
 export interface IDeleteLessonUseCase {
-execute(lessonId: string, instructorId: string): Promise<void>
+  execute(lessonId: string, instructorId: string): Promise<void>;
 }

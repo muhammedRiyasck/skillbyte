@@ -1,4 +1,4 @@
-import { Lesson } from "./Lesson";
+import { Lesson } from './Lesson';
 
 export interface ModuleWithLessons {
   moduleId: string;
@@ -7,4 +7,3 @@ export interface ModuleWithLessons {
   order: number;
   lessons: Lesson[];
 }
-

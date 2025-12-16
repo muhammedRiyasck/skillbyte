@@ -1,8 +1,8 @@
-import { IOtpService } from "../../../../shared/services/otp/interfaces/IOtpService";
-import { OtpRateLimiter } from "../../../../shared/services/otp/OtpRateLimiter";
-import { IResendOtpUseCase } from "../interfaces/IResendOtpUseCase";
-import { HttpError } from "../../../../shared/types/HttpError";
-import { HttpStatusCode } from "../../../../shared/enums/HttpStatusCodes";
+import { IOtpService } from '../../../../shared/services/otp/interfaces/IOtpService';
+import { OtpRateLimiter } from '../../../../shared/services/otp/OtpRateLimiter';
+import { IResendOtpUseCase } from '../interfaces/IResendOtpUseCase';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 /**
  * Use case for resending OTP to a user's email.
@@ -26,20 +26,26 @@ export class ResendOtpUseCase implements IResendOtpUseCase {
    */
   async execute(email: string): Promise<void> {
     if (!email) {
-      throw new HttpError("Email is required", HttpStatusCode.BAD_REQUEST);
+      throw new HttpError('Email is required', HttpStatusCode.BAD_REQUEST);
     }
 
     const dto = await this._otpService.getTempData(email);
     if (!dto) {
-      throw new HttpError("No data found or your current data has expired", HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        'No data found or your current data has expired',
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     const ttl = await this._rateLimiter.isBlocked(email);
     if (ttl) {
-      throw new HttpError(`Please wait ${ttl} seconds before resending OTP`, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        `Please wait ${ttl} seconds before resending OTP`,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
-    await this._otpService.sendOtp(email, "", "🔁 Resend OTP - SkillByte");
+    await this._otpService.sendOtp(email, '', '🔁 Resend OTP - SkillByte');
     await this._rateLimiter.block(email, 60); // Block for 1 minute
   }
 }

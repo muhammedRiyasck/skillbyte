@@ -1,6 +1,7 @@
 import Queue from 'bull';
 
 interface JobData {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }
 
@@ -12,7 +13,6 @@ export class JobQueueService {
    */
   getQueue(queueName: string): Queue.Queue<JobData> {
     if (!this._queues.has(queueName)) {
-      console.log(`Creating queue ${queueName} with Redis URL: ${process.env.REDIS_URL}`);
       const queue = new Queue(queueName, {
         redis: process.env.REDIS_URL!,
         defaultJobOptions: {
@@ -35,7 +35,12 @@ export class JobQueueService {
   /**
    * Adds a job to the specified queue
    */
-  async addJob(queueName: string, jobName: string, data: JobData, options?: Queue.JobOptions): Promise<Queue.Job<JobData>> {
+  async addJob(
+    queueName: string,
+    jobName: string,
+    data: JobData,
+    options?: Queue.JobOptions,
+  ): Promise<Queue.Job<JobData>> {
     const queue = this.getQueue(queueName);
     return await queue.add(jobName, data, options);
   }
@@ -43,7 +48,11 @@ export class JobQueueService {
   /**
    * Processes jobs in the specified queue
    */
-  processJob(queueName: string, jobName: string, processor: (job: Queue.Job<JobData>) => Promise<void>): void {
+  processJob(
+    queueName: string,
+    jobName: string,
+    processor: (job: Queue.Job<JobData>) => Promise<void>,
+  ): void {
     const queue = this.getQueue(queueName);
     queue.process(jobName, processor);
   }
@@ -52,7 +61,9 @@ export class JobQueueService {
    * Closes all queues
    */
   async closeAll(): Promise<void> {
-    const closePromises = Array.from(this._queues.values()).map(queue => queue.close());
+    const closePromises = Array.from(this._queues.values()).map((queue) =>
+      queue.close(),
+    );
     await Promise.all(closePromises);
     this._queues.clear();
   }

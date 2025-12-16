@@ -40,7 +40,10 @@ export class InstructorProfileController {
     const instructor =
       await this._getInstructorProfileUseCase.execute(instructorId);
     if (!instructor) {
-      throw new HttpError(ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND, HttpStatusCode.NOT_FOUND);
+      throw new HttpError(
+        ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND,
+        HttpStatusCode.NOT_FOUND,
+      );
     }
     ApiResponseHelper.success(
       res,
@@ -57,8 +60,10 @@ export class InstructorProfileController {
   updateProfile = async (req: Request, res: Response): Promise<void> => {
     const AuthenticatedRequest = req as AuthenticatedRequest;
     const instructorId = AuthenticatedRequest.user.id;
-    
-    const validatedData = InstructorProfileUpdateSchema.parse(AuthenticatedRequest.body);
+
+    const validatedData = InstructorProfileUpdateSchema.parse(
+      AuthenticatedRequest.body,
+    );
     const updates = InstructorMapper.toUpdateProfileEntity(validatedData);
 
     await this._updateInstructorProfileUseCase.execute(instructorId, updates);
@@ -74,7 +79,10 @@ export class InstructorProfileController {
     const AuthenticatedRequest = req as AuthenticatedRequest;
     const file = AuthenticatedRequest.file;
     if (!file) {
-      throw new HttpError(ERROR_MESSAGES.NO_FILE_UPLOADED, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.NO_FILE_UPLOADED,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     const url = await uploadToCloudinary(file.path, {
@@ -96,7 +104,10 @@ export class InstructorProfileController {
     const instructor =
       await this._getInstructorProfileUseCase.execute(instructorId);
     if (!instructor) {
-      throw new HttpError(ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND, HttpStatusCode.NOT_FOUND);
+      throw new HttpError(
+        ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND,
+        HttpStatusCode.NOT_FOUND,
+      );
     }
 
     if (instructor.profilePictureUrl) {
@@ -113,6 +124,4 @@ export class InstructorProfileController {
     }
     ApiResponseHelper.success(res, 'Profile image removed');
   };
-
-
 }

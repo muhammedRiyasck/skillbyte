@@ -1,4 +1,3 @@
-
 import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
 import { Course } from '../../domain/entities/Course';
 import { IUpdateBaseUseCase } from '../interfaces/IUpdateBaseUseCase';
@@ -34,15 +33,20 @@ export class UpdateBaseUseCase implements IUpdateBaseUseCase {
     // Find the course to ensure it exists
     const course = await this._CourseRepo.findById(courseId);
     if (!course) {
-      throw new HttpError(ERROR_MESSAGES.COURSE_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.COURSE_NOT_FOUND,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     // Check if the instructor owns the course
     if (course.instructorId !== instructorId) {
-      throw new HttpError(ERROR_MESSAGES.UNAUTHORIZED, HttpStatusCode.FORBIDDEN);
+      throw new HttpError(
+        ERROR_MESSAGES.UNAUTHORIZED,
+        HttpStatusCode.FORBIDDEN,
+      );
     }
 
-    
     // Update the course base information
     await this._CourseRepo.updateBaseInfo(courseId, data);
   }

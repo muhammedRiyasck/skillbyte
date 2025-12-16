@@ -22,8 +22,6 @@ export class Student {
     public registeredVia: 'google' | 'local' = 'local',
     public profilePictureUrl?: string | null,
     public accountStatus: string = 'active',
-    public studentId?: string
+    public studentId?: string,
   ) {}
-
 }
-

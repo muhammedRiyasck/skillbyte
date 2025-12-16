@@ -1,6 +1,9 @@
-export function declinedInstructorEmailTemplate(name: string, reason?: string): string {
-  const rejectionReason = reason 
-    ? reason 
+export function declinedInstructorEmailTemplate(
+  name: string,
+  reason?: string,
+): string {
+  const rejectionReason = reason
+    ? reason
     : "Your application did not meet our current instructor requirements. Please review our guidelines and consider reapplying once you've updated your profile or teaching materials.";
 
   return `
@@ -55,4 +58,3 @@ export function declinedInstructorEmailTemplate(name: string, reason?: string): 
   </div>
   `;
 }
-

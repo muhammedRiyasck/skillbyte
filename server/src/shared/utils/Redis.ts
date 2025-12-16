@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 const redis = new Redis(process.env.REDIS_URL!);
 
 redis.on('connect', () => {
-  console.log('✅ Connected to Redis Cloud');
+  console.info('✅ Connected to Redis Cloud');
 });
 
 redis.on('error', (err) => {

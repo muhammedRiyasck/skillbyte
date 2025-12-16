@@ -1,10 +1,10 @@
-import { Course } from "../../domain/entities/Course";
+import { Course } from '../../domain/entities/Course';
 
-export interface IGetCourseUseCase{
- execute(
+export interface IGetCourseUseCase {
+  execute(
     courseId: string,
     role: string,
     include?: string,
     userId?: string,
-  ): Promise<Course | null>
+  ): Promise<Course | null>;
 }

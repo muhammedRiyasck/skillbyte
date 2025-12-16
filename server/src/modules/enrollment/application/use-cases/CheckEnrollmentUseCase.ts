@@ -1,12 +1,13 @@
-import { IEnrollmentRepository } from "../../domain/IEnrollmentRepository";
-import { ICheckEnrollment } from "../interfaces/ICheckEnrollment";
+import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
+import { ICheckEnrollment } from '../interfaces/ICheckEnrollment';
 
 export class CheckEnrollmentUseCase implements ICheckEnrollment {
-  
-    constructor(private enrollmentRepository: IEnrollmentRepository) {  
-    }
-    async execute(userId: string, courseId: string) {
-        const enrollment = await this.enrollmentRepository.findEnrollment(userId, courseId);
-        return enrollment;
-    }
+  constructor(private enrollmentRepository: IEnrollmentRepository) {}
+  async execute(userId: string, courseId: string) {
+    const enrollment = await this.enrollmentRepository.findEnrollment(
+      userId,
+      courseId,
+    );
+    return enrollment;
+  }
 }

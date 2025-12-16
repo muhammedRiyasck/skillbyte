@@ -58,8 +58,7 @@ export class EnrollmentRepository implements IEnrollmentRepository {
       },
       {
         $unwind: '$student',
-      }
-      ,
+      },
       {
         $project: {
           _id: 1,
@@ -128,14 +127,15 @@ export class EnrollmentRepository implements IEnrollmentRepository {
       _id: enrollmentId,
       'lessonProgress.lessonId': lessonId,
     });
-    console.log(1111)
+
     if (enrollment) {
       // Update existing
-       await EnrollmentModel.findOneAndUpdate(
+      await EnrollmentModel.findOneAndUpdate(
         { _id: enrollmentId, 'lessonProgress.lessonId': lessonId },
         {
           $set: {
-            'lessonProgress.$.lastWatchedSecond': progressData.lastWatchedSecond,
+            'lessonProgress.$.lastWatchedSecond':
+              progressData.lastWatchedSecond,
             'lessonProgress.$.totalDuration': progressData.totalDuration,
             'lessonProgress.$.isCompleted': progressData.isCompleted,
             'lessonProgress.$.lastUpdated': new Date(),
@@ -166,7 +166,9 @@ export class EnrollmentRepository implements IEnrollmentRepository {
 
     // 1. Get total lessons count for the course
     //    Find all modules for this course
-    const modules = await ModuleModel.find({ courseId: updatedEnrollment.courseId }).select('_id');
+    const modules = await ModuleModel.find({
+      courseId: updatedEnrollment.courseId,
+    }).select('_id');
     const moduleIds = modules.map((m) => m._id);
 
     //    Count all published lessons in these modules
@@ -178,35 +180,31 @@ export class EnrollmentRepository implements IEnrollmentRepository {
     });
 
     // 2. Count completed lessons in enrollment
-    const completedLessons = updatedEnrollment.lessonProgress?.filter(
-      (p: any) => p.isCompleted
-    ).length || 0;
-
-    console.log("Recalculate Progress Debug:");
-    console.log(`EnrollmentID: ${enrollmentId}, CourseID: ${updatedEnrollment.courseId}`);
-    console.log(`Module IDs: ${moduleIds.length} found`);
-    console.log(`Total Lessons (DB): ${totalLessons}`);
-    console.log(`Completed Lessons (User): ${completedLessons}`);
+    const completedLessons =
+      updatedEnrollment.lessonProgress?.filter(
+        (p: { isCompleted: boolean }) => p.isCompleted,
+      ).length || 0;
 
     // 3. Calculate percentage
-    const progressPercentage = totalLessons > 0 
-      ? Math.round((completedLessons / totalLessons) * 100) 
-      : 0;
-    
-    console.log(`Calculated Percentage: ${progressPercentage}`);
+    const progressPercentage =
+      totalLessons > 0
+        ? Math.round((completedLessons / totalLessons) * 100)
+        : 0;
 
     // 4. Update the enrollment with new progress
-    const updateData: any = { progress: progressPercentage };
-    if (progressPercentage === 100 && updatedEnrollment.status !== 'completed') {
-        updateData.status = 'completed';
-        updateData.completedAt = new Date();
+    const updateData: Record<string, unknown> = {
+      progress: progressPercentage,
+    };
+    if (
+      progressPercentage === 100 &&
+      updatedEnrollment.status !== 'completed'
+    ) {
+      updateData.status = 'completed';
+      updateData.completedAt = new Date();
     }
 
-    return await EnrollmentModel.findByIdAndUpdate(
-      enrollmentId,
-      updateData,
-      { new: true }
-    );
+    return await EnrollmentModel.findByIdAndUpdate(enrollmentId, updateData, {
+      new: true,
+    });
   }
 }
-

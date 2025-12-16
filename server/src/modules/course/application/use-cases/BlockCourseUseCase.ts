@@ -1,5 +1,5 @@
-import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
-import { IBlockCourseUseCase } from "../interfaces/IBlockCourseUseCase";
+import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
+import { IBlockCourseUseCase } from '../interfaces/IBlockCourseUseCase';
 
 export class BlockCourseUseCase implements IBlockCourseUseCase {
   constructor(private _courseRepository: ICourseRepository) {}

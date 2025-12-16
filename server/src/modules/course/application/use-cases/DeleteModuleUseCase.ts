@@ -1,10 +1,10 @@
-import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
-import { ILessonRepository } from "../../domain/IRepositories/ILessonRepository";
-import { IModuleRepository } from "../../domain/IRepositories/IModuleRepository";
-import { IDeleteModuleUseCase } from "../interfaces/IDeleteModuleUseCase";
-import { ERROR_MESSAGES } from "../../../../shared/constants/messages";
-import { HttpError } from "../../../../shared/types/HttpError";
-import { HttpStatusCode } from "../../../../shared/enums/HttpStatusCodes";
+import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
+import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
+import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
+import { IDeleteModuleUseCase } from '../interfaces/IDeleteModuleUseCase';
+import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 /**
  * Use case for deleting a module.
@@ -21,7 +21,7 @@ export class DeleteModuleUseCase implements IDeleteModuleUseCase {
   constructor(
     private _moduleRepo: IModuleRepository,
     private _lessonRepo: ILessonRepository,
-    private _courseRepo: ICourseRepository
+    private _courseRepo: ICourseRepository,
   ) {}
 
   /**
@@ -35,13 +35,19 @@ export class DeleteModuleUseCase implements IDeleteModuleUseCase {
     // Find the module to ensure it exists
     const module = await this._moduleRepo.findById(moduleId);
     if (!module) {
-      throw new HttpError(ERROR_MESSAGES.MODULE_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.MODULE_NOT_FOUND,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     // Find the associated course and verify instructor ownership
     const course = await this._courseRepo.findById(module.courseId);
     if (!course || course.instructorId !== instructorId) {
-      throw new HttpError(ERROR_MESSAGES.UNAUTHORIZED_DELETE_MODULE, HttpStatusCode.FORBIDDEN);
+      throw new HttpError(
+        ERROR_MESSAGES.UNAUTHORIZED_DELETE_MODULE,
+        HttpStatusCode.FORBIDDEN,
+      );
     }
 
     // Delete all lessons associated with the module first to avoid orphaned data

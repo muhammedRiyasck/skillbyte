@@ -1,4 +1,8 @@
-export function otpVerificationEmailTemplate(name: string, otp: string,subject?:string): string {
+export function otpVerificationEmailTemplate(
+  name: string,
+  otp: string,
+  subject?: string,
+): string {
   return `
   <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border-radius: 10px; border: 1px solid #e0e0e0;">
     <h2 style="color: #3f51b5;">Hey ${name}</h2>

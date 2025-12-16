@@ -29,24 +29,26 @@ export class LessonRepository implements ILessonRepository {
     );
   }
   async findByModuleId(moduleIds: string[]): Promise<Lesson[]> {
-    const docs = await LessonModel.find({ moduleId: { $in: moduleIds } }).sort({ order: 1 });
+    const docs = await LessonModel.find({ moduleId: { $in: moduleIds } }).sort({
+      order: 1,
+    });
     return docs.map(
       (doc) =>
         new Lesson(
-      doc.moduleId.toString(),
-      doc.title,
-      doc.description,
-      doc.contentType,
-      doc.fileName,
-      doc.order!,
-      doc.duration!,
-      doc.resources,
-      doc.isFreePreview,
-      doc.isPublished,
-      doc.isBlocked,
-      doc._id.toString(),
-      doc.createdAt,
-      doc.updatedAt,
+          doc.moduleId.toString(),
+          doc.title,
+          doc.description,
+          doc.contentType,
+          doc.fileName,
+          doc.order!,
+          doc.duration!,
+          doc.resources,
+          doc.isFreePreview,
+          doc.isPublished,
+          doc.isBlocked,
+          doc._id.toString(),
+          doc.createdAt,
+          doc.updatedAt,
         ),
     );
   }
@@ -66,8 +68,8 @@ export class LessonRepository implements ILessonRepository {
       isBlocked: lesson.isBlocked,
     });
 
-      return new Lesson(
-     doc.moduleId.toString(),
+    return new Lesson(
+      doc.moduleId.toString(),
       doc.title,
       doc.description,
       doc.contentType,
@@ -84,7 +86,10 @@ export class LessonRepository implements ILessonRepository {
     );
   }
 
-  async updateLessonById(lessonId: string, updates: Partial<Lesson>): Promise<void> {
+  async updateLessonById(
+    lessonId: string,
+    updates: Partial<Lesson>,
+  ): Promise<void> {
     await LessonModel.findByIdAndUpdate(lessonId, updates, { new: true });
   }
 
@@ -93,7 +98,7 @@ export class LessonRepository implements ILessonRepository {
     if (!doc) return null;
 
     return new Lesson(
-     doc.moduleId.toString(),
+      doc.moduleId.toString(),
       doc.title,
       doc.description,
       doc.contentType,

@@ -1,10 +1,10 @@
-import { ILessonRepository } from "../../domain/IRepositories/ILessonRepository";
-import { IModuleRepository } from "../../domain/IRepositories/IModuleRepository";
-import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
-import { IDeleteLessonUseCase } from "../interfaces/IDeleteLessonUseCase";
-import { ERROR_MESSAGES } from "../../../../shared/constants/messages";
-import { HttpError } from "../../../../shared/types/HttpError";
-import { HttpStatusCode } from "../../../../shared/enums/HttpStatusCodes";
+import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
+import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
+import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
+import { IDeleteLessonUseCase } from '../interfaces/IDeleteLessonUseCase';
+import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 /**
  * Use case for deleting a lesson.
@@ -20,7 +20,7 @@ export class DeleteLessonUseCase implements IDeleteLessonUseCase {
   constructor(
     private _lessonRepo: ILessonRepository,
     private _moduleRepo: IModuleRepository,
-    private _courseRepo: ICourseRepository
+    private _courseRepo: ICourseRepository,
   ) {}
 
   /**
@@ -34,19 +34,28 @@ export class DeleteLessonUseCase implements IDeleteLessonUseCase {
     // Find the lesson to ensure it exists
     const lesson = await this._lessonRepo.findById(lessonId);
     if (!lesson) {
-      throw new HttpError(ERROR_MESSAGES.LESSON_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.LESSON_NOT_FOUND,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     // Find the associated module to ensure it exists
     const module = await this._moduleRepo.findById(lesson.moduleId.toString());
     if (!module) {
-      throw new HttpError(ERROR_MESSAGES.MODULE_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.MODULE_NOT_FOUND,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     // Find the associated course and verify instructor ownership
     const course = await this._courseRepo.findById(module.courseId);
     if (!course || course.instructorId !== instructorId) {
-      throw new HttpError(ERROR_MESSAGES.UNAUTHORIZED_DELETE_LESSON, HttpStatusCode.FORBIDDEN);
+      throw new HttpError(
+        ERROR_MESSAGES.UNAUTHORIZED_DELETE_LESSON,
+        HttpStatusCode.FORBIDDEN,
+      );
     }
 
     // Delete the lesson

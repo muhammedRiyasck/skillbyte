@@ -10,7 +10,9 @@ const enrollmentRepo = new EnrollmentRepository();
 const createPaymentIntentUc = new CreatePaymentIntentUseCase(enrollmentRepo);
 const handleStripeWebhookUc = new HandleStripeWebhookUseCase(enrollmentRepo);
 const checkEnrollmentUc = new CheckEnrollmentUseCase(enrollmentRepo);
-const getInstructorEnrollmentsUc = new GetInstructorEnrollmentsUseCase(enrollmentRepo);
+const getInstructorEnrollmentsUc = new GetInstructorEnrollmentsUseCase(
+  enrollmentRepo,
+);
 const updateLessonProgressUc = new UpdateLessonProgress(enrollmentRepo);
 
 export const enrollmentController = new EnrollmentController(
@@ -18,5 +20,5 @@ export const enrollmentController = new EnrollmentController(
   handleStripeWebhookUc,
   checkEnrollmentUc,
   getInstructorEnrollmentsUc,
-  updateLessonProgressUc
+  updateLessonProgressUc,
 );

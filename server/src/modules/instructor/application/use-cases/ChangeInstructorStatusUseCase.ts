@@ -3,7 +3,11 @@ import { accountSuspendedEmailTemplate } from '../../../../shared/templates/Acco
 import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRepository';
 import { IChangeInstructorStatusUseCase } from '../interfaces/IChangeInstructorStatusUseCase';
 import { HttpError } from '../../../../shared/types/HttpError';
-import { EmailJobData, JOB_NAMES, QUEUE_NAMES } from '../../../../shared/services/job-queue/JobTypes';
+import {
+  EmailJobData,
+  JOB_NAMES,
+  QUEUE_NAMES,
+} from '../../../../shared/services/job-queue/JobTypes';
 import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 
@@ -11,15 +15,15 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
  * Use case for changing an instructor's status (activate or suspend).
  * Updates the instructor's status and sends a notification email accordingly.
  */
-export class ChangeInstructorStatusUseCase implements IChangeInstructorStatusUseCase {
+export class ChangeInstructorStatusUseCase
+  implements IChangeInstructorStatusUseCase
+{
   /**
    * Constructs the ChangeInstructorStatusUseCase.
    * @param repo - The instructor repository for data operations.
    * @param mailer - The mailer service for sending emails.
    */
-  constructor(
-    private _instructorRepo: IInstructorRepository
-  ) {}
+  constructor(private _instructorRepo: IInstructorRepository) {}
 
   /**
    * Executes the status change for an instructor.
@@ -29,7 +33,11 @@ export class ChangeInstructorStatusUseCase implements IChangeInstructorStatusUse
    * @param note - Optional note for the status change.
    * @throws Error if the status change or email sending fails.
    */
-  async execute(id: string, status: 'active' | 'suspend', note?: string): Promise<void> {
+  async execute(
+    id: string,
+    status: 'active' | 'suspend',
+    note?: string,
+  ): Promise<void> {
     const mappedStatus = status === 'suspend' ? 'suspended' : 'active';
     await this._instructorRepo.changeInstructorStatus(id, mappedStatus, note);
 
@@ -51,9 +59,13 @@ export class ChangeInstructorStatusUseCase implements IChangeInstructorStatusUse
     const emailData: EmailJobData = {
       to: instructor.email,
       subject: subject,
-      html: template
+      html: template,
     };
 
-    await jobQueueService.addJob(QUEUE_NAMES.EMAIL, JOB_NAMES.SEND_EMAIL, emailData);
+    await jobQueueService.addJob(
+      QUEUE_NAMES.EMAIL,
+      JOB_NAMES.SEND_EMAIL,
+      emailData,
+    );
   }
 }

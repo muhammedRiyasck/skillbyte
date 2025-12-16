@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { Module } from '../../domain/entities/Module';
 import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
 import { ICreateModuleUseCase } from '../interfaces/ICreateModuleUseCase';
+import { CreateModuleDto } from '../dtos/ModuleDtos';
 
 /**
  * Use case for creating a new module.
@@ -21,7 +22,7 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
    * @param dto - The data transfer object containing module creation details.
    * @returns A promise that resolves to the created Module entity or null if no module was created.
    */
-  async execute(dto: any): Promise<Module | null> {
+  async execute(dto: CreateModuleDto): Promise<Module | null> {
     // Check if the provided moduleId is a valid MongoDB ObjectId
     const isObjectId =
       mongoose.Types.ObjectId.isValid(dto.moduleId) &&
@@ -31,9 +32,9 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
     if (!isObjectId) {
       return await this._moduleRepo.save({
         courseId: dto.courseId,
-        title: dto.title,
-        description: dto.description,
-        order: dto.order,
+        title: dto.title!,
+        description: dto.description || '',
+        order: dto.order!,
       });
     } else {
       // If moduleId is valid, check if the module already exists
@@ -43,9 +44,9 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
       if (!isModuleExist) {
         return await this._moduleRepo.save({
           courseId: dto.courseId,
-          title: dto.title,
-          description: dto.description,
-          order: dto.order,
+          title: dto.title!,
+          description: dto.description || '',
+          order: dto.order!,
         });
       }
     }

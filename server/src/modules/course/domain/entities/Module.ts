@@ -1,4 +1,4 @@
-import { Lesson } from "./Lesson";
+import { Lesson } from './Lesson';
 
 export class Module {
   constructor(
@@ -9,6 +9,6 @@ export class Module {
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
     public moduleId?: string,
-    public lessons?: Lesson[]
+    public lessons?: Lesson[],
   ) {}
 }

@@ -1,6 +1,7 @@
-import { Instructor } from "../domain/entities/Instructor";
+import { Instructor } from '../domain/entities/Instructor';
 
 export class InstructorMapper {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static toEntity(doc: any): Instructor {
     return new Instructor(
       doc.name,
@@ -9,33 +10,33 @@ export class InstructorMapper {
       doc.subject,
       doc.jobTitle,
       doc.experience,
-      doc.socialProfile ,
+      doc.socialProfile,
       doc.portfolio,
-      doc.bio ,
+      doc.bio,
       doc.phoneNumber,
       doc.resumeUrl,
       doc.profilePictureUrl,
-      doc.isEmailVerified ,
-      doc.accountStatus ,
-      doc.approved ,
+      doc.isEmailVerified,
+      doc.accountStatus,
+      doc.approved,
       doc.suspendNote,
       doc.rejected,
       doc.rejectedNote,
       doc.doneBy,
       doc.doneAt,
-      doc.averageRating ,
-      doc.totalReviews ,
-      doc._id.toString() ,
+      doc.averageRating,
+      doc.totalReviews,
+      doc._id.toString(),
     );
   }
 
   // input
-  static toPersistence(entity: Instructor): any {
+  static toPersistence(entity: Instructor): Record<string, unknown> {
     return {
       name: entity.name,
       email: entity.email,
       passwordHash: entity.passwordHash,
-      subject:entity.subject,
+      subject: entity.subject,
       jobTitle: entity.jobTitle,
       experience: entity.experience,
       socialProfile: entity.socialProfile,

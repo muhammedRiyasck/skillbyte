@@ -15,3 +15,18 @@ export interface IInstructorEnrollment {
   enrolledAt: Date;
   progress: number;
 }
+
+export interface ICourseEnrollmentSummary {
+  courseId: string;
+  courseTitle: string;
+  courseThumbnail?: string;
+  coursePrice: number;
+  enrollments: {
+    studentId: string;
+    studentName: string;
+    studentEmail: string;
+    enrollmentDate: Date;
+    status: string;
+    progress: number;
+  }[];
+}

@@ -1,11 +1,11 @@
-import { HttpStatusCode } from "../../../../shared/enums/HttpStatusCodes";
-import { ICourseRepository } from "../../domain/IRepositories/ICourseRepository";
-import { ILessonRepository } from "../../domain/IRepositories/ILessonRepository";
-import { IModuleRepository } from "../../domain/IRepositories/IModuleRepository";
-import { Lesson } from "../../domain/entities/Lesson";
-import { ICreateLessonUseCase } from "../interfaces/ICreateLessonUseCase";
-import { ERROR_MESSAGES } from "../../../../shared/constants/messages";
-import { HttpError } from "../../../../shared/types/HttpError";
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
+import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
+import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
+import { Lesson } from '../../domain/entities/Lesson';
+import { ICreateLessonUseCase } from '../interfaces/ICreateLessonUseCase';
+import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
+import { HttpError } from '../../../../shared/types/HttpError';
 
 type WithInstructorId<T> = T & { instructorId: string };
 
@@ -37,16 +37,25 @@ export class CreateLessonUseCase implements ICreateLessonUseCase {
   async execute(dto: WithInstructorId<Lesson>): Promise<Lesson> {
     const module = await this._moduleRepo.findById(dto.moduleId);
     if (!module) {
-      throw new HttpError(ERROR_MESSAGES.MODULE_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.MODULE_NOT_FOUND,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     const course = await this._courseRepo.findById(module.courseId);
     if (!course) {
-      throw new HttpError(ERROR_MESSAGES.COURSE_NOT_FOUND, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.COURSE_NOT_FOUND,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     if (course.instructorId !== dto.instructorId) {
-      throw new HttpError(ERROR_MESSAGES.UNAUTHORIZED_ADD_LESSON, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.UNAUTHORIZED_ADD_LESSON,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     const lesson = new Lesson(

@@ -17,7 +17,7 @@ import {
   CreateBaseSchema,
   UpdateBaseSchema,
   UpdateStatusSchema,
-  PaginationQuerySchema
+  PaginationQuerySchema,
 } from '../../application/dtos/CourseDetailsDtos';
 import { CourseMapper } from '../../application/mappers/CourseMapper';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
@@ -37,7 +37,6 @@ export class CourseController {
     private _blockCourseUseCase: IBlockCourseUseCase,
   ) {}
 
-
   /**
    * Creates the base details for a new course.
    * @param req - Authenticated request object.
@@ -46,11 +45,15 @@ export class CourseController {
   createBase = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     logger.info(`Create course base attempt from IP: ${authenticatedReq.ip}`);
-    
+
     const validatedData = CreateBaseSchema.parse(authenticatedReq.body);
     const instructorId = authenticatedReq.user.id;
-    
-    const courseEntity = CourseMapper.toCreateBaseEntity(validatedData, instructorId, validatedData.thumbnail || undefined);
+
+    const courseEntity = CourseMapper.toCreateBaseEntity(
+      validatedData,
+      instructorId,
+      validatedData.thumbnail || undefined,
+    );
 
     const course = await this._createCourseUseCase.execute(courseEntity);
 
@@ -133,7 +136,7 @@ export class CourseController {
     const authenticatedReq = req as AuthenticatedRequest;
     const courseId = authenticatedReq.params.courseId;
     const instructorId = authenticatedReq.user.id;
-    
+
     // We can use UpdateBaseSchema if needed, or stick to any as it's partial updates
     const validatedData = UpdateBaseSchema.parse(authenticatedReq.body);
     const data = CourseMapper.toUpdateBaseEntity(validatedData);
@@ -172,15 +175,21 @@ export class CourseController {
   blockCourse = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const courseId = authenticatedReq.params.courseId;
-    const { isBlocked } = authenticatedReq.body; 
+    const { isBlocked } = authenticatedReq.body;
 
     // Basic validation, could add Zod schema if needed
     if (typeof isBlocked !== 'boolean') {
-       throw new HttpError("Invalid isBlocked value", HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        'Invalid isBlocked value',
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     await this._blockCourseUseCase.execute(courseId, isBlocked);
-    ApiResponseHelper.success(res, `Course ${isBlocked ? 'blocked' : 'unblocked'} successfully`);
+    ApiResponseHelper.success(
+      res,
+      `Course ${isBlocked ? 'blocked' : 'unblocked'} successfully`,
+    );
   };
 
   /**
@@ -211,46 +220,47 @@ export class CourseController {
   getPublishedCourses = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const validatedQuery = PaginationQuerySchema.parse(req.query);
-    
-    const query: any = { status: 'list' , isBlocked: false };
+
+    const query: Record<string, unknown> = { status: 'list', isBlocked: false };
     const page = validatedQuery.page || 1;
     const limit = validatedQuery.limit || 6;
-    const { category, courseLevel: level, language, search } = req.query; // Assuming validation doesn't strip extra fields unless strict
+    const { courseLevel: level, language } = req.query; // Assuming validation doesn't strip extra fields unless strict
 
     // Re-applying logic with validated query or existing logic
-    // The PaginationQuerySchema handles basic pagination. 
+    // The PaginationQuerySchema handles basic pagination.
     // Complex filters might need bigger schema or manual building as before.
-    
+
     if (validatedQuery.category) {
       query.category = { $regex: validatedQuery.category, $options: 'i' };
     }
-    
-    // Schema had 'category' but maybe not 'level' etc. 
+
+    // Schema had 'category' but maybe not 'level' etc.
     // Let's stick to using the schema for pagination and generic fields, and merge manual filters if schema is incomplete
-    
+
     if (level) {
-        query.courseLevel = { $regex: level as string, $options: 'i' };
+      query.courseLevel = { $regex: level as string, $options: 'i' };
     }
-     if (language) {
+    if (language) {
       query.language = { $regex: language as string, $options: 'i' };
     }
-    
+
     const { minPrice, maxPrice } = req.query;
     if (minPrice || maxPrice) {
-      query.price = {};
-      if (minPrice) query.price.$gte = Number(minPrice);
-      if (maxPrice) query.price.$lte = Number(maxPrice);
+      query.price = {} as Record<string, number>;
+      const priceQuery = query.price as Record<string, number>;
+      if (minPrice) priceQuery.$gte = Number(minPrice);
+      if (maxPrice) priceQuery.$lte = Number(maxPrice);
     }
 
     if (validatedQuery.search) {
-       query.$or = [
+      query.$or = [
         { title: { $regex: validatedQuery.search, $options: 'i' } },
-        { tags: { $regex: validatedQuery.search, $options: 'i' } }
+        { tags: { $regex: validatedQuery.search, $options: 'i' } },
       ];
     }
-    
+
     let sort: Record<string, 1 | -1> = { createdAt: -1 };
-     if (validatedQuery.sort) {
+    if (validatedQuery.sort) {
       const [field, dir] = validatedQuery.sort.split(':');
       if (field === 'price') {
         sort = { price: dir === 'asc' ? 1 : -1 };
@@ -269,18 +279,40 @@ export class CourseController {
     );
 
     // Check enrollment status for each course if user is a student
-    if (authenticatedReq.user && authenticatedReq.user.role === 'student' && courses && courses.data) {
+    if (
+      authenticatedReq.user &&
+      authenticatedReq.user.role === 'student' &&
+      courses &&
+      courses.data
+    ) {
       const userId = authenticatedReq.user.id;
-      
-      const courseIds = courses.data.map((course: any) => course._id);
-      const enrollments = await this._enrollmentRepository.findEnrollmentsForUser(userId, courseIds);
-      
-      const enrolledCourseIdSet = new Set(enrollments.map(e => e.courseId.toString()));
+      // Use explicit casting or any only where necessary. course is Course entity.
+      const courseIds = courses.data
+        .map((course) => course.courseId || (course as { _id?: string })._id)
+        .filter((id): id is string => !!id);
+      const enrollments =
+        await this._enrollmentRepository.findEnrollmentsForUser(
+          userId,
+          courseIds,
+        );
 
-      courses.data = courses.data.map((course: any) => ({
+      const enrolledCourseIdSet = new Set(
+        enrollments.map((e) => e.courseId.toString()),
+      );
+
+      // Create a new data array with isEnrolled property
+      const coursesWithEnrollment = courses.data.map((course) => ({
         ...course,
-        isEnrolled: enrolledCourseIdSet.has(course._id.toString())
+        isEnrolled: enrolledCourseIdSet.has(
+          (course.courseId || (course as { _id?: string })._id)?.toString() ||
+            '',
+        ),
       }));
+
+      ApiResponseHelper.success(res, 'Courses retrieved successfully', {
+        courses: { ...courses, data: coursesWithEnrollment },
+      });
+      return;
     }
 
     ApiResponseHelper.success(res, 'Courses retrieved successfully', {
@@ -288,16 +320,19 @@ export class CourseController {
     });
   };
 
-    /**
+  /**
    * Retrieves all unique categories from courses.
    * @param req - Request object.
    * @param res - Express response object.
    */
   getCategories = async (req: Request, res: Response): Promise<void> => {
     const categories = await this._getCategoriesUseCase.execute();
-    ApiResponseHelper.success(res, 'Categories retrieved successfully', categories);
+    ApiResponseHelper.success(
+      res,
+      'Categories retrieved successfully',
+      categories,
+    );
   };
-
 
   /**
    * Retrieves courses for the authenticated instructor with optional status filtering, pagination, and sorting.
@@ -312,23 +347,24 @@ export class CourseController {
     const status = validatedQuery.status;
     const page = validatedQuery.page || 1;
     const limit = validatedQuery.limit || 6;
-    let query: Record<string, any> = { instructorId };
+    const query: Record<string, unknown> = { instructorId };
 
     // Filter by status if provided
-    if (status) { // Assuming schema allows status strings
-         if (status === 'Drafted Courses') {
-            query.status = 'draft';
-        } else if (status === 'Listed Courses') {
-            query.status = 'list';
-        } else if (status === 'Unlisted Courses') {
-            query.status = 'unlist';
-        }
+    if (status) {
+      // Assuming schema allows status strings
+      if (status === 'Drafted Courses') {
+        query.status = 'draft';
+      } else if (status === 'Listed Courses') {
+        query.status = 'list';
+      } else if (status === 'Unlisted Courses') {
+        query.status = 'unlist';
+      }
     }
 
     let sort: Record<string, 1 | -1> = { createdAt: -1 };
     if (validatedQuery.sort) {
-       const [field, dir] = validatedQuery.sort.split(':');
-       sort = { [field]: dir === 'asc' ? 1 : -1 };
+      const [field, dir] = validatedQuery.sort.split(':');
+      sort = { [field]: dir === 'asc' ? 1 : -1 };
     }
 
     const courses = await this._getPaginatedCoursesUseCase.execute(
@@ -347,30 +383,29 @@ export class CourseController {
    * @param res - Express response object.
    */
   getAllCourses = async (req: Request, res: Response): Promise<void> => {
-     const authenticatedReq = req as AuthenticatedRequest;
-     const validatedQuery = PaginationQuerySchema.parse(authenticatedReq.query);
+    const authenticatedReq = req as AuthenticatedRequest;
+    const validatedQuery = PaginationQuerySchema.parse(authenticatedReq.query);
 
     const status = validatedQuery.status;
     const page = validatedQuery.page || 1;
     const limit = validatedQuery.limit || 6;
-    let query: Record<string, string> = {};
+    const query: Record<string, string> = {};
 
     // Filter by status if provided
     if (status) {
-        if (status === 'Drafted Courses') {
-            query.status = 'draft';
-          } else if (status === 'Listed Courses') {
-            query.status = 'list';
-          } else if (status === 'Unlisted Courses') {
-            query.status = 'unlist';
-          }
+      if (status === 'Drafted Courses') {
+        query.status = 'draft';
+      } else if (status === 'Listed Courses') {
+        query.status = 'list';
+      } else if (status === 'Unlisted Courses') {
+        query.status = 'unlist';
+      }
     }
-    console.log('Query Status:', query.status);
 
     let sort: Record<string, 1 | -1> = { createdAt: -1 };
     if (validatedQuery.sort) {
-       const [field, dir] = validatedQuery.sort.split(':');
-       sort = { [field]: dir === 'asc' ? 1 : -1 };
+      const [field, dir] = validatedQuery.sort.split(':');
+      sort = { [field]: dir === 'asc' ? 1 : -1 };
     }
 
     const courses = await this._getPaginatedCoursesUseCase.execute(
@@ -378,8 +413,7 @@ export class CourseController {
       page,
       limit,
       sort,
-    );   
-    console.log(courses,'courses')
+    );
     ApiResponseHelper.success(res, 'Courses retrieved successfully', {
       courses,
     });

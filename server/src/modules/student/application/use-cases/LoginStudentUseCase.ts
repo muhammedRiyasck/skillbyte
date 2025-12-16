@@ -1,4 +1,3 @@
-
 import { generateRefreshToken } from '../../../../shared/utils/RefreshToken';
 import { generateAccessToken } from '../../../../shared/utils/AccessToken';
 import { IStudentRepository } from '../../domain/IRepositories/IStudentRepository';
@@ -35,22 +34,37 @@ export class LoginStudentUseCase implements ILoginStudentUseCase {
     const student = await this._studentRepo.findByEmail(email);
 
     if (!student) {
-      throw new HttpError(ERROR_MESSAGES.INVALID_CREDENTIALS, HttpStatusCode.UNAUTHORIZED);
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_CREDENTIALS,
+        HttpStatusCode.UNAUTHORIZED,
+      );
     }
 
     const isMatch = await bcrypt.compare(password, student.passwordHash);
     if (!isMatch) {
-      throw new HttpError(ERROR_MESSAGES.INVALID_CREDENTIALS, HttpStatusCode.UNAUTHORIZED);
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_CREDENTIALS,
+        HttpStatusCode.UNAUTHORIZED,
+      );
     }
 
     const isBlocked = student.accountStatus !== 'active';
 
     if (isBlocked) {
-      throw new HttpError(ERROR_MESSAGES.ACCOUNT_BLOCKED, HttpStatusCode.FORBIDDEN);
+      throw new HttpError(
+        ERROR_MESSAGES.ACCOUNT_BLOCKED,
+        HttpStatusCode.FORBIDDEN,
+      );
     }
 
-    const accessToken = generateAccessToken({ id: student.studentId, role: 'student' });
-    const refreshToken = generateRefreshToken({ id: student.studentId, role: 'student' });
+    const accessToken = generateAccessToken({
+      id: student.studentId,
+      role: 'student',
+    });
+    const refreshToken = generateRefreshToken({
+      id: student.studentId,
+      role: 'student',
+    });
     return { user: student, accessToken, refreshToken };
   }
 }

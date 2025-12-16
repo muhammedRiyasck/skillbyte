@@ -1,25 +1,31 @@
-import { Request, Response } from "express";
-import { GetObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { Request, Response } from 'express';
+import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { s3, updateCors } from '../../../../shared/config/backblaze/S3Client';
-import { ICreateLessonUseCase } from "../../application/interfaces/ICreateLessonUseCase";
-import { IUpdateLessonUseCase } from "../../application/interfaces/IUpdateLessonUseCase";
-import { IDeleteLessonUseCase } from "../../application/interfaces/IDeleteLessonUseCase";
-import { IBlockLessonUseCase } from "../../application/interfaces/IBlockLessonUseCase";
-import { IGetLessonPlayUrlUseCase } from "../../application/interfaces/IGetLessonPlayUrlUseCase";
+import { ICreateLessonUseCase } from '../../application/interfaces/ICreateLessonUseCase';
+import { IUpdateLessonUseCase } from '../../application/interfaces/IUpdateLessonUseCase';
+import { IDeleteLessonUseCase } from '../../application/interfaces/IDeleteLessonUseCase';
+import { IBlockLessonUseCase } from '../../application/interfaces/IBlockLessonUseCase';
+import { IGetLessonPlayUrlUseCase } from '../../application/interfaces/IGetLessonPlayUrlUseCase';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
-import { CreateLessonSchema, GetUploadUrlSchema, GetVideoSignedUrlsSchema, BlockLessonSchema, UpdateLessonSchema } from "../../application/dtos/LessonDtos";
-import { LessonMapper } from "../../application/mappers/LessonMapper";
+import {
+  CreateLessonSchema,
+  GetUploadUrlSchema,
+  GetVideoSignedUrlsSchema,
+  BlockLessonSchema,
+  UpdateLessonSchema,
+} from '../../application/dtos/LessonDtos';
+import { LessonMapper } from '../../application/mappers/LessonMapper';
 import logger from '../../../../shared/utils/Logger';
 
 export class LessonController {
   constructor(
     private _createUseCase: ICreateLessonUseCase,
     private _updateUseCase: IUpdateLessonUseCase,
-    private _blockUseCase : IBlockLessonUseCase,
+    private _blockUseCase: IBlockLessonUseCase,
     private _deleteUseCase: IDeleteLessonUseCase,
-    private _getLessonPlayUrlUseCase: IGetLessonPlayUrlUseCase
+    private _getLessonPlayUrlUseCase: IGetLessonPlayUrlUseCase,
   ) {}
 
   /**
@@ -28,17 +34,22 @@ export class LessonController {
    * @param res - Express response object.
    */
   createLesson = async (req: Request, res: Response): Promise<void> => {
-     const authenticatedReq = req as AuthenticatedRequest; 
+    const authenticatedReq = req as AuthenticatedRequest;
     logger.info(`Create lesson attempt from IP: ${req.ip}`);
 
     const instructorId = authenticatedReq.user.id;
     const validatedData = CreateLessonSchema.parse(authenticatedReq.body);
-    const lessonEntity = LessonMapper.toCreateEntity(validatedData, instructorId);
+    const lessonEntity = LessonMapper.toCreateEntity(
+      validatedData,
+      instructorId,
+    );
 
     const data = await this._createUseCase.execute(lessonEntity);
 
-    logger.info(`Lesson created successfully for module ${validatedData.moduleId}`);
-    ApiResponseHelper.created(res, "Lesson created successfully.", data);
+    logger.info(
+      `Lesson created successfully for module ${validatedData.moduleId}`,
+    );
+    ApiResponseHelper.created(res, 'Lesson created successfully.', data);
   };
 
   /**
@@ -47,12 +58,12 @@ export class LessonController {
    * @param res - Express response object.
    */
   getUploadUrl = async (req: Request, res: Response): Promise<void> => {
-     const authenticatedReq = req as AuthenticatedRequest;
+    const authenticatedReq = req as AuthenticatedRequest;
     logger.info(`Get upload URL attempt from IP: ${req.ip}`);
 
     const validatedData = GetUploadUrlSchema.parse(authenticatedReq.body);
     const { fileName } = validatedData;
-    
+
     // ... logic mostly same but fileName is validated ...
 
     const command = new PutObjectCommand({
@@ -65,7 +76,10 @@ export class LessonController {
     const publicUrl = `${process.env.B2_S3_ENDPOINT}/${encodeURIComponent(fileName)}`;
     updateCors();
     logger.info(`Upload URL generated for file ${fileName}`);
-    ApiResponseHelper.success(res, "Upload URL generated successfully", { signedUrl, publicUrl });
+    ApiResponseHelper.success(res, 'Upload URL generated successfully', {
+      signedUrl,
+      publicUrl,
+    });
   };
 
   /**
@@ -74,7 +88,7 @@ export class LessonController {
    * @param res - Express response object.
    */
   getVideoSignedUrls = async (req: Request, res: Response): Promise<void> => {
-      const authenticatedReq = req as AuthenticatedRequest;
+    const authenticatedReq = req as AuthenticatedRequest;
     logger.info(`Get video signed URLs attempt from IP: ${req.ip}`);
 
     const validatedData = GetVideoSignedUrlsSchema.parse(authenticatedReq.body);
@@ -86,12 +100,12 @@ export class LessonController {
           Bucket: process.env.B2_S3_BUCKET,
           Key: fileName,
         });
-        const url = await getSignedUrl(s3, command, { expiresIn: 60*5  }); // 60*30 = 30minutes
+        const url = await getSignedUrl(s3, command, { expiresIn: 60 * 5 }); // 60*30 = 30minutes
         return { fileName, url };
-      })
+      }),
     );
     logger.info(`Signed URLs generated for ${fileNames.length} files`);
-    ApiResponseHelper.success(res, "Signed URLs generated successfully", urls);
+    ApiResponseHelper.success(res, 'Signed URLs generated successfully', urls);
   };
 
   /**
@@ -101,7 +115,7 @@ export class LessonController {
    */
   updateLesson = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Update lesson attempt from IP: ${req.ip}`);
-     const authenticatedReq = req as AuthenticatedRequest;
+    const authenticatedReq = req as AuthenticatedRequest;
     const lessonId = authenticatedReq.params.lessonId;
     const instructorId = authenticatedReq.user.id;
     // can validate updates if schema is strict, or use record
@@ -109,7 +123,7 @@ export class LessonController {
 
     await this._updateUseCase.execute(lessonId, instructorId, updates);
     logger.info(`Lesson ${lessonId} updated successfully`);
-    ApiResponseHelper.success(res, "Lesson updated successfully");
+    ApiResponseHelper.success(res, 'Lesson updated successfully');
   };
 
   /**
@@ -126,7 +140,7 @@ export class LessonController {
 
     await this._deleteUseCase.execute(lessonId, instructorId);
     logger.info(`Lesson ${lessonId} deleted successfully`);
-    ApiResponseHelper.success(res, "Lesson deleted successfully.");
+    ApiResponseHelper.success(res, 'Lesson deleted successfully.');
   };
 
   /**
@@ -143,8 +157,14 @@ export class LessonController {
     const { isBlocked } = validatedData;
 
     const lesson = await this._blockUseCase.execute(lessonId, isBlocked);
-    logger.info(`Lesson ${lessonId} ${isBlocked ? 'blocked' : 'unblocked'} successfully`);
-    ApiResponseHelper.success(res, `Lesson ${isBlocked ? 'blocked' : 'unblocked'} successfully`, lesson);
+    logger.info(
+      `Lesson ${lessonId} ${isBlocked ? 'blocked' : 'unblocked'} successfully`,
+    );
+    ApiResponseHelper.success(
+      res,
+      `Lesson ${isBlocked ? 'blocked' : 'unblocked'} successfully`,
+      lesson,
+    );
   };
 
   /**
@@ -161,9 +181,15 @@ export class LessonController {
     const userId = authenticatedReq.user.id;
     const role = authenticatedReq.user.role;
 
-    const { signedUrl } = await this._getLessonPlayUrlUseCase.execute(userId, lessonId, role);
-    
+    const { signedUrl } = await this._getLessonPlayUrlUseCase.execute(
+      userId,
+      lessonId,
+      role,
+    );
+
     logger.info(`Lesson play URL generated for lesson ${lessonId}`);
-    ApiResponseHelper.success(res, "Play URL generated successfully", { signedUrl });
+    ApiResponseHelper.success(res, 'Play URL generated successfully', {
+      signedUrl,
+    });
   };
 }

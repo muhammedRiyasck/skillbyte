@@ -11,7 +11,12 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { getBackblazeSignedUrl } from '../../../../shared/utils/Backblaze';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
-import { AdminInstructorPaginationSchema, ApproveInstructorSchema, DeclineInstructorSchema, ChangeInstructorStatusSchema } from '../../application/dtos/AdminInstructorDtos';
+import {
+  AdminInstructorPaginationSchema,
+  ApproveInstructorSchema,
+  DeclineInstructorSchema,
+  ChangeInstructorStatusSchema,
+} from '../../application/dtos/AdminInstructorDtos';
 import { AdminInstructorMapper } from '../../application/mappers/AdminInstructorMapper';
 
 /**
@@ -65,7 +70,9 @@ export class AdminInstructorController {
    */
   approve = async (req: Request, res: Response): Promise<void> => {
     const AuthenticatedRequest = req as AuthenticatedRequest;
-    const validatedData = ApproveInstructorSchema.parse(AuthenticatedRequest.body);
+    const validatedData = ApproveInstructorSchema.parse(
+      AuthenticatedRequest.body,
+    );
     const adminId = AuthenticatedRequest.user.id;
 
     await this._approveUC.execute(validatedData.instructorId, adminId);
@@ -79,11 +86,19 @@ export class AdminInstructorController {
    */
   decline = async (req: Request, res: Response): Promise<void> => {
     const AuthenticatedRequest = req as AuthenticatedRequest;
-    const validatedData = DeclineInstructorSchema.parse(AuthenticatedRequest.body);
+    const validatedData = DeclineInstructorSchema.parse(
+      AuthenticatedRequest.body,
+    );
     const adminId = AuthenticatedRequest.user.id;
 
-    await this._declineUC.execute(validatedData.instructorId, adminId, validatedData.reason);
-    ApiResponseHelper.success(res, 'Instructor declined', { note: validatedData.reason });
+    await this._declineUC.execute(
+      validatedData.instructorId,
+      adminId,
+      validatedData.reason,
+    );
+    ApiResponseHelper.success(res, 'Instructor declined', {
+      note: validatedData.reason,
+    });
   };
 
   /**
@@ -98,7 +113,11 @@ export class AdminInstructorController {
     const { instructorId } = req.params;
     const validatedData = ChangeInstructorStatusSchema.parse(req.body);
 
-    await this._changeStatusUC.execute(instructorId, validatedData.status, validatedData.reason);
+    await this._changeStatusUC.execute(
+      instructorId,
+      validatedData.status,
+      validatedData.reason,
+    );
     ApiResponseHelper.success(
       res,
       `Instructor account status changed to ${validatedData.status}`,
@@ -164,6 +183,7 @@ export class AdminInstructorController {
     );
     res.setHeader('Content-Disposition', 'inline');
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const nodeStream = Readable.fromWeb(fileResponse.body as any);
     nodeStream.pipe(res);
   };

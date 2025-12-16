@@ -12,7 +12,7 @@ export class ModuleMapper {
     };
   }
 
-  static toUpdateEntity(dto: any) {
+  static toUpdateEntity(dto: Record<string, unknown>) {
     return dto;
   }
 }

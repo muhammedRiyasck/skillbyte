@@ -1,7 +1,12 @@
-import { Instructor } from "../../domain/entities/Instructor";
-import { PaginatedResult } from "../../../../shared/types/PaginationType";
+import { Instructor } from '../../domain/entities/Instructor';
+import { PaginatedResult } from '../../../../shared/types/PaginationType';
 type GetPaginatedInstructors<T = Instructor> = PaginatedResult<T>;
 
 export interface IlistInstructorsUC {
-  execute(query:Object,page:number,limit:number,sort:Record<string, 1 | -1>): Promise<GetPaginatedInstructors | null>
+  execute(
+    query: object,
+    page: number,
+    limit: number,
+    sort: Record<string, 1 | -1>,
+  ): Promise<GetPaginatedInstructors | null>;
 }

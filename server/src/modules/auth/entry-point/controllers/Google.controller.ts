@@ -10,41 +10,52 @@ export class GoogleController {
       scope: ['profile', 'email'],
       state: state,
     })(req, res, next);
-    console.log(1)
   }
 
-  static googleCallback(req: Request, res: Response,next: NextFunction) {
-    console.log(2);
+  static googleCallback(req: Request, res: Response, next: NextFunction) {
     passport.authenticate(
       'google',
-      { failureRedirect: '/auth/'},
-      (err, userr, info) => {
+      { failureRedirect: '/auth/' },
+      (
+        err: Error | null,
+        userr:
+          | {
+              user: { studentId: string; name: string; email: string };
+              role: string;
+            }
+          | false,
+        info: { message?: string } | undefined,
+      ) => {
         if (err || !userr) {
-          const errorMessage = err?.message || info?.message || 'Authentication failed';
-          return res.redirect(`${process.env.SUCCESS_REDIRECT!}/?error=${encodeURIComponent(errorMessage)}`);
+          const errorMessage =
+            err?.message || info?.message || 'Authentication failed';
+          return res.redirect(
+            `${process.env.SUCCESS_REDIRECT!}/?error=${encodeURIComponent(errorMessage)}`,
+          );
         }
-          console.log(5)
-          const { user, role } = userr;
-          req.user = user
-          const accessToken = generateAccessToken({ id: user.studentId, role });
-          const refreshToken = generateRefreshToken({ id: user.studentId, role });
-          res.cookie('access_token', accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 15 * 60 * 1000, // 15 minutes
-          });
 
-          res.cookie('refresh_token', refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-          });
+        const { user, role } = userr;
+        req.user = user;
+        const accessToken = generateAccessToken({ id: user.studentId, role });
+        const refreshToken = generateRefreshToken({ id: user.studentId, role });
+        res.cookie('access_token', accessToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 15 * 60 * 1000, // 15 minutes
+        });
 
-          res.status(302).redirect(`${process.env.SUCCESS_REDIRECT!}/oauth-success`);
-        
+        res.cookie('refresh_token', refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        });
+
+        res
+          .status(302)
+          .redirect(`${process.env.SUCCESS_REDIRECT!}/oauth-success`);
       },
-    )(req, res , next);
+    )(req, res, next);
   }
 }
