@@ -224,18 +224,11 @@ export class CourseController {
     const query: Record<string, unknown> = { status: 'list', isBlocked: false };
     const page = validatedQuery.page || 1;
     const limit = validatedQuery.limit || 6;
-    const { courseLevel: level, language } = req.query; // Assuming validation doesn't strip extra fields unless strict
-
-    // Re-applying logic with validated query or existing logic
-    // The PaginationQuerySchema handles basic pagination.
-    // Complex filters might need bigger schema or manual building as before.
-
+    const {  level, language } = req.query; 
+ 
     if (validatedQuery.category) {
       query.category = { $regex: validatedQuery.category, $options: 'i' };
     }
-
-    // Schema had 'category' but maybe not 'level' etc.
-    // Let's stick to using the schema for pagination and generic fields, and merge manual filters if schema is incomplete
 
     if (level) {
       query.courseLevel = { $regex: level as string, $options: 'i' };
@@ -270,7 +263,7 @@ export class CourseController {
         sort = { [field]: dir === 'asc' ? 1 : -1 };
       }
     }
-
+    console.log('Final query object:', query);
     const courses = await this._getPaginatedCoursesUseCase.execute(
       query,
       page,
