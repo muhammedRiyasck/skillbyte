@@ -16,6 +16,8 @@ import { getCourseDetails } from "../services/CourseDetails";
 import { updateBase, uploadThumbnail, deleteCourse } from "../services/CourseBase";
 
 import { QueryClient } from "@tanstack/react-query";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/core/store/Index";
 const queryClient = new QueryClient();
 
 type FormData = {
@@ -34,6 +36,8 @@ type FormData = {
   thumbnailUrl?: string;
 };
 
+const Category = ["Marketing", "Programming", "Designing", "Business", "Other"];
+
 const CreateCourse = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -43,6 +47,8 @@ const CreateCourse = () => {
   const [thumbnail, setThumbnail] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [originalData, setOriginalData] = useState<FormData | null>(null);
+
+  const email = useSelector((state: RootState) => state.auth.user?.email);
 
   const {
     handleSubmit,
@@ -88,12 +94,11 @@ const CreateCourse = () => {
   });
 
   const watchedCategory = watch("category");
+  const category = watch("category");
 
   if (watchedCategory !== "Other") {
     setValue("customCategory", "");
   }
-
-  const Category = ["Marketing", "Programming", "Designing", "Business", "Other"];
 
   const Levels = [
     "Beginner",
@@ -158,7 +163,7 @@ const CreateCourse = () => {
           toast.error("Failed to load course data");
         });
     }
-  }, [location.state, setValue, getValues]);
+  }, [location.state, setValue, getValues, courseId]);
 
   const createCourse = useCreateCourse();
 
@@ -227,8 +232,10 @@ const CreateCourse = () => {
       setSpining(true);
       await deleteCourse(courseId);
       toast.success("Course deleted successfully!");
+      queryClient.invalidateQueries({ queryKey: ['courses', category, page, email] });
       navigate(`${ROUTES.instructor.myCourses}?page=${page}`);
-      queryClient.invalidateQueries({ queryKey: ['instructorCourses'] });
+    
+      
     } catch (error: unknown) {
       if (error instanceof Error) {
         toast.error(error.message || "Failed to delete course");

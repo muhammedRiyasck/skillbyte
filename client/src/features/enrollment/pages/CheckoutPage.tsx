@@ -15,6 +15,7 @@ export const CheckoutPage: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [course, setCourse] = useState<any | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -33,8 +34,9 @@ export const CheckoutPage: React.FC = () => {
         ]);
         setClientSecret(paymentData.clientSecret);
         setCourse(courseData.data);
-      } catch (error: any) {
-        toast.error(error.message || "Failed to initialize checkout");
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Failed to initialize checkout";
+        toast.error(message);
       } finally {
         setIsLoading(false);
       }

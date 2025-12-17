@@ -40,9 +40,9 @@ const AdminCourses: React.FC = () => {
 
   const handleBlockChange = (courseId: string, isBlocked?: boolean) => {
     // Update the local state by modifying the cached data
-    queryClient.setQueryData(['courses', selectedStatus, page,email ], (oldData: any) => {
+    queryClient.setQueryData(['courses', selectedStatus, page,email ], (oldData: { data: { courses: { data: Array<{_id: string; isBlocked?: boolean}> } } } | undefined) => {
       if (!oldData) return oldData;
-      const updatedCourses = oldData.data.courses.data.map((course: {_id: string; isBlocked: boolean;}
+      const updatedCourses = oldData.data.courses.data.map((course: {_id: string; isBlocked?: boolean;}
 ) =>
         course._id === courseId ? { ...course, isBlocked } : course
       );
@@ -50,7 +50,10 @@ const AdminCourses: React.FC = () => {
         ...oldData,
         data: {
           ...oldData.data,
-          ...oldData.data.courses.data = updatedCourses
+          courses: {
+            ...oldData.data.courses,
+            data: updatedCourses
+          }
         }
       };
     });

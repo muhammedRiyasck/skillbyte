@@ -57,7 +57,7 @@ export default function ModuleItem({ courseId, module, order, moduleLength, setM
       updateModuleState({
         ...(Module?.data ? Module.data : module),
         lessons: [
-          ...module?.lessons,
+          ...(module?.lessons || []),
           !/^\d{13,}$/.test(module.moduleId) && {
             lessonId: Date.now().toString(),
             title: "",
@@ -70,7 +70,7 @@ export default function ModuleItem({ courseId, module, order, moduleLength, setM
       // Invalidate the queries to refetch fresh data
       queryClient.invalidateQueries({ queryKey: ["modulesAndLesson", courseId, "modules,lessons"] });
     }
-  }, [module, courseId, order, updateModule, queryClient]);
+  }, [module, courseId, order, updateModuleState, queryClient]);
 
   const handleEditDiscard = useCallback(
     (moduleId: string) => {
@@ -100,7 +100,7 @@ export default function ModuleItem({ courseId, module, order, moduleLength, setM
       // Invalidate the queries to refetch fresh data
       queryClient.invalidateQueries({ queryKey: ["modulesAndLesson", courseId, "modules,lessons"] });
     }
-  }, [module, updateModule, queryClient, courseId]);
+  }, [module, queryClient, courseId]);
 
   const removeModule = useCallback(
     (moduleId: string) => {

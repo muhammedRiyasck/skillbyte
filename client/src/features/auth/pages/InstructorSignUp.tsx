@@ -174,7 +174,7 @@ export default function InstructorSignup() {
 
         {isReapply && reapplyUserData && (
              <div className="mt-4 p-3 bg-indigo-50 dark:bg-gray-700 rounded-md text-sm text-center">
-                <span className="font-semibold text-indigo-700 dark:text-indigo-300">Application for:</span> {reapplyUserData.fullName || (reapplyUserData as any).name} <br/>
+                <span className="font-semibold text-indigo-700 dark:text-indigo-300">Application for:</span> {reapplyUserData.fullName || ('name' in reapplyUserData ? reapplyUserData.name as string : '')} <br/>
                 <span className="text-gray-500 dark:text-gray-400">({reapplyUserData.email})</span>
              </div>
         )}

@@ -226,7 +226,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ lessonId, onClose, title, e
     if(e.key === "ArrowUp") {
       e.preventDefault();
       if (videoRef.current) {
-        let newVolume = Math.min(videoRef.current.volume + 0.1, 1);
+        const newVolume = Math.min(videoRef.current.volume + 0.1, 1);
         videoRef.current.volume = newVolume;
         setVolume(newVolume);
       }
@@ -235,7 +235,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ lessonId, onClose, title, e
     if(e.key === "ArrowDown") {
       e.preventDefault();
       if (videoRef.current) {
-        let newVolume = Math.max(videoRef.current.volume - 0.1, 0);
+        const newVolume = Math.max(videoRef.current.volume - 0.1, 0);
         videoRef.current.volume = newVolume;
         setVolume(newVolume);
         setIsMuted(newVolume === 0);

@@ -38,7 +38,7 @@ const Dashboard: React.FC = () => {
       const data = await getInstructorEnrollments();
       console.log(data,'enrollment data');
       setEnrollments(data.enrollments);
-    } catch (err) {
+    } catch {
       setError('Failed to load enrollment data');
       toast.error('Failed to load enrollment data');
     } finally {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import default_profile from '@assets/default_profile.svg';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -63,14 +63,14 @@ const CourseDetails: React.FC = () => {
 
   const course = courseData?.data;
 
-  const blockedLessonIds = course?.modules?.flatMap((mod: ModuleType) => 
+  const blockedLessonIds = useMemo(() => course?.modules?.flatMap((mod: ModuleType) =>
     mod.lessons?.filter((les: LessonType) => les.isBlocked).map((les: LessonType) => les.lessonId) || []
-  ) || [];
+  ) || [], [course?.modules]);
 
 
   React.useEffect(() => {
     setBlockedLessons(new Set(blockedLessonIds));
-  }, [course?.title]);
+  }, [blockedLessonIds]);
 
 
   const isEnrolled = enrollmentData?.isEnrolled || false;
@@ -171,7 +171,7 @@ const CourseDetails: React.FC = () => {
     : null;
 
   const currentLessonProgress = enrollmentData?.enrollment?.lessonProgress?.find(
-    (p: any) => p.lessonId === currentLessonId
+    (p: { lessonId: string; lastWatchedSecond: number }) => p.lessonId === currentLessonId
   );
   
   const initialProgress = currentLessonProgress?.lastWatchedSecond || 0;
@@ -437,7 +437,7 @@ const CourseDetails: React.FC = () => {
                                       className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2"
                                     >
                                       <Play className="w-4 h-4" />
-                                      {(enrollmentData?.enrollment?.lessonProgress?.find((p:any) => p.lessonId === lesson.lessonId)?.lastWatchedSecond || 0) > 0 ? 'Resume' : 'Watch'}
+                                      {(enrollmentData?.enrollment?.lessonProgress?.find((p: { lessonId: string; lastWatchedSecond: number }) => p.lessonId === lesson.lessonId)?.lastWatchedSecond || 0) > 0 ? 'Resume' : 'Watch'}
                                     </button>
                                   )}
                                   {role === 'admin' && (
@@ -451,7 +451,7 @@ const CourseDetails: React.FC = () => {
                               </div>
                               {/* Progress Bar for Enrolled Students */}
                               {role === 'student' && isEnrolled && (function() {
-                                  const prog = enrollmentData?.enrollment?.lessonProgress?.find((p:any) => p.lessonId === lesson.lessonId);
+                                  const prog = enrollmentData?.enrollment?.lessonProgress?.find((p: { lessonId: string; lastWatchedSecond: number; totalDuration: number; isCompleted: boolean }) => p.lessonId === lesson.lessonId);
                                   const pct = prog ? Math.min(100, Math.max(0, (prog.lastWatchedSecond / (prog.totalDuration || lesson.duration || 1)) * 100)) : 0;
                                   // Only show progress bar if there is some progress or it's completed
                                   if (!prog && pct === 0) return null;

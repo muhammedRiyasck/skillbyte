@@ -4,6 +4,7 @@ import { useFieldArray, Controller } from "react-hook-form";
 import type { Control } from "react-hook-form";
 
 type DynamicFieldProps = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<any>;
   name: string;
   placeholder: string;

@@ -10,14 +10,14 @@ interface CourseFiltersProps {
     sort: string;
     search: string;
   };
-  setFilters: (filters: any) => void;
+  setFilters: (filters: (prev: CourseFiltersProps['filters']) => CourseFiltersProps['filters']) => void;
   categories: string[];
 }
 
 const CourseFilters: React.FC<CourseFiltersProps> = ({ filters, setFilters, categories }) => {
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFilters((prev: any) => ({ ...prev, [name]: value }));
+    setFilters((prev) => ({ ...prev, [name]: value }));
   }, [setFilters]);
 
   const handleSearchChange = useCallback((value: string) => {

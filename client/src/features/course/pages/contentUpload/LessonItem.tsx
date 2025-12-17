@@ -65,12 +65,12 @@ export default function LessonItem({ lesson, courseId, moduleId, order, setModul
     [moduleId, lesson.lessonId, setModules]
   );
 
-  const removeLesson = (moduleId: string, lessonId: string) =>
+  const removeLesson = useCallback((moduleId: string, lessonId: string) =>
     setModules((prev) =>
       prev.map((m) =>
         m.moduleId === moduleId ? { ...m, lessons: m.lessons.filter((l) => l.lessonId !== lessonId) } : m
       )
-    );
+    ), [setModules]);
 
   const showVideoPrev = async (file: File) => {
     const url = URL.createObjectURL(file);
@@ -132,7 +132,7 @@ export default function LessonItem({ lesson, courseId, moduleId, order, setModul
     return () => {
       if (prevURLRef.current) URL.revokeObjectURL(prevURLRef.current);
     };
-  }, [lesson.signedVideoUrl]);
+  }, [lesson.signedVideoUrl, prevURL]);
 
   React.useEffect(() => {
     if (JSON.stringify(lesson.resources) !== JSON.stringify(watchedResources)) {
@@ -147,7 +147,7 @@ export default function LessonItem({ lesson, courseId, moduleId, order, setModul
     });
     setEditLesson({ disable: true, initial: false, prevState: { lessonTitle: "", lessonDescription: "" } });
     setErrors({});
-  }, [editModule.prevState, setModules]);
+  }, [editModule.prevState, updateLessonState]);
 
   const handleChange = useCallback(async () => {
     const validationErrors = validateLesson({
@@ -168,7 +168,7 @@ export default function LessonItem({ lesson, courseId, moduleId, order, setModul
       // Invalidate the queries to refetch fresh data
       queryClient.invalidateQueries({ queryKey: ["modulesAndLesson", courseId, "modules,lessons"] });
     }
-  }, [lesson, watchedResources, queryClient]);
+  }, [lesson, watchedResources, queryClient, courseId]);
 
   const handleDelete = useCallback(async () => {
     try {

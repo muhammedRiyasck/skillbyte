@@ -13,6 +13,7 @@ export const createBase = async (data: Ibase) => {
   }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const updateBase = async (courseId: string, data: any) => {
   try {
     const response = await api.patch(`/course/${courseId}`, data);

@@ -1,28 +1,16 @@
 import api from "@shared/utils/AxiosInstance";
 
 export const createPaymentIntent = async (courseId: string) => {
-  try {
-    const response = await api.post("/enrollment/create-payment-intent", { courseId });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await api.post("/enrollment/create-payment-intent", { courseId });
+  return response.data;
 };
 
 export const checkEnrollmentStatus = async (courseId: string) => {
-  try {
-    const response = await api.get(`/enrollment/check/${courseId}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await api.get(`/enrollment/check/${courseId}`);
+  return response.data;
 };
 
 export const getInstructorEnrollments = async () => {
-  try {
-    const response = await api.get('/enrollment/instructor-enrollments');
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+  const response = await api.get('/enrollment/instructor-enrollments');
+  return response.data;
 };

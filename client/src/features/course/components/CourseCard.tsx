@@ -68,7 +68,7 @@ const navigate = useNavigate();
         }
       } else if (confirmModal.action === "block") {
          await blockCourse(confirmModal.courseId, confirmModal.isBlocked!);
-         
+
          // The parent component's state will be updated via onBlockChange, triggering a re-render.
 
          if (onBlockChange) {
@@ -80,7 +80,7 @@ const navigate = useNavigate();
     } finally {
       setConfirmModal({ isOpen: false, courseId: "", newStatus: "list", action: "status" });
     }
-  }, [confirmModal, onStatusChange]);
+  }, [confirmModal, onStatusChange, onBlockChange]);
 
   const cancelStatusChange = useCallback(() => {
     setConfirmModal({ isOpen: false, courseId: "", newStatus: "list", action: "status" });
