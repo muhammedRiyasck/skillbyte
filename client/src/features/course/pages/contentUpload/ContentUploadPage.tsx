@@ -13,6 +13,7 @@ import { Plus } from "lucide-react";
 const ContentUploadPage = () => {
   const location = useLocation();
   const courseId = location.state?.courseId ?? null;
+  const page = location.state?.page || 1;
 
   const { data, isLoading, isError, error } = useCourse(courseId, "modules,lessons");
   const [modules, setModules] = useState<ModuleType[]>([]);
@@ -74,7 +75,7 @@ const ContentUploadPage = () => {
         <h1 className="text-center mx-auto text-2xl">Sorry, We Can't Figure Out The Base Info!</h1>
         <p className="text-center mx-auto text-xl">
           Please Go Back To{" "}
-          <Link className="font-bold" to={ROUTES.instructor.myCourses}>
+          <Link className="font-bold" to={`${ROUTES.instructor.myCourses}?page=${page}`}>
             My Courses
           </Link>
           &nbsp; Or &nbsp;
@@ -108,7 +109,7 @@ const ContentUploadPage = () => {
       <div className="bg-gray-200 z-10 fixed w-full dark:bg-gray-700 p-6 flex justify-between items-center">
         <div className="flex  flex-wrap items-center space-x-2">
           <Link
-            to={ROUTES.instructor.myCourses}
+            to={`${ROUTES.instructor.myCourses}?page=${page}`}
             className="text-blue-600 font-bold hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
           >
             My Courses
@@ -116,7 +117,7 @@ const ContentUploadPage = () => {
           <span className="text-gray-500 dark:text-gray-400">{">"}</span>
           <Link
             to={ROUTES.instructor.createCourseBase}
-            state={{ courseId }}
+            state={{ courseId, page }}
             className="text-blue-600 font-bold hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
           >
             Course Details
@@ -138,7 +139,7 @@ const ContentUploadPage = () => {
             <span>Add Module</span>
           </button>
           <Link
-            to={ROUTES.instructor.myCourses}
+            to={`${ROUTES.instructor.myCourses}?page=${page}`}
             className="mt-4 cursor-pointer rounded px-4 py-2 dark:text-white outline bg-gray-100 dark:bg-gray-700 hover:bg-gray-400"
           >
             ✔ Done

@@ -128,6 +128,7 @@ const CreateCourse = () => {
 
   // Pre-fill form if courseId is in location.state
   const courseId = location.state?.courseId;
+  const page = location.state?.page || 1;
   const isDisabled = courseId && !isEditing;
   useEffect(() => {
     if (courseId) {
@@ -167,7 +168,7 @@ const CreateCourse = () => {
       try {
         setSpining(true);
         const courseId = await createCourse({ formData: data, croppedBlob, thumbnailFile });
-        navigate(ROUTES.instructor.uploadCourseContent, { state: { courseId } });
+        navigate(ROUTES.instructor.uploadCourseContent, { state: { courseId, page } });
         toast.success("Course created successfully!");
       } catch (error: unknown) {
         if (error instanceof Error) {
@@ -226,7 +227,7 @@ const CreateCourse = () => {
       setSpining(true);
       await deleteCourse(courseId);
       toast.success("Course deleted successfully!");
-      navigate(ROUTES.instructor.myCourses);
+      navigate(`${ROUTES.instructor.myCourses}?page=${page}`);
       queryClient.invalidateQueries({ queryKey: ['instructorCourses'] });
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -246,7 +247,7 @@ const CreateCourse = () => {
       <div className="bg-gray-200 z-10 fixed w-full dark:bg-gray-700 p-6 flex justify-between items-center">
         <div className="flex flex-wrap items-center space-x-2">
           <Link
-            to={ROUTES.instructor.myCourses}
+            to={`${ROUTES.instructor.myCourses}?page=${page}`}
             className="text-blue-600 hover:text-blue-800 font-bold dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
           >
             My Courses
@@ -259,7 +260,7 @@ const CreateCourse = () => {
           {courseId &&<button
               type="button"
               title="Delete this course permanently!!"
-              className="cursor-pointer border border-gray-400 p-2 rounded-lg my-4 ml-3 "
+              className="cursor-pointer border border-gray-400 dark:border-gray-600 dark:text-gray-100 p-2 rounded-lg my-4 ml-3 lg:ml-20"
               onClick={handleDelete}
             >
              🗑️ Delete  
@@ -595,7 +596,7 @@ const CreateCourse = () => {
               // navigate to content upload page if courseId exists and not editing
               <Link
                 to={ROUTES.instructor.uploadCourseContent}
-                state={{ courseId }}
+                state={{ courseId, page }}
                 className="bg-indigo-600 text-white rounded-lg px-6 py-2 hover:bg-indigo-700 transition cursor-pointer"
               >
                 Next →

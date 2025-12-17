@@ -13,6 +13,7 @@ interface CourseCardProps {
   role?: string;
   onStatusChange?: ((courseId: string, status: string) => void) | undefined;
   onBlockChange?: ((courseId: string, isBlocked?: boolean) => void) | undefined;
+  page?: number;
 }
 
 
@@ -20,15 +21,16 @@ const CourseCard = memo<CourseCardProps>(({
   courses,
   role = 'student',
   onStatusChange,
-  onBlockChange
+  onBlockChange,
+  page = 1
 }) => {
 const navigate = useNavigate();
   const [confirmModal, setConfirmModal] = useState<{ 
     isOpen: boolean; 
     courseId: string; 
-    newStatus: string; // "list" | "unlist" or boolean string representation for block? Better keep generic or add type
+    newStatus: string; 
     action: "status" | "block";
-    isBlocked?: boolean; // For block action
+    isBlocked?: boolean; 
   }>({
     isOpen: false,
     courseId: "",
@@ -119,7 +121,7 @@ const navigate = useNavigate();
       // Action Button for Students
       return (
         <button
-          onClick={() => navigate(ROUTES.course.details.replace(':courseId', course._id))}
+          onClick={() => navigate(ROUTES.course.details.replace(':courseId', course._id), { state: { page } })}
           className={cn(
             "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 cursor-pointer",
             course.isEnrolled 
@@ -136,7 +138,7 @@ const navigate = useNavigate();
     return (
       <button
         onClick={() => {navigate(ROUTES.instructor.uploadCourseContent, {
-          state: { courseId: course._id}
+          state: { courseId: course._id, page }
         })}}
         className={
           "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none cursor-pointer bg-indigo-500 hover:bg-indigo-600"}
@@ -147,7 +149,7 @@ const navigate = useNavigate();
   }else if(role === 'admin'){
     return (
       <button
-        onClick={() => navigate(ROUTES.course.details.replace(':courseId', course._id))}
+        onClick={() => navigate(ROUTES.course.details.replace(':courseId', course._id), { state: { page } })}
         className={
           "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none cursor-pointer bg-orange-500 hover:bg-orange-600"}
       >

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import default_profile from '@assets/default_profile.svg';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -42,7 +42,9 @@ const CourseDetails: React.FC = () => {
   const role = useSelector((state:RootState) => state.auth.user?.role);
   const userId = useSelector((state:RootState) => state.auth.user?.id);
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
+
 
   const { data: courseData, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['courseDetails', courseId, role],
@@ -175,6 +177,7 @@ const CourseDetails: React.FC = () => {
   const initialProgress = currentLessonProgress?.lastWatchedSecond || 0;
   const enrollmentId = enrollmentData?.enrollment?._id;
 
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Breadcrumbs and Back Button */}
@@ -189,7 +192,13 @@ const CourseDetails: React.FC = () => {
               </Link>
               <ChevronRight className="w-4 h-4 text-gray-400 " />
               <button
-                onClick={() => navigate(-1)}
+                onClick={() => {
+                  if (location.state?.page && role === 'instructor') {
+                    navigate(`${ROUTES.instructor.myCourses}?page=${location.state.page}`);
+                  } else {
+                    navigate(-1);
+                  }
+                }}
                 className="flex items-center gap-2 hover:text-indigo-600 dark:hover:text-indigo-400 dark:text-gray-200 transition-colors cursor-pointer"
               >
                 <BookOpen className="w-4 h-4" />

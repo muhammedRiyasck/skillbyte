@@ -1,4 +1,5 @@
-import React, {  useState } from "react";
+import React, { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {  useQuery, useQueryClient } from "@tanstack/react-query";
 import Card from "@shared/shimmer/Card";
 import api from "@shared/utils/AxiosInstance";
@@ -14,13 +15,23 @@ import type { RootState } from '@/core/store/Index';
 const options = ["All Courses", "Drafted Courses", "Listed Courses", "Unlisted Courses"];
 
 const InstructorCourses: React.FC = () => {
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = parseInt(searchParams.get("page") || "1", 10);
+
+  const setPage = (newPage: number) => {
+    setSearchParams((prev) => {
+       const params = new URLSearchParams(prev);
+       params.set("page", newPage.toString());
+       return params;
+    });
+  };
+
   const [isOpen, setIsOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(options[0]);
   const queryClient = useQueryClient();
   const email = useSelector((state: RootState) => state.auth.user?.email);
 
-  const limit = 6
+  const limit = 6;
 
   const { data, isLoading, isError,error ,refetch } = useQuery({
     queryKey: ['courses', selectedStatus, page, email],

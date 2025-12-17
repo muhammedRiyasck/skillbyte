@@ -23,8 +23,9 @@ const CourseRender = ({data,page,totalPages,setPage , role='student', onStatusCh
         </div>
       ) : (
         <div className="max-w-7xl mx-auto px-6 mt-8">
-          <CourseCard courses={data} role={role} onStatusChange={onStatusChange} onBlockChange={onBlockChange}/>
-        </div>
+
+          <CourseCard courses={data} role={role} page={page} onStatusChange={onStatusChange} onBlockChange={onBlockChange}/>
+      </div>
       )}
       {totalPages > 1 && (
         <div className="max-w-7xl mx-auto px-6 mt-8">
