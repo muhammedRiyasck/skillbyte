@@ -224,8 +224,8 @@ export class CourseController {
     const query: Record<string, unknown> = { status: 'list', isBlocked: false };
     const page = validatedQuery.page || 1;
     const limit = validatedQuery.limit || 6;
-    const {  level, language } = req.query; 
- 
+    const { level, language } = req.query;
+
     if (validatedQuery.category) {
       query.category = { $regex: validatedQuery.category, $options: 'i' };
     }
@@ -263,7 +263,6 @@ export class CourseController {
         sort = { [field]: dir === 'asc' ? 1 : -1 };
       }
     }
-    console.log('Final query object:', query);
     const courses = await this._getPaginatedCoursesUseCase.execute(
       query,
       page,
