@@ -9,13 +9,24 @@ type DebouncedInput = {
     showPassword?:boolean
     setValue: (value: string) => void;
     icon?: () => React.ReactNode;
+    className?: string;
 }
 
-const DebouncedInput = ({id,type,placeholder,value,setValue,showPassword,icon}:DebouncedInput)=> {
+const DebouncedInput = ({id,type,placeholder,value,setValue,showPassword,icon,className}:DebouncedInput)=> {
     const [inputValue, setInputValue] = useState(value);
     const debouncedValue = useDebounce(inputValue, 500);
 
+    const isFirstRender = React.useRef(true);
+
     useEffect(() => {
+        setInputValue(value);
+    }, [value]);
+
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
         setValue(debouncedValue);
     }, [debouncedValue, setValue]);
 
@@ -28,7 +39,7 @@ const DebouncedInput = ({id,type,placeholder,value,setValue,showPassword,icon}:D
                     placeholder={placeholder}
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
-                    className=" w-full mt-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white"
+                    className={`w-full mt-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none dark:bg-gray-700 dark:text-white ${className}`}
                     autoComplete='new-password'
                 />
                 {icon && (
