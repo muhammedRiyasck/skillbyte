@@ -10,7 +10,7 @@ export const checkEnrollmentStatus = async (courseId: string) => {
   return response.data;
 };
 
-export const getInstructorEnrollments = async () => {
-  const response = await api.get('/enrollment/instructor-enrollments');
+export const getInstructorEnrollments = async (page: number = 1, limit: number = 10) => {
+  const response = await api.get(`/enrollment/instructor-enrollments?page=${page}&limit=${limit}`);
   return response.data;
 };
