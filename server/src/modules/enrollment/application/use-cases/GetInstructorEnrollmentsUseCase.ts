@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { IGetInstructorEnrollmentsUseCase } from '../interfaces/IGetInstructorEnrollments';
 import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
 import { ICourseEnrollmentSummary } from '../../types/IInstructorEnrollment';
+import { IEnrollmentFilters } from '../../types/IInstructorEnrollment';
 
 export class GetInstructorEnrollmentsUseCase
   implements IGetInstructorEnrollmentsUseCase
@@ -12,12 +13,14 @@ export class GetInstructorEnrollmentsUseCase
     instructorId: string,
     page: number,
     limit: number,
+    filters?: IEnrollmentFilters,
   ): Promise<ICourseEnrollmentSummary> {
     const instructorObjectId = new mongoose.Types.ObjectId(instructorId);
     const result = await this.enrollmentRepository.findEnrollmentsByInstructor(
       instructorObjectId,
       page,
       limit,
+      filters,
     );
 
     const enrollments = result[0]?.data || [];

@@ -91,10 +91,18 @@ export class EnrollmentController {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 12;
 
+      const filters = {
+        search: req.query.search as string,
+        courseId: req.query.courseId as string,
+        status: req.query.status as string,
+        sort: req.query.sort as 'newest' | 'oldest',
+      };
+
       const enrollments = await this._getInstructorEnrollmentsUc.execute(
         userId,
         page,
         limit,
+        filters,
       );
 
       res.status(200).json(enrollments);

@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 import { IEnrollment } from '../infrastructure/models/EnrollmentModel';
 import { IPayment } from '../infrastructure/models/PaymentModel';
 import { IInstructorEnrollment } from '../types/IInstructorEnrollment';
+import { IEnrollmentFilters } from '../types/IInstructorEnrollment';
 
 export interface IEnrollmentRepository {
   createEnrollment(enrollmentData: Partial<IEnrollment>): Promise<IEnrollment>;
@@ -15,6 +16,7 @@ export interface IEnrollmentRepository {
     instructorId: Types.ObjectId,
     page: number,
     limit: number,
+    filters?: IEnrollmentFilters,
   ): Promise<IInstructorEnrollment[]>;
   updateEnrollmentStatus(
     enrollmentId: string,

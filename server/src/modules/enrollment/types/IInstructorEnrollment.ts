@@ -19,6 +19,13 @@ export interface IInstructorEnrollment {
   totalCount: { count: number }[];
 }
 
+export interface IEnrollmentFilters {
+  search?: string;
+  courseId?: string;
+  status?: string;
+  sort?: 'newest' | 'oldest';
+}
+
 export interface ICourseEnrollmentSummary {
   data: {
     courseId: string;

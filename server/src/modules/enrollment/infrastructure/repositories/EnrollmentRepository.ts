@@ -1,11 +1,11 @@
-import { Types } from 'mongoose';
+import { Types, PipelineStage } from 'mongoose';
 import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
 import { IInstructorEnrollment } from '../../types/IInstructorEnrollment';
 import { EnrollmentModel, IEnrollment } from '../models/EnrollmentModel';
 import { PaymentModel, IPayment } from '../models/PaymentModel';
 import { ModuleModel } from '../../../course/infrastructure/models/ModuleModel';
 import { LessonModel } from '../../../course/infrastructure/models/LessonModel';
-
+import { IEnrollmentFilters } from '../../types/IInstructorEnrollment';
 export class EnrollmentRepository implements IEnrollmentRepository {
   async createEnrollment(
     enrollmentData: Partial<IEnrollment>,
@@ -36,12 +36,14 @@ export class EnrollmentRepository implements IEnrollmentRepository {
     instructorId: Types.ObjectId,
     page: number,
     limit: number,
+    filters?: IEnrollmentFilters,
   ): Promise<IInstructorEnrollment[]> {
     // Find enrollments where the course belongs to the instructor
     const safePage = Math.max(page, 1);
     const safeLimit = Math.min(limit, 50);
     const skip = (safePage - 1) * safeLimit;
-    return await EnrollmentModel.aggregate([
+
+    const pipeline: PipelineStage[] = [
       {
         $lookup: {
           from: 'courses',
@@ -56,6 +58,28 @@ export class EnrollmentRepository implements IEnrollmentRepository {
           'course.instructorId': instructorId,
         },
       },
+    ];
+
+    // Filter by Course if specified
+    if (filters?.courseId) {
+      pipeline.push({
+        $match: {
+          courseId: new Types.ObjectId(filters.courseId),
+        },
+      });
+    }
+
+    // Filter by Status if specified
+    if (filters?.status) {
+      pipeline.push({
+        $match: {
+          status: filters.status,
+        },
+      });
+    }
+
+    // Lookup Student for searching
+    pipeline.push(
       {
         $lookup: {
           from: 'students',
@@ -65,6 +89,31 @@ export class EnrollmentRepository implements IEnrollmentRepository {
         },
       },
       { $unwind: '$student' },
+    );
+
+    // Search by student name or email
+    if (filters?.search) {
+      const searchRegex = new RegExp(filters.search, 'i');
+      pipeline.push({
+        $match: {
+          $or: [
+            { 'student.name': searchRegex },
+            { 'student.email': searchRegex },
+          ],
+        },
+      });
+    }
+
+    // Sorting
+    if (filters?.sort === 'oldest') {
+      pipeline.push({ $sort: { enrolledAt: 1 } });
+    } else {
+      // Default to newest
+      pipeline.push({ $sort: { enrolledAt: -1 } });
+    }
+
+    // Project and Facet
+    pipeline.push(
       {
         $project: {
           _id: 1,
@@ -90,7 +139,9 @@ export class EnrollmentRepository implements IEnrollmentRepository {
           totalCount: [{ $count: 'count' }],
         },
       },
-    ]);
+    );
+
+    return await EnrollmentModel.aggregate(pipeline);
   }
 
   async updateEnrollmentStatus(
