@@ -1,26 +1,30 @@
 import mongoose from 'mongoose';
 import { IGetInstructorEnrollmentsUseCase } from '../interfaces/IGetInstructorEnrollments';
 import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
-import {
-  IInstructorEnrollment,
-  ICourseEnrollmentSummary,
-} from '../../types/IInstructorEnrollment';
-
-// Type for aggregation result
+import { ICourseEnrollmentSummary } from '../../types/IInstructorEnrollment';
 
 export class GetInstructorEnrollmentsUseCase
   implements IGetInstructorEnrollmentsUseCase
 {
   constructor(private enrollmentRepository: IEnrollmentRepository) {}
 
-  async execute(instructorId: string): Promise<ICourseEnrollmentSummary[]> {
+  async execute(
+    instructorId: string,
+    page: number,
+    limit: number,
+  ): Promise<ICourseEnrollmentSummary> {
     const instructorObjectId = new mongoose.Types.ObjectId(instructorId);
-    const enrollments =
-      (await this.enrollmentRepository.findEnrollmentsByInstructor(
-        instructorObjectId,
-      )) as IInstructorEnrollment[];
+    const result = await this.enrollmentRepository.findEnrollmentsByInstructor(
+      instructorObjectId,
+      page,
+      limit,
+    );
+
+    const enrollments = result[0]?.data || [];
+    const totalCount = result[0]?.totalCount[0]?.count || 0;
+
     // Group enrollments by course and enrich with course/student data
-    const courseMap = new Map<string, ICourseEnrollmentSummary>();
+    const courseMap = new Map<string, ICourseEnrollmentSummary['data'][0]>();
 
     for (const enrollment of enrollments) {
       const courseId = enrollment.courseId._id.toString();
@@ -47,6 +51,6 @@ export class GetInstructorEnrollmentsUseCase
         });
       }
     }
-    return Array.from(courseMap.values());
+    return { data: Array.from(courseMap.values()), totalCount };
   }
 }

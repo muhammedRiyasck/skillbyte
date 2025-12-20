@@ -34,8 +34,13 @@ export class EnrollmentRepository implements IEnrollmentRepository {
 
   async findEnrollmentsByInstructor(
     instructorId: Types.ObjectId,
+    page: number,
+    limit: number,
   ): Promise<IInstructorEnrollment[]> {
     // Find enrollments where the course belongs to the instructor
+    const safePage = Math.max(page, 1);
+    const safeLimit = Math.min(limit, 50);
+    const skip = (safePage - 1) * safeLimit;
     return await EnrollmentModel.aggregate([
       {
         $lookup: {
@@ -45,9 +50,7 @@ export class EnrollmentRepository implements IEnrollmentRepository {
           as: 'course',
         },
       },
-      {
-        $unwind: '$course',
-      },
+      { $unwind: '$course' },
       {
         $match: {
           'course.instructorId': instructorId,
@@ -61,9 +64,7 @@ export class EnrollmentRepository implements IEnrollmentRepository {
           as: 'student',
         },
       },
-      {
-        $unwind: '$student',
-      },
+      { $unwind: '$student' },
       {
         $project: {
           _id: 1,
@@ -81,6 +82,12 @@ export class EnrollmentRepository implements IEnrollmentRepository {
           status: 1,
           enrolledAt: 1,
           progress: 1,
+        },
+      },
+      {
+        $facet: {
+          data: [{ $skip: skip }, { $limit: safeLimit }],
+          totalCount: [{ $count: 'count' }],
         },
       },
     ]);

@@ -1,5 +1,9 @@
 import { ICourseEnrollmentSummary } from '../../types/IInstructorEnrollment';
 
 export interface IGetInstructorEnrollmentsUseCase {
-  execute(instructorId: string): Promise<ICourseEnrollmentSummary[]>;
+  execute(
+    instructorId: string,
+    page: number,
+    limit: number,
+  ): Promise<ICourseEnrollmentSummary>;
 }

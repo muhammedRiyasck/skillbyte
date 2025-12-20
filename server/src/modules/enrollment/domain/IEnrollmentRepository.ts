@@ -13,6 +13,8 @@ export interface IEnrollmentRepository {
   findEnrolledCourseIds(userId: string): Promise<string[]>;
   findEnrollmentsByInstructor(
     instructorId: Types.ObjectId,
+    page: number,
+    limit: number,
   ): Promise<IInstructorEnrollment[]>;
   updateEnrollmentStatus(
     enrollmentId: string,

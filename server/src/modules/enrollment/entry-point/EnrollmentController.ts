@@ -88,12 +88,16 @@ export class EnrollmentController {
         return res.status(401).json({ error: 'Unauthorized' });
       }
 
-      const enrollments =
-        await this._getInstructorEnrollmentsUc.execute(userId);
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 12;
 
-      res.status(200).json({
-        enrollments,
-      });
+      const enrollments = await this._getInstructorEnrollmentsUc.execute(
+        userId,
+        page,
+        limit,
+      );
+
+      res.status(200).json(enrollments);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       res.status(400).json({ error: message });
