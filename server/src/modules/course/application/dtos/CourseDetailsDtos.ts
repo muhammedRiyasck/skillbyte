@@ -40,6 +40,10 @@ export const PaginationQuerySchema = z.object({
   instructorId: z.string().optional(),
   category: z.string().optional(),
   search: z.string().optional(),
+  enrolledOnly: z
+    .string()
+    .optional()
+    .transform((val) => val === 'true'),
 });
 
 export const GetCourseQuerySchema = z.object({

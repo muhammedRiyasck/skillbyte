@@ -230,6 +230,13 @@ export class CourseController {
       query.category = { $regex: validatedQuery.category, $options: 'i' };
     }
 
+    if (validatedQuery.enrolledOnly && authenticatedReq.user) {
+      const userId = authenticatedReq.user.id;
+      const enrolledCourseIds =
+        await this._enrollmentRepository.findEnrolledCourseIds(userId);
+      query._id = { $in: enrolledCourseIds };
+    }
+
     if (level) {
       query.courseLevel = { $regex: level as string, $options: 'i' };
     }

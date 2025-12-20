@@ -10,6 +10,7 @@ export interface IEnrollmentRepository {
     userId: string,
     courseIds: string[],
   ): Promise<IEnrollment[]>;
+  findEnrolledCourseIds(userId: string): Promise<string[]>;
   findEnrollmentsByInstructor(
     instructorId: Types.ObjectId,
   ): Promise<IInstructorEnrollment[]>;

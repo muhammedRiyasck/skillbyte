@@ -27,6 +27,11 @@ export class EnrollmentRepository implements IEnrollmentRepository {
     return await EnrollmentModel.find({ userId, courseId: { $in: courseIds } });
   }
 
+  async findEnrolledCourseIds(userId: string): Promise<string[]> {
+    const courseIds = await EnrollmentModel.distinct('courseId', { userId });
+    return courseIds.map((id) => id.toString());
+  }
+
   async findEnrollmentsByInstructor(
     instructorId: Types.ObjectId,
   ): Promise<IInstructorEnrollment[]> {

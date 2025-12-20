@@ -120,13 +120,9 @@ export class CourseRepository implements ICourseRepository {
     const safeLimit = Math.min(limit, 50);
     const skip = (safePage - 1) * safeLimit;
 
-    // Remove console.log if present in finding logic, though line 89 is separate.
-    // Wait, the ReplacementContent must match TargetContent strictly or replace range.
-    // I will do separate replacements for safety.
-
     const [rawData, total] = await Promise.all([
       CourseModel.find(filter).sort(sort).skip(skip).limit(safeLimit).lean(),
-      CourseModel.countDocuments(filter), // use countDocuments when a filter exists
+      CourseModel.countDocuments(filter),
     ]);
     const data: Course[] = rawData.map((doc) => ({
       ...doc,
