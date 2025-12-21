@@ -32,7 +32,8 @@ export const CheckoutPage: React.FC = () => {
             createPaymentIntent(courseId),
             getCourseDetails(courseId)
         ]);
-        setClientSecret(paymentData.clientSecret);
+        console.log(paymentData, courseData);
+        setClientSecret(paymentData?.data?.clientSecret);
         setCourse(courseData.data);
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : "Failed to initialize checkout";
