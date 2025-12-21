@@ -6,6 +6,10 @@ import { PaymentModel, IPayment } from '../models/PaymentModel';
 import { ModuleModel } from '../../../course/infrastructure/models/ModuleModel';
 import { LessonModel } from '../../../course/infrastructure/models/LessonModel';
 import { IEnrollmentFilters } from '../../types/IInstructorEnrollment';
+import {
+  IPaymentHistory,
+  IInstructorEarnings,
+} from '../../types/IPaymentHistory';
 export class EnrollmentRepository implements IEnrollmentRepository {
   async createEnrollment(
     enrollmentData: Partial<IEnrollment>,
@@ -269,5 +273,121 @@ export class EnrollmentRepository implements IEnrollmentRepository {
     return await EnrollmentModel.findByIdAndUpdate(enrollmentId, updateData, {
       new: true,
     });
+  }
+
+  async findPaymentsByUser(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<IPaymentHistory[]> {
+    const skip = (page - 1) * limit;
+    const pipeline: PipelineStage[] = [
+      { $match: { userId: new Types.ObjectId(userId), status: 'succeeded' } },
+      {
+        $lookup: {
+          from: 'courses',
+          localField: 'courseId',
+          foreignField: '_id',
+          as: 'course',
+        },
+      },
+      { $unwind: '$course' },
+      { $sort: { createdAt: -1 } },
+      {
+        $project: {
+          _id: 1,
+          courseId: {
+            _id: '$course._id',
+            title: '$course.title',
+            thumbnailUrl: '$course.thumbnailUrl',
+          },
+          amount: 1,
+          currency: 1,
+          status: 1,
+          createdAt: 1,
+          stripePaymentIntentId: 1,
+        },
+      },
+      {
+        $facet: {
+          data: [{ $skip: skip }, { $limit: limit }],
+          totalCount: [{ $count: 'count' }],
+        },
+      },
+    ];
+
+    return (await PaymentModel.aggregate(
+      pipeline,
+    )) as unknown as IPaymentHistory[];
+  }
+
+  async findPaymentsByInstructor(
+    instructorId: string,
+    page: number,
+    limit: number,
+  ): Promise<IInstructorEarnings[]> {
+    const skip = (page - 1) * limit;
+    const pipeline: PipelineStage[] = [
+      {
+        $match: {
+          instructorId: new Types.ObjectId(instructorId),
+          status: 'succeeded',
+        },
+      },
+      {
+        $lookup: {
+          from: 'students',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'student',
+        },
+      },
+      { $unwind: '$student' },
+      {
+        $lookup: {
+          from: 'courses',
+          localField: 'courseId',
+          foreignField: '_id',
+          as: 'course',
+        },
+      },
+      { $unwind: '$course' },
+      { $sort: { createdAt: -1 } },
+      {
+        $project: {
+          _id: 1,
+          userId: {
+            _id: '$student._id',
+            name: '$student.name',
+            email: '$student.email',
+          },
+          courseId: {
+            _id: '$course._id',
+            title: '$course.title',
+            thumbnailUrl: '$course.thumbnailUrl',
+          },
+          amount: 1,
+          adminFee: 1,
+          instructorAmount: 1,
+          currency: 1,
+          status: 1,
+          createdAt: 1,
+        },
+      },
+      {
+        $facet: {
+          data: [{ $skip: skip }, { $limit: limit }],
+          totalCount: [{ $count: 'count' }],
+          totalRevenue: [{ $group: { _id: null, total: { $sum: '$amount' } } }],
+          totalProfit: [
+            { $group: { _id: null, total: { $sum: '$instructorAmount' } } },
+          ],
+        },
+      },
+    ];
+
+    return (await PaymentModel.aggregate(
+      pipeline,
+    )) as unknown as IInstructorEarnings[];
   }
 }

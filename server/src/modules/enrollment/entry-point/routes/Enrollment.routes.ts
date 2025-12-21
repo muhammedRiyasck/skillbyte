@@ -10,33 +10,37 @@ router.post('/create-payment-intent', authenticate, async (req, res) => {
   await enrollmentController.createPaymentIntent(req, res);
 });
 
-// Check Enrollment Status - Protected Route
-router.get('/check/:courseId', authenticate, async (req, res) => {
-  await enrollmentController.checkEnrollmentStatus(req, res);
-});
-
-// This route is primarily for mounting logic reference, but the raw body handling
-// must be ensured in the main app configuration if global parsers interfere.
+// Webhook for Stripe - Raw body is handled at the app level
 router.post('/webhook', async (req, res) => {
   await enrollmentController.handleWebhook(req, res);
 });
 
-router.get('/check/:courseId', authenticate, async (req, res) => {
-  await enrollmentController.checkEnrollmentStatus(req, res);
-});
-
 // Check Enrollment Status - Protected Route
 router.get('/check/:courseId', authenticate, async (req, res) => {
   await enrollmentController.checkEnrollmentStatus(req, res);
 });
 
-// Get Instructor Enrollments - Protected Route
+// Get Student Purchase History - Protected Route
+router.get('/purchases', authenticate, async (req, res) => {
+  await enrollmentController.getUserPurchases(req, res);
+});
+
 router.get(
   '/instructor-enrollments',
   authenticate,
   requireRole('instructor'),
   async (req, res) => {
     await enrollmentController.getInstructorEnrollments(req, res);
+  },
+);
+
+// Get Instructor Earnings History - Protected Route
+router.get(
+  '/earnings',
+  authenticate,
+  requireRole('instructor'),
+  async (req, res) => {
+    await enrollmentController.getInstructorEarnings(req, res);
   },
 );
 

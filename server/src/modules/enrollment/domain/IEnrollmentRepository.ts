@@ -3,6 +3,7 @@ import { IEnrollment } from '../infrastructure/models/EnrollmentModel';
 import { IPayment } from '../infrastructure/models/PaymentModel';
 import { IInstructorEnrollment } from '../types/IInstructorEnrollment';
 import { IEnrollmentFilters } from '../types/IInstructorEnrollment';
+import { IPaymentHistory, IInstructorEarnings } from '../types/IPaymentHistory';
 
 export interface IEnrollmentRepository {
   createEnrollment(enrollmentData: Partial<IEnrollment>): Promise<IEnrollment>;
@@ -37,4 +38,14 @@ export interface IEnrollmentRepository {
       isCompleted: boolean;
     },
   ): Promise<IEnrollment | null>;
+  findPaymentsByUser(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<IPaymentHistory[]>;
+  findPaymentsByInstructor(
+    instructorId: string,
+    page: number,
+    limit: number,
+  ): Promise<IInstructorEarnings[]>;
 }
