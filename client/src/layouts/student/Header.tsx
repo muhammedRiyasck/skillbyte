@@ -2,7 +2,7 @@ import ThemeToggle from "@shared/ui/ThemeToggle";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type{ RootState } from "@core/store/Index";
-import { Menu, X, Home, BookOpen, Info, HelpCircle, Bell, User, LogOut } from "lucide-react";
+import { Menu, X, Home, BookOpen, Info, HelpCircle, Bell, User, LogOut, ReceiptText } from "lucide-react";
 
 import {logout} from '@features/auth/services/AuthService'
 
@@ -38,6 +38,7 @@ const Header = () => {
               Home
             </NavLink>
             <NavLink to={ROUTES.student.courses} className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Courses</NavLink>
+            <NavLink to={ROUTES.student.purchases} className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Purchases</NavLink>
             <NavLink to="/notYet" className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>About</NavLink>
             <NavLink to="/notYet" className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Support</NavLink>
           </nav>
@@ -86,6 +87,10 @@ const Header = () => {
                 <NavLink to={ROUTES.student.courses} className={({isActive}) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
                   <BookOpen size={20} className="text-green-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Courses</span>
+                </NavLink>
+                <NavLink to={ROUTES.student.purchases} className={({isActive}) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
+                  <ReceiptText size={20} className="text-pink-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">Purchases</span>
                 </NavLink>
                 <NavLink to="/notYet" className={({isActive}) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
                   <Info size={20} className="text-blue-600 group-hover:scale-110 transition-transform" />

@@ -3,7 +3,7 @@ import logo from "../../assets/OrginalLogo.png";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "@core/router/paths";
-import { Menu, X, LayoutDashboard, User, BookOpen, Plus, Megaphone, Calendar, LogOut } from "lucide-react";
+import { Menu, X, LayoutDashboard, User, BookOpen, Plus, Megaphone, Calendar, LogOut, DollarSign } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@core/store/Index";
 import { logout } from "@features/auth/services/AuthService";
@@ -66,9 +66,13 @@ const Header = () => {
                   <BookOpen size={20} className="text-green-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">My Courses</span>
                 </Link>
-                <Link to={ROUTES.instructor.myCourses} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
+                <Link to={ROUTES.instructor.dashboard} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
                   <User size={20} className="text-red-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Enrollments</span>
+                </Link>
+                <Link to={ROUTES.instructor.earnings} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
+                  <DollarSign size={20} className="text-yellow-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">Earnings</span>
                 </Link>
                 <Link to="#" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
                   <Megaphone size={20} className="text-orange-600 group-hover:scale-110 transition-transform" />

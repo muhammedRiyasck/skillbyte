@@ -42,7 +42,7 @@ const Dashboard: React.FC = () => {
       setLoading(true);
       setError(null);
       const data = await getInstructorEnrollments(page, itemsPerPage, currentFilters);
-      setEnrollments(data.data);
+      setEnrollments(data.data.data);
       setTotalCount(data.totalCount);
     } catch {
       setError('Failed to load enrollment data');
@@ -154,11 +154,11 @@ const Dashboard: React.FC = () => {
               <DebouncedInput
                 type="text"
                 id="search"
-                placeholder="Name or email..."
+                placeholder="Search by student name or email"
                 value={filters.search}
                 setValue={handleSearchChange}
                 icon={()=><Search className="w-5 h-5  text-gray-400" />}
-                className="dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 border-gray-200 text-center"
+                className="dark:bg-gray-800 dark:text-gray-200 dark:border-gray-600 border-gray-200 text-sm lg:text-md text-center"
               />
             </div>
             
@@ -264,7 +264,7 @@ const Dashboard: React.FC = () => {
                   <div className="space-y-4">
                     {course.enrollments.map((enrollment) => (
                       <div key={enrollment.studentId} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between overflow-auto">
                           <div className="flex items-center space-x-4">
                             <div>
                               <h4 className="font-medium text-gray-50">{enrollment.studentName}</h4>
