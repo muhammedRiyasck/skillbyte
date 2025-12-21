@@ -23,3 +23,13 @@ export const getInstructorEnrollments = async (
   const response = await api.get(`/enrollment/instructor-enrollments?${params}`);
   return response.data;
 };
+
+export const getStudentPurchases = async (page: number = 1, limit: number = 10) => {
+  const response = await api.get(`/enrollment/purchases?page=${page}&limit=${limit}`);
+  return response.data;
+};
+
+export const getInstructorEarnings = async (page: number = 1, limit: number = 10) => {
+  const response = await api.get(`/enrollment/earnings?page=${page}&limit=${limit}`);
+  return response.data;
+};

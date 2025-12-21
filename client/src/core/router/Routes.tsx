@@ -24,6 +24,7 @@ const StudentManagement = lazy(() => import("@features/admin/pages/StudentManage
 import InstructorLayout from "@layouts/instructor/InstructorLayout.tsx";
 const InstructorSignup = lazy(() => import("@features/auth/pages/InstructorSignUp.tsx"));
 const InstructorEnrollments = lazy(() => import("@/features/instructor/pages/Enrollments.tsx"));
+const EarningsHistory = lazy(() => import("@/features/instructor/pages/EarningsHistory.tsx"));
 const InstructorProfile = lazy(() => import("@features/instructor/pages/Profile.tsx"));
 const CreateCourse = lazy(() => import("@features/course/pages/CreateCourse.tsx"));
 const ContentUploadPage = lazy(() => import("@features/course/pages/contentUpload/ContentUploadPage.tsx"));
@@ -38,6 +39,7 @@ const StudentCourses = lazy(() => import("@features/course/pages/StudentCourses.
 const CourseDetails = lazy(() => import("@features/course/pages/CourseDetails.tsx"));
 const CheckoutPage = lazy(() => import("@features/enrollment").then(module => ({ default: module.CheckoutPage })));
 const SuccessPage = lazy(() => import("@features/enrollment").then(module => ({ default: module.SuccessPage })));
+const PurchaseHistory = lazy(() => import("@features/student/pages/PurchaseHistory.tsx"));
 
 const router = createBrowserRouter([
   {
@@ -175,6 +177,16 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: ROUTES.student.purchases,
+        element: (
+          <ProtectedRoute roles={["student"]}>
+            <Fallback>
+              <PurchaseHistory />
+            </Fallback>
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
    {
@@ -241,7 +253,16 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-     
+      {
+        path: ROUTES.instructor.earnings,
+        element: (
+          <ProtectedRoute roles={["instructor"]}>
+            <Fallback>
+              <EarningsHistory />
+            </Fallback>
+          </ProtectedRoute>
+        ),
+      },
     ],
     errorElement: <ErrorHandler />,
   },

@@ -20,6 +20,7 @@ export const ROUTES = {
     profile: '/profile',
     checkout: '/checkout/:courseId',
     paymentSuccess: '/enrollment/success',
+    purchases: '/purchases',
   },
 
   course: {
@@ -32,6 +33,7 @@ export const ROUTES = {
     createCourseBase: '/instructor/create-courseBase',
     uploadCourseContent: '/instructor/upload-courseContent',
     myCourses: '/instructor/myCourses',
+    earnings: '/instructor/earnings',
   },
 
   admin: {
