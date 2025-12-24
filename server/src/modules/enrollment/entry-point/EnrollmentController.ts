@@ -1,40 +1,43 @@
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '../../../shared/types/AuthenticatedRequestType';
 import logger from '../../../shared/utils/Logger';
-import { ICreatePaymentIntent } from '../application/interfaces/ICreatePaymentIntent';
 import { IHandleStripeWebhook } from '../application/interfaces/IHandleStripeWebhook';
 import { ICheckEnrollment } from '../application/interfaces/ICheckEnrollment';
 import { IGetInstructorEnrollmentsUseCase } from '../application/interfaces/IGetInstructorEnrollments';
 import { IUpdateLessonProgressUseCase } from '../application/interfaces/IUpdateLessonProgress';
 import { IGetUserPurchases } from '../application/interfaces/IGetUserPurchases';
 import { IGetInstructorEarnings } from '../application/interfaces/IGetInstructorEarnings';
+import { IInitiateEnrollmentPayment } from '../application/interfaces/IInitiateEnrollmentPayment';
+import { ICapturePayPalPayment } from '../application/interfaces/ICapturePayPalPayment';
 import { ApiResponseHelper } from '../../../shared/utils/ApiResponseHelper';
 
 export class EnrollmentController {
   constructor(
-    private _createPaymentIntentUc: ICreatePaymentIntent,
+    private _initiatePaymentUc: IInitiateEnrollmentPayment,
     private _handleStripeWebhookUc: IHandleStripeWebhook,
     private _checkEnrollmentUc: ICheckEnrollment,
     private _getInstructorEnrollmentsUc: IGetInstructorEnrollmentsUseCase,
     private _updateLessonProgressUc: IUpdateLessonProgressUseCase,
     private _getUserPurchasesUc: IGetUserPurchases,
     private _getInstructorEarningsUc: IGetInstructorEarnings,
+    private _capturePayPalPaymentUc: ICapturePayPalPayment,
   ) {}
 
-  async createPaymentIntent(req: Request, res: Response) {
+  async initiatePayment(req: Request, res: Response) {
     try {
-      const { courseId } = req.body;
+      const { courseId, provider } = req.body;
       const userId = (req as AuthenticatedRequest).user.id;
 
       if (!userId) {
         return ApiResponseHelper.unauthorized(res, 'Unauthorized');
       }
 
-      const result = await this._createPaymentIntentUc.execute(
+      const result = await this._initiatePaymentUc.execute(
         userId,
         courseId,
+        provider,
       );
-      return ApiResponseHelper.success(res, 'Payment intent created', result);
+      return ApiResponseHelper.success(res, 'Payment initiated', result);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       return ApiResponseHelper.badRequest(res, message);
@@ -58,6 +61,31 @@ export class EnrollmentController {
       logger.error('Webhook Error:', error);
       const message = error instanceof Error ? error.message : 'Unknown error';
       return res.status(400).send(`Webhook Error: ${message}`);
+    }
+  }
+
+  async capturePayPalPayment(req: Request, res: Response) {
+    try {
+      const { orderId } = req.body;
+
+      if (!orderId) {
+        return ApiResponseHelper.badRequest(res, 'Order ID is required');
+      }
+
+      const result = await this._capturePayPalPaymentUc.execute(orderId);
+
+      if (result.success) {
+        return ApiResponseHelper.success(
+          res,
+          'Payment captured and enrollment created',
+          result,
+        );
+      } else {
+        return ApiResponseHelper.badRequest(res, 'Payment capture failed');
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      return ApiResponseHelper.error(res, message);
     }
   }
 

@@ -5,9 +5,14 @@ import { requireRole } from '../../../../shared/middlewares/RequireRole';
 
 const router = express.Router();
 
-// Create Payment Intent - Protected Route
-router.post('/create-payment-intent', authenticate, async (req, res) => {
-  await enrollmentController.createPaymentIntent(req, res);
+// Initiate Payment - Protected Route (Consolidated for OCP)
+router.post('/initiate-payment', authenticate, async (req, res) => {
+  await enrollmentController.initiatePayment(req, res);
+});
+
+// PayPal Payment Capture - Protected Route
+router.post('/capture-paypal-payment', authenticate, async (req, res) => {
+  await enrollmentController.capturePayPalPayment(req, res);
 });
 
 // Webhook for Stripe - Raw body is handled at the app level
