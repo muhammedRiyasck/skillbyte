@@ -171,12 +171,27 @@ export class EnrollmentRepository implements IEnrollmentRepository {
     });
   }
 
+  async findPaymentByPayPalOrderId(orderId: string): Promise<IPayment | null> {
+    return await PaymentModel.findOne({ paypalOrderId: orderId });
+  }
+
   async updatePaymentStatus(
     paymentIntentId: string,
     status: string,
   ): Promise<IPayment | null> {
     return await PaymentModel.findOneAndUpdate(
       { stripePaymentIntentId: paymentIntentId },
+      { status },
+      { new: true },
+    );
+  }
+
+  async updatePaymentStatusByPayPalOrder(
+    orderId: string,
+    status: string,
+  ): Promise<IPayment | null> {
+    return await PaymentModel.findOneAndUpdate(
+      { paypalOrderId: orderId },
       { status },
       { new: true },
     );
@@ -282,7 +297,7 @@ export class EnrollmentRepository implements IEnrollmentRepository {
   ): Promise<IPaymentHistory[]> {
     const skip = (page - 1) * limit;
     const pipeline: PipelineStage[] = [
-      { $match: { userId: new Types.ObjectId(userId), status: 'succeeded' } },
+      { $match: { userId: new Types.ObjectId(userId) } },
       {
         $lookup: {
           from: 'courses',
@@ -306,6 +321,7 @@ export class EnrollmentRepository implements IEnrollmentRepository {
           status: 1,
           createdAt: 1,
           stripePaymentIntentId: 1,
+          paypalOrderId: 1,
         },
       },
       {

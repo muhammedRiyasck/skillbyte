@@ -25,8 +25,13 @@ export interface IEnrollmentRepository {
   ): Promise<IEnrollment | null>;
   createPayment(paymentData: Partial<IPayment>): Promise<IPayment>;
   findPaymentByIntentId(paymentIntentId: string): Promise<IPayment | null>;
+  findPaymentByPayPalOrderId(orderId: string): Promise<IPayment | null>;
   updatePaymentStatus(
     paymentIntentId: string,
+    status: string,
+  ): Promise<IPayment | null>;
+  updatePaymentStatusByPayPalOrder(
+    orderId: string,
     status: string,
   ): Promise<IPayment | null>;
   updateLessonProgress(
