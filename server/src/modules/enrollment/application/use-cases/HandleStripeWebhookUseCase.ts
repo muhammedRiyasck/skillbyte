@@ -2,19 +2,19 @@ import Stripe from 'stripe';
 import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
 import logger from '../../../../shared/utils/Logger';
 import { IHandleStripeWebhook } from '../interfaces/IHandleStripeWebhook';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: '2025-11-17.clover',
-});
+import { IStripeProvider } from '../interfaces/IStripeProvider';
 
 export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
-  constructor(private enrollmentRepository: IEnrollmentRepository) {}
+  constructor(
+    private enrollmentRepository: IEnrollmentRepository,
+    private stripeProvider: IStripeProvider,
+  ) {}
 
   async execute(signature: string, payload: Buffer) {
     let event: Stripe.Event;
 
     try {
-      event = stripe.webhooks.constructEvent(
+      event = this.stripeProvider.constructEvent(
         payload,
         signature,
         process.env.STRIPE_WEBHOOK_SECRET as string,
@@ -67,8 +67,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
     await this.enrollmentRepository.createEnrollment({
       userId: payment.userId,
       courseId: payment.courseId,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      paymentId: payment._id as any,
+      paymentId: payment._id,
       status: 'completed',
       enrolledAt: new Date(),
       progress: 0,

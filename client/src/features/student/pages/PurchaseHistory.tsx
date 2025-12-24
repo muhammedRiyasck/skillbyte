@@ -16,7 +16,8 @@ interface Purchase {
   currency: string;
   status: string;
   createdAt: string;
-  stripePaymentIntentId: string;
+  stripePaymentIntentId?: string;
+  paypalOrderId?: string;
 }
 
 const PurchaseHistory: React.FC = () => {
@@ -127,7 +128,7 @@ const PurchaseHistory: React.FC = () => {
                       </td>
                       <td className="px-6 py-5">
                         <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
-                          {purchase.stripePaymentIntentId.slice(-10)}
+                          {purchase.stripePaymentIntentId ? purchase.stripePaymentIntentId.slice(-10) : purchase.paypalOrderId?.slice(-10)}
                         </span>
                       </td>
                       <td className="px-6 py-5">
@@ -137,9 +138,9 @@ const PurchaseHistory: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-5">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                          {purchase.status}
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${purchase.status === 'succeeded' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : purchase.status === 'failed' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${purchase.status === 'succeeded' ? 'bg-green-600' : purchase.status === 'failed' ? 'bg-red-600' : 'bg-yellow-400'}`}></span>
+                          {purchase.status.toUpperCase()}
                         </span>
                       </td>
                     </tr>

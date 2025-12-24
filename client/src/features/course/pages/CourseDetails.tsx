@@ -73,7 +73,7 @@ const CourseDetails: React.FC = () => {
   }, [blockedLessonIds]);
 
 
-  const isEnrolled = enrollmentData?.isEnrolled || false;
+  const isEnrolled = enrollmentData?.data?.isEnrolled || false;
   
   const toggleModule = (moduleId: string) => {
     const newExpanded = new Set(expandedModules);
