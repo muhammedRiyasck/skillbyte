@@ -9,6 +9,14 @@ import rateLimit from 'express-rate-limit';
 import { config } from 'dotenv';
 config();
 
+import errorHandler from './shared/middlewares/GlobalErrorMiddleware';
+
+import rootRouter from './routes';
+import { enrollmentController } from './modules/enrollment/entry-point/EnrollmentContiner';
+
+import './shared/config/passport/GoogleStrategy';
+import './shared/config/passport/FacebookStrategy';
+
 const app = express();
 app.use(
   session({
@@ -20,13 +28,6 @@ app.use(
 
 app.use(passport.initialize());
 app.use(passport.session());
-
-import './shared/config/passport/GoogleStrategy';
-import './shared/config/passport/FacebookStrategy';
-
-import errorHandler from './shared/middlewares/GlobalErrorMiddleware';
-import EnrollmentRoutes from './modules/enrollment/entry-point/routes/Enrollment.routes';
-import { enrollmentController } from './modules/enrollment/entry-point/EnrollmentContiner';
 
 // Webhook must be before express.json() to capture raw body
 app.post(
@@ -58,29 +59,7 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-import AuthRoutes from './modules/auth/entry-point/routes/Auth.routes';
-import AdminAuthRoutes from './modules/admin/entry-points/routes/Auth.routes';
-import StudentauthRoutes from './modules/student/entry-points/routes/Auth.routes';
-import AdminStudentRoutes from './modules/student/entry-points/routes/AdminStudent.routes';
-import InstructorauthRoutes from './modules/instructor/entry-point/routes/Auth.routes';
-import InstructorProfileRoutes from './modules/instructor/entry-point/routes/InstructorProfile.routes';
-import AdminInstructorRoutes from './modules/instructor/entry-point/routes/AdminInstructor.routes';
-import CourseRoutes from './modules/course/entry-point/routes/Course.routes';
-// import AdminCourseRoutes from "./modules/course/entry-point/routes/AdminCourse.Routes";
-// Load auth routes
-app.use('/api/auth', AuthRoutes);
-
-app.use('/api/student', StudentauthRoutes);
-app.use('/api/students', AdminStudentRoutes);
-
-app.use('/api/instructor', InstructorauthRoutes);
-app.use('/api/instructor', InstructorProfileRoutes);
-app.use('/api/instructors/', AdminInstructorRoutes);
-
-app.use('/api/course', CourseRoutes);
-app.use('/api/enrollment', EnrollmentRoutes);
-
-app.use('/api/admin', AdminAuthRoutes);
+app.use('/api', rootRouter);
 
 app.use(errorHandler);
 export default app;
