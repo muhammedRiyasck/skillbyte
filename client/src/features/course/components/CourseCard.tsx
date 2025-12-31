@@ -43,7 +43,7 @@ const navigate = useNavigate();
       
        setConfirmModal({
         isOpen: true,
-        courseId: course._id,
+        courseId: course.courseId,
         newStatus: "", 
         action: "block",
         isBlocked: !course.isBlocked
@@ -52,7 +52,7 @@ const navigate = useNavigate();
       const newStatus = course.status === "list" ? "unlist" : "list";
       setConfirmModal({
         isOpen: true,
-        courseId: course._id,
+        courseId: course.courseId,
         newStatus,
         action: "status"
       });
@@ -116,12 +116,11 @@ const navigate = useNavigate();
   };
   
   const getActionButton = (course: Ibase) => {
-
     if (role === 'student') {
       // Action Button for Students
       return (
         <button
-          onClick={() => navigate(ROUTES.course.details.replace(':courseId', course._id), { state: { page } })}
+          onClick={() => navigate(ROUTES.course.details.replace(':courseId', course.courseId), { state: { page } })}
           className={cn(
             "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 cursor-pointer",
             course.isEnrolled 
@@ -138,7 +137,7 @@ const navigate = useNavigate();
     return (
       <button
         onClick={() => {navigate(ROUTES.instructor.uploadCourseContent, {
-          state: { courseId: course._id, page }
+          state: { courseId: course.courseId, page }
         })}}
         className={
           "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none cursor-pointer bg-indigo-500 hover:bg-indigo-600"}
@@ -149,7 +148,7 @@ const navigate = useNavigate();
   }else if(role === 'admin'){
     return (
       <button
-        onClick={() => navigate(ROUTES.course.details.replace(':courseId', course._id), { state: { page } })}
+        onClick={() => navigate(ROUTES.course.details.replace(':courseId', course.courseId), { state: { page } })}
         className={
           "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none cursor-pointer bg-orange-500 hover:bg-orange-600"}
       >
@@ -166,7 +165,7 @@ const navigate = useNavigate();
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 my-12">
       {courses.map((course) => (
         <div
-          key={course._id}
+          key={course.courseId}
           className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 p-6 flex flex-col group hover:-translate-y-2 border border-gray-100 dark:border-gray-700 ${role === 'instructor' && course.isBlocked ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <div className="rounded-lg overflow-hidden mb-4 relative">

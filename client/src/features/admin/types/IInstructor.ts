@@ -1,5 +1,5 @@
 export interface Instructor {
-  _id:string
+  instructorId:string
   name: string;
   email: string;
   profile: string;

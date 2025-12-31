@@ -43,7 +43,7 @@ const Dashboard: React.FC = () => {
       setError(null);
       const data = await getInstructorEnrollments(page, itemsPerPage, currentFilters);
       setEnrollments(data.data.data);
-      setTotalCount(data.totalCount);
+      setTotalCount(data?.data?.totalCount);
     } catch {
       setError('Failed to load enrollment data');
       toast.error('Failed to load enrollment data');

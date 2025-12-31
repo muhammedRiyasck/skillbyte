@@ -175,7 +175,8 @@ const CourseDetails: React.FC = () => {
   );
   
   const initialProgress = currentLessonProgress?.lastWatchedSecond || 0;
-  const enrollmentId = enrollmentData?.enrollment?._id;
+  
+  const enrollmentId = enrollmentData?.data?.enrollment?._id;
 
 
   return (
@@ -451,7 +452,7 @@ const CourseDetails: React.FC = () => {
                               </div>
                               {/* Progress Bar for Enrolled Students */}
                               {role === 'student' && isEnrolled && (function() {
-                                  const prog = enrollmentData?.enrollment?.lessonProgress?.find((p: { lessonId: string; lastWatchedSecond: number; totalDuration: number; isCompleted: boolean }) => p.lessonId === lesson.lessonId);
+                                  const prog = enrollmentData?.data?.enrollment?.lessonProgress?.find((p: { lessonId: string; lastWatchedSecond: number; totalDuration: number; isCompleted: boolean }) => p.lessonId === lesson.lessonId);
                                   const pct = prog ? Math.min(100, Math.max(0, (prog.lastWatchedSecond / (prog.totalDuration || lesson.duration || 1)) * 100)) : 0;
                                   // Only show progress bar if there is some progress or it's completed
                                   if (!prog && pct === 0) return null;

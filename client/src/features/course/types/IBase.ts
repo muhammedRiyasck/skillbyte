@@ -1,5 +1,5 @@
 export interface Ibase {
-    _id: string;
+    courseId: string;
     thumbnailUrl: string
     title: string;
     subText: string;

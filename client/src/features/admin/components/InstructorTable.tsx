@@ -199,7 +199,7 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
       accessor: (row: Instructor) =>
         row.resumeUrl ? (
           <button
-            onClick={() => handleViewResume(row._id)}
+            onClick={() => handleViewResume(row.instructorId)}
             className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center cursor-pointer"
           >
             <Eye className="w-4 h-4 mr-1" />
@@ -251,14 +251,14 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
           return (
             <div className="flex space-x-2">
               <button
-                onClick={() => handleAction(row._id, "approve", row.name)}
+                onClick={() => handleAction(row.instructorId, "approve", row.name)}
                 className="inline-flex items-center px-3 py-2 border border-transparent text-lg leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer focus:ring-green-500"
               >
                 <CheckCircle className="w-4 h-4 mr-1" />
                 Approve
               </button>
               <button
-                onClick={() => handleAction(row._id, "decline", row.name)}
+                onClick={() => handleAction(row.instructorId, "decline", row.name)}
                 className="inline-flex items-center px-3 py-2 border border-transparent text-lg leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer focus:ring-red-500"
               >
                 <XCircle className="w-4 h-4 mr-1" />
@@ -269,7 +269,7 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
         } else if (row.accountStatus === "active" && row.approved) {
           return (
             <button
-              onClick={() => handleAction(row._id, "suspend", row.name)}
+              onClick={() => handleAction(row.instructorId, "suspend", row.name)}
               className="inline-flex items-center px-2 py-2 border border-transparent text-lg leading-4 font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer focus:ring-yellow-500"
             >
               <UserX className="w-4 h-4 mr-1" />
@@ -279,7 +279,7 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
         } else if (row.accountStatus === "rejected" && row.rejected) {
           return (
             <button
-              onClick={() => handleAction(row._id, "delete", row.name)}
+              onClick={() => handleAction(row.instructorId, "delete", row.name)}
               className="inline-flex items-center px-3 py-2 border border-transparent text-lg leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer focus:ring-red-500"
             >
               <Trash2 className="w-4 h-4 mr-1" />
@@ -289,7 +289,7 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
         } else {
           return (
             <button
-              onClick={() => handleAction(row._id, "reOpen", row.name)}
+              onClick={() => handleAction(row.instructorId, "reOpen", row.name)}
               className="inline-flex items-center px-3 py-2 border border-transparent text-lg leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer focus:ring-blue-500"
             >
               <RotateCcw className="w-4 h-4 mr-1" />
