@@ -1,4 +1,5 @@
 import { Types, PipelineStage } from 'mongoose';
+import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
 import { IInstructorEnrollment } from '../../types/IInstructorEnrollment';
 import { EnrollmentModel, IEnrollment } from '../models/EnrollmentModel';
@@ -10,29 +11,35 @@ import {
   IPaymentHistory,
   IInstructorEarnings,
 } from '../../types/IPaymentHistory';
-export class EnrollmentRepository implements IEnrollmentRepository {
-  async createEnrollment(
-    enrollmentData: Partial<IEnrollment>,
-  ): Promise<IEnrollment> {
-    return await EnrollmentModel.create(enrollmentData);
+
+export class EnrollmentRepository
+  extends BaseRepository<IEnrollment, IEnrollment>
+  implements IEnrollmentRepository
+{
+  constructor() {
+    super(EnrollmentModel);
+  }
+
+  toEntity(doc: IEnrollment): IEnrollment {
+    return doc;
   }
 
   async findEnrollment(
     userId: string,
     courseId: string,
   ): Promise<IEnrollment | null> {
-    return await EnrollmentModel.findOne({ userId, courseId });
+    return await this.model.findOne({ userId, courseId });
   }
 
   async findEnrollmentsForUser(
     userId: string,
     courseIds: string[],
   ): Promise<IEnrollment[]> {
-    return await EnrollmentModel.find({ userId, courseId: { $in: courseIds } });
+    return await this.model.find({ userId, courseId: { $in: courseIds } });
   }
 
   async findEnrolledCourseIds(userId: string): Promise<string[]> {
-    const courseIds = await EnrollmentModel.distinct('courseId', { userId });
+    const courseIds = await this.model.distinct('courseId', { userId });
     return courseIds.map((id) => id.toString());
   }
 
@@ -145,14 +152,14 @@ export class EnrollmentRepository implements IEnrollmentRepository {
       },
     );
 
-    return await EnrollmentModel.aggregate(pipeline);
+    return await this.model.aggregate(pipeline);
   }
 
   async updateEnrollmentStatus(
     enrollmentId: string,
     status: string,
   ): Promise<IEnrollment | null> {
-    return await EnrollmentModel.findByIdAndUpdate(
+    return await this.model.findByIdAndUpdate(
       enrollmentId,
       { status },
       { new: true },
@@ -205,14 +212,14 @@ export class EnrollmentRepository implements IEnrollmentRepository {
       isCompleted: boolean;
     },
   ): Promise<IEnrollment | null> {
-    const enrollment = await EnrollmentModel.findOne({
+    const enrollment = await this.model.findOne({
       _id: enrollmentId,
       'lessonProgress.lessonId': lessonId,
     });
 
     if (enrollment) {
       // Update existing
-      await EnrollmentModel.findOneAndUpdate(
+      await this.model.findOneAndUpdate(
         { _id: enrollmentId, 'lessonProgress.lessonId': lessonId },
         {
           $set: {
@@ -227,7 +234,7 @@ export class EnrollmentRepository implements IEnrollmentRepository {
       );
     } else {
       // Push new
-      await EnrollmentModel.findByIdAndUpdate(
+      await this.model.findByIdAndUpdate(
         enrollmentId,
         {
           $push: {
@@ -243,7 +250,7 @@ export class EnrollmentRepository implements IEnrollmentRepository {
     }
 
     // --- Recalculate Overall Progress ---
-    const updatedEnrollment = await EnrollmentModel.findById(enrollmentId);
+    const updatedEnrollment = await this.model.findById(enrollmentId);
     if (!updatedEnrollment) return null;
 
     // 1. Get total lessons count for the course
@@ -285,7 +292,7 @@ export class EnrollmentRepository implements IEnrollmentRepository {
       updateData.completedAt = new Date();
     }
 
-    return await EnrollmentModel.findByIdAndUpdate(enrollmentId, updateData, {
+    return await this.model.findByIdAndUpdate(enrollmentId, updateData, {
       new: true,
     });
   }

@@ -58,7 +58,7 @@ export class CapturePayPalPaymentUseCase implements ICapturePayPalPayment {
         };
       }
 
-      const enrollment = await this._enrollmentRepository.createEnrollment({
+      const enrollment = await this._enrollmentRepository.save({
         userId: payment.userId,
         courseId: payment.courseId,
         paymentId: payment._id,

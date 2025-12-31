@@ -64,7 +64,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
       return;
     }
 
-    await this.enrollmentRepository.createEnrollment({
+    await this.enrollmentRepository.save({
       userId: payment.userId,
       courseId: payment.courseId,
       paymentId: payment._id,

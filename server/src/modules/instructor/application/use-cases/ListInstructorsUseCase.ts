@@ -24,7 +24,7 @@ export class ListInstructorsUseCase implements IlistInstructorsUC {
    * @throws Error if the listing fails.
    */
   async execute(
-    query: object,
+    query: Record<string, unknown>,
     page: number,
     limit: number,
     sort: Record<string, 1 | -1>,
@@ -42,7 +42,7 @@ export class ListInstructorsUseCase implements IlistInstructorsUC {
     const safePage = Number.isFinite(page) && page > 0 ? page : 1;
     const safeLimit =
       Number.isFinite(limit) && limit > 0 ? Math.min(limit, 50) : 6;
-    const { data, total } = await this._instructorRepo.listPaginatedInstructor(
+    const { data, total } = await this._instructorRepo.paginatedList(
       query,
       page,
       limit,

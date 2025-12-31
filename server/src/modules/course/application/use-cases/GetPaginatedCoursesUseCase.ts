@@ -50,7 +50,7 @@ export class GetPaginatedCoursesUseCase implements IGetPaginatedCoursesUseCase {
       Number.isFinite(limit) && limit > 0 ? Math.min(limit, 50) : 6;
 
     // Fetch paginated data from the repository
-    const { data, total } = await this._courseRepo.listPaginated(
+    const { data, total } = await this._courseRepo.paginatedList(
       query,
       safePage,
       safeLimit,

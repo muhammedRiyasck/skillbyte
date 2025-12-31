@@ -4,9 +4,9 @@ import { IPayment } from '../infrastructure/models/PaymentModel';
 import { IInstructorEnrollment } from '../types/IInstructorEnrollment';
 import { IEnrollmentFilters } from '../types/IInstructorEnrollment';
 import { IPaymentHistory, IInstructorEarnings } from '../types/IPaymentHistory';
+import { IBaseRepository } from '../../../shared/repositories/IBaseRepository';
 
-export interface IEnrollmentRepository {
-  createEnrollment(enrollmentData: Partial<IEnrollment>): Promise<IEnrollment>;
+export interface IEnrollmentRepository extends IBaseRepository<IEnrollment> {
   findEnrollment(userId: string, courseId: string): Promise<IEnrollment | null>;
   findEnrollmentsForUser(
     userId: string,

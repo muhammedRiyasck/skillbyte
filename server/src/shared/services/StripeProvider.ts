@@ -34,7 +34,6 @@ export class StripeProvider implements IStripeProvider, IPaymentProvider {
     };
   }
 
-
   constructEvent(
     payload: string | Buffer,
     header: string,

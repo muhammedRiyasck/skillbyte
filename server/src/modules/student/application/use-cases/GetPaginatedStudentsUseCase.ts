@@ -50,7 +50,7 @@ export class GetPaginatedStudentsUseCase
       Number.isFinite(limit) && limit > 0 ? Math.min(limit, 50) : 6;
 
     // Fetch paginated data from the repository
-    const { data, total } = await this._studentRepo.listPaginated(
+    const { data, total } = await this._studentRepo.paginatedList(
       query,
       safePage,
       safeLimit,

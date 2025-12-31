@@ -4,7 +4,7 @@ type GetPaginatedInstructors<T = Instructor> = PaginatedResult<T>;
 
 export interface IlistInstructorsUC {
   execute(
-    query: object,
+    query: Record<string, unknown>,
     page: number,
     limit: number,
     sort: Record<string, 1 | -1>,
