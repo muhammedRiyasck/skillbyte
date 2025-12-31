@@ -1,4 +1,33 @@
-import mongoose from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
+
+export interface IInstructor extends Document {
+  _id: Types.ObjectId;
+  name: string;
+  email: string;
+  passwordHash: string;
+  subject: string;
+  jobTitle: string;
+  experience: number;
+  socialProfile: string;
+  portfolio: string | null;
+  bio: string | null;
+  phoneNumber: string | null;
+  resumeUrl: string | null;
+  profilePictureUrl: string | null;
+  isEmailVerified: boolean;
+  accountStatus: 'pending' | 'active' | 'suspended' | 'rejected';
+  approved: boolean;
+  suspendNote: string | null;
+  rejected: boolean;
+  rejectedNote: string | null;
+  doneBy: string | null;
+  doneAt: Date | null;
+  averageRating: number;
+  totalReviews: number;
+  stripeAccountId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 const InstructorSchema = new mongoose.Schema(
   {
@@ -33,4 +62,7 @@ const InstructorSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-export const InstructorModel = mongoose.model('Instructor', InstructorSchema);
+export const InstructorModel = mongoose.model<IInstructor>(
+  'Instructor',
+  InstructorSchema,
+);

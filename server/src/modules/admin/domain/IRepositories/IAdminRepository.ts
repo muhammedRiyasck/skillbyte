@@ -1,6 +1,6 @@
+import { IBaseRepository } from '../../../../shared/repositories/IBaseRepository';
 import { Admin } from '../entities/Admin';
 
-export interface IAdminRepository {
-  findById(id: string): Promise<Admin | null>;
+export interface IAdminRepository extends IBaseRepository<Admin> {
   findByEmail(email: string): Promise<Admin | null>;
 }

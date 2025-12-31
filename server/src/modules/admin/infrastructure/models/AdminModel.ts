@@ -1,4 +1,17 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
+
+export interface IAdmin extends Document {
+  _id: Types.ObjectId;
+  name: string;
+  email: string;
+  passwordHash: string;
+  role: 'admin' | 'superadmin';
+  isEmailVerified: boolean;
+  accountStatus: 'active' | 'blocked' | 'suspended';
+  profilePictureUrl: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 const AdminSchema = new Schema(
   {
@@ -17,4 +30,4 @@ const AdminSchema = new Schema(
   { timestamps: true },
 );
 
-export const AdminModel = mongoose.model('Admin', AdminSchema);
+export const AdminModel = mongoose.model<IAdmin>('Admin', AdminSchema);

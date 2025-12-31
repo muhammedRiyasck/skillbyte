@@ -1,36 +1,44 @@
-import { InstructorModel } from '../models/InstructorModel';
+import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
+import { InstructorModel, IInstructor } from '../models/InstructorModel';
 import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRepository';
 import { Instructor } from '../../domain/entities/Instructor';
 import { InstructorMapper } from '../../mappers/InstructorMapper';
-import { Types } from 'mongoose';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import logger from '../../../../shared/utils/Logger';
 
-export class InstructorRepository implements IInstructorRepository {
-  async save(instructor: Instructor): Promise<Instructor> {
-    const data = InstructorMapper.toPersistence(instructor);
-    const doc = await InstructorModel.create(data);
+export class InstructorRepository
+  extends BaseRepository<Instructor, IInstructor>
+  implements IInstructorRepository
+{
+  constructor() {
+    super(InstructorModel);
+  }
+
+  toEntity(doc: IInstructor): Instructor {
     return InstructorMapper.toEntity(doc);
   }
-  // Find admin by email to support login functionality
 
   async findByEmail(email: string): Promise<Instructor | null> {
-    const doc = await InstructorModel.findOne({ email });
+    const doc = await this.model.findOne({ email });
     if (!doc) return null;
-    return InstructorMapper.toEntity(doc);
+    return this.toEntity(doc);
   }
 
+  // Override to restrict fields as in original implementation
   async findById(id: string): Promise<Instructor | null> {
-    const doc = await InstructorModel.findById(id).select(
-      'name email bio profilePictureUrl experience socialProfile subject jobTitle averageRating totalReviews',
-    );
+    const doc = await this.model
+      .findById(id)
+      .select(
+        'name email bio profilePictureUrl experience socialProfile subject jobTitle averageRating totalReviews',
+      );
     if (!doc) return null;
-    return InstructorMapper.toEntity(doc);
+    return this.toEntity(doc);
   }
 
-  async listPaginatedInstructor(
+  // Override to exclude passwordHash as in original implementation
+  async paginatedList(
     filter: Record<string, unknown>,
     page: number,
     limit: number,
@@ -41,20 +49,18 @@ export class InstructorRepository implements IInstructorRepository {
     const skip = (safePage - 1) * safeLimit;
 
     const [rawData, total] = await Promise.all([
-      InstructorModel.find(filter)
+      this.model
+        .find(filter)
         .select('-passwordHash')
         .sort(sort)
         .skip(skip)
-        .limit(safeLimit)
-        .lean(),
-      InstructorModel.countDocuments(filter), // use countDocuments when a filter exists
+        .limit(safeLimit),
+      this.model.countDocuments(filter),
     ]);
-    const data: Instructor[] = rawData.map((doc) => ({
-      ...doc,
-      instructorId: (doc._id as Types.ObjectId).toString(),
-      createdAt: new Date(doc.createdAt),
-      updatedAt: new Date(doc.updatedAt),
-    }));
+
+    const data: Instructor[] = rawData.map((doc: IInstructor) =>
+      this.toEntity(doc),
+    );
 
     return { data, total };
   }
@@ -64,12 +70,10 @@ export class InstructorRepository implements IInstructorRepository {
     passwordHash: string,
   ): Promise<{ name: string; email: string } | void> {
     try {
-      const doc = await InstructorModel.findByIdAndUpdate(
-        { _id: id },
-        { passwordHash },
-      );
-      if (doc) return { name: doc.name, email: doc.email };
-      else return;
+      const doc = await this.model.findByIdAndUpdate(id, { passwordHash });
+      if (doc) {
+        return { name: doc.name, email: doc.email };
+      } else return;
     } catch (error) {
       logger.error('Error saving student:', error);
       throw new HttpError(
@@ -80,7 +84,7 @@ export class InstructorRepository implements IInstructorRepository {
   }
 
   async approve(id: string, adminId: string): Promise<void> {
-    await InstructorModel.findByIdAndUpdate(id, {
+    await this.model.findByIdAndUpdate(id, {
       accountStatus: 'active',
       approved: true,
       doneBy: adminId,
@@ -89,7 +93,7 @@ export class InstructorRepository implements IInstructorRepository {
   }
 
   async decline(id: string, adminId: string, note: string): Promise<void> {
-    await InstructorModel.findByIdAndUpdate(id, {
+    await this.model.findByIdAndUpdate(id, {
       accountStatus: 'rejected',
       rejected: true,
       rejectedNote: note,
@@ -99,11 +103,11 @@ export class InstructorRepository implements IInstructorRepository {
   }
 
   async findAllApproved(): Promise<Instructor[] | null> {
-    const docs = await InstructorModel.find({ approved: true }).select(
-      '-passwordHash',
-    );
+    const docs = await this.model
+      .find({ approved: true })
+      .select('-passwordHash');
     if (!docs) return null;
-    return docs.map((doc) => InstructorMapper.toEntity(doc));
+    return docs.map((doc) => this.toEntity(doc));
   }
 
   async changeInstructorStatus(
@@ -111,17 +115,13 @@ export class InstructorRepository implements IInstructorRepository {
     status: 'active' | 'suspended',
     note?: string,
   ): Promise<void> {
-    await InstructorModel.findByIdAndUpdate(id, {
+    await this.model.findByIdAndUpdate(id, {
       accountStatus: status,
       suspendNote: note || null,
     });
   }
 
-  async deleteById(id: string): Promise<void> {
-    await InstructorModel.findByIdAndDelete(id);
-  }
-
   async updateById(id: string, updates: Partial<Instructor>): Promise<void> {
-    await InstructorModel.findByIdAndUpdate(id, updates);
+    await this.model.findByIdAndUpdate(id, updates);
   }
 }

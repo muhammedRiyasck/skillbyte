@@ -1,4 +1,18 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
+
+export interface IStudent extends Document {
+  _id: Types.ObjectId;
+  name: string;
+  email: string;
+  passwordHash: string;
+  isEmailVerified: boolean;
+  registeredVia: 'google' | 'local';
+  profilePictureUrl?: string | null;
+  accountStatus: string;
+  studentId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 const StudentSchema = new Schema(
   {
@@ -21,4 +35,4 @@ const StudentSchema = new Schema(
   { timestamps: true },
 );
 
-export const StudentModel = mongoose.model('Student', StudentSchema);
+export const StudentModel = mongoose.model<IStudent>('Student', StudentSchema);

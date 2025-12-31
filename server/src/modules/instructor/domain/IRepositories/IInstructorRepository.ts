@@ -1,20 +1,12 @@
+import { IBaseRepository } from '../../../../shared/repositories/IBaseRepository';
 import { Instructor } from '../entities/Instructor';
 
-export interface IInstructorRepository {
-  save(instructor: Instructor): Promise<Instructor>;
+export interface IInstructorRepository extends IBaseRepository<Instructor> {
   findByEmail(email: string): Promise<Instructor | null>;
-  findById(id: string): Promise<Instructor | null>;
   findByIdAndUpdatePassword(
     id: string,
     password: string,
   ): Promise<{ name: string; email: string } | void>;
-  listPaginatedInstructor(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    filter: Record<string, any>,
-    page: number,
-    limit: number,
-    sort: Record<string, 1 | -1>,
-  ): Promise<{ data: Instructor[]; total: number }>;
   approve(id: string, adminId: string): Promise<void>;
   decline(id: string, adminId: string, note: string): Promise<void>;
   findAllApproved(): Promise<Instructor[] | null>;
@@ -23,6 +15,5 @@ export interface IInstructorRepository {
     status: 'active' | 'suspended',
     note?: string,
   ): Promise<void>;
-  deleteById(id: string): Promise<void>;
   updateById(id: string, updates: Partial<Instructor>): Promise<void>;
 }
