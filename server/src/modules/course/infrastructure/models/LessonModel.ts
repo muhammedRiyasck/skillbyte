@@ -1,4 +1,21 @@
-import mongoose from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
+
+export interface ILessonDoc extends Document {
+  _id: Types.ObjectId;
+  moduleId: Types.ObjectId;
+  title: string;
+  description: string;
+  contentType: 'video' | 'pdf';
+  fileName: string;
+  order: number;
+  duration: number;
+  resources: string[];
+  isFreePreview: boolean;
+  isPublished: boolean;
+  isBlocked: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 const LessonSchema = new mongoose.Schema(
   {
@@ -23,4 +40,4 @@ const LessonSchema = new mongoose.Schema(
 
 LessonSchema.index({ moduleId: 1, order: 1 });
 
-export const LessonModel = mongoose.model('Lesson', LessonSchema);
+export const LessonModel = mongoose.model<ILessonDoc>('Lesson', LessonSchema);

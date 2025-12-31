@@ -1,18 +1,11 @@
+import { IBaseRepository } from '../../../../shared/repositories/IBaseRepository';
 import { Course } from '../entities/Course';
 
-export interface ICourseRepository {
-  save(course: Course): Promise<Course>;
-  findById(id: string): Promise<Course | null>;
+export interface ICourseRepository extends IBaseRepository<Course> {
   findPublishedCourses(filters: {
     search?: string;
     category?: string;
   }): Promise<Course[]>;
-  listPaginated(
-    filter: Record<string, unknown>,
-    page: number,
-    limit: number,
-    sort: Record<string, 1 | -1>,
-  ): Promise<{ data: Course[]; total: number }>;
   findAllForAdmin(filters: {
     instructorId?: string;
     status?: string;
@@ -24,7 +17,6 @@ export interface ICourseRepository {
     updatedFields: Partial<Course>,
   ): Promise<void>;
   updateStatus(courseId: string, status: 'list' | 'unlist'): Promise<void>;
-  deleteById(courseId: string): Promise<void>;
   getCategories(): Promise<string[]>;
   blockCourse(courseId: string, isBlocked: boolean): Promise<void>;
 }

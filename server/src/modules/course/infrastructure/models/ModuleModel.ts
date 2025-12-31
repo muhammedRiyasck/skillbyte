@@ -1,4 +1,14 @@
-import mongoose from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
+
+export interface IModuleDoc extends Document {
+  _id: Types.ObjectId;
+  courseId: Types.ObjectId;
+  title: string;
+  description: string;
+  order: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 const ModuleSchema = new mongoose.Schema(
   {
@@ -16,4 +26,4 @@ const ModuleSchema = new mongoose.Schema(
 
 ModuleSchema.index({ courseId: 1, order: 1 });
 
-export const ModuleModel = mongoose.model('Module', ModuleSchema);
+export const ModuleModel = mongoose.model<IModuleDoc>('Module', ModuleSchema);

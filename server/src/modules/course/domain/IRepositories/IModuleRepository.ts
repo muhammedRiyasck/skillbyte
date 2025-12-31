@@ -1,6 +1,7 @@
+import { IBaseRepository } from '../../../../shared/repositories/IBaseRepository';
 import { Module } from '../../domain/entities/Module';
 
-export interface IModuleRepository {
+export interface IModuleRepository extends IBaseRepository<Module> {
   save(data: {
     courseId: string;
     title: string;
@@ -8,8 +9,6 @@ export interface IModuleRepository {
     order: number;
   }): Promise<Module>;
   findModulesByCourseId(courseId: string): Promise<Module[]>;
-  findById(moduleId: string): Promise<Module | null>;
   updateModuleById(moduleId: string, updates: Partial<Module>): Promise<void>;
-  deleteById(moduleId: string): Promise<void>;
   deleteManyByCourseId(courseId: string): Promise<void>;
 }

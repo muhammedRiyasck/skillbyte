@@ -1,4 +1,31 @@
-import mongoose from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
+
+export interface ICourseDoc extends Document {
+  _id: Types.ObjectId;
+  instructorId: Types.ObjectId;
+  thumbnailUrl: string | null;
+  title: string;
+  subText: string;
+  category: string;
+  courseLevel:
+    | 'Beginner'
+    | 'Intermediate'
+    | 'Advanced'
+    | 'Beginner - Intermediate'
+    | 'Intermediate - Advanced'
+    | 'All Level';
+  language: string;
+  price: number;
+  features: string[];
+  description: string;
+  duration: string;
+  tags: string[];
+  status: 'draft' | 'list' | 'unlist';
+  isBlocked: boolean;
+  stripePriceId: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 const CourseSchema = new mongoose.Schema(
   {
@@ -43,4 +70,4 @@ const CourseSchema = new mongoose.Schema(
 CourseSchema.index({ instructorId: 1 });
 CourseSchema.index({ status: 1, createdAt: -1 });
 
-export const CourseModel = mongoose.model('Course', CourseSchema);
+export const CourseModel = mongoose.model<ICourseDoc>('Course', CourseSchema);

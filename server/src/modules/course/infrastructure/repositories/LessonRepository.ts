@@ -1,24 +1,25 @@
-import { Lesson } from '../../domain/entities/Lesson';
+import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
-import { LessonModel } from '../models/LessonModel';
+import { Lesson } from '../../domain/entities/Lesson';
+import { LessonModel, ILessonDoc } from '../models/LessonModel';
 
-export class LessonRepository implements ILessonRepository {
-  async save(data: {
-    moduleId: string;
-    title: string;
-    contentType: 'video' | 'pdf';
-    contentUrl: string;
-    order: number;
-  }) {
-    const doc = await LessonModel.create(data);
+export class LessonRepository
+  extends BaseRepository<Lesson, ILessonDoc>
+  implements ILessonRepository
+{
+  constructor() {
+    super(LessonModel);
+  }
+
+  toEntity(doc: ILessonDoc): Lesson {
     return new Lesson(
       doc.moduleId.toString(),
       doc.title,
       doc.description,
       doc.contentType,
       doc.fileName,
-      doc.order!,
-      doc.duration!,
+      doc.order,
+      doc.duration,
       doc.resources,
       doc.isFreePreview,
       doc.isPublished,
@@ -28,33 +29,16 @@ export class LessonRepository implements ILessonRepository {
       doc.updatedAt,
     );
   }
+
   async findByModuleId(moduleIds: string[]): Promise<Lesson[]> {
-    const docs = await LessonModel.find({ moduleId: { $in: moduleIds } }).sort({
+    const docs = await this.model.find({ moduleId: { $in: moduleIds } }).sort({
       order: 1,
     });
-    return docs.map(
-      (doc) =>
-        new Lesson(
-          doc.moduleId.toString(),
-          doc.title,
-          doc.description,
-          doc.contentType,
-          doc.fileName,
-          doc.order!,
-          doc.duration!,
-          doc.resources,
-          doc.isFreePreview,
-          doc.isPublished,
-          doc.isBlocked,
-          doc._id.toString(),
-          doc.createdAt,
-          doc.updatedAt,
-        ),
-    );
+    return docs.map((doc) => this.toEntity(doc));
   }
 
   async create(lesson: Lesson): Promise<Lesson> {
-    const doc = await LessonModel.create({
+    const doc = await this.model.create({
       moduleId: lesson.moduleId,
       title: lesson.title,
       description: lesson.description,
@@ -68,61 +52,21 @@ export class LessonRepository implements ILessonRepository {
       isBlocked: lesson.isBlocked,
     });
 
-    return new Lesson(
-      doc.moduleId.toString(),
-      doc.title,
-      doc.description,
-      doc.contentType,
-      doc.fileName,
-      doc.order!,
-      doc.duration!,
-      doc.resources,
-      doc.isFreePreview,
-      doc.isPublished,
-      doc.isBlocked,
-      doc._id.toString(),
-      doc.createdAt,
-      doc.updatedAt,
-    );
+    return this.toEntity(doc);
   }
 
   async updateLessonById(
     lessonId: string,
     updates: Partial<Lesson>,
   ): Promise<void> {
-    await LessonModel.findByIdAndUpdate(lessonId, updates, { new: true });
-  }
-
-  async findById(id: string): Promise<Lesson | null> {
-    const doc = await LessonModel.findById(id);
-    if (!doc) return null;
-
-    return new Lesson(
-      doc.moduleId.toString(),
-      doc.title,
-      doc.description,
-      doc.contentType,
-      doc.fileName,
-      doc.order!,
-      doc.duration!,
-      doc.resources,
-      doc.isFreePreview,
-      doc.isPublished,
-      doc.isBlocked,
-      doc._id.toString(),
-      doc.createdAt,
-      doc.updatedAt,
-    );
-  }
-
-  async deleteById(lessonId: string): Promise<void> {
-    await LessonModel.findByIdAndDelete(lessonId);
+    await this.model.findByIdAndUpdate(lessonId, updates, { new: true });
   }
 
   async deleteManyByModuleId(moduleId: string): Promise<void> {
-    await LessonModel.deleteMany({ moduleId });
+    await this.model.deleteMany({ moduleId });
   }
+
   async deleteManyByModuleIds(moduleIds: string[]): Promise<void> {
-    await LessonModel.deleteMany({ moduleId: { $in: moduleIds } });
+    await this.model.deleteMany({ moduleId: { $in: moduleIds } });
   }
 }
