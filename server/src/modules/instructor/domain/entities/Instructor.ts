@@ -7,7 +7,7 @@ export class Instructor {
     public jobTitle: string,
     public experience: number,
     public socialProfile: string,
-    public portfolio: string,
+    public portfolio: string | null,
     public bio: string | null,
     public phoneNumber: string | null,
     public resumeUrl: string | null,

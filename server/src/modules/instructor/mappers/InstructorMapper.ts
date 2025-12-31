@@ -1,8 +1,8 @@
 import { Instructor } from '../domain/entities/Instructor';
+import { IInstructor } from '../infrastructure/models/InstructorModel';
 
 export class InstructorMapper {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static toEntity(doc: any): Instructor {
+  static toEntity(doc: IInstructor): Instructor {
     return new Instructor(
       doc.name,
       doc.email,
@@ -11,19 +11,19 @@ export class InstructorMapper {
       doc.jobTitle,
       doc.experience,
       doc.socialProfile,
-      doc.portfolio,
-      doc.bio,
-      doc.phoneNumber,
-      doc.resumeUrl,
-      doc.profilePictureUrl,
+      doc.portfolio || null,
+      doc.bio || null,
+      doc.phoneNumber || null,
+      doc.resumeUrl || null,
+      doc.profilePictureUrl || null,
       doc.isEmailVerified,
       doc.accountStatus,
       doc.approved,
-      doc.suspendNote,
+      doc.suspendNote || null,
       doc.rejected,
-      doc.rejectedNote,
-      doc.doneBy,
-      doc.doneAt,
+      doc.rejectedNote || null,
+      doc.doneBy || null,
+      doc.doneAt || null,
       doc.averageRating,
       doc.totalReviews,
       doc._id.toString(),
