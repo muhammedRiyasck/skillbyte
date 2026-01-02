@@ -7,6 +7,7 @@ import { DeclineInstructorUseCase } from '../../application/use-cases/DeclineIns
 import { InstructorRepository } from '../../infrastructure/repositories/InstructorRepository';
 import { ChangeInstructorStatusUseCase } from '../../application/use-cases/ChangeInstructorStatusUseCase';
 import { DeleteInstructorUseCase } from '../../application/use-cases/DeleteInstructorUseCase';
+import { S3StorageService } from '../../../../shared/services/file-upload/services/S3StorageService';
 const instructorRepo = new InstructorRepository();
 
 const listInstructorUC = new ListInstructorsUseCase(instructorRepo);
@@ -16,11 +17,13 @@ const changeInstructorStatusUC = new ChangeInstructorStatusUseCase(
   instructorRepo,
 );
 const deleteInstructorUC = new DeleteInstructorUseCase(instructorRepo);
-
+const storageService = new S3StorageService();
+ 
 export const adminInstructorController = new AdminInstructorController(
   listInstructorUC,
   approveUC,
   declineUC,
   changeInstructorStatusUC,
   deleteInstructorUC,
+  storageService
 );

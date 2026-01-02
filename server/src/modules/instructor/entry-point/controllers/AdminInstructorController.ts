@@ -9,7 +9,6 @@ import { IDeleteInstructorUseCase } from '../../application/interfaces/IDeleteIn
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
-import { getBackblazeSignedUrl } from '../../../../shared/utils/Backblaze';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import {
   AdminInstructorPaginationSchema,
@@ -18,6 +17,7 @@ import {
   ChangeInstructorStatusSchema,
 } from '../../application/dtos/AdminInstructorDtos';
 import { AdminInstructorMapper } from '../../application/mappers/AdminInstructorMapper';
+import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 
 /**
  * Controller for admin operations on instructors.
@@ -38,6 +38,7 @@ export class AdminInstructorController {
     private _declineUC: IDeclineInstructorUseCase,
     private _changeStatusUC: IChangeInstructorStatusUseCase,
     private _deleteInstructorUC: IDeleteInstructorUseCase,
+    private _storageService: IStorageService
   ) {}
 
   /**
@@ -169,7 +170,7 @@ export class AdminInstructorController {
     const fileKey = instructor.resumeUrl;
 
     // Generate a fresh signed URL with 1 hour expiration
-    const freshSignedUrl = await getBackblazeSignedUrl(fileKey);
+    const freshSignedUrl = await this._storageService.getSignedUrl(fileKey);
 
     const fileResponse = await fetch(freshSignedUrl);
 
