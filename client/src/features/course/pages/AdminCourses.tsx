@@ -1,5 +1,5 @@
 import React, {  useState } from "react";
-import {  useQuery, useQueryClient } from "@tanstack/react-query";
+import {  useQuery } from "@tanstack/react-query";
 import Card from "@shared/shimmer/Card";
 import api from "@shared/utils/AxiosInstance";
 import ErrorPage from "@shared/ui/ErrorPage";
@@ -17,7 +17,6 @@ const AdminCourses: React.FC = () => {
   const [page, setPage] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState(options[0]);
-  const queryClient = useQueryClient();
   const email = useSelector((state: RootState) => state.auth.user?.email);
 
 
@@ -38,26 +37,6 @@ const AdminCourses: React.FC = () => {
     setSelectedStatus(option);
   };
 
-  const handleBlockChange = (courseId: string, isBlocked?: boolean) => {
-    // Update the local state by modifying the cached data
-    queryClient.setQueryData(['courses', selectedStatus, page,email ], (oldData: { data: { courses: { data: Array<{_id: string; isBlocked?: boolean}> } } } | undefined) => {
-      if (!oldData) return oldData;
-      const updatedCourses = oldData.data.courses.data.map((course: {_id: string; isBlocked?: boolean;}
-) =>
-        course._id === courseId ? { ...course, isBlocked } : course
-      );
-      return {
-        ...oldData,
-        data: {
-          ...oldData.data,
-          courses: {
-            ...oldData.data.courses,
-            data: updatedCourses
-          }
-        }
-      };
-    });
-  };
   return (
     <div className="min-h-screen bg-white  dark:bg-gray-900 pb-8">
       <div className="bg-gray-200 dark:bg-gray-700 px-6 py-4 flex justify-between items-center">
@@ -77,7 +56,7 @@ const AdminCourses: React.FC = () => {
         </div>
       </div>
 
-      <CourseRender data={data?.data?.courses?.data} page={page} totalPages={data?.data?.courses?.meta?.totalPages || 1} setPage={setPage} role={'admin'} onBlockChange={handleBlockChange}  />
+      <CourseRender data={data?.data?.courses?.data} page={page} totalPages={data?.data?.courses?.meta?.totalPages || 1} setPage={setPage} role={'admin'}  />
   
     </div>
   );

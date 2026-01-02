@@ -8,11 +8,9 @@ interface CourseRenderProps {
   totalPages: number;
   setPage: (page: number) => void;
   role?: string ;
-  onStatusChange?: ((courseId: string, status: string) => void) | undefined;
-  onBlockChange?: ((courseId: string, isBlocked?: boolean) => void) | undefined;
 }
 
-const CourseRender = ({data,page,totalPages,setPage , role='student', onStatusChange , onBlockChange} :CourseRenderProps) => {
+const CourseRender = ({data,page,totalPages,setPage , role='student'} :CourseRenderProps) => {
     
   return <div>
      { !data || data.length === 0 ? (
@@ -24,7 +22,7 @@ const CourseRender = ({data,page,totalPages,setPage , role='student', onStatusCh
       ) : (
         <div className="max-w-7xl mx-auto px-6 mt-8">
 
-          <CourseCard courses={data} role={role} page={page} onStatusChange={onStatusChange} onBlockChange={onBlockChange}/>
+          <CourseCard courses={data} role={role} page={page} />
       </div>
       )}
       {totalPages > 1 && (

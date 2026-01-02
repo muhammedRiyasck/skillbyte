@@ -1,5 +1,6 @@
 import { memo, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { ROUTES } from "@core/router/paths";
 import { cn } from "@shared/utils/cn";
 import ToggleSwitch from "@/shared/ui/ToggleSwitch";
@@ -11,20 +12,16 @@ import type { Ibase } from "../types/IBase";
 interface CourseCardProps {
   courses: Ibase[];
   role?: string;
-  onStatusChange?: ((courseId: string, status: string) => void) | undefined;
-  onBlockChange?: ((courseId: string, isBlocked?: boolean) => void) | undefined;
   page?: number;
 }
-
 
 const CourseCard = memo<CourseCardProps>(({
   courses,
   role = 'student',
-  onStatusChange,
-  onBlockChange,
   page = 1
 }) => {
 const navigate = useNavigate();
+const queryClient = useQueryClient();
   const [confirmModal, setConfirmModal] = useState<{ 
     isOpen: boolean; 
     courseId: string; 
@@ -63,24 +60,18 @@ const navigate = useNavigate();
     try {
       if (confirmModal.action === "status") {
         await updateCourseStatus(confirmModal.courseId, confirmModal.newStatus as "list" | "unlist");
-        if (onStatusChange) {
-          onStatusChange(confirmModal.courseId, confirmModal.newStatus);
-        }
       } else if (confirmModal.action === "block") {
          await blockCourse(confirmModal.courseId, confirmModal.isBlocked!);
-
-         // The parent component's state will be updated via onBlockChange, triggering a re-render.
-
-         if (onBlockChange) {
-            onBlockChange(confirmModal.courseId, confirmModal.isBlocked  );
-         }
       }
+      
+      // Invalidate queries directly after successful mutation
+      await queryClient.invalidateQueries({ queryKey: ["courses"] });
     } catch (error) {
       console.error("Failed to update course status:", error);
     } finally {
       setConfirmModal({ isOpen: false, courseId: "", newStatus: "list", action: "status" });
     }
-  }, [confirmModal, onStatusChange, onBlockChange]);
+  }, [confirmModal, queryClient]);
 
   const cancelStatusChange = useCallback(() => {
     setConfirmModal({ isOpen: false, courseId: "", newStatus: "list", action: "status" });
