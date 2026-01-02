@@ -10,11 +10,13 @@ import { ModuleRepository } from '../../infrastructure/repositories/ModuleReposi
 import { LessonRepository } from '../../infrastructure/repositories/LessonRepository';
 import { EnrollmentRepository } from '../../../enrollment/infrastructure/repositories/EnrollmentRepository';
 import { BlockLessonUseCase } from '../../application/use-cases/BlockLessonUseCase';
+import { S3StorageService } from '../../../../shared/services/file-upload/services/S3StorageService';
 
 const moduleRepository = new ModuleRepository();
 const courseRepository = new CourseRepository();
 const LessonRepo = new LessonRepository();
 const enrollmentRepository = new EnrollmentRepository();
+const storageService = new S3StorageService();
 
 const createLessonUC = new CreateLessonUseCase(
   courseRepository,
@@ -40,6 +42,7 @@ const getLessonPlayUrlUC = new GetLessonPlayUrlUseCase(
   LessonRepo,
   moduleRepository,
   enrollmentRepository,
+  storageService,
 );
 
 export const lessonController = new LessonController(
@@ -48,4 +51,5 @@ export const lessonController = new LessonController(
   blockLessonUC,
   deleteLessonUC,
   getLessonPlayUrlUC,
+  storageService,
 );

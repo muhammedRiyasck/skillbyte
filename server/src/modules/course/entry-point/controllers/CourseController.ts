@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import fs from 'fs';
-import { uploadToCloudinary } from '../../../../shared/utils/Cloudinary';
+import fs from 'fs/promises';
 import { ICreateBaseUseCase } from '../../application/interfaces/ICreateBaseUseCase';
 import { IGetCourseUseCase } from '../../application/interfaces/IGetCourseDetailsUseCase';
 import { IUpdateBaseUseCase } from '../../application/interfaces/IUpdateBaseUseCase';
@@ -23,6 +22,7 @@ import { CourseMapper } from '../../application/mappers/CourseMapper';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { IEnrollmentRepository } from '../../../enrollment/domain/IEnrollmentRepository';
 import { GetCategories } from '../../application/use-cases/GetCategoriesUseCase';
+import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 
 export class CourseController {
   constructor(
@@ -35,6 +35,7 @@ export class CourseController {
     private _enrollmentRepository: IEnrollmentRepository,
     private _getCategoriesUseCase: GetCategories,
     private _blockCourseUseCase: IBlockCourseUseCase,
+    private _storageService: IStorageService,
   ) {}
 
   /**
@@ -103,7 +104,7 @@ export class CourseController {
       );
     }
 
-    const url = await uploadToCloudinary(authenticatedReq.file.path, {
+    const url = await this._storageService.upload(authenticatedReq.file.path, {
       folder: 'skillbyte/thumbnails',
       resourceType: 'image',
       publicId: `thumbnail_${courseId}`,
@@ -120,7 +121,7 @@ export class CourseController {
 
     // Delete the local uploaded file
     try {
-      await fs.promises.unlink(authenticatedReq.file.path);
+      await fs.unlink(authenticatedReq.file.path);
     } catch (unlinkError) {
       logger.error('Error deleting local file:', unlinkError);
     }

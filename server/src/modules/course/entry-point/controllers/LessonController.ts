@@ -1,7 +1,4 @@
 import { Request, Response } from 'express';
-import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { s3, updateCors } from '../../../../shared/config/backblaze/S3Client';
 import { ICreateLessonUseCase } from '../../application/interfaces/ICreateLessonUseCase';
 import { IUpdateLessonUseCase } from '../../application/interfaces/IUpdateLessonUseCase';
 import { IDeleteLessonUseCase } from '../../application/interfaces/IDeleteLessonUseCase';
@@ -18,6 +15,7 @@ import {
 } from '../../application/dtos/LessonDtos';
 import { LessonMapper } from '../../application/mappers/LessonMapper';
 import logger from '../../../../shared/utils/Logger';
+import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 
 export class LessonController {
   constructor(
@@ -26,6 +24,7 @@ export class LessonController {
     private _blockUseCase: IBlockLessonUseCase,
     private _deleteUseCase: IDeleteLessonUseCase,
     private _getLessonPlayUrlUseCase: IGetLessonPlayUrlUseCase,
+    private _storageService: IStorageService,
   ) {}
 
   /**
@@ -64,17 +63,9 @@ export class LessonController {
     const validatedData = GetUploadUrlSchema.parse(authenticatedReq.body);
     const { fileName } = validatedData;
 
-    // ... logic mostly same but fileName is validated ...
+    const { signedUrl, publicUrl } =
+      await this._storageService.generateUploadUrl(fileName);
 
-    const command = new PutObjectCommand({
-      Bucket: process.env.B2_S3_BUCKET!,
-      Key: fileName,
-      ContentType: 'video', // or validatedData.contentType
-    });
-
-    const signedUrl = await getSignedUrl(s3, command, { expiresIn: 60 * 5 });
-    const publicUrl = `${process.env.B2_S3_ENDPOINT}/${encodeURIComponent(fileName)}`;
-    updateCors();
     logger.info(`Upload URL generated for file ${fileName}`);
     ApiResponseHelper.success(res, 'Upload URL generated successfully', {
       signedUrl,
@@ -96,11 +87,7 @@ export class LessonController {
 
     const urls = await Promise.all(
       fileNames.map(async (fileName) => {
-        const command = new GetObjectCommand({
-          Bucket: process.env.B2_S3_BUCKET,
-          Key: fileName,
-        });
-        const url = await getSignedUrl(s3, command, { expiresIn: 60 * 5 }); // 60*30 = 30minutes
+        const url = await this._storageService.getSignedUrl(fileName, 300);
         return { fileName, url };
       }),
     );

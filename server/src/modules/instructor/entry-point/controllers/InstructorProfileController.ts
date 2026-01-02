@@ -2,17 +2,13 @@ import { Response, Request } from 'express';
 import { IGetInstructorProfileUseCase } from '../../application/interfaces/IGetInstructorProfileUseCase';
 import { IUpdateInstructorProfileUseCase } from '../../application/interfaces/IUpdateInstructorProfileUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
-import {
-  uploadToCloudinary,
-  getPublicIdFromUrl,
-  deleteFromCloudinary,
-} from '../../../../shared/utils/Cloudinary';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { InstructorProfileUpdateSchema } from '../../application/dtos/InstructorDtos';
 import { InstructorMapper } from '../../application/mappers/InstructorMapper';
+import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 
 /**
  * Controller for instructor profile operations.
@@ -23,10 +19,12 @@ export class InstructorProfileController {
    * Constructs the InstructorProfileController.
    * @param getInstructorProfileUseCase - Use case for retrieving instructor profiles.
    * @param updateInstructorProfileUseCase - Use case for updating instructor profiles.
+   * @param _storageService - Service for storage operations.
    */
   constructor(
     private readonly _getInstructorProfileUseCase: IGetInstructorProfileUseCase,
     private readonly _updateInstructorProfileUseCase: IUpdateInstructorProfileUseCase,
+    private readonly _storageService: IStorageService,
   ) {}
 
   /**
@@ -77,6 +75,7 @@ export class InstructorProfileController {
    */
   uploadProfileImage = async (req: Request, res: Response): Promise<void> => {
     const AuthenticatedRequest = req as AuthenticatedRequest;
+    const instructorId = AuthenticatedRequest.user.id;
     const file = AuthenticatedRequest.file;
     if (!file) {
       throw new HttpError(
@@ -85,8 +84,11 @@ export class InstructorProfileController {
       );
     }
 
-    const url = await uploadToCloudinary(file.path, {
+    const url = await this._storageService.upload(file.path, {
       folder: 'instructor-profiles',
+    });
+    await this._updateInstructorProfileUseCase.execute(instructorId, {
+      profilePictureUrl: url,
     });
     ApiResponseHelper.success(res, 'Profile image uploaded successfully', {
       url,
@@ -112,8 +114,10 @@ export class InstructorProfileController {
 
     if (instructor.profilePictureUrl) {
       try {
-        const publicId = getPublicIdFromUrl(instructor.profilePictureUrl);
-        await deleteFromCloudinary(publicId);
+        const publicId = this._storageService.getIdentifierFromUrl(
+          instructor.profilePictureUrl,
+        );
+        await this._storageService.delete(publicId);
       } catch (error) {
         console.error('Failed to delete image from cloud:', error);
         // Continue to update profile even if delete fails

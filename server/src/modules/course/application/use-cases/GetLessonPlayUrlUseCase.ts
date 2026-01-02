@@ -5,13 +5,14 @@ import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository'
 import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
 import { IEnrollmentRepository } from '../../../enrollment/domain/IEnrollmentRepository';
 import { IGetLessonPlayUrlUseCase } from '../interfaces/IGetLessonPlayUrlUseCase';
-import { getBackblazeSignedUrl } from '../../../../shared/utils/Backblaze';
+import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 
 export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
   constructor(
     private _lessonRepo: ILessonRepository,
     private _moduleRepo: IModuleRepository,
     private _enrollmentRepo: IEnrollmentRepository,
+    private _storageService: IStorageService,
   ) {}
 
   async execute(
@@ -31,11 +32,6 @@ export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
       throw new HttpError('Lesson video not found', HttpStatusCode.NOT_FOUND);
     }
 
-    // Instructors and Admins can always watch (maybe restrict instructor to their own course?)
-    // For now assuming Admin/Instructor is safe, but strict implementation should check ownership for Instructor.
-    // Based on existing code, skipping ownership check for brevity in this task unless requested,
-    // but the plan said "Log in as Instructor/Admin... Expect: Video plays."
-
     if (role === 'student') {
       const module = await this._moduleRepo.findById(lesson.moduleId);
       if (!module) {
@@ -45,9 +41,7 @@ export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
         );
       }
 
-      // Allow free preview lessons without enrollment check
       if (lesson.isFreePreview) {
-        // Check if blocked
         if (lesson.isBlocked) {
           throw new HttpError(
             'This lesson is currently unavailable.',
@@ -55,7 +49,6 @@ export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
           );
         }
       } else {
-        // For paid lessons, require enrollment
         const isEnrolled = await this._enrollmentRepo.findEnrollment(
           userId,
           module.courseId,
@@ -67,7 +60,6 @@ export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
           );
         }
 
-        // Check if blocked
         if (lesson.isBlocked) {
           throw new HttpError(
             'This lesson is currently unavailable.',
@@ -77,7 +69,7 @@ export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
       }
     }
 
-    const signedUrl = await getBackblazeSignedUrl(lesson.fileName);
+    const signedUrl = await this._storageService.getSignedUrl(lesson.fileName);
     return { signedUrl };
   }
 }

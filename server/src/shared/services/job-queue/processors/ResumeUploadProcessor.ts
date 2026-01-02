@@ -1,13 +1,16 @@
 import { Job } from 'bull';
 import { jobQueueService } from '../JobQueueService';
 import { ResumeUploadJobData, JOB_NAMES, QUEUE_NAMES } from '../JobTypes';
-import { uploadToBackblaze } from '../../../utils/Backblaze';
 import { IInstructorRepository } from '../../../../modules/instructor/domain/IRepositories/IInstructorRepository';
-import fs from 'fs';
+import fs from 'fs/promises';
 import logger from '../../../utils/Logger';
+import { IStorageService } from '../../file-upload/interfaces/IStorageService';
 
 export class ResumeUploadProcessor {
-  constructor(private readonly _instructorRepo: IInstructorRepository) {
+  constructor(
+    private readonly _instructorRepo: IInstructorRepository,
+    private readonly _storageService: IStorageService,
+  ) {
     this._registerProcessor();
   }
 
@@ -26,24 +29,18 @@ export class ResumeUploadProcessor {
     const { instructorId, filePath, originalName } = job.data;
 
     try {
-      // logger.info(`ResumeUploadProcessor processing job: ${job.id}, instructor ${instructorId}, email: ${email}`);
-
-      // Extract file extension from original filename
       const fileExtension = originalName.split('.').pop();
-      // const publicId = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExtension}`;
 
-      const resumeUrl = await uploadToBackblaze(filePath, {
+      const resumeUrl = await this._storageService.upload(filePath, {
         folder: 'instructor-resumes',
         contentType:
           fileExtension === 'pdf' ? 'application/pdf' : 'application/msword',
-        publicRead: true,
       });
 
       logger.info(
         `Resume uploaded successfully for instructor ${instructorId}: ${resumeUrl}`,
       );
 
-      // Update instructor record with resume URL
       const instructor = await this._instructorRepo.findById(instructorId);
       if (instructor) {
         instructor.resumeUrl = resumeUrl;
@@ -55,7 +52,7 @@ export class ResumeUploadProcessor {
 
       // Clean up the temporary file
       try {
-        fs.unlinkSync(filePath);
+        await fs.unlink(filePath);
         logger.info(`Temporary file ${filePath} cleaned up`);
       } catch (cleanupError) {
         logger.error('Failed to cleanup temp file:', cleanupError);
@@ -68,12 +65,12 @@ export class ResumeUploadProcessor {
 
       // Clean up the temporary file even on error
       try {
-        fs.unlinkSync(filePath);
+        await fs.unlink(filePath);
       } catch (cleanupError) {
         logger.error('Failed to cleanup temp file on error:', cleanupError);
       }
 
-      throw error; // Re-throw to mark job as failed
+      throw error;
     }
   }
 }

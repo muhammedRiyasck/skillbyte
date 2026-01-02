@@ -4,6 +4,7 @@ import { EmailProcessor } from './processors/EmailProcessor';
 import { InstructorRepository } from '../../../modules/instructor/infrastructure/repositories/InstructorRepository';
 import logger from '../../utils/Logger';
 import { DeleteDeclinedInstructorProcessor } from './processors/DeleteDeclinedInstructorProcessor';
+import { S3StorageService } from '../file-upload/services/S3StorageService';
 
 /**
  * Initializes job queue processors and services
@@ -20,7 +21,8 @@ export class JobQueueInitializer {
     try {
       // Initialize processors
       const instructorRepo = new InstructorRepository();
-      new ResumeUploadProcessor(instructorRepo);
+      const s3StorageService = new S3StorageService();
+      new ResumeUploadProcessor(instructorRepo, s3StorageService);
       new EmailProcessor();
       new DeleteDeclinedInstructorProcessor(instructorRepo);
 

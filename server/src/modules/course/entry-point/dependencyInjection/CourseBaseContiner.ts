@@ -13,12 +13,14 @@ import { UpdateCourseStatusUseCase } from '../../application/use-cases/UpdateCou
 import { GetPaginatedCoursesUseCase } from '../../application/use-cases/GetPaginatedCoursesUseCase';
 import { GetCategories } from '../../application/use-cases/GetCategoriesUseCase';
 import { BlockCourseUseCase } from '../../application/use-cases/BlockCourseUseCase';
+import { CloudinaryStorageService } from '../../../../shared/services/file-upload/services/CloudinaryStorageService';
 
 const courseRepository = new CourseRepository();
 const moduleRepository = new ModuleRepository();
 const lessonRepository = new LessonRepository();
 const instructorRepository = new InstructorRepository();
 const enrollmentRepository = new EnrollmentRepository();
+const storageService = new CloudinaryStorageService();
 
 const createCourseUC = new CreateBaseUseCase(courseRepository);
 
@@ -58,4 +60,5 @@ export const courseController = new CourseController(
   enrollmentRepository,
   getCategoriesUC,
   blockCourseUC,
+  storageService,
 );
