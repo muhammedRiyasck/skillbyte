@@ -5,9 +5,9 @@ import {
   IPayment,
   PaymentModel,
 } from '../../infrastructure/models/PaymentModel';
-import { PaymentProviderFactory } from '../../../../shared/services/PaymentProviderFactory';
+import { PaymentProviderFactory } from '../../../../shared/services/payment/PaymentProviderFactory';
 import { IInitiateEnrollmentPayment } from '../interfaces/IInitiateEnrollmentPayment';
-import { PaymentInitiationResponse } from '../../application/interfaces/IPaymentProvider';
+import { PaymentInitiationResponse } from '../../../../shared/services/payment/interfaces/IPaymentProvider';
 
 export class InitiateEnrollmentPaymentUseCase
   implements IInitiateEnrollmentPayment

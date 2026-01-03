@@ -1,12 +1,12 @@
 import {
   IPayPalProvider,
   PayPalCaptureResponse,
-} from '../../modules/enrollment/application/interfaces/IPayPalProvider';
+} from './interfaces/IPayPalProvider';
 import {
   IPaymentProvider,
   PaymentInitiationResponse,
-} from '../../modules/enrollment/application/interfaces/IPaymentProvider';
-import logger from '../utils/Logger';
+} from './interfaces/IPaymentProvider';
+import logger from '../../utils/Logger';
 
 interface PayPalLink {
   href: string;

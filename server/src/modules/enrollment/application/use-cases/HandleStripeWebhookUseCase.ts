@@ -2,7 +2,7 @@ import Stripe from 'stripe';
 import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
 import logger from '../../../../shared/utils/Logger';
 import { IHandleStripeWebhook } from '../interfaces/IHandleStripeWebhook';
-import { IStripeProvider } from '../interfaces/IStripeProvider';
+import { IStripeProvider } from '../../../../shared/services/payment/interfaces/IStripeProvider';
 
 export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
   constructor(

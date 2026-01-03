@@ -8,9 +8,9 @@ import { GetUserPurchasesUseCase } from '../application/use-cases/GetUserPurchas
 import { GetInstructorEarningsUseCase } from '../application/use-cases/GetInstructorEarningsUseCase';
 import { InitiateEnrollmentPaymentUseCase } from '../application/use-cases/InitiateEnrollmentPaymentUseCase';
 import { CapturePayPalPaymentUseCase } from '../application/use-cases/CapturePayPalPaymentUseCase';
-import { StripeProvider } from '../../../shared/services/StripeProvider';
-import { PayPalProvider } from '../../../shared/services/PayPalProvider';
-import { PaymentProviderFactory } from '../../../shared/services/PaymentProviderFactory';
+import { StripeProvider } from '../../../shared/services/payment/StripeProvider';
+import { PayPalProvider } from '../../../shared/services/payment/PayPalProvider';
+import { PaymentProviderFactory } from '../../../shared/services/payment/PaymentProviderFactory';
 
 const enrollmentRepo = new EnrollmentRepository();
 const stripeProvider = new StripeProvider();

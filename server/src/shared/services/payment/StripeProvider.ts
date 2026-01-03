@@ -1,9 +1,9 @@
 import Stripe from 'stripe';
-import { IStripeProvider } from '../../modules/enrollment/application/interfaces/IStripeProvider';
+import { IStripeProvider } from './interfaces/IStripeProvider';
 import {
   IPaymentProvider,
   PaymentInitiationResponse,
-} from '../../modules/enrollment/application/interfaces/IPaymentProvider';
+} from './interfaces/IPaymentProvider';
 
 export class StripeProvider implements IStripeProvider, IPaymentProvider {
   private stripe: Stripe;

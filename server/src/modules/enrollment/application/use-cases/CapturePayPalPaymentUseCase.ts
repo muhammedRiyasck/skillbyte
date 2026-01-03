@@ -1,6 +1,6 @@
 import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
 import { ICapturePayPalPayment } from '../interfaces/ICapturePayPalPayment';
-import { IPayPalProvider } from '../interfaces/IPayPalProvider';
+import { IPayPalProvider } from '../../../../shared/services/payment/interfaces/IPayPalProvider';
 import logger from '../../../../shared/utils/Logger';
 
 export class CapturePayPalPaymentUseCase implements ICapturePayPalPayment {

@@ -1,4 +1,4 @@
-import { IPaymentProvider } from '../../modules/enrollment/application/interfaces/IPaymentProvider';
+import { IPaymentProvider } from './interfaces/IPaymentProvider';
 
 export class PaymentProviderFactory {
   private providers: Map<string, IPaymentProvider> = new Map();
