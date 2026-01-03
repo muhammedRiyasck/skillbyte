@@ -4,6 +4,7 @@ import { IPayment } from '../infrastructure/models/PaymentModel';
 import { IInstructorEnrollment } from '../types/IInstructorEnrollment';
 import { IEnrollmentFilters } from '../types/IInstructorEnrollment';
 import { IPaymentHistory, IInstructorEarnings } from '../types/IPaymentHistory';
+import { IStudentEnrollment } from '../types/IStudentEnrollment';
 import { IBaseRepository } from '../../../shared/repositories/IBaseRepository';
 
 export interface IEnrollmentRepository extends IBaseRepository<IEnrollment> {
@@ -12,7 +13,11 @@ export interface IEnrollmentRepository extends IBaseRepository<IEnrollment> {
     userId: string,
     courseIds: string[],
   ): Promise<IEnrollment[]>;
-  findEnrolledCourseIds(userId: string): Promise<string[]>;
+  findEnrollmentsByUser(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<{ data: IStudentEnrollment[]; totalCount: number }>;
   findEnrollmentsByInstructor(
     instructorId: Types.ObjectId,
     page: number,

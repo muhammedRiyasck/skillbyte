@@ -9,7 +9,6 @@ interface CourseFiltersProps {
     priceRange: string;
     sort: string;
     search: string;
-    enrolledOnly: boolean;
   };
   setFilters: (
     filters: (
@@ -58,7 +57,7 @@ const CourseFilters: React.FC<CourseFiltersProps> = ({
           placeholder="Search courses..."
         ></DebouncedInput>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
         {/* Category Filter */}
         <div className="space-y-1">
           <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -146,25 +145,9 @@ const CourseFilters: React.FC<CourseFiltersProps> = ({
           </div>
         </div>
 
-        {/* Enrolled Only Toggle */}
-        <div className="flex items-center gap-3 py-2.5 px-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg h-[46px]">
-          <input
-            type="checkbox"
-            id="enrolledOnly"
-            name="enrolledOnly"
-            checked={filters.enrolledOnly}
-            onChange={handleChange}
-            className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 cursor-pointer"
-          />
-          <label
-            htmlFor="enrolledOnly"
-            className="text-sm font-medium text-gray-700 dark:text-gray-200 cursor-pointer select-none"
-          >
-            Enrolled Only
-          </label>
-        </div>
       </div>
     </div>
+
   );
 };
 

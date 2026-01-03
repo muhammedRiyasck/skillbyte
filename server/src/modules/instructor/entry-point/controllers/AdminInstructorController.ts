@@ -38,7 +38,7 @@ export class AdminInstructorController {
     private _declineUC: IDeclineInstructorUseCase,
     private _changeStatusUC: IChangeInstructorStatusUseCase,
     private _deleteInstructorUC: IDeleteInstructorUseCase,
-    private _storageService: IStorageService
+    private _storageService: IStorageService,
   ) {}
 
   /**

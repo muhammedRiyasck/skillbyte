@@ -36,6 +36,7 @@ const SignIn = lazy(() => import("@features/auth/pages/SignIn.tsx"));
 const StudentSignup = lazy(() => import("@features/auth/pages/StudentSignUp.tsx"));
 const LandingPage = lazy(() => import("@features/home/pages/Landing.tsx"));
 const StudentCourses = lazy(() => import("@features/course/pages/StudentCourses.tsx"));
+const EnrolledCourses = lazy(() => import("@features/course/pages/EnrolledCourses.tsx"));
 const CourseDetails = lazy(() => import("@features/course/pages/CourseDetails.tsx"));
 const CheckoutPage = lazy(() => import("@features/enrollment").then(module => ({ default: module.CheckoutPage })));
 const SuccessPage = lazy(() => import("@features/enrollment").then(module => ({ default: module.SuccessPage })));
@@ -183,6 +184,16 @@ const router = createBrowserRouter([
           <ProtectedRoute roles={["student"]}>
             <Fallback>
               <PurchaseHistory />
+            </Fallback>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.student.enrolledCourses,
+        element: (
+          <ProtectedRoute roles={["student"]}>
+            <Fallback>
+              <EnrolledCourses />
             </Fallback>
           </ProtectedRoute>
         ),

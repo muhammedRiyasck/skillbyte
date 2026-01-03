@@ -38,6 +38,7 @@ const Header = () => {
               Home
             </NavLink>
             <NavLink to={ROUTES.student.courses} className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Courses</NavLink>
+            <NavLink to={ROUTES.student.enrolledCourses} className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>My Courses</NavLink>
             <NavLink to={ROUTES.student.purchases} className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Purchases</NavLink>
             <NavLink to="/notYet" className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>About</NavLink>
             <NavLink to="/notYet" className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Support</NavLink>
@@ -87,6 +88,10 @@ const Header = () => {
                 <NavLink to={ROUTES.student.courses} className={({isActive}) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
                   <BookOpen size={20} className="text-green-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Courses</span>
+                </NavLink>
+                <NavLink to={ROUTES.student.enrolledCourses} className={({isActive}) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
+                  <BookOpen size={20} className="text-indigo-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">My Courses</span>
                 </NavLink>
                 <NavLink to={ROUTES.student.purchases} className={({isActive}) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
                   <ReceiptText size={20} className="text-pink-600 group-hover:scale-110 transition-transform" />

@@ -9,6 +9,8 @@ import { IGetUserPurchases } from '../application/interfaces/IGetUserPurchases';
 import { IGetInstructorEarnings } from '../application/interfaces/IGetInstructorEarnings';
 import { IInitiateEnrollmentPayment } from '../application/interfaces/IInitiateEnrollmentPayment';
 import { ICapturePayPalPayment } from '../application/interfaces/ICapturePayPalPayment';
+import { IGetStudentEnrollmentsUseCase } from '../application/interfaces/IGetStudentEnrollments';
+
 import { ApiResponseHelper } from '../../../shared/utils/ApiResponseHelper';
 
 export class EnrollmentController {
@@ -21,6 +23,7 @@ export class EnrollmentController {
     private _getUserPurchasesUc: IGetUserPurchases,
     private _getInstructorEarningsUc: IGetInstructorEarnings,
     private _capturePayPalPaymentUc: ICapturePayPalPayment,
+    private _getStudentEnrollmentsUc: IGetStudentEnrollmentsUseCase,
   ) {}
 
   async initiatePayment(req: Request, res: Response) {
@@ -206,6 +209,28 @@ export class EnrollmentController {
         limit,
       );
       return ApiResponseHelper.success(res, 'Earnings fetched', result);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      return ApiResponseHelper.badRequest(res, message);
+    }
+  }
+
+  async getStudentEnrollments(req: Request, res: Response) {
+    try {
+      const userId = (req as AuthenticatedRequest).user.id;
+      if (!userId) {
+        return ApiResponseHelper.unauthorized(res, 'Unauthorized');
+      }
+
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 6;
+
+      const result = await this._getStudentEnrollmentsUc.execute(
+        userId,
+        page,
+        limit,
+      );
+      return ApiResponseHelper.success(res, 'Enrollments fetched', result);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       return ApiResponseHelper.badRequest(res, message);

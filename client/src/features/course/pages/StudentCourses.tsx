@@ -22,13 +22,13 @@ const StudentCourses: React.FC = () => {
     priceRange: '',
     sort: 'createdAt:desc',
     search: '',
-    enrolledOnly: false
   });
 
   // Reset page to 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [filters.category, filters.level, filters.priceRange, filters.sort, filters.search, filters.enrolledOnly]);
+  }, [filters.category, filters.level, filters.priceRange, filters.sort, filters.search]);
+
 
   const { data: categoriesData } = useQuery({
     queryKey: ["categories"],
@@ -40,7 +40,8 @@ const StudentCourses: React.FC = () => {
 
 
   const { data, isLoading, isError,error ,refetch } = useQuery({
-    queryKey: ["courses", page, email, filters.category, filters.level, filters.priceRange, filters.sort, filters.search, filters.enrolledOnly],
+    queryKey: ["courses", page, email, filters.category, filters.level, filters.priceRange, filters.sort, filters.search],
+
     queryFn: async () => {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -51,7 +52,7 @@ const StudentCourses: React.FC = () => {
 
       if (filters.category) params.append('category', filters.category);
       if (filters.level) params.append('level', filters.level);
-      if (filters.enrolledOnly) params.append('enrolledOnly', 'true');
+
       if (filters.priceRange === 'free') {
         params.append('maxPrice', '0');
       } else if (filters.priceRange === 'paid') {

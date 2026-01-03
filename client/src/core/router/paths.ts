@@ -21,6 +21,7 @@ export const ROUTES = {
     checkout: '/checkout/:courseId',
     paymentSuccess: '/enrollment/success',
     purchases: '/purchases',
+    enrolledCourses: '/my-courses',
   },
 
   course: {

@@ -30,6 +30,11 @@ router.get('/purchases', authenticate, async (req, res) => {
   await enrollmentController.getUserPurchases(req, res);
 });
 
+// Get Student Enrolled Courses - Protected Route
+router.get('/my-enrollments', authenticate, async (req, res) => {
+  await enrollmentController.getStudentEnrollments(req, res);
+});
+
 router.get(
   '/instructor-enrollments',
   authenticate,

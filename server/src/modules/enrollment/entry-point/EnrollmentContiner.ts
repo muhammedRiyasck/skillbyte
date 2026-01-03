@@ -8,6 +8,8 @@ import { GetUserPurchasesUseCase } from '../application/use-cases/GetUserPurchas
 import { GetInstructorEarningsUseCase } from '../application/use-cases/GetInstructorEarningsUseCase';
 import { InitiateEnrollmentPaymentUseCase } from '../application/use-cases/InitiateEnrollmentPaymentUseCase';
 import { CapturePayPalPaymentUseCase } from '../application/use-cases/CapturePayPalPaymentUseCase';
+import { GetStudentEnrollmentsUseCase } from '../application/use-cases/GetStudentEnrollmentsUseCase';
+
 import { StripeProvider } from '../../../shared/services/payment/StripeProvider';
 import { PayPalProvider } from '../../../shared/services/payment/PayPalProvider';
 import { PaymentProviderFactory } from '../../../shared/services/payment/PaymentProviderFactory';
@@ -41,6 +43,9 @@ const capturePayPalPaymentUc = new CapturePayPalPaymentUseCase(
   enrollmentRepo,
   paypalProvider,
 );
+const getStudentEnrollmentsUc = new GetStudentEnrollmentsUseCase(
+  enrollmentRepo,
+);
 
 export const enrollmentController = new EnrollmentController(
   initiatePaymentUc,
@@ -51,4 +56,5 @@ export const enrollmentController = new EnrollmentController(
   getUserPurchasesUc,
   getInstructorEarningsUc,
   capturePayPalPaymentUc,
+  getStudentEnrollmentsUc,
 );

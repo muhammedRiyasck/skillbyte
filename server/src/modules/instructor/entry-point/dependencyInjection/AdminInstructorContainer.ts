@@ -18,12 +18,12 @@ const changeInstructorStatusUC = new ChangeInstructorStatusUseCase(
 );
 const deleteInstructorUC = new DeleteInstructorUseCase(instructorRepo);
 const storageService = new S3StorageService();
- 
+
 export const adminInstructorController = new AdminInstructorController(
   listInstructorUC,
   approveUC,
   declineUC,
   changeInstructorStatusUC,
   deleteInstructorUC,
-  storageService
+  storageService,
 );

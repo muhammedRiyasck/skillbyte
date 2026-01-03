@@ -4,6 +4,7 @@ import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
 import { IInstructorEnrollment } from '../../types/IInstructorEnrollment';
 import { EnrollmentModel, IEnrollment } from '../models/EnrollmentModel';
 import { PaymentModel, IPayment } from '../models/PaymentModel';
+import { IStudentEnrollment } from '../../types/IStudentEnrollment';
 import { ModuleModel } from '../../../course/infrastructure/models/ModuleModel';
 import { LessonModel } from '../../../course/infrastructure/models/LessonModel';
 import { IEnrollmentFilters } from '../../types/IInstructorEnrollment';
@@ -38,9 +39,83 @@ export class EnrollmentRepository
     return await this.model.find({ userId, courseId: { $in: courseIds } });
   }
 
-  async findEnrolledCourseIds(userId: string): Promise<string[]> {
-    const courseIds = await this.model.distinct('courseId', { userId });
-    return courseIds.map((id) => id.toString());
+  async findEnrollmentsByUser(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<{ data: IStudentEnrollment[]; totalCount: number }> {
+    const skip = (page - 1) * limit;
+
+    const pipeline: PipelineStage[] = [
+      { $match: { userId: new Types.ObjectId(userId) } },
+      {
+        $lookup: {
+          from: 'courses',
+          localField: 'courseId',
+          foreignField: '_id',
+          as: 'course',
+        },
+      },
+      { $unwind: '$course' },
+      { $sort: { enrolledAt: -1 } },
+      {
+        $project: {
+          _id: 1,
+          enrolledAt: 1,
+          progress: 1,
+          status: 1,
+          course: {
+            courseId: '$course._id',
+            title: '$course.title',
+            thumbnailUrl: '$course.thumbnailUrl',
+            subText: '$course.subText',
+            category: '$course.category',
+            courseLevel: '$course.courseLevel',
+            language: '$course.language',
+            price: '$course.price',
+            rating: '$course.rating',
+            reviews: '$course.reviews',
+          },
+        },
+      },
+      {
+        $facet: {
+          data: [{ $skip: skip }, { $limit: limit }],
+          totalCount: [{ $count: 'count' }],
+        },
+      },
+    ];
+
+    const result = await this.model.aggregate(pipeline);
+    const data: IStudentEnrollment[] = result[0].data.map(
+      (item: {
+        enrolledAt: Date;
+        progress: number;
+        status: string;
+        course: {
+          courseId: Types.ObjectId;
+          title: string;
+          thumbnailUrl: string;
+          subText: string;
+          category: string;
+          courseLevel: string;
+          language: string;
+          price: number;
+          rating: number;
+          reviews: number;
+        };
+      }) => ({
+        ...item.course,
+        courseId: item.course.courseId.toString(),
+        enrolledAt: item.enrolledAt,
+        progress: item.progress,
+        enrollmentStatus: item.status,
+        isEnrolled: true,
+      }),
+    );
+    const totalCount = result[0].totalCount[0]?.count || 0;
+
+    return { data, totalCount };
   }
 
   async findEnrollmentsByInstructor(
