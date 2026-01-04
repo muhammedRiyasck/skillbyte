@@ -18,6 +18,7 @@ import './shared/config/passport/FacebookStrategy';
 import { paymentController } from './modules/enrollment/entry-point/EnrollmentContiner';
 
 const app = express();
+app.set('trust proxy', 1);
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'default_secret_change_in_prod',
@@ -52,7 +53,7 @@ app.use('/assets', express.static(path.join(__dirname, '../assets')));
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per window
+  max: 1000, // Limit each IP to 1000 requests per window
   message: 'Too many requests, please try again later.',
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
 });
