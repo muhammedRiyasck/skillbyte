@@ -9,11 +9,13 @@ export class GetUserPurchasesUseCase implements IGetUserPurchases {
     userId: string,
     page: number,
     limit: number,
+    filters?: { status?: string; startDate?: Date; endDate?: Date },
   ): Promise<IPaymentHistory[]> {
     return await this.paymentRepository.findPaymentsByUser(
       userId,
       page,
       limit,
+      filters,
     );
   }
 }

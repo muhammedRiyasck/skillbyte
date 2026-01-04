@@ -5,5 +5,6 @@ export interface IGetUserPurchases {
     userId: string,
     page: number,
     limit: number,
+    filters?: { status?: string; startDate?: Date; endDate?: Date },
   ): Promise<IPaymentHistory[]>;
 }

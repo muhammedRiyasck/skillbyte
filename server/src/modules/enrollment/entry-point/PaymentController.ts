@@ -92,11 +92,28 @@ export class PaymentController {
 
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
+      const status = req.query.status as string;
+      const dateRange = req.query.dateRange as string;
+
+      let startDate: Date | undefined;
+      let endDate: Date | undefined;
+
+      if (dateRange) {
+        const now = new Date();
+        if (dateRange === '30_days') {
+          startDate = new Date(now.setDate(now.getDate() - 30));
+        } else if (dateRange === '3_months') {
+          startDate = new Date(now.setMonth(now.getMonth() - 3));
+        } else if (dateRange === 'last_year') {
+          startDate = new Date(now.setFullYear(now.getFullYear() - 1));
+        }
+      }
 
       const result = await this._getUserPurchasesUc.execute(
         userId,
         page,
         limit,
+        { status, startDate, endDate },
       );
       return ApiResponseHelper.success(res, 'Purchases fetched', result);
     } catch (error) {

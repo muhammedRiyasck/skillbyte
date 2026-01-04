@@ -61,6 +61,7 @@ export class PaymentRepository
     userId: string,
     page: number,
     limit: number,
+    filters?: { status?: string; startDate?: Date; endDate?: Date },
   ): Promise<IPaymentHistory[]> {
     const skip = (page - 1) * limit;
     const pipeline: PipelineStage[] = [
@@ -74,6 +75,23 @@ export class PaymentRepository
         },
       },
       { $unwind: '$course' },
+      // Filter Logic Start
+      ...(filters?.status && filters.status !== 'all'
+        ? [{ $match: { status: filters.status } }]
+        : []),
+      ...(filters?.startDate || filters?.endDate
+        ? [
+            {
+              $match: {
+                createdAt: {
+                  ...(filters.startDate ? { $gte: filters.startDate } : {}),
+                  ...(filters.endDate ? { $lte: filters.endDate } : {}),
+                },
+              },
+            },
+          ]
+        : []),
+      // Filter Logic End
       { $sort: { createdAt: -1 } },
       {
         $project: {

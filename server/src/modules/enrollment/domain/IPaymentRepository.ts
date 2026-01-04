@@ -18,6 +18,7 @@ export interface IPaymentRepository extends IBaseRepository<IPayment> {
     userId: string,
     page: number,
     limit: number,
+    filters?: { status?: string; startDate?: Date; endDate?: Date },
   ): Promise<IPaymentHistory[]>;
   findPaymentsByInstructor(
     instructorId: string,
