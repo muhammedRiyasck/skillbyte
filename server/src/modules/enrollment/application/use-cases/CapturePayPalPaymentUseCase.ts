@@ -3,9 +3,12 @@ import { ICapturePayPalPayment } from '../interfaces/ICapturePayPalPayment';
 import { IPayPalProvider } from '../../../../shared/services/payment/interfaces/IPayPalProvider';
 import logger from '../../../../shared/utils/Logger';
 
+import { IPaymentRepository } from '../../domain/IPaymentRepository';
+
 export class CapturePayPalPaymentUseCase implements ICapturePayPalPayment {
   constructor(
     private _enrollmentRepository: IEnrollmentRepository,
+    private _paymentRepository: IPaymentRepository,
     private _paypalProvider: IPayPalProvider,
   ) {}
 
@@ -24,7 +27,7 @@ export class CapturePayPalPaymentUseCase implements ICapturePayPalPayment {
           `PayPal payment capture failed. Status: ${status}`,
           captureData,
         );
-        await this._enrollmentRepository.updatePaymentStatusByPayPalOrder(
+        await this._paymentRepository.updatePaymentStatusByPayPalOrder(
           orderId,
           'failed',
         );
@@ -33,7 +36,7 @@ export class CapturePayPalPaymentUseCase implements ICapturePayPalPayment {
 
       // 3. Update Payment record to succeeded
       const payment =
-        await this._enrollmentRepository.updatePaymentStatusByPayPalOrder(
+        await this._paymentRepository.updatePaymentStatusByPayPalOrder(
           orderId,
           'succeeded',
         );
@@ -62,7 +65,7 @@ export class CapturePayPalPaymentUseCase implements ICapturePayPalPayment {
         userId: payment.userId,
         courseId: payment.courseId,
         paymentId: payment._id,
-        status: 'completed',
+        status: 'active',
         enrolledAt: new Date(),
         progress: 0,
       });
@@ -73,7 +76,7 @@ export class CapturePayPalPaymentUseCase implements ICapturePayPalPayment {
       };
     } catch (error) {
       logger.error('Error in CapturePayPalPaymentUseCase:', error);
-      await this._enrollmentRepository.updatePaymentStatusByPayPalOrder(
+      await this._paymentRepository.updatePaymentStatusByPayPalOrder(
         orderId,
         'failed',
       );

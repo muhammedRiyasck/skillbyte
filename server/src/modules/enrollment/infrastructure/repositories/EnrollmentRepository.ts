@@ -3,15 +3,12 @@ import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
 import { IInstructorEnrollment } from '../../types/IInstructorEnrollment';
 import { EnrollmentModel, IEnrollment } from '../models/EnrollmentModel';
-import { PaymentModel, IPayment } from '../models/PaymentModel';
+
 import { IStudentEnrollment } from '../../types/IStudentEnrollment';
 import { ModuleModel } from '../../../course/infrastructure/models/ModuleModel';
 import { LessonModel } from '../../../course/infrastructure/models/LessonModel';
 import { IEnrollmentFilters } from '../../types/IInstructorEnrollment';
-import {
-  IPaymentHistory,
-  IInstructorEarnings,
-} from '../../types/IPaymentHistory';
+
 
 export class EnrollmentRepository
   extends BaseRepository<IEnrollment, IEnrollment>
@@ -43,6 +40,10 @@ export class EnrollmentRepository
     userId: string,
     page: number,
     limit: number,
+    filters?: {
+      search?: string;
+      status?: 'active' | 'completed';
+    },
   ): Promise<{ data: IStudentEnrollment[]; totalCount: number }> {
     const skip = (page - 1) * limit;
 
@@ -57,6 +58,25 @@ export class EnrollmentRepository
         },
       },
       { $unwind: '$course' },
+    ];
+
+    if (filters?.status) {
+      pipeline.push({
+        $match: {
+          status: filters.status,
+        },
+      });
+    }
+
+    if (filters?.search) {
+      pipeline.push({
+        $match: {
+          'course.title': { $regex: filters.search, $options: 'i' },
+        },
+      });
+    }
+
+    pipeline.push(
       { $sort: { enrolledAt: -1 } },
       {
         $project: {
@@ -84,7 +104,7 @@ export class EnrollmentRepository
           totalCount: [{ $count: 'count' }],
         },
       },
-    ];
+    );
 
     const result = await this.model.aggregate(pipeline);
     const data: IStudentEnrollment[] = result[0].data.map(
@@ -241,43 +261,7 @@ export class EnrollmentRepository
     );
   }
 
-  async createPayment(paymentData: Partial<IPayment>): Promise<IPayment> {
-    return await PaymentModel.create(paymentData);
-  }
 
-  async findPaymentByIntentId(
-    paymentIntentId: string,
-  ): Promise<IPayment | null> {
-    return await PaymentModel.findOne({
-      stripePaymentIntentId: paymentIntentId,
-    });
-  }
-
-  async findPaymentByPayPalOrderId(orderId: string): Promise<IPayment | null> {
-    return await PaymentModel.findOne({ paypalOrderId: orderId });
-  }
-
-  async updatePaymentStatus(
-    paymentIntentId: string,
-    status: string,
-  ): Promise<IPayment | null> {
-    return await PaymentModel.findOneAndUpdate(
-      { stripePaymentIntentId: paymentIntentId },
-      { status },
-      { new: true },
-    );
-  }
-
-  async updatePaymentStatusByPayPalOrder(
-    orderId: string,
-    status: string,
-  ): Promise<IPayment | null> {
-    return await PaymentModel.findOneAndUpdate(
-      { paypalOrderId: orderId },
-      { status },
-      { new: true },
-    );
-  }
   async updateLessonProgress(
     enrollmentId: string,
     lessonId: string,
@@ -307,6 +291,7 @@ export class EnrollmentRepository
         },
         { new: true },
       );
+    
     } else {
       // Push new
       await this.model.findByIdAndUpdate(
@@ -336,11 +321,8 @@ export class EnrollmentRepository
     const moduleIds = modules.map((m) => m._id);
 
     //    Count all published lessons in these modules
-    //    (Assuming we only count published lessons as 'total' for the student)
-    //    TEMPORARY: Removing isPublished check to see if that's the cause, or logging it.
     const totalLessons = await LessonModel.countDocuments({
       moduleId: { $in: moduleIds },
-      // isPublished: true, // Commenting out strictly for debug if needed, but let's log first
     });
 
     // 2. Count completed lessons in enrollment
@@ -372,120 +354,5 @@ export class EnrollmentRepository
     });
   }
 
-  async findPaymentsByUser(
-    userId: string,
-    page: number,
-    limit: number,
-  ): Promise<IPaymentHistory[]> {
-    const skip = (page - 1) * limit;
-    const pipeline: PipelineStage[] = [
-      { $match: { userId: new Types.ObjectId(userId) } },
-      {
-        $lookup: {
-          from: 'courses',
-          localField: 'courseId',
-          foreignField: '_id',
-          as: 'course',
-        },
-      },
-      { $unwind: '$course' },
-      { $sort: { createdAt: -1 } },
-      {
-        $project: {
-          _id: 1,
-          courseId: {
-            _id: '$course._id',
-            title: '$course.title',
-            thumbnailUrl: '$course.thumbnailUrl',
-          },
-          amount: 1,
-          currency: 1,
-          status: 1,
-          createdAt: 1,
-          stripePaymentIntentId: 1,
-          paypalOrderId: 1,
-        },
-      },
-      {
-        $facet: {
-          data: [{ $skip: skip }, { $limit: limit }],
-          totalCount: [{ $count: 'count' }],
-        },
-      },
-    ];
 
-    return (await PaymentModel.aggregate(
-      pipeline,
-    )) as unknown as IPaymentHistory[];
-  }
-
-  async findPaymentsByInstructor(
-    instructorId: string,
-    page: number,
-    limit: number,
-  ): Promise<IInstructorEarnings[]> {
-    const skip = (page - 1) * limit;
-    const pipeline: PipelineStage[] = [
-      {
-        $match: {
-          instructorId: new Types.ObjectId(instructorId),
-          status: 'succeeded',
-        },
-      },
-      {
-        $lookup: {
-          from: 'students',
-          localField: 'userId',
-          foreignField: '_id',
-          as: 'student',
-        },
-      },
-      { $unwind: '$student' },
-      {
-        $lookup: {
-          from: 'courses',
-          localField: 'courseId',
-          foreignField: '_id',
-          as: 'course',
-        },
-      },
-      { $unwind: '$course' },
-      { $sort: { createdAt: -1 } },
-      {
-        $project: {
-          _id: 1,
-          userId: {
-            _id: '$student._id',
-            name: '$student.name',
-            email: '$student.email',
-          },
-          courseId: {
-            _id: '$course._id',
-            title: '$course.title',
-            thumbnailUrl: '$course.thumbnailUrl',
-          },
-          amount: 1,
-          adminFee: 1,
-          instructorAmount: 1,
-          currency: 1,
-          status: 1,
-          createdAt: 1,
-        },
-      },
-      {
-        $facet: {
-          data: [{ $skip: skip }, { $limit: limit }],
-          totalCount: [{ $count: 'count' }],
-          totalRevenue: [{ $group: { _id: null, total: { $sum: '$amount' } } }],
-          totalProfit: [
-            { $group: { _id: null, total: { $sum: '$instructorAmount' } } },
-          ],
-        },
-      },
-    ];
-
-    return (await PaymentModel.aggregate(
-      pipeline,
-    )) as unknown as IInstructorEarnings[];
-  }
 }

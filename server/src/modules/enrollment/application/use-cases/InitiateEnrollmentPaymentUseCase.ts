@@ -1,10 +1,8 @@
 import mongoose from 'mongoose';
 import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
 import { CourseModel } from '../../../course/infrastructure/models/CourseModel';
-import {
-  IPayment,
-  PaymentModel,
-} from '../../infrastructure/models/PaymentModel';
+import { IPaymentRepository } from '../../domain/IPaymentRepository';
+import { IPayment } from '../../infrastructure/models/PaymentModel';
 import { PaymentProviderFactory } from '../../../../shared/services/payment/PaymentProviderFactory';
 import { IInitiateEnrollmentPayment } from '../interfaces/IInitiateEnrollmentPayment';
 import { PaymentInitiationResponse } from '../../../../shared/services/payment/interfaces/IPaymentProvider';
@@ -14,6 +12,7 @@ export class InitiateEnrollmentPaymentUseCase
 {
   constructor(
     private _enrollmentRepository: IEnrollmentRepository,
+    private _paymentRepository: IPaymentRepository,
     private _paymentProviderFactory: PaymentProviderFactory,
   ) {}
 
@@ -83,8 +82,7 @@ export class InitiateEnrollmentPaymentUseCase
       paymentData.paypalOrderId = providerResponse.id;
     }
 
-    const payment = new PaymentModel(paymentData);
-    await payment.save();
+    const payment = await this._paymentRepository.createPayment(paymentData);
 
     return {
       providerResponse,

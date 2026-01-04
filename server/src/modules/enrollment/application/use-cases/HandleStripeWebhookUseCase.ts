@@ -4,17 +4,20 @@ import logger from '../../../../shared/utils/Logger';
 import { IHandleStripeWebhook } from '../interfaces/IHandleStripeWebhook';
 import { IStripeProvider } from '../../../../shared/services/payment/interfaces/IStripeProvider';
 
+import { IPaymentRepository } from '../../domain/IPaymentRepository';
+
 export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
   constructor(
-    private enrollmentRepository: IEnrollmentRepository,
-    private stripeProvider: IStripeProvider,
+    private _enrollmentRepository: IEnrollmentRepository,
+    private _paymentRepository: IPaymentRepository,
+    private _stripeProvider: IStripeProvider,
   ) {}
 
   async execute(signature: string, payload: Buffer) {
     let event: Stripe.Event;
 
     try {
-      event = this.stripeProvider.constructEvent(
+      event = this._stripeProvider.constructEvent(
         payload,
         signature,
         process.env.STRIPE_WEBHOOK_SECRET as string,
@@ -44,7 +47,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
 
   private async handlePaymentSuccess(paymentIntent: Stripe.PaymentIntent) {
     // 1. Update Payment Status to succeeded
-    const payment = await this.enrollmentRepository.updatePaymentStatus(
+    const payment = await this._paymentRepository.updatePaymentStatus(
       paymentIntent.id,
       'succeeded',
     );
@@ -56,7 +59,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
 
     // 2. Create Enrollment
     // Idempotency check: Check if enrollment already exists
-    const existingEnrollment = await this.enrollmentRepository.findEnrollment(
+    const existingEnrollment = await this._enrollmentRepository.findEnrollment(
       payment.userId.toString(),
       payment.courseId.toString(),
     );
@@ -64,18 +67,18 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
       return;
     }
 
-    await this.enrollmentRepository.save({
+    await this._enrollmentRepository.save({
       userId: payment.userId,
       courseId: payment.courseId,
       paymentId: payment._id,
-      status: 'completed',
+      status: 'active',
       enrolledAt: new Date(),
       progress: 0,
     });
   }
 
   private async handlePaymentFailure(paymentIntent: Stripe.PaymentIntent) {
-    await this.enrollmentRepository.updatePaymentStatus(
+    await this._paymentRepository.updatePaymentStatus(
       paymentIntent.id,
       'failed',
     );

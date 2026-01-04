@@ -12,10 +12,10 @@ config();
 import errorHandler from './shared/middlewares/GlobalErrorMiddleware';
 
 import rootRouter from './routes';
-import { enrollmentController } from './modules/enrollment/entry-point/EnrollmentContiner';
 
 import './shared/config/passport/GoogleStrategy';
 import './shared/config/passport/FacebookStrategy';
+import { paymentController } from './modules/enrollment/entry-point/EnrollmentContiner';
 
 const app = express();
 app.use(
@@ -31,10 +31,10 @@ app.use(passport.session());
 
 // Webhook must be before express.json() to capture raw body
 app.post(
-  '/api/enrollment/webhook',
+  '/api/payment/webhook',
   express.raw({ type: 'application/json' }),
   async (req, res) => {
-    await enrollmentController.handleWebhook(req, res);
+    await paymentController.handleWebhook(req, res);
   },
 );
 

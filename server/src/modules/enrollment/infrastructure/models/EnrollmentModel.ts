@@ -5,7 +5,7 @@ export interface IEnrollment extends Document {
   userId: mongoose.Types.ObjectId;
   courseId: mongoose.Types.ObjectId;
   paymentId?: mongoose.Types.ObjectId;
-  status: 'pending' | 'completed' | 'failed' | 'refunded';
+  status: 'pending' | 'active' | 'completed' | 'failed' | 'refunded';
   enrolledAt: Date;
   completedAt?: Date;
   progress: number;
@@ -32,7 +32,7 @@ const EnrollmentSchema = new Schema(
     paymentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Payment' },
     status: {
       type: String,
-      enum: ['pending', 'completed', 'failed', 'refunded'],
+      enum: ['pending', 'active', 'completed', 'failed', 'refunded'],
       default: 'pending',
     },
     enrolledAt: { type: Date, default: Date.now },
