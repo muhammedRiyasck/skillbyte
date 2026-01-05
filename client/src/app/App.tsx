@@ -8,6 +8,8 @@ import { fetchCurrentUser } from "../features/auth/AuthSlice.ts";
 import type{ RootState, AppDispatch } from '@core/store/Index.ts';
 import Home from "@shared/shimmer/Home.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { SocketProvider } from "../context/SocketContext";
+import { NotificationProvider } from "../features/notification/context/NotificationContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,8 +36,12 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Toaster position="top-center" richColors />
-      <RouterProvider router={router} />
+      <SocketProvider>
+        <NotificationProvider>
+          <Toaster position="top-center" richColors />
+          <RouterProvider router={router} />
+        </NotificationProvider>
+      </SocketProvider>
     </QueryClientProvider>
   );
 }

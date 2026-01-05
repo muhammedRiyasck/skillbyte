@@ -41,6 +41,7 @@ const CourseDetails = lazy(() => import("@features/course/pages/CourseDetails.ts
 const CheckoutPage = lazy(() => import("@features/enrollment").then(module => ({ default: module.CheckoutPage })));
 const SuccessPage = lazy(() => import("@features/enrollment").then(module => ({ default: module.SuccessPage })));
 const PurchaseHistory = lazy(() => import("@features/student/pages/PurchaseHistory.tsx"));
+const NotificationPage = lazy(() => import("@features/notification/pages/NotificationPage.tsx"));
 
 const router = createBrowserRouter([
   {
@@ -194,6 +195,16 @@ const router = createBrowserRouter([
           <ProtectedRoute roles={["student"]}>
             <Fallback>
               <EnrolledCourses />
+            </Fallback>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.notifications,
+        element: (
+          <ProtectedRoute roles={["student"]}>
+            <Fallback>
+              <NotificationPage />
             </Fallback>
           </ProtectedRoute>
         ),

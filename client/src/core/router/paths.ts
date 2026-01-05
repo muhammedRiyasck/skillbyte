@@ -3,6 +3,7 @@
 export const ROUTES = {
   root: '/',
   notFound: '/404',
+  notifications: '/notifications',
 
   auth: {
     signIn: '/auth',

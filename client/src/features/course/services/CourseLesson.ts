@@ -6,7 +6,6 @@ import type { LessonType } from "../types/ILesson";
 export const getPresignedUrl = async (file: File): Promise<Record<string, string>> => {
  
     const response = await api.post("/course/presign", { fileName: file.name });
-    console.log(response.data)
     const { signedUrl, publicUrl } = response.data.data;
     return { signedUrl, publicUrl };
 
