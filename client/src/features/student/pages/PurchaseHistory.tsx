@@ -85,7 +85,7 @@ const PurchaseHistory: React.FC = () => {
         </div>
 
         <div className="px-6 pb-2">
-          <div className="flex flex-col md:flex-row gap-4 mb-4">
+          <div className="flex flex-col md:flex-row gap-4 mb-4 mt-8 lg:mt-0">
              <select
               value={dateFilter}
               onChange={(e) => {
@@ -217,8 +217,9 @@ const PurchaseHistory: React.FC = () => {
                         <p className="text-[10px] text-gray-400 uppercase font-bold mb-0.5">Amount Paid</p>
                         <p className="font-bold text-gray-900 dark:text-gray-100">{purchase.currency.toUpperCase()} {purchase.amount}</p>
                       </div>
-                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
-                        {purchase.status}
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${purchase.status === 'succeeded' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' : purchase.status === 'failed' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${purchase.status === 'succeeded' ? 'bg-green-600' : purchase.status === 'failed' ? 'bg-red-600' : 'bg-yellow-400'}`}></span>
+                        {purchase.status.toUpperCase()}
                       </span>
                    </div>
                 </div>
