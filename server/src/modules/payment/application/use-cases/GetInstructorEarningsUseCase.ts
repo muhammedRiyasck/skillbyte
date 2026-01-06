@@ -1,15 +1,20 @@
-import { IPaymentRepository } from '../../domain/IPaymentRepository';
-import { IInstructorEarnings } from '../../types/IPaymentHistory';
+import { IPaymentReadRepository } from '../../domain/IRepositories/IPaymentReadRepository';
+import { IPayment } from '../../domain/entities/Payment';
 import { IGetInstructorEarnings } from '../interfaces/IGetInstructorEarnings';
 
 export class GetInstructorEarningsUseCase implements IGetInstructorEarnings {
-  constructor(private paymentRepository: IPaymentRepository) {}
+  constructor(private paymentRepository: IPaymentReadRepository) {}
 
   async execute(
     instructorId: string,
     page: number,
     limit: number,
-  ): Promise<IInstructorEarnings[]> {
+  ): Promise<{
+    data: IPayment[];
+    totalCount: number;
+    totalRevenue: number;
+    totalProfit: number;
+  }> {
     return await this.paymentRepository.findPaymentsByInstructor(
       instructorId,
       page,

@@ -5,17 +5,11 @@ import Spiner from '@shared/ui/Spiner';
 import { RefreshCw, TrendingUp, Users, DollarSign, ArrowUpRight } from 'lucide-react';
 
 interface Earnings {
-  _id: string;
-  userId: {
-    _id: string;
-    name: string;
-    email: string;
-  };
-  courseId: {
-    _id: string;
-    title: string;
-    thumbnailUrl?: string;
-  };
+  id: string;
+  studentName: string;
+  studentEmail: string;   
+  productName: string;
+  productImage?: string;
   amount: number;
   adminFee: number;
   instructorAmount: number;
@@ -37,10 +31,10 @@ const EarningsHistory: React.FC = () => {
     try {
       setLoading(true);
       const data = await getInstructorEarnings(page, itemsPerPage);
-      setEarnings(data?.data[0]?.data || []);
-      setTotalCount(data?.data[0]?.totalCount[0]?.count || 0);
-      setTotalRevenue(data?.data[0]?.totalRevenue[0]?.total || 0);
-      setTotalProfit(data?.data[0]?.totalProfit[0]?.total || 0);
+      setEarnings(data?.data?.earnings|| []);
+      setTotalCount(data?.data?.totalCount|| 0);
+      setTotalRevenue(data?.data?.statistics?.totalRevenue|| 0);
+      setTotalProfit(data?.data?.statistics?.totalProfit|| 0);
     } catch {
       toast.error('Failed to load earnings data');
     } finally {
@@ -145,22 +139,27 @@ const EarningsHistory: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-600">
                   {earnings.map((item) => (
-                    <tr key={item._id} className="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <tr key={item.id} className="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                       <td className="px-8 py-6">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 border-2 border-white dark:border-gray-600 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold uppercase">
-                            {item.userId.name.charAt(0)}
+                            {item.studentName.charAt(0)}
                           </div>
                           <div>
-                            <p className="font-bold text-gray-900 dark:text-gray-100">{item.userId.name}</p>
-                            <p className="text-xs text-gray-500">{item.userId.email}</p>
+                            <p className="font-bold text-gray-900 dark:text-gray-100">{item.studentName}</p>
+                            <p className="text-xs text-gray-500">{item.studentEmail}</p>
                           </div>
                         </div>
                       </td>
                       <td className="px-8 py-6">
-                        <span className="font-bold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 transition-colors cursor-pointer">
-                          {item.courseId.title}
-                        </span>
+                        <div className="flex items-center gap-3">
+                          {item.productImage && (
+                            <img src={item.productImage} alt={item.productName} className="w-10 h-10 rounded-lg object-cover" />
+                          )}
+                          <span className="font-bold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 transition-colors cursor-pointer">
+                            {item.productName}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-8 py-6">
                         <span className="font-medium text-gray-600 dark:text-gray-400">₹{item.amount}</span>

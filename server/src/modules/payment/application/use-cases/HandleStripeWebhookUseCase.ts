@@ -1,19 +1,22 @@
 import Stripe from 'stripe';
-import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
+import { IPaymentWriteRepository } from '../../domain/IRepositories/IPaymentWriteRepository';
 import logger from '../../../../shared/utils/Logger';
-import { IHandleStripeWebhook } from '../interfaces/IHandleStripeWebhook';
 import { IStripeProvider } from '../../../../shared/services/payment/interfaces/IStripeProvider';
-
-import { IPaymentRepository } from '../../domain/IPaymentRepository';
+import { eventBus } from '../../../../shared/services/event-bus/EventBus';
+import {
+  PAYMENT_EVENTS,
+  PaymentSucceededEvent,
+  PaymentFailedEvent,
+} from '../../../../shared/services/event-bus/PaymentEvents';
+import { IHandleStripeWebhook } from '../interfaces/IHandleStripeWebhook';
 
 export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
   constructor(
-    private _enrollmentRepository: IEnrollmentRepository,
-    private _paymentRepository: IPaymentRepository,
+    private _paymentRepository: IPaymentWriteRepository,
     private _stripeProvider: IStripeProvider,
   ) {}
 
-  async execute(signature: string, payload: Buffer) {
+  async execute(signature: string, payload: Buffer): Promise<void> {
     let event: Stripe.Event;
 
     try {
@@ -57,30 +60,36 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
       return;
     }
 
-    // 2. Create Enrollment
-    // Idempotency check: Check if enrollment already exists
-    const existingEnrollment = await this._enrollmentRepository.findEnrollment(
-      payment.userId.toString(),
-      payment.courseId.toString(),
-    );
-    if (existingEnrollment) {
-      return;
-    }
-
-    await this._enrollmentRepository.save({
+    // 2. Emit event for other modules to handle
+    const paymentEvent: PaymentSucceededEvent = {
+      paymentId: payment.paymentId!,
       userId: payment.userId,
       courseId: payment.courseId,
-      paymentId: payment._id,
-      status: 'active',
-      enrolledAt: new Date(),
-      progress: 0,
-    });
+      amount: payment.amount,
+      currency: payment.currency,
+      metadata: payment.metadata,
+    };
+
+    logger.info(
+      `Emitting payment.succeeded event for payment ${payment.paymentId}`,
+    );
+    eventBus.emit(PAYMENT_EVENTS.PAYMENT_SUCCEEDED, paymentEvent);
   }
 
   private async handlePaymentFailure(paymentIntent: Stripe.PaymentIntent) {
-    await this._paymentRepository.updatePaymentStatus(
+    const payment = await this._paymentRepository.updatePaymentStatus(
       paymentIntent.id,
       'failed',
     );
+
+    if (payment) {
+      const failedEvent: PaymentFailedEvent = {
+        paymentId: payment.paymentId!,
+        userId: payment.userId,
+        reason: 'Payment failed',
+      };
+
+      eventBus.emit(PAYMENT_EVENTS.PAYMENT_FAILED, failedEvent);
+    }
   }
 }

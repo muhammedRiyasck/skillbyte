@@ -1,6 +1,6 @@
-import { IEnrollment } from '../../infrastructure/models/EnrollmentModel';
+import { IEnrollment } from '../../domain/entities/Enrollment';
 
-export interface IUpdateLessonProgressUseCase {
+export interface IUpdateLessonProgress {
   execute(
     enrollmentId: string,
     lessonId: string,

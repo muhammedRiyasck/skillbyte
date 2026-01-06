@@ -15,7 +15,7 @@ import rootRouter from './routes';
 
 import './shared/config/passport/GoogleStrategy';
 import './shared/config/passport/FacebookStrategy';
-import { paymentController } from './modules/enrollment/entry-point/EnrollmentContiner';
+import { paymentController } from './modules/payment/entry-point/PaymentContainer';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -32,10 +32,10 @@ app.use(passport.session());
 
 // Webhook must be before express.json() to capture raw body
 app.post(
-  '/api/payment/webhook',
+  '/api/payment/stripe-webhook',
   express.raw({ type: 'application/json' }),
   async (req, res) => {
-    await paymentController.handleWebhook(req, res);
+    await paymentController.handleStripeWebhook(req, res);
   },
 );
 

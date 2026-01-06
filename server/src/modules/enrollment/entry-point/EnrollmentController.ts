@@ -2,8 +2,9 @@ import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '../../../shared/types/AuthenticatedRequestType';
 import { ICheckEnrollment } from '../application/interfaces/ICheckEnrollment';
 import { IGetInstructorEnrollmentsUseCase } from '../application/interfaces/IGetInstructorEnrollments';
-import { IUpdateLessonProgressUseCase } from '../application/interfaces/IUpdateLessonProgress';
+import { IUpdateLessonProgress } from '../application/interfaces/IUpdateLessonProgress';
 import { IGetStudentEnrollmentsUseCase } from '../application/interfaces/IGetStudentEnrollments';
+import { IInitiateEnrollmentPayment } from '../application/interfaces/IInitiateEnrollmentPayment';
 
 import { ApiResponseHelper } from '../../../shared/utils/ApiResponseHelper';
 
@@ -11,8 +12,9 @@ export class EnrollmentController {
   constructor(
     private _checkEnrollmentUc: ICheckEnrollment,
     private _getInstructorEnrollmentsUc: IGetInstructorEnrollmentsUseCase,
-    private _updateLessonProgressUc: IUpdateLessonProgressUseCase,
+    private _updateLessonProgressUc: IUpdateLessonProgress,
     private _getStudentEnrollmentsUc: IGetStudentEnrollmentsUseCase,
+    private _initiateEnrollmentPaymentUc: IInitiateEnrollmentPayment,
   ) {}
 
   async checkEnrollmentStatus(req: Request, res: Response) {
@@ -116,6 +118,27 @@ export class EnrollmentController {
         filters,
       );
       return ApiResponseHelper.success(res, 'Enrollments fetched', result);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      return ApiResponseHelper.badRequest(res, message);
+    }
+  }
+
+  async initiatePayment(req: Request, res: Response) {
+    try {
+      const { courseId, provider } = req.body;
+      const userId = (req as AuthenticatedRequest).user.id;
+
+      if (!userId) {
+        return ApiResponseHelper.unauthorized(res, 'Unauthorized');
+      }
+      const result = await this._initiateEnrollmentPaymentUc.execute(
+        userId,
+        courseId,
+        provider,
+      );
+
+      return ApiResponseHelper.success(res, 'Payment initiated', result);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       return ApiResponseHelper.badRequest(res, message);

@@ -8,14 +8,14 @@ import { GetLessonPlayUrlUseCase } from '../../application/use-cases/GetLessonPl
 import { CourseRepository } from '../../infrastructure/repositories/CourseRepository';
 import { ModuleRepository } from '../../infrastructure/repositories/ModuleRepository';
 import { LessonRepository } from '../../infrastructure/repositories/LessonRepository';
-import { EnrollmentRepository } from '../../../enrollment/infrastructure/repositories/EnrollmentRepository';
+import { EnrollmentReadRepository } from '../../../enrollment/infrastructure/repositories/EnrollmentReadRepository';
 import { BlockLessonUseCase } from '../../application/use-cases/BlockLessonUseCase';
 import { S3StorageService } from '../../../../shared/services/file-upload/services/S3StorageService';
 
 const moduleRepository = new ModuleRepository();
 const courseRepository = new CourseRepository();
 const LessonRepo = new LessonRepository();
-const enrollmentRepository = new EnrollmentRepository();
+const enrollmentRepository = new EnrollmentReadRepository();
 const storageService = new S3StorageService();
 
 const createLessonUC = new CreateLessonUseCase(

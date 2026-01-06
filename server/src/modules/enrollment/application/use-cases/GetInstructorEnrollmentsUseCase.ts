@@ -1,13 +1,13 @@
 import mongoose from 'mongoose';
 import { IGetInstructorEnrollmentsUseCase } from '../interfaces/IGetInstructorEnrollments';
-import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
+import { IEnrollmentReadRepository } from '../../domain/IRepositories/IEnrollmentReadRepository';
 import { ICourseEnrollmentSummary } from '../../types/IInstructorEnrollment';
 import { IEnrollmentFilters } from '../../types/IInstructorEnrollment';
 
 export class GetInstructorEnrollmentsUseCase
   implements IGetInstructorEnrollmentsUseCase
 {
-  constructor(private enrollmentRepository: IEnrollmentRepository) {}
+  constructor(private enrollmentRepository: IEnrollmentReadRepository) {}
 
   async execute(
     instructorId: string,
@@ -23,8 +23,9 @@ export class GetInstructorEnrollmentsUseCase
       filters,
     );
 
-    const enrollments = result[0]?.data || [];
-    const totalCount = result[0]?.totalCount[0]?.count || 0;
+    const enrollmentData = result[0];
+    const enrollments = enrollmentData?.data || [];
+    const totalCount = enrollmentData?.totalCount[0]?.count || 0;
 
     // Group enrollments by course and enrich with course/student data
     const courseMap = new Map<string, ICourseEnrollmentSummary['data'][0]>();

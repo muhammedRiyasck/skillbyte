@@ -1,11 +1,11 @@
 import { IStudentEnrollment } from '../../types/IStudentEnrollment';
 import { IGetStudentEnrollmentsUseCase } from '../interfaces/IGetStudentEnrollments';
-import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
+import { IEnrollmentReadRepository } from '../../domain/IRepositories/IEnrollmentReadRepository';
 
 export class GetStudentEnrollmentsUseCase
   implements IGetStudentEnrollmentsUseCase
 {
-  constructor(private enrollmentRepository: IEnrollmentRepository) {}
+  constructor(private enrollmentRepository: IEnrollmentReadRepository) {}
 
   async execute(
     userId: string,
@@ -16,11 +16,11 @@ export class GetStudentEnrollmentsUseCase
       status?: 'active' | 'completed';
     },
   ): Promise<{ data: IStudentEnrollment[]; totalCount: number }> {
-    return await this.enrollmentRepository.findEnrollmentsByUser(
+    return (await this.enrollmentRepository.findEnrollmentsByUser(
       userId,
       page,
       limit,
       filters,
-    );
+    )) as { data: IStudentEnrollment[]; totalCount: number };
   }
 }

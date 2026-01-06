@@ -1,19 +1,16 @@
-import mongoose from 'mongoose';
-import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
+import { IEnrollmentReadRepository } from '../../domain/IRepositories/IEnrollmentReadRepository';
 import { CourseModel } from '../../../course/infrastructure/models/CourseModel';
-import { IPaymentRepository } from '../../domain/IPaymentRepository';
-import { IPayment } from '../../infrastructure/models/PaymentModel';
-import { PaymentProviderFactory } from '../../../../shared/services/payment/PaymentProviderFactory';
+import { StudentModel } from '../../../student/infrastructure/models/StudentModel';
 import { IInitiateEnrollmentPayment } from '../interfaces/IInitiateEnrollmentPayment';
+import { InitiatePaymentUseCase } from '../../../payment/application/use-cases/InitiatePaymentUseCase';
 import { PaymentInitiationResponse } from '../../../../shared/services/payment/interfaces/IPaymentProvider';
 
 export class InitiateEnrollmentPaymentUseCase
   implements IInitiateEnrollmentPayment
 {
   constructor(
-    private _enrollmentRepository: IEnrollmentRepository,
-    private _paymentRepository: IPaymentRepository,
-    private _paymentProviderFactory: PaymentProviderFactory,
+    private _enrollmentReadRepo: IEnrollmentReadRepository,
+    private _initiatePaymentUc: InitiatePaymentUseCase,
   ) {}
 
   async execute(
@@ -30,8 +27,14 @@ export class InitiateEnrollmentPaymentUseCase
       throw new Error('Course not found');
     }
 
+    // 1.1 Fetch student details
+    const student = await StudentModel.findById(userId);
+    if (!student) {
+      throw new Error('Student not found');
+    }
+
     // 2. Check if already enrolled
-    const enrollment = await this._enrollmentRepository.findEnrollment(
+    const enrollment = await this._enrollmentReadRepo.findEnrollment(
       userId,
       courseId,
     );
@@ -39,54 +42,18 @@ export class InitiateEnrollmentPaymentUseCase
       throw new Error('Already enrolled in this course');
     }
 
-    // 3. Get provider from factory
-    const provider = this._paymentProviderFactory.getProvider(providerName);
-
-    // 4. Initiate payment with provider
-    const isPayPal = providerName.toLowerCase() === 'paypal';
-    const currency = isPayPal ? 'USD' : 'inr';
-
-    let amountToCharge = course.price;
-    let convertedAmount: number | undefined;
-
-    if (isPayPal) {
-      const exchangeRate = 83; // 1 USD = 83 INR
-      convertedAmount = Math.round((course.price / exchangeRate) * 100) / 100;
-      amountToCharge = convertedAmount;
-    }
-
-    const providerResponse = await provider.initiate(amountToCharge, currency, {
+    // 3. Initiate payment via Payment Module
+    return await this._initiatePaymentUc.execute({
       userId,
       courseId,
-    });
-    // 5. Create local payment record (Pending)
-    const adminFee = course.price * 0.2; // 20% platform fee
-    const instructorAmount = course.price - adminFee;
-    const paymentData: Partial<IPayment> = {
-      userId: new mongoose.Types.ObjectId(userId),
-      courseId: new mongoose.Types.ObjectId(courseId),
-      instructorId: course.instructorId,
+      instructorId: course.instructorId.toString(),
       amount: course.price,
       currency: 'INR',
-      status: 'pending',
-      adminFee,
-      instructorAmount,
-      convertedAmount,
-      convertedCurrency: isPayPal ? 'USD' : undefined,
-    };
-
-    // Handle provider-specific IDs for the record
-    if (providerName.toLowerCase() === 'stripe') {
-      paymentData.stripePaymentIntentId = providerResponse.id;
-    } else if (providerName.toLowerCase() === 'paypal') {
-      paymentData.paypalOrderId = providerResponse.id;
-    }
-
-    const payment = await this._paymentRepository.createPayment(paymentData);
-
-    return {
-      providerResponse,
-      paymentId: (payment._id as mongoose.Types.ObjectId).toString(),
-    };
+      providerName,
+      productName: course.title,
+      productImage: course.thumbnailUrl || undefined,
+      studentName: student.name,
+      studentEmail: student.email,
+    });
   }
 }

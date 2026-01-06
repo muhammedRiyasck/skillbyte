@@ -1,4 +1,4 @@
-import { IPaymentHistory } from '../../types/IPaymentHistory';
+import { IPayment } from '../../domain/entities/Payment';
 
 export interface IGetUserPurchases {
   execute(
@@ -6,5 +6,5 @@ export interface IGetUserPurchases {
     page: number,
     limit: number,
     filters?: { status?: string; startDate?: Date; endDate?: Date },
-  ): Promise<IPaymentHistory[]>;
+  ): Promise<{ data: IPayment[]; totalCount: number }>;
 }

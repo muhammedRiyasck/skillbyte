@@ -3,7 +3,7 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
 import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
-import { IEnrollmentRepository } from '../../../enrollment/domain/IEnrollmentRepository';
+import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentReadRepository';
 import { IGetLessonPlayUrlUseCase } from '../interfaces/IGetLessonPlayUrlUseCase';
 import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 
@@ -11,7 +11,7 @@ export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
   constructor(
     private _lessonRepo: ILessonRepository,
     private _moduleRepo: IModuleRepository,
-    private _enrollmentRepo: IEnrollmentRepository,
+    private _enrollmentRepo: IEnrollmentReadRepository,
     private _storageService: IStorageService,
   ) {}
 

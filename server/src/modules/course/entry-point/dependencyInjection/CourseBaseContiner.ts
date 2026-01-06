@@ -6,7 +6,7 @@ import { CourseRepository } from '../../infrastructure/repositories/CourseReposi
 import { ModuleRepository } from '../../infrastructure/repositories/ModuleRepository';
 import { LessonRepository } from '../../infrastructure/repositories/LessonRepository';
 import { InstructorRepository } from '../../../instructor/infrastructure/repositories/InstructorRepository';
-import { EnrollmentRepository } from '../../../enrollment/infrastructure/repositories/EnrollmentRepository';
+import { EnrollmentReadRepository } from '../../../enrollment/infrastructure/repositories/EnrollmentReadRepository';
 import { UpdateBaseUseCase } from '../../application/use-cases/UpdateBaseUseCase';
 import { DeleteCourseUseCase } from '../../application/use-cases/DeleteCourseUseCase';
 import { UpdateCourseStatusUseCase } from '../../application/use-cases/UpdateCourseStatusUseCase';
@@ -19,7 +19,7 @@ const courseRepository = new CourseRepository();
 const moduleRepository = new ModuleRepository();
 const lessonRepository = new LessonRepository();
 const instructorRepository = new InstructorRepository();
-const enrollmentRepository = new EnrollmentRepository();
+const enrollmentRepository = new EnrollmentReadRepository();
 const storageService = new CloudinaryStorageService();
 
 const createCourseUC = new CreateBaseUseCase(courseRepository);

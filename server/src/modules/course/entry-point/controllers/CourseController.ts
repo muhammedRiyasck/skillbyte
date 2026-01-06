@@ -20,9 +20,10 @@ import {
 } from '../../application/dtos/CourseDetailsDtos';
 import { CourseMapper } from '../../application/mappers/CourseMapper';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
-import { IEnrollmentRepository } from '../../../enrollment/domain/IEnrollmentRepository';
+import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentReadRepository';
 import { GetCategories } from '../../application/use-cases/GetCategoriesUseCase';
 import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
+import { IEnrollment } from '../../../enrollment/domain/entities/Enrollment';
 
 export class CourseController {
   constructor(
@@ -32,7 +33,7 @@ export class CourseController {
     private _deleteCourseUseCase: IDeleteCourseUseCase,
     private _updateCourseStatusUseCase: IUpdateCourseStatusUseCase,
     private _getPaginatedCoursesUseCase: IGetPaginatedCoursesUseCase,
-    private _enrollmentRepository: IEnrollmentRepository,
+    private _enrollmentRepository: IEnrollmentReadRepository,
     private _getCategoriesUseCase: GetCategories,
     private _blockCourseUseCase: IBlockCourseUseCase,
     private _storageService: IStorageService,
@@ -138,7 +139,6 @@ export class CourseController {
     const courseId = authenticatedReq.params.courseId;
     const instructorId = authenticatedReq.user.id;
 
-    // We can use UpdateBaseSchema if needed, or stick to any as it's partial updates
     const validatedData = UpdateBaseSchema.parse(authenticatedReq.body);
     const data = CourseMapper.toUpdateBaseEntity(validatedData);
 
@@ -290,7 +290,7 @@ export class CourseController {
         );
 
       const enrolledCourseIdSet = new Set(
-        enrollments.map((e) => e.courseId.toString()),
+        enrollments.map((e: IEnrollment) => e.courseId.toString()),
       );
 
       // Create a new data array with isEnrolled property

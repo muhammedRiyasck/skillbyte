@@ -1,20 +1,20 @@
-import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
-import { ICapturePayPalPayment } from '../interfaces/ICapturePayPalPayment';
+import { IPaymentWriteRepository } from '../../domain/IRepositories/IPaymentWriteRepository';
 import { IPayPalProvider } from '../../../../shared/services/payment/interfaces/IPayPalProvider';
 import logger from '../../../../shared/utils/Logger';
-
-import { IPaymentRepository } from '../../domain/IPaymentRepository';
+import { eventBus } from '../../../../shared/services/event-bus/EventBus';
+import {
+  PAYMENT_EVENTS,
+  PaymentSucceededEvent,
+} from '../../../../shared/services/event-bus/PaymentEvents';
+import { ICapturePayPalPayment } from '../interfaces/ICapturePayPalPayment';
 
 export class CapturePayPalPaymentUseCase implements ICapturePayPalPayment {
   constructor(
-    private _enrollmentRepository: IEnrollmentRepository,
-    private _paymentRepository: IPaymentRepository,
+    private _paymentRepository: IPaymentWriteRepository,
     private _paypalProvider: IPayPalProvider,
   ) {}
 
-  async execute(
-    orderId: string,
-  ): Promise<{ success: boolean; enrollmentId?: string }> {
+  async execute(orderId: string): Promise<{ success: boolean }> {
     try {
       // 1. Capture the PayPal payment
       const captureData = await this._paypalProvider.capturePayment(orderId);
@@ -48,38 +48,29 @@ export class CapturePayPalPaymentUseCase implements ICapturePayPalPayment {
         return { success: false };
       }
 
-      // 4. Create Enrollment (with Idempotency check)
-      const existingEnrollment =
-        await this._enrollmentRepository.findEnrollment(
-          payment.userId.toString(),
-          payment.courseId.toString(),
-        );
-      if (existingEnrollment) {
-        return {
-          success: true,
-          enrollmentId: existingEnrollment._id.toString(),
-        };
-      }
-
-      const enrollment = await this._enrollmentRepository.save({
+      // 4. Emit event for other modules to handle
+      const paymentEvent: PaymentSucceededEvent = {
+        paymentId: payment.paymentId!,
         userId: payment.userId,
         courseId: payment.courseId,
-        paymentId: payment._id,
-        status: 'active',
-        enrolledAt: new Date(),
-        progress: 0,
-      });
-
-      return {
-        success: true,
-        enrollmentId: enrollment._id.toString(),
+        amount: payment.amount,
+        currency: payment.currency,
+        metadata: payment.metadata,
       };
+
+      logger.info(
+        `Emitting payment.succeeded event for payment ${payment.paymentId}`,
+      );
+      eventBus.emit(PAYMENT_EVENTS.PAYMENT_SUCCEEDED, paymentEvent);
+
+      return { success: true };
     } catch (error) {
       logger.error('Error in CapturePayPalPaymentUseCase:', error);
       await this._paymentRepository.updatePaymentStatusByPayPalOrder(
         orderId,
         'failed',
       );
+
       throw error;
     }
   }

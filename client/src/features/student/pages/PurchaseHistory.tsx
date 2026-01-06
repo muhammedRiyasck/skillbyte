@@ -6,12 +6,9 @@ import { RefreshCw, ReceiptText, Calendar, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface Purchase {
-  _id: string;
-  courseId: {
-    _id: string;
-    title: string;
-    thumbnailUrl?: string;
-  };
+  id: string;
+  productName: string;
+  productImage?: string;
   amount: number;
   currency: string;
   status: string;
@@ -22,33 +19,33 @@ interface Purchase {
 
 const PurchaseHistory: React.FC = () => {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [dateFilter, setDateFilter] = useState('all');
+  const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 6;
   const [statusFilter, setStatusFilter] = useState('all');
-  const itemsPerPage = 10;
+  const [dateFilter, setDateFilter] = useState('all');
 
-  const fetchPurchases = useCallback(async (page: number) => {
+  const fetchPurchases = useCallback(async () => {
     try {
-      setLoading(true);
+      setIsLoading(true);
       const filters: Record<string, string> = {};
-      if (dateFilter !== 'all') filters.dateRange = dateFilter;
       if (statusFilter !== 'all') filters.status = statusFilter;
+      if (dateFilter !== 'all') filters.dateRange = dateFilter;
 
       const data = await getStudentPurchases(page, itemsPerPage, filters);
-      setPurchases(data?.data[0]?.data || []);
-      setTotalCount(data?.data[0]?.totalCount[0]?.count || 0);
+      setPurchases(data?.data?.purchases || []);
+      setTotalCount(data?.data?.totalCount || 0);
     } catch {
       toast.error('Failed to load purchase history');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
-  }, [itemsPerPage, dateFilter, statusFilter]);
+  }, [page, statusFilter, dateFilter]);
 
   useEffect(() => {
-    fetchPurchases(currentPage);
-  }, [currentPage, fetchPurchases]);
+    fetchPurchases();
+  }, [fetchPurchases]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -60,7 +57,7 @@ const PurchaseHistory: React.FC = () => {
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
-  if (loading && purchases.length === 0) {
+  if (isLoading && purchases.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center dark:bg-gray-900">
         <Spiner />
@@ -78,11 +75,11 @@ const PurchaseHistory: React.FC = () => {
             My Purchases
           </h1>
           <button
-            onClick={() => fetchPurchases(currentPage)}
-            disabled={loading}
+            onClick={() => fetchPurchases()}
+            disabled={isLoading}
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg cursor-pointer"
           >
-            <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
           </button>
         </div>
@@ -93,7 +90,7 @@ const PurchaseHistory: React.FC = () => {
               value={dateFilter}
               onChange={(e) => {
                 setDateFilter(e.target.value);
-                setCurrentPage(1);
+                setPage(1);
               }}
               className="px-2 py-2 rounded-lg bg-gray-50 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer"
             >
@@ -107,7 +104,7 @@ const PurchaseHistory: React.FC = () => {
               value={statusFilter}
               onChange={(e) => {
                 setStatusFilter(e.target.value);
-                setCurrentPage(1);
+                setPage(1);
               }}
               className="px-4 py-2 rounded-lg bg-gray-50 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer capitalize"
             >
@@ -142,23 +139,26 @@ const PurchaseHistory: React.FC = () => {
                     <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Course</th>
                     <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
                     <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Order ID</th>
+                    <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Provider</th>
                     <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
                     <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                   {purchases.map((purchase) => (
-                    <tr key={purchase._id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors">
+                    <tr key={purchase.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors">
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-4">
                           <img
-                            src={purchase.courseId.thumbnailUrl || '/placeholder-course.png'}
+                            src={purchase.productImage || '/placeholder-course.png'}
                             alt=""
                             className="w-12 h-12 rounded-xl object-cover shadow-sm bg-gray-100"
                           />
-                          <span className="font-semibold text-gray-900 dark:text-gray-100 line-clamp-1">
-                            {purchase.courseId.title}
-                          </span>
+                          <div>
+                            <div className="font-semibold text-gray-900 dark:text-white">
+                              {purchase.productName}
+                            </div>
+                          </div>
                         </div>
                       </td>
                       <td className="px-6 py-5">
@@ -170,6 +170,11 @@ const PurchaseHistory: React.FC = () => {
                       <td className="px-6 py-5">
                         <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
                           {purchase.stripePaymentIntentId ? purchase.stripePaymentIntentId.slice(-10) : purchase.paypalOrderId?.slice(-10)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5">
+                        <span className="text-xs font-mono text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+                          {purchase.stripePaymentIntentId ? 'Stripe' : 'PayPal'}
                         </span>
                       </td>
                       <td className="px-6 py-5">
@@ -193,15 +198,17 @@ const PurchaseHistory: React.FC = () => {
             {/* Mobile View (Cards) */}
             <div className="md:hidden space-y-4">
               {purchases.map((purchase) => (
-                <div key={purchase._id} className="bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
+                <div key={purchase.id} className="bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
                    <div className="flex items-start gap-4 mb-4">
                      <img
-                        src={purchase.courseId.thumbnailUrl || '/placeholder-course.png'}
+                        src={purchase.productImage || '/placeholder-course.png'}
                         alt=""
                         className="w-16 h-16 rounded-2xl object-cover"
                       />
                       <div className="flex-1">
-                         <h4 className="font-bold text-gray-900 dark:text-gray-100 mb-1 leading-tight">{purchase.courseId.title}</h4>
+                         <h4 className="font-bold text-gray-900 dark:text-white line-clamp-2">
+                           {purchase.productName}
+                         </h4>
                          <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(purchase.createdAt)}</p>
                       </div>
                    </div>
@@ -222,8 +229,8 @@ const PurchaseHistory: React.FC = () => {
             {totalPages > 1 && (
               <div className="flex items-center justify-center gap-2 pt-6">
                 <button
-                  disabled={currentPage === 1 || loading}
-                  onClick={() => setCurrentPage(p => p - 1)}
+                  disabled={page === 1 || isLoading}
+                  onClick={() => setPage(p => p - 1)}
                   className="p-2 cursor-pointer rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 disabled:opacity-50"
                 >
                   Prev
@@ -232,9 +239,9 @@ const PurchaseHistory: React.FC = () => {
                   {[...Array(totalPages)].map((_, i) => (
                     <button
                       key={i}
-                      onClick={() => setCurrentPage(i + 1)}
+                      onClick={() => setPage(i + 1)}
                       className={`w-10 cursor-pointer h-10 rounded-xl font-bold transition-all ${
-                        currentPage === i + 1
+                        page === i + 1
                           ? 'bg-blue-600 text-white shadow-md'
                           : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50'
                       }`}
@@ -244,8 +251,8 @@ const PurchaseHistory: React.FC = () => {
                   ))}
                 </div>
                 <button
-                  disabled={currentPage === totalPages || loading}
-                  onClick={() => setCurrentPage(p => p + 1)}
+                  disabled={page === totalPages || isLoading}
+                  onClick={() => setPage(p => p + 1)}
                   className="p-2 cursor-pointer rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 disabled:opacity-50"
                 >
                   Next

@@ -1,22 +1,5 @@
-import mongoose, { Schema, Document } from 'mongoose';
-
-export interface IPayment extends Document {
-  _id: mongoose.Types.ObjectId;
-  userId: mongoose.Types.ObjectId;
-  courseId: mongoose.Types.ObjectId;
-  amount: number;
-  currency: string;
-  stripePaymentIntentId?: string;
-  paypalOrderId?: string;
-  status: 'pending' | 'succeeded' | 'failed' | 'refunded';
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  metadata?: Record<string, any>;
-  instructorId: mongoose.Types.ObjectId;
-  adminFee: number;
-  instructorAmount: number;
-  convertedAmount?: number;
-  convertedCurrency?: string;
-}
+import mongoose, { Schema } from 'mongoose';
+import { IPaymentDocument } from '../types/IPaymentDocument';
 
 const PaymentSchema = new Schema(
   {
@@ -25,6 +8,8 @@ const PaymentSchema = new Schema(
       ref: 'Student',
       required: true,
     },
+    studentName: { type: String, required: true },
+    studentEmail: { type: String, required: true },
     courseId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Course',
@@ -45,8 +30,10 @@ const PaymentSchema = new Schema(
       ref: 'Instructor',
       required: true,
     },
-    adminFee: { type: Number, default: 0 },
-    instructorAmount: { type: Number, default: 0 },
+    adminFee: { type: Number, required: true },
+    instructorAmount: { type: Number, required: true },
+    productName: { type: String, required: true },
+    productImage: { type: String },
     convertedAmount: { type: Number },
     convertedCurrency: { type: String },
   },
@@ -70,4 +57,7 @@ PaymentSchema.index(
   },
 );
 
-export const PaymentModel = mongoose.model<IPayment>('Payment', PaymentSchema);
+export const PaymentModel = mongoose.model<IPaymentDocument>(
+  'Payment',
+  PaymentSchema,
+);

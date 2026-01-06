@@ -1,39 +1,62 @@
 import { Types, PipelineStage } from 'mongoose';
 import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
-import { IEnrollmentRepository } from '../../domain/IEnrollmentRepository';
+import { IEnrollmentReadRepository } from '../../domain/IRepositories/IEnrollmentReadRepository';
+import { IEnrollment as IEnrollmentEntity } from '../../domain/entities/Enrollment';
 import { IInstructorEnrollment } from '../../types/IInstructorEnrollment';
-import { EnrollmentModel, IEnrollment } from '../models/EnrollmentModel';
-
+import {
+  EnrollmentModel,
+  IEnrollment as IEnrollmentDocument,
+} from '../models/EnrollmentModel';
 import { IStudentEnrollment } from '../../types/IStudentEnrollment';
-import { ModuleModel } from '../../../course/infrastructure/models/ModuleModel';
-import { LessonModel } from '../../../course/infrastructure/models/LessonModel';
 import { IEnrollmentFilters } from '../../types/IInstructorEnrollment';
 
-
-export class EnrollmentRepository
-  extends BaseRepository<IEnrollment, IEnrollment>
-  implements IEnrollmentRepository
+export class EnrollmentReadRepository
+  extends BaseRepository<IEnrollmentEntity, IEnrollmentDocument>
+  implements IEnrollmentReadRepository
 {
   constructor() {
     super(EnrollmentModel);
   }
 
-  toEntity(doc: IEnrollment): IEnrollment {
-    return doc;
+  toEntity(doc: IEnrollmentDocument): IEnrollmentEntity {
+    return {
+      enrollmentId: doc._id.toString(),
+      userId: doc.userId.toString(),
+      courseId: doc.courseId.toString(),
+      paymentId: doc.paymentId?.toString(),
+      status: doc.status,
+      enrolledAt: doc.enrolledAt,
+      completedAt: doc.completedAt,
+      progress: doc.progress,
+      lessonProgress: doc.lessonProgress.map((lp) => ({
+        lessonId: lp.lessonId.toString(),
+        lastWatchedSecond: lp.lastWatchedSecond,
+        totalDuration: lp.totalDuration,
+        isCompleted: lp.isCompleted,
+        lastUpdated: lp.lastUpdated,
+      })),
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+    };
   }
 
   async findEnrollment(
     userId: string,
     courseId: string,
-  ): Promise<IEnrollment | null> {
-    return await this.model.findOne({ userId, courseId });
+  ): Promise<IEnrollmentEntity | null> {
+    const doc = await this.model.findOne({ userId, courseId });
+    return doc ? this.toEntity(doc) : null;
   }
 
   async findEnrollmentsForUser(
     userId: string,
     courseIds: string[],
-  ): Promise<IEnrollment[]> {
-    return await this.model.find({ userId, courseId: { $in: courseIds } });
+  ): Promise<IEnrollmentEntity[]> {
+    const docs = await this.model.find({
+      userId,
+      courseId: { $in: courseIds },
+    });
+    return docs.map((doc) => this.toEntity(doc));
   }
 
   async findEnrollmentsByUser(
@@ -144,7 +167,6 @@ export class EnrollmentRepository
     limit: number,
     filters?: IEnrollmentFilters,
   ): Promise<IInstructorEnrollment[]> {
-    // Find enrollments where the course belongs to the instructor
     const safePage = Math.max(page, 1);
     const safeLimit = Math.min(limit, 50);
     const skip = (safePage - 1) * safeLimit;
@@ -166,7 +188,6 @@ export class EnrollmentRepository
       },
     ];
 
-    // Filter by Course if specified
     if (filters?.courseId) {
       pipeline.push({
         $match: {
@@ -175,7 +196,6 @@ export class EnrollmentRepository
       });
     }
 
-    // Filter by Status if specified
     if (filters?.status) {
       pipeline.push({
         $match: {
@@ -184,7 +204,6 @@ export class EnrollmentRepository
       });
     }
 
-    // Lookup Student for searching
     pipeline.push(
       {
         $lookup: {
@@ -197,7 +216,6 @@ export class EnrollmentRepository
       { $unwind: '$student' },
     );
 
-    // Search by student name or email
     if (filters?.search) {
       const searchRegex = new RegExp(filters.search, 'i');
       pipeline.push({
@@ -210,15 +228,12 @@ export class EnrollmentRepository
       });
     }
 
-    // Sorting
     if (filters?.sort === 'oldest') {
       pipeline.push({ $sort: { enrolledAt: 1 } });
     } else {
-      // Default to newest
       pipeline.push({ $sort: { enrolledAt: -1 } });
     }
 
-    // Project and Facet
     pipeline.push(
       {
         $project: {
@@ -249,110 +264,4 @@ export class EnrollmentRepository
 
     return await this.model.aggregate(pipeline);
   }
-
-  async updateEnrollmentStatus(
-    enrollmentId: string,
-    status: string,
-  ): Promise<IEnrollment | null> {
-    return await this.model.findByIdAndUpdate(
-      enrollmentId,
-      { status },
-      { new: true },
-    );
-  }
-
-
-  async updateLessonProgress(
-    enrollmentId: string,
-    lessonId: string,
-    progressData: {
-      lastWatchedSecond: number;
-      totalDuration: number;
-      isCompleted: boolean;
-    },
-  ): Promise<IEnrollment | null> {
-    const enrollment = await this.model.findOne({
-      _id: enrollmentId,
-      'lessonProgress.lessonId': lessonId,
-    });
-
-    if (enrollment) {
-      // Update existing
-      await this.model.findOneAndUpdate(
-        { _id: enrollmentId, 'lessonProgress.lessonId': lessonId },
-        {
-          $set: {
-            'lessonProgress.$.lastWatchedSecond':
-              progressData.lastWatchedSecond,
-            'lessonProgress.$.totalDuration': progressData.totalDuration,
-            'lessonProgress.$.isCompleted': progressData.isCompleted,
-            'lessonProgress.$.lastUpdated': new Date(),
-          },
-        },
-        { new: true },
-      );
-    
-    } else {
-      // Push new
-      await this.model.findByIdAndUpdate(
-        enrollmentId,
-        {
-          $push: {
-            lessonProgress: {
-              lessonId,
-              ...progressData,
-              lastUpdated: new Date(),
-            },
-          },
-        },
-        { new: true },
-      );
-    }
-
-    // --- Recalculate Overall Progress ---
-    const updatedEnrollment = await this.model.findById(enrollmentId);
-    if (!updatedEnrollment) return null;
-
-    // 1. Get total lessons count for the course
-    //    Find all modules for this course
-    const modules = await ModuleModel.find({
-      courseId: updatedEnrollment.courseId,
-    }).select('_id');
-    const moduleIds = modules.map((m) => m._id);
-
-    //    Count all published lessons in these modules
-    const totalLessons = await LessonModel.countDocuments({
-      moduleId: { $in: moduleIds },
-    });
-
-    // 2. Count completed lessons in enrollment
-    const completedLessons =
-      updatedEnrollment.lessonProgress?.filter(
-        (p: { isCompleted: boolean }) => p.isCompleted,
-      ).length || 0;
-
-    // 3. Calculate percentage
-    const progressPercentage =
-      totalLessons > 0
-        ? Math.round((completedLessons / totalLessons) * 100)
-        : 0;
-
-    // 4. Update the enrollment with new progress
-    const updateData: Record<string, unknown> = {
-      progress: progressPercentage,
-    };
-    if (
-      progressPercentage === 100 &&
-      updatedEnrollment.status !== 'completed'
-    ) {
-      updateData.status = 'completed';
-      updateData.completedAt = new Date();
-    }
-
-    return await this.model.findByIdAndUpdate(enrollmentId, updateData, {
-      new: true,
-    });
-  }
-
-
 }

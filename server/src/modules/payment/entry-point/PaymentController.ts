@@ -1,46 +1,23 @@
 import { Request, Response } from 'express';
-import { IInitiateEnrollmentPayment } from '../application/interfaces/IInitiateEnrollmentPayment';
-import { IHandleStripeWebhook } from '../application/interfaces/IHandleStripeWebhook';
-import { ICapturePayPalPayment } from '../application/interfaces/ICapturePayPalPayment';
+import { AuthenticatedRequest } from '../../../shared/types/AuthenticatedRequestType';
+import { ApiResponseHelper } from '../../../shared/utils/ApiResponseHelper';
 import { IGetUserPurchases } from '../application/interfaces/IGetUserPurchases';
 import { IGetInstructorEarnings } from '../application/interfaces/IGetInstructorEarnings';
-import { ApiResponseHelper } from '../../../shared/utils/ApiResponseHelper';
-import { AuthenticatedRequest } from '../../../shared/types/AuthenticatedRequestType';
+import { IHandleStripeWebhook } from '../application/interfaces/IHandleStripeWebhook';
+import { ICapturePayPalPayment } from '../application/interfaces/ICapturePayPalPayment';
+import { PaymentMapper } from '../application/mappers/PaymentMapper';
 import logger from '../../../shared/utils/Logger';
 
 export class PaymentController {
   constructor(
-    private _initiatePaymentUc: IInitiateEnrollmentPayment,
-    private _handleStripeWebhookUc: IHandleStripeWebhook,
-    private _capturePayPalPaymentUc: ICapturePayPalPayment,
     private _getUserPurchasesUc: IGetUserPurchases,
     private _getInstructorEarningsUc: IGetInstructorEarnings,
+    private _handleStripeWebhookUc: IHandleStripeWebhook,
+    private _capturePayPalPaymentUc: ICapturePayPalPayment,
   ) {}
 
-  async initiatePayment(req: Request, res: Response) {
-    try {
-      const { courseId, provider } = req.body;
-      const userId = (req as AuthenticatedRequest).user.id;
-
-      if (!userId) {
-        return ApiResponseHelper.unauthorized(res, 'Unauthorized');
-      }
-
-      const result = await this._initiatePaymentUc.execute(
-        userId,
-        courseId,
-        provider,
-      );
-      return ApiResponseHelper.success(res, 'Payment initiated', result);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      return ApiResponseHelper.badRequest(res, message);
-    }
-  }
-
-  async handleWebhook(req: Request, res: Response) {
+  async handleStripeWebhook(req: Request, res: Response) {
     const sig = req.headers['stripe-signature'];
-    // Need raw body here.
     const payload = req.body;
 
     if (!sig) {
@@ -48,7 +25,6 @@ export class PaymentController {
     }
 
     try {
-      // logger.info(`Checkout session created`);
       await this._handleStripeWebhookUc.execute(sig as string, payload);
       return res.status(200).send({ received: true });
     } catch (error) {
@@ -71,7 +47,7 @@ export class PaymentController {
       if (result.success) {
         return ApiResponseHelper.success(
           res,
-          'Payment captured and enrollment created',
+          'Payment captured successfully',
           result,
         );
       } else {
@@ -115,7 +91,12 @@ export class PaymentController {
         limit,
         { status, startDate, endDate },
       );
-      return ApiResponseHelper.success(res, 'Purchases fetched', result);
+
+      return ApiResponseHelper.success(
+        res,
+        'Purchases fetched',
+        PaymentMapper.toPurchaseHistoryResponse(result),
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       return ApiResponseHelper.badRequest(res, message);
@@ -137,7 +118,12 @@ export class PaymentController {
         page,
         limit,
       );
-      return ApiResponseHelper.success(res, 'Earnings fetched', result);
+
+      return ApiResponseHelper.success(
+        res,
+        'Earnings fetched',
+        PaymentMapper.toEarningsResponse(result),
+      );
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       return ApiResponseHelper.badRequest(res, message);

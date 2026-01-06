@@ -14,7 +14,10 @@ export interface IEnrollment extends Document {
     lastWatchedSecond: number;
     totalDuration: number;
     isCompleted: boolean;
+    lastUpdated?: Date;
   }[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const EnrollmentSchema = new Schema(

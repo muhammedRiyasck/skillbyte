@@ -63,6 +63,7 @@ const CourseDetails: React.FC = () => {
 
   const course = courseData?.data;
 
+
   const blockedLessonIds = useMemo(() => course?.modules?.flatMap((mod: ModuleType) =>
     mod.lessons?.filter((les: LessonType) => les.isBlocked).map((les: LessonType) => les.lessonId) || []
   ) || [], [course?.modules]);
@@ -170,14 +171,13 @@ const CourseDetails: React.FC = () => {
     ? course.modules?.flatMap((m: ModuleType) => m.lessons || []).find((l: LessonType) => l.lessonId === currentLessonId)
     : null;
 
-  const currentLessonProgress = enrollmentData?.enrollment?.lessonProgress?.find(
+    
+  const currentLessonProgress = enrollmentData?.data?.enrollment?.lessonProgress?.find(
     (p: { lessonId: string; lastWatchedSecond: number }) => p.lessonId === currentLessonId
   );
   
   const initialProgress = currentLessonProgress?.lastWatchedSecond || 0;
-  
-  const enrollmentId = enrollmentData?.data?.enrollment?._id;
-
+  const enrollmentId = enrollmentData?.data?.enrollment?.enrollmentId;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -438,7 +438,7 @@ const CourseDetails: React.FC = () => {
                                       className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2"
                                     >
                                       <Play className="w-4 h-4" />
-                                      {(enrollmentData?.enrollment?.lessonProgress?.find((p: { lessonId: string; lastWatchedSecond: number }) => p.lessonId === lesson.lessonId)?.lastWatchedSecond || 0) > 0 ? 'Resume' : 'Watch'}
+                                      {(enrollmentData?.data?.enrollment?.lessonProgress?.find((p: { lessonId: string; lastWatchedSecond: number }) => p.lessonId === lesson.lessonId)?.lastWatchedSecond || 0) > 0 ? 'Resume' : 'Watch'}
                                     </button>
                                   )}
                                   {role === 'admin' && (
@@ -506,7 +506,7 @@ const CourseDetails: React.FC = () => {
               </h2>
               <div className="flex items-start gap-4">
                 <img
-                  src={course.instructor?.avatar}
+                  src={course.instructor?.avatar||default_profile}
                   alt={course.instructor?.name || 'Instructor'}
                   className="w-16 h-16 rounded-full"
                 />
