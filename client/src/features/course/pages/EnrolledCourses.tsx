@@ -68,7 +68,7 @@ const EnrolledCourses: React.FC = () => {
         </div>
         
         <div className="px-6 pb-2">
-          <div className="flex flex-col md:flex-row gap-4 mb-4">
+          <div className="flex flex-col md:flex-row gap-4 mb-4 mt-8 lg:mt-0">
             <div className="flex-1">
               <DebouncedInput
                 id="enrolled_course_search"
