@@ -69,4 +69,18 @@ export class LessonRepository
   async deleteManyByModuleIds(moduleIds: string[]): Promise<void> {
     await this.model.deleteMany({ moduleId: { $in: moduleIds } });
   }
+
+  async countByCourseId(courseId: string): Promise<number> {
+    const count = await this.model.countDocuments({
+      moduleId: {
+        $in: await this.model.db
+          .collection('modules')
+          .find({ courseId })
+          .project({ _id: 1 })
+          .toArray()
+          .then((modules) => modules.map((m) => m._id)),
+      },
+    });
+    return count;
+  }
 }

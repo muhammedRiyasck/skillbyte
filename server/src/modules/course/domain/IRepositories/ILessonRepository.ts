@@ -17,4 +17,5 @@ export interface ILessonRepository extends IBaseRepository<Lesson> {
   updateLessonById(lessonId: string, updates: Partial<Lesson>): Promise<void>;
   deleteManyByModuleId(moduleId: string): Promise<void>;
   deleteManyByModuleIds(moduleIds: string[]): Promise<void>;
+  countByCourseId(courseId: string): Promise<number>;
 }

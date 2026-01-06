@@ -2,9 +2,13 @@ import { IEnrollmentWriteRepository } from '../../domain/IRepositories/IEnrollme
 import { IEnrollment } from '../../domain/entities/Enrollment';
 import logger from '../../../../shared/utils/Logger';
 import { IUpdateLessonProgress } from '../interfaces/IUpdateLessonProgress';
+import { ILessonRepository } from '../../../course/domain/IRepositories/ILessonRepository';
 
 export class UpdateLessonProgressUseCase implements IUpdateLessonProgress {
-  constructor(private enrollmentWriteRepo: IEnrollmentWriteRepository) {}
+  constructor(
+    private enrollmentWriteRepo: IEnrollmentWriteRepository,
+    private lessonRepo: ILessonRepository,
+  ) {}
 
   async execute(
     enrollmentId: string,
@@ -32,15 +36,21 @@ export class UpdateLessonProgressUseCase implements IUpdateLessonProgress {
       return null;
     }
 
+    // 2. Get total lessons in the course
+    const totalLessonsInCourse = await this.lessonRepo.countByCourseId(
+      updatedEnrollment.courseId,
+    );
+
+    // 3. Calculate progress based on total course lessons
     const completedLessons = updatedEnrollment.lessonProgress.filter(
       (lp) => lp.isCompleted,
     ).length;
-    const totalLessonsInProgress = updatedEnrollment.lessonProgress.length;
     const progressPercentage =
-      totalLessonsInProgress > 0
-        ? Math.round((completedLessons / totalLessonsInProgress) * 100)
+      totalLessonsInCourse > 0
+        ? Math.round((completedLessons / totalLessonsInCourse) * 100)
         : 0;
-    // 3. Update overall progress
+
+    // 4. Update overall progress
     const status =
       progressPercentage === 100 && updatedEnrollment.status !== 'completed'
         ? 'completed'

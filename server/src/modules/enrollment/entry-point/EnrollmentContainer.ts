@@ -8,10 +8,12 @@ import { GetStudentEnrollmentsUseCase } from '../application/use-cases/GetStuden
 import { EnrollmentFulfillmentService } from '../application/services/EnrollmentFulfillmentService';
 import { InitiateEnrollmentPaymentUseCase } from '../application/use-cases/InitiateEnrollmentPaymentUseCase';
 import { initiatePaymentUc } from '../../payment/entry-point/PaymentContainer';
+import { LessonRepository } from '../../course/infrastructure/repositories/LessonRepository';
 
 // Initialize repositories
 const enrollmentReadRepo = new EnrollmentReadRepository();
 const enrollmentWriteRepo = new EnrollmentWriteRepository();
+const lessonRepo = new LessonRepository();
 
 // Initialize use cases with split repository interfaces
 const checkEnrollmentUc = new CheckEnrollmentUseCase(enrollmentReadRepo);
@@ -20,6 +22,7 @@ const getInstructorEnrollmentsUc = new GetInstructorEnrollmentsUseCase(
 );
 const updateLessonProgressUc = new UpdateLessonProgressUseCase(
   enrollmentWriteRepo,
+  lessonRepo,
 );
 const getStudentEnrollmentsUc = new GetStudentEnrollmentsUseCase(
   enrollmentReadRepo,
