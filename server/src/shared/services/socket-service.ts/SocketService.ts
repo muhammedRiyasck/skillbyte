@@ -31,13 +31,73 @@ export class SocketService {
       socket.on('join', (userId: string) => {
         this.userSockets.set(userId, socket.id);
         logger.info(`User ${userId} joined with socket ${socket.id}`);
+        // Broadcast user online status
+        this.io?.emit('user:online', userId);
       });
+
+      // User status check
+      socket.on(
+        'user:check-status',
+        (userIds: string[], callback: (onlineUsers: string[]) => void) => {
+          const onlineUsers = userIds.filter((id) => this.userSockets.has(id));
+          callback(onlineUsers);
+        },
+      );
+
+      // Chat event handlers
+      socket.on('chat:join-conversation', (conversationId: string) => {
+        socket.join(`conversation:${conversationId}`);
+        logger.info(
+          `Socket ${socket.id} joined conversation ${conversationId}`,
+        );
+      });
+
+      socket.on('chat:leave-conversation', (conversationId: string) => {
+        socket.leave(`conversation:${conversationId}`);
+        logger.info(`Socket ${socket.id} left conversation ${conversationId}`);
+      });
+
+      socket.on(
+        'chat:typing',
+        ({
+          conversationId,
+          userId,
+        }: {
+          conversationId: string;
+          userId: string;
+        }) => {
+          socket.to(`conversation:${conversationId}`).emit('chat:user-typing', {
+            userId,
+            conversationId,
+          });
+        },
+      );
+
+      socket.on(
+        'chat:stop-typing',
+        ({
+          conversationId,
+          userId,
+        }: {
+          conversationId: string;
+          userId: string;
+        }) => {
+          socket
+            .to(`conversation:${conversationId}`)
+            .emit('chat:user-stop-typing', {
+              userId,
+              conversationId,
+            });
+        },
+      );
 
       socket.on('disconnect', () => {
         logger.info(`Client disconnected: ${socket.id}`);
         for (const [userId, socketId] of this.userSockets.entries()) {
           if (socketId === socket.id) {
             this.userSockets.delete(userId);
+            // Broadcast user offline status
+            this.io?.emit('user:offline', userId);
             break;
           }
         }
@@ -56,6 +116,16 @@ export class SocketService {
     const socketId = this.userSockets.get(userId);
     if (socketId && this.io) {
       this.io.to(socketId).emit(event, data);
+    }
+  }
+
+  public emitToConversation<T>(
+    conversationId: string,
+    event: string,
+    data: T,
+  ): void {
+    if (this.io) {
+      this.io.to(`conversation:${conversationId}`).emit(event, data);
     }
   }
 }
