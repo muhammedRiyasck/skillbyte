@@ -21,16 +21,21 @@ export class PaymentController {
     const payload = req.body;
 
     if (!sig) {
-      return res.status(400).send('Webhook Error: Missing signature');
+      return ApiResponseHelper.badRequest(
+        res,
+        'Webhook Error: Missing signature',
+      );
     }
 
     try {
       await this._handleStripeWebhookUc.execute(sig as string, payload);
-      return res.status(200).send({ received: true });
+      return ApiResponseHelper.success(res, 'Webhook received', {
+        received: true,
+      });
     } catch (error) {
       logger.error('Webhook Error:', error);
       const message = error instanceof Error ? error.message : 'Unknown error';
-      return res.status(400).send(`Webhook Error: ${message}`);
+      return ApiResponseHelper.badRequest(res, `Webhook Error: ${message}`);
     }
   }
 

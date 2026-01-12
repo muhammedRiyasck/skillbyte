@@ -1,6 +1,7 @@
 export interface IStudentEnrollment {
   courseId: string;
   title: string;
+  instructorId: string;
   thumbnailUrl: string;
   subText: string;
   category: string;

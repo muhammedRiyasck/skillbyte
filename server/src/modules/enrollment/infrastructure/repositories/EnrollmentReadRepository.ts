@@ -109,6 +109,7 @@ export class EnrollmentReadRepository
           status: 1,
           course: {
             courseId: '$course._id',
+            instructorId: '$course.instructorId',
             title: '$course.title',
             thumbnailUrl: '$course.thumbnailUrl',
             subText: '$course.subText',
@@ -137,6 +138,7 @@ export class EnrollmentReadRepository
         status: string;
         course: {
           courseId: Types.ObjectId;
+          instructorId: Types.ObjectId;
           title: string;
           thumbnailUrl: string;
           subText: string;
@@ -150,6 +152,7 @@ export class EnrollmentReadRepository
       }) => ({
         ...item.course,
         courseId: item.course.courseId.toString(),
+        instructorId: item.course.instructorId.toString(),
         enrolledAt: item.enrolledAt,
         progress: item.progress,
         enrollmentStatus: item.status,
