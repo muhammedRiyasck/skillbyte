@@ -6,6 +6,10 @@ import { cn } from "@shared/utils/cn";
 import ToggleSwitch from "@/shared/ui/ToggleSwitch";
 import Modal from "@/shared/ui/Modal";
 import { updateCourseStatus, blockCourse } from "../services/CourseStatus";
+import { ChatService } from "@/features/chat/services/ChatService";
+import { useSelector } from "react-redux";
+import { MessageSquare, Loader2 } from "lucide-react";
+import type { RootState } from "@core/store/Index";
 
 import type { Ibase } from "../types/IBase";
 
@@ -34,6 +38,31 @@ const queryClient = useQueryClient();
     newStatus: "list",
     action: "status"
   });
+  
+  const user = useSelector((state: RootState) => state.auth.user);
+  const [isCreatingChat, setIsCreatingChat] = useState<string | null>(null);
+
+  const handleMessageInstructor = async (courseId: string, instructorId: string | undefined) => {
+    if (!user || !instructorId) return;
+    
+    setIsCreatingChat(courseId);
+    try {
+      await ChatService.createConversation({
+        studentId: user.id,
+        instructorId,
+        courseId
+      });
+      
+      // Invalidate conversations query to ensure the new conversation appears in the list
+      queryClient.invalidateQueries({ queryKey: ['conversations', user.id] });
+      
+      navigate(ROUTES.chat);
+    } catch (error) {
+      console.error("Failed to start conversation:", error);
+    } finally {
+      setIsCreatingChat(null);
+    }
+  };
 
   const handleToggleChange = useCallback((course: Ibase) => {
     if (role === 'admin') {
@@ -110,6 +139,7 @@ const queryClient = useQueryClient();
     if (role === 'student') {
       // Action Button for Students
       return (
+        <>
         <button
           onClick={() => navigate(ROUTES.course.details.replace(':courseId', course.courseId), { state: { page } })}
           className={cn(
@@ -121,6 +151,21 @@ const queryClient = useQueryClient();
         >
           {course.isEnrolled ? 'Continue Learning' : 'Enroll Now'}
         </button>
+        {course.isEnrolled && (
+          <button
+            onClick={() => {handleMessageInstructor(course.courseId, course.instructorId )}}
+            disabled={isCreatingChat === course.courseId}
+            className="mt-2 w-full text-indigo-600 border border-indigo-600 hover:bg-indigo-50 font-medium py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 cursor-pointer flex items-center justify-center gap-2"
+          >
+            {isCreatingChat === course.courseId ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <MessageSquare className="w-4 h-4" />
+            )}
+            Message Instructor
+          </button>
+        )}
+      </>
       );
     }else if(role === 'instructor' ){
 
