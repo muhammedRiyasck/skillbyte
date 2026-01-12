@@ -3,15 +3,17 @@ import logo from "../../assets/OrginalLogo.png";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "@core/router/paths";
-import { Menu, X, LayoutDashboard, User, BookOpen, Plus, Megaphone, Calendar, LogOut, DollarSign } from "lucide-react";
+import { Menu, X, LayoutDashboard, User, BookOpen, Plus, Megaphone, Calendar, LogOut, DollarSign, MessageSquare } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@core/store/Index";
 import { logout } from "@features/auth/services/AuthService";
 import { clearUser } from "@features/auth/AuthSlice";
 import { toast } from "sonner";
+import { useChat } from "@features/chat/hooks/useChat";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { totalUnreadCount } = useChat();
   const user = useSelector((store: RootState) => store.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate()
@@ -57,6 +59,17 @@ const Header = () => {
                 <Link to={ROUTES.root} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
                   <LayoutDashboard size={20} className="text-indigo-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Dashboard</span>
+                </Link>
+                <Link to={ROUTES.chat} className="flex items-center justify-between px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
+                  <div className="flex items-center gap-3">
+                    <MessageSquare size={20} className="text-blue-600 group-hover:scale-110 transition-transform" />
+                    <span className="font-medium">Messages</span>
+                  </div>
+                  {totalUnreadCount > 0 && (
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-1 ring-white">
+                      {totalUnreadCount > 99 ? '99+' : totalUnreadCount}
+                    </span>
+                  )}
                 </Link>
                 <Link to={ROUTES.instructor.createCourseBase} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
                   <Plus size={20} className="text-purple-600 group-hover:scale-110 transition-transform" />

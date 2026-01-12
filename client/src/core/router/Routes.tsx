@@ -11,6 +11,7 @@ const Otp = lazy(() => import("@features/auth/pages/Otp.tsx"));
 const ResetPassword = lazy(() => import("@features/auth/pages/ResetPassword.tsx"));
 const OAuthSuccess = lazy(() => import("@/features/auth/hooks/UseOAuthSuccess.tsx"));
 const ForgotPassword = lazy(() => import("@features/auth/pages/ForgotPassword.tsx"));
+const ChatPage = lazy(() => import("@features/chat/pages/ChatPage.tsx"));
 
 import PublicRoute from "./PublicRoute.tsx";
 import ProtectedRoute from "./RoleBaseRoute.tsx";
@@ -29,7 +30,6 @@ const InstructorProfile = lazy(() => import("@features/instructor/pages/Profile.
 const CreateCourse = lazy(() => import("@features/course/pages/CreateCourse.tsx"));
 const ContentUploadPage = lazy(() => import("@features/course/pages/contentUpload/ContentUploadPage.tsx"));
 const InstructorCourses = lazy(() => import("@features/course/pages/InstructorCourses.tsx"));
-
 
 import StudentLayout from "@layouts/student/StudentLayout.tsx";
 const SignIn = lazy(() => import("@features/auth/pages/SignIn.tsx"));
@@ -135,6 +135,16 @@ const router = createBrowserRouter([
     ),
     errorElement: <ErrorHandler />,
   },
+    {
+        path: ROUTES.chat,
+        element: (
+          <ProtectedRoute roles={["student", "instructor"]}>
+            <Fallback>
+              <ChatPage />
+            </Fallback>
+          </ProtectedRoute>
+        ),
+      },
   {
     path: ROUTES.root,
     element: <StudentLayout />,

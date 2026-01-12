@@ -10,6 +10,7 @@ import Home from "@shared/shimmer/Home.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SocketProvider } from "../context/SocketContext";
 import { NotificationProvider } from "../features/notification/context/NotificationContext";
+import { ChatProvider } from "../features/chat/context/ChatProvider";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,10 +38,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SocketProvider>
-        <NotificationProvider>
-          <Toaster position="top-center" richColors />
-          <RouterProvider router={router} />
-        </NotificationProvider>
+        <ChatProvider>
+          <NotificationProvider>
+            <Toaster position="top-center" richColors />
+            <RouterProvider router={router} />
+          </NotificationProvider>
+        </ChatProvider>
       </SocketProvider>
     </QueryClientProvider>
   );

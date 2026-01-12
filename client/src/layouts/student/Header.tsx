@@ -2,7 +2,7 @@ import ThemeToggle from "@shared/ui/ThemeToggle";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@core/store/Index";
-import { Menu, X, Home, BookOpen, Info, HelpCircle, Bell, User, LogOut, ReceiptText } from "lucide-react";
+import { Menu, X, Home, BookOpen, Info, HelpCircle, Bell, User, LogOut, ReceiptText, MessageSquare } from "lucide-react";
 
 import { logout } from "@features/auth/services/AuthService";
 
@@ -14,8 +14,11 @@ import { toast } from "sonner";
 import { clearUser } from "@features/auth/AuthSlice";
 import { ROUTES } from "@/core/router/paths";
 import NotificationDropdown from "@features/notification/components/NotificationDropdown";
+import { useChat } from "@features/chat/hooks/useChat";
+
 const Header = () => {
   const user = useSelector((store: RootState) => store.auth.user);
+  const { totalUnreadCount } = useChat();
   const dispatch = useDispatch();
   const handleLogout = async () => {
     const response = await logout();
@@ -33,7 +36,7 @@ const Header = () => {
               <Link to={ROUTES.root}>
                 <img className="w-30 h-20" src={orginalLogo} alt="logo" />
               </Link>
-              <nav className="hidden md:flex gap-6 text-sm font-medium px-8">
+              <nav className="hidden xl:flex gap-6 text-sm font-medium px-8 items-center">
                 <NavLink
                   to={ROUTES.root}
                   className={({ isActive }) =>
@@ -67,6 +70,19 @@ const Header = () => {
                   Purchases
                 </NavLink>
                 <NavLink
+                  to={ROUTES.chat}
+                  className={({ isActive }) =>
+                    `relative flex items-center ${isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}`
+                  }
+                >
+                  Messages
+                  {totalUnreadCount > 0 && (
+                    <span className="absolute -top-2 -right-3 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-1 ring-white">
+                      {totalUnreadCount > 99 ? '99+' : totalUnreadCount}
+                    </span>
+                  )}
+                </NavLink>
+                <NavLink
                   to="/notYet"
                   className={({ isActive }) =>
                     isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"
@@ -98,14 +114,14 @@ const Header = () => {
                 Sign Out
               </button>
               <ThemeToggle />
-              <button className="md:hidden focus:outline-none" onClick={() => setIsOpen(!isOpen)}>
+              <button className="xl:hidden focus:outline-none" onClick={() => setIsOpen(!isOpen)}>
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
             </div>
           </div>
           {isOpen && (
             <>
-              <div className="fixed top-0 right-0 min-h-screen w-80 bg-white/10 dark:bg-gray-900/20 backdrop-blur-lg border-l border-white/20 dark:border-gray-700/30 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out md:hidden">
+              <div className="fixed top-0 right-0 min-h-screen w-80 bg-white/10 dark:bg-gray-900/20 backdrop-blur-lg border-l border-white/20 dark:border-gray-700/30 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out xl:hidden">
                 <div className="p-6">
                   <div className="flex justify-between items-center mb-8">
                     <h2 className="text-xl font-bold text-gray-800 dark:text-white">Student Menu</h2>
@@ -164,6 +180,24 @@ const Header = () => {
                     >
                       <ReceiptText size={20} className="text-pink-600 group-hover:scale-110 transition-transform" />
                       <span className="font-medium">Purchases</span>
+                    </NavLink>
+                    <NavLink
+                      to={ROUTES.chat}
+                      className={({ isActive }) =>
+                        `flex items-center  gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${
+                          isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
+                        }`
+                      }
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <MessageSquare size={20} className="text-green-600 group-hover:scale-110 transition-transform" />
+                     
+                      <span className="font-medium relative">Messages</span>
+                      {totalUnreadCount > 0 && (
+                        <span className="absolute  right-8 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-1 ring-white">
+                          {totalUnreadCount > 99 ? '99+' : totalUnreadCount}
+                        </span>
+                      )}
                     </NavLink>
                     <NavLink
                       to={ROUTES.notifications}
@@ -225,7 +259,7 @@ const Header = () => {
                 </div>
               </div>
               <div
-                className="fixed min-h-screen inset-0 bg-gray-900/50 dark:bg-gray-100/10 z-40 backdrop-blur-sm md:hidden"
+                className="fixed min-h-screen inset-0 bg-gray-900/50 dark:bg-gray-100/10 z-40 backdrop-blur-sm lg:hidden"
                 onClick={() => setIsOpen(false)}
               />
             </>
