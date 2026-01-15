@@ -5,7 +5,8 @@ export interface IPaymentDocument extends Document {
   userId: mongoose.Types.ObjectId;
   studentName: string;
   studentEmail: string;
-  courseId: mongoose.Types.ObjectId;
+  courseId?: mongoose.Types.ObjectId;
+  mentorshipBookingId?: mongoose.Types.ObjectId;
   amount: number;
   currency: string;
   stripePaymentIntentId?: string;

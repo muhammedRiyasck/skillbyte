@@ -65,6 +65,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
       paymentId: payment.paymentId!,
       userId: payment.userId,
       courseId: payment.courseId,
+      mentorshipBookingId: payment.mentorshipBookingId,
       amount: payment.amount,
       currency: payment.currency,
       metadata: payment.metadata,

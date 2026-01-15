@@ -7,6 +7,6 @@ export interface IPaymentProvider {
   initiate(
     amount: number,
     currency: string,
-    metadata: { userId: string; courseId: string },
+    metadata: Record<string, string>,
   ): Promise<PaymentInitiationResponse>;
 }

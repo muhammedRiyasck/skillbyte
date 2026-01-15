@@ -57,7 +57,6 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
   async initiate(
     amount: number,
     currency: string,
-    // metadata: { userId: string; courseId: string },
   ): Promise<PaymentInitiationResponse> {
     const order = await this.createOrder(amount, currency);
     return { id: order.id };

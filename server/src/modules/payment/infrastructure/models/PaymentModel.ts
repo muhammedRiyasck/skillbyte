@@ -13,7 +13,10 @@ const PaymentSchema = new Schema(
     courseId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Course',
-      required: true,
+    },
+    mentorshipBookingId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'MentorshipBooking',
     },
     amount: { type: Number, required: true },
     currency: { type: String, default: 'inr' },

@@ -17,7 +17,7 @@ export class StripeProvider implements IStripeProvider, IPaymentProvider {
   async initiate(
     amount: number,
     currency: string,
-    metadata: { userId: string; courseId: string },
+    metadata: Record<string, string>,
   ): Promise<PaymentInitiationResponse> {
     const amountInCents = Math.round(amount * 100);
     const paymentIntent = await this.stripe.paymentIntents.create({

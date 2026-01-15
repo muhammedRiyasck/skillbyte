@@ -19,7 +19,10 @@ export class PaymentReadRepository
       userId: doc.userId.toString(),
       studentName: doc.studentName,
       studentEmail: doc.studentEmail,
-      courseId: doc.courseId.toString(),
+      courseId: doc.courseId ? doc.courseId.toString() : undefined,
+      mentorshipBookingId: doc.mentorshipBookingId
+        ? doc.mentorshipBookingId.toString()
+        : undefined,
       amount: doc.amount,
       currency: doc.currency,
       stripePaymentIntentId: doc.stripePaymentIntentId,

@@ -28,6 +28,10 @@ export class EnrollmentFulfillmentService {
         `Handling payment.succeeded event for payment ${event.paymentId}`,
       );
 
+      if (!event.courseId) {
+        return;
+      }
+
       // Idempotency check: Check if enrollment already exists
       const existingEnrollment = await this.enrollmentReadRepo.findEnrollment(
         event.userId,

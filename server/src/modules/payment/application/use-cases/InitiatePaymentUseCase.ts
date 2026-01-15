@@ -18,6 +18,7 @@ export class InitiatePaymentUseCase implements IInitiatePayment {
     const {
       userId,
       courseId,
+      mentorshipBookingId,
       instructorId,
       amount,
       currency,
@@ -51,6 +52,7 @@ export class InitiatePaymentUseCase implements IInitiatePayment {
       {
         userId,
         courseId,
+        mentorshipBookingId,
       },
     );
 
@@ -62,6 +64,7 @@ export class InitiatePaymentUseCase implements IInitiatePayment {
     const paymentData: Partial<IPayment> = {
       userId,
       courseId,
+      mentorshipBookingId,
       instructorId,
       amount,
       currency: 'INR', // Base currency is INR

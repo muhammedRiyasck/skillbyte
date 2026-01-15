@@ -1,6 +1,7 @@
 export interface InitiatePaymentRequest {
   userId: string;
-  courseId: string;
+  courseId?: string;
+  mentorshipBookingId?: string;
   instructorId: string;
   amount: number;
   currency: string;

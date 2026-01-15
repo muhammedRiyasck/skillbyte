@@ -1,7 +1,8 @@
 export interface PaymentSucceededEvent {
   paymentId: string;
   userId: string;
-  courseId: string;
+  courseId?: string;
+  mentorshipBookingId?: string;
   amount: number;
   currency: string;
   metadata?: Record<string, unknown>;

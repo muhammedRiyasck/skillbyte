@@ -3,7 +3,8 @@ export interface IPayment {
   userId: string;
   studentName: string;
   studentEmail: string;
-  courseId: string;
+  courseId?: string;
+  mentorshipBookingId?: string;
   amount: number;
   currency: string;
   stripePaymentIntentId?: string;
