@@ -1,7 +1,4 @@
-import { IBaseRepository } from '../../../../shared/repositories/IBaseRepository';
 import { IConversation } from '../entities/Conversation';
-
-
 
 export interface IConversationWriteRepository {
   save(conversation: IConversation): Promise<IConversation>;

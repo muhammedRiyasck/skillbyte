@@ -1,6 +1,6 @@
 import { IMarkMessagesAsReadUseCase } from '../interfaces/IMarkMessagesAsReadUseCase';
 import { IMessageWriteRepository } from '../../domain/IRepositories/IMessageRepository';
-import { IConversationWriteRepository } from '../../domain/IRepositories/IConversationWriteRepository.ts';
+import { IConversationWriteRepository } from '../../domain/IRepositories/IConversationWriteRepository';
 import { SocketService } from '../../../../shared/services/socket-service.ts/SocketService';
 
 export class MarkMessagesAsReadUseCase implements IMarkMessagesAsReadUseCase {

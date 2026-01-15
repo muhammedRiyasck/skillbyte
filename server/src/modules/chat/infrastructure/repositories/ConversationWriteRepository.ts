@@ -1,4 +1,4 @@
-import { IConversationWriteRepository } from '../../domain/IRepositories/IConversationWriteRepository.ts';
+import { IConversationWriteRepository } from '../../domain/IRepositories/IConversationWriteRepository';
 import { IConversation } from '../../domain/entities/Conversation';
 import { ConversationModel } from '../models/ConversationModel';
 

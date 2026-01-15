@@ -3,10 +3,8 @@ import {
   ISendMessageData,
 } from '../interfaces/ISendMessageUseCase';
 import { IMessageWriteRepository } from '../../domain/IRepositories/IMessageRepository';
-import {
-  IConversationWriteRepository,
-  IConversationReadRepository,
-} from '../../domain/IRepositories/IConversationWriteRepository.ts';
+import { IConversationWriteRepository } from '../../domain/IRepositories/IConversationWriteRepository';
+import { IConversationReadRepository } from '../../domain/IRepositories/IConversationReadRepository';
 import { IMessage } from '../../domain/entities/Message';
 import { SocketService } from '../../../../shared/services/socket-service.ts/SocketService';
 

@@ -1,5 +1,5 @@
-import { IBaseRepository } from "../../../../shared/repositories/IBaseRepository";
-import { IConversation } from "../entities/Conversation";
+import { IBaseRepository } from '../../../../shared/repositories/IBaseRepository';
+import { IConversation } from '../entities/Conversation';
 
 export interface IConversationReadRepository
   extends IBaseRepository<IConversation> {

@@ -2,9 +2,7 @@ import {
   ICreateConversationUseCase,
   ICreateConversationData,
 } from '../interfaces/ICreateConversationUseCase';
-import {
-  IConversationWriteRepository,
-} from '../../domain/IRepositories/IConversationWriteRepository.ts';
+import { IConversationWriteRepository } from '../../domain/IRepositories/IConversationWriteRepository';
 import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentReadRepository';
 import { IConversation } from '../../domain/entities/Conversation';
 import { SocketService } from '../../../../shared/services/socket-service.ts/SocketService';
