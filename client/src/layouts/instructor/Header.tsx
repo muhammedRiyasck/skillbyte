@@ -91,9 +91,13 @@ const Header = () => {
                   <Megaphone size={20} className="text-orange-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Announcement</span>
                 </Link>
-                <Link to="#" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
+                <Link to={ROUTES.instructor.mentorship.slots} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
                   <Calendar size={20} className="text-teal-600 group-hover:scale-110 transition-transform" />
-                  <span className="font-medium">Schedule Session</span>
+                  <span className="font-medium">Mentorship Slots</span>
+                </Link>
+                <Link to={ROUTES.instructor.mentorship.bookings} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
+                  <BookOpen size={20} className="text-pink-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">Mentorship Bookings</span>
                 </Link>
                 <Link to={ROUTES.instructor.profile} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
                   <User size={20} className="text-blue-600 group-hover:scale-110 transition-transform" />
