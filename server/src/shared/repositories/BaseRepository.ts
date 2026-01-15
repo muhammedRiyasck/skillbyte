@@ -13,9 +13,7 @@ export abstract class BaseRepository<T, D extends Document>
   abstract toEntity(doc: D): T;
 
   async save(data: unknown): Promise<T> {
-    const created = (await this.model.create(
-      data as unknown as D,
-    )) as unknown as D;
+    const created = (await this.model.create(data as D)) as D;
     return this.toEntity(created);
   }
 

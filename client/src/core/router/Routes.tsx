@@ -30,6 +30,8 @@ const InstructorProfile = lazy(() => import("@features/instructor/pages/Profile.
 const CreateCourse = lazy(() => import("@features/course/pages/CreateCourse.tsx"));
 const ContentUploadPage = lazy(() => import("@features/course/pages/contentUpload/ContentUploadPage.tsx"));
 const InstructorCourses = lazy(() => import("@features/course/pages/InstructorCourses.tsx"));
+const InstructorSlotsPage = lazy(() => import("@features/mentorship/pages/InstructorSlotsPage.tsx"));
+const InstructorBookingsPage = lazy(() => import("@features/mentorship/pages/InstructorBookingsPage.tsx"));
 
 import StudentLayout from "@layouts/student/StudentLayout.tsx";
 const SignIn = lazy(() => import("@features/auth/pages/SignIn.tsx"));
@@ -291,6 +293,26 @@ const router = createBrowserRouter([
           <ProtectedRoute roles={["instructor"]}>
             <Fallback>
               <EarningsHistory />
+            </Fallback>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.instructor.mentorship.bookings,
+        element: (
+          <ProtectedRoute roles={["instructor"]}>
+            <Fallback>
+              <InstructorBookingsPage />
+            </Fallback>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.instructor.mentorship.slots,
+        element: (
+          <ProtectedRoute roles={["instructor"]}>
+            <Fallback>
+              <InstructorSlotsPage />
             </Fallback>
           </ProtectedRoute>
         ),

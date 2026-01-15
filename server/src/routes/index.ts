@@ -11,6 +11,7 @@ import EnrollmentRoutes from '../modules/enrollment/entry-point/routes/Enrollmen
 import PaymentRoutes from '../modules/payment/entry-point/routes/payment.routes';
 import { notificationRouter } from '../modules/notification/entry-point/NotificationRoutes';
 import ChatRoutes from '../modules/chat/entry-point/routes/Chat.routes';
+import MentorshipRoutes from '../modules/mentorship/entry-point/routes/Mentorship.routes';
 
 const router = express.Router();
 
@@ -26,5 +27,6 @@ router.use('/payment', PaymentRoutes);
 router.use('/admin', AdminAuthRoutes);
 router.use('/notifications', notificationRouter);
 router.use('/chat', ChatRoutes);
+router.use('/mentorship', MentorshipRoutes);
 
 export default router;
