@@ -16,10 +16,16 @@ export const JOB_NAMES = {
   RESUME_UPLOAD: 'resume-upload',
   SEND_EMAIL: 'send-email',
   DELETE_DECLINED_INSTRUCTOR: 'delete-declined-instructor',
+  MENTORSHIP_CLEANUP: 'mentorship-cleanup',
 } as const;
 
 export const QUEUE_NAMES = {
   INSTRUCTOR_REGISTRATION: 'instructor-registration',
   EMAIL: 'email',
   CLEANUP: 'cleanup',
+  MENTORSHIP: 'mentorship',
 } as const;
+
+export interface MentorshipCleanupJobData {
+  bookingId: string;
+}

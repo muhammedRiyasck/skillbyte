@@ -5,6 +5,11 @@ import { InstructorRepository } from '../../../modules/instructor/infrastructure
 import logger from '../../utils/Logger';
 import { DeleteDeclinedInstructorProcessor } from './processors/DeleteDeclinedInstructorProcessor';
 import { S3StorageService } from '../file-upload/services/S3StorageService';
+import { MentorshipCleanupProcessor } from './processors/MentorshipCleanupProcessor';
+import {
+  bookingRepository,
+  cancelBookingUC,
+} from '../../../modules/mentorship/entry-point/dependencyInjection/MentorshipContainer';
 
 /**
  * Initializes job queue processors and services
@@ -25,6 +30,7 @@ export class JobQueueInitializer {
       new ResumeUploadProcessor(instructorRepo, s3StorageService);
       new EmailProcessor();
       new DeleteDeclinedInstructorProcessor(instructorRepo);
+      new MentorshipCleanupProcessor(bookingRepository, cancelBookingUC);
 
       logger.info('Job queue processors initialized successfully');
       this._initialized = true;
