@@ -5,14 +5,14 @@ export type BookingStatus =
   | 'cancelled'
   | 'refunded';
 
-export type CancelledBy = 'student' | 'instructor' | null;
+export type CancelledBy = 'student' | 'instructor' | 'system' | null;
 
 export class MentorshipBooking {
   constructor(
     public slotId: string,
     public studentId: string,
     public instructorId: string,
-    public paymentId: string,
+    public paymentId: string | null,
     public amount: number, // in smallest currency unit
     public currency: string,
     public status: BookingStatus = 'pending',

@@ -21,7 +21,6 @@ const MentorshipBookingSchema = new mongoose.Schema(
     paymentId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Payment',
-      required: true,
     },
     amount: { type: Number, required: true },
     currency: { type: String, required: true },
@@ -37,7 +36,7 @@ const MentorshipBookingSchema = new mongoose.Schema(
     cancelledAt: { type: Date, default: null },
     cancelledBy: {
       type: String,
-      enum: ['student', 'instructor', null],
+      enum: ['student', 'instructor', 'system', null],
       default: null,
     },
   },

@@ -3,7 +3,16 @@ import { MentorshipSlot, SlotStatus } from '../entities/MentorshipSlot';
 
 export interface IMentorshipSlotRepository
   extends IBaseRepository<MentorshipSlot> {
-  findByInstructorId(instructorId: string): Promise<MentorshipSlot[]>;
+  findByInstructorId(
+    instructorId: string,
+    filters?: {
+      status?: 'available' | 'booked' | 'cancelled';
+      fromDate?: Date;
+      toDate?: Date;
+      page?: number;
+      limit?: number;
+    },
+  ): Promise<MentorshipSlot[]>;
 
   findAvailableSlots(filters?: {
     jobTitle?: string;
@@ -12,6 +21,8 @@ export interface IMentorshipSlotRepository
     fromDate?: Date;
     toDate?: Date;
     tags?: string[];
+    page?: number;
+    limit?: number;
   }): Promise<MentorshipSlot[]>;
 
   findByJobTitle(jobTitle: string): Promise<MentorshipSlot[]>;
@@ -21,6 +32,8 @@ export interface IMentorshipSlotRepository
   incrementBookings(slotId: string): Promise<void>;
 
   decrementBookings(slotId: string): Promise<void>;
+
+  getUniqueTags(): Promise<string[]>;
 
   findUpcomingSlots(instructorId: string): Promise<MentorshipSlot[]>;
 }

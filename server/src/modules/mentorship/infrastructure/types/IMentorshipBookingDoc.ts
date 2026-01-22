@@ -9,7 +9,7 @@ export interface IMentorshipBookingDoc extends Document {
   slotId: Types.ObjectId;
   studentId: Types.ObjectId;
   instructorId: Types.ObjectId;
-  paymentId: Types.ObjectId;
+  paymentId: Types.ObjectId | null;
   amount: number;
   currency: string;
   status: BookingStatus;

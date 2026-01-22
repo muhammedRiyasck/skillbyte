@@ -6,9 +6,21 @@ import {
 
 export interface IMentorshipBookingRepository
   extends IBaseRepository<MentorshipBooking> {
-  findByStudentId(studentId: string): Promise<MentorshipBooking[]>;
+  findByStudentId(
+    studentId: string,
+    page?: number,
+    limit?: number,
+    status?: BookingStatus,
+    fromDate?: Date,
+    toDate?: Date,
+  ): Promise<MentorshipBooking[]>;
 
-  findByInstructorId(instructorId: string): Promise<MentorshipBooking[]>;
+  findByInstructorId(
+    instructorId: string,
+    page?: number,
+    limit?: number,
+    status?: BookingStatus,
+  ): Promise<MentorshipBooking[]>;
 
   findBySlotId(slotId: string): Promise<MentorshipBooking[]>;
 
@@ -26,7 +38,7 @@ export interface IMentorshipBookingRepository
 
   markAsCancelled(
     bookingId: string,
-    cancelledBy: 'student' | 'instructor',
+    cancelledBy: 'student' | 'instructor' | 'system',
   ): Promise<void>;
 
   findUpcomingByStudentId(studentId: string): Promise<MentorshipBooking[]>;
@@ -34,4 +46,6 @@ export interface IMentorshipBookingRepository
   findUpcomingByInstructorId(
     instructorId: string,
   ): Promise<MentorshipBooking[]>;
+
+  countPendingByStudentId(studentId: string): Promise<number>;
 }

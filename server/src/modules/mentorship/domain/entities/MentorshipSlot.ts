@@ -16,6 +16,11 @@ export class MentorshipSlot {
     public tags: string[] = [],
     public timezone: string = 'UTC',
     public slotId?: string,
+    public instructorDetails?: {
+      name: string;
+      profilePictureUrl?: string;
+      jobTitle: string;
+    },
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
   ) {}
