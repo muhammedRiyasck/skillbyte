@@ -7,11 +7,13 @@ import { DeleteSlotUseCase } from '../../application/use-cases/DeleteSlotUseCase
 import { GetSlotsByJobTitleUseCase } from '../../application/use-cases/GetSlotsByJobTitleUseCase';
 import { GetAvailableSlotsUseCase } from '../../application/use-cases/GetAvailableSlotsUseCase';
 
+import { GetUniqueTagsUseCase } from '../../application/use-cases/GetUniqueTagsUseCase';
 import { MentorshipBookingRepository } from '../../infrastructure/repositories/MentorshipBookingRepository';
 import { BookSlotUseCase } from '../../application/use-cases/BookSlotUseCase';
 import { CancelBookingUseCase } from '../../application/use-cases/CancelBookingUseCase';
 import { GetStudentBookingsUseCase } from '../../application/use-cases/GetStudentBookingsUseCase';
 import { GetInstructorBookingsUseCase } from '../../application/use-cases/GetInstructorBookingsUseCase';
+import { GenerateVideoRoomUseCase } from '../../application/use-cases/GenerateVideoRoomUseCase';
 import { initiatePaymentUc } from '../../../payment/entry-point/PaymentContainer';
 
 import { MentorshipFulfillmentService } from '../../application/services/MentorshipFulfillmentService';
@@ -38,19 +40,24 @@ const updateSlotUC = new UpdateSlotUseCase(slotRepository);
 const deleteSlotUC = new DeleteSlotUseCase(slotRepository);
 const getSlotsByJobTitleUC = new GetSlotsByJobTitleUseCase(slotRepository);
 const getAvailableSlotsUC = new GetAvailableSlotsUseCase(slotRepository);
+const getUniqueTagsUC = new GetUniqueTagsUseCase(slotRepository);
 const bookSlotUC = new BookSlotUseCase(
   slotRepository,
   bookingRepository,
   initiatePaymentUc,
 );
-const cancelBookingUC = new CancelBookingUseCase(
+export const cancelBookingUC = new CancelBookingUseCase(
   bookingRepository,
   slotRepository,
 );
-const getStudentBookingsUC = new GetStudentBookingsUseCase(bookingRepository);
-const getInstructorBookingsUC = new GetInstructorBookingsUseCase(
+export const getStudentBookingsUC = new GetStudentBookingsUseCase(
   bookingRepository,
 );
+export const getInstructorBookingsUC = new GetInstructorBookingsUseCase(
+  bookingRepository,
+);
+const generateVideoRoomUC = new GenerateVideoRoomUseCase(bookingRepository);
+export { bookingRepository, slotRepository };
 
 // Controller
 export const mentorshipController = new MentorshipController(
@@ -60,8 +67,10 @@ export const mentorshipController = new MentorshipController(
   deleteSlotUC,
   getSlotsByJobTitleUC,
   getAvailableSlotsUC,
+  getUniqueTagsUC,
   bookSlotUC,
   cancelBookingUC,
   getStudentBookingsUC,
   getInstructorBookingsUC,
+  generateVideoRoomUC,
 );

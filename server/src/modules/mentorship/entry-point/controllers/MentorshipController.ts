@@ -6,11 +6,13 @@ import { IUpdateSlotUseCase } from '../../application/interfaces/ISlotUseCases';
 import { IDeleteSlotUseCase } from '../../application/interfaces/ISlotUseCases';
 import { IGetSlotsByJobTitleUseCase } from '../../application/interfaces/ISlotUseCases';
 import { IGetAvailableSlotsUseCase } from '../../application/interfaces/ISlotUseCases';
+import { IGetUniqueTagsUseCase } from '../../application/interfaces/ISlotUseCases';
 import {
   IBookSlotUseCase,
   ICancelBookingUseCase,
   IGetStudentBookingsUseCase,
   IGetInstructorBookingsUseCase,
+  IGenerateVideoRoomUseCase,
 } from '../../application/interfaces/IBookingUseCases';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { HttpError } from '../../../../shared/types/HttpError';
@@ -26,10 +28,12 @@ export class MentorshipController {
     private _deleteSlotUseCase: IDeleteSlotUseCase,
     private _getSlotsByJobTitleUseCase: IGetSlotsByJobTitleUseCase,
     private _getAvailableSlotsUseCase: IGetAvailableSlotsUseCase,
+    private _getUniqueTagsUseCase: IGetUniqueTagsUseCase,
     private _bookSlotUseCase: IBookSlotUseCase,
     private _cancelBookingUseCase: ICancelBookingUseCase,
     private _getStudentBookingsUseCase: IGetStudentBookingsUseCase,
     private _getInstructorBookingsUseCase: IGetInstructorBookingsUseCase,
+    private _generateVideoRoomUseCase: IGenerateVideoRoomUseCase,
   ) {}
 
   /**
@@ -58,8 +62,20 @@ export class MentorshipController {
   getInstructorSlots = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const instructorId = authenticatedReq.user.id;
+    const { status, fromDate, toDate, page, limit } = req.query;
 
-    const slots = await this._getInstructorSlotsUseCase.execute(instructorId);
+    const filters = {
+      status: status as 'available' | 'booked' | 'cancelled' | undefined,
+      fromDate: fromDate ? new Date(fromDate as string) : undefined,
+      toDate: toDate ? new Date(toDate as string) : undefined,
+      page: page ? Number(page) : 1,
+      limit: limit ? Number(limit) : 20, // Default to a reasonable number
+    };
+
+    const slots = await this._getInstructorSlotsUseCase.execute(
+      instructorId,
+      filters,
+    );
     ApiResponseHelper.success(res, 'Slots retrieved successfully', { slots });
   };
 
@@ -75,7 +91,6 @@ export class MentorshipController {
       throw new HttpError('Slot ID is required', HttpStatusCode.BAD_REQUEST);
     }
 
-    // TODO: Verify instructor owns the slot
     const slotDto = MentorshipMapper.toUpdateSlotDto(authenticatedReq.body);
     const updatedSlot = await this._updateSlotUseCase.execute(slotId, slotDto);
 
@@ -101,7 +116,6 @@ export class MentorshipController {
       throw new HttpError('Slot ID is required', HttpStatusCode.BAD_REQUEST);
     }
 
-    // TODO: Verify instructor owns the slot before deleting
     await this._deleteSlotUseCase.execute(slotId);
 
     logger.info(`Slot deleted by instructor ${instructorId}: ${slotId}`);
@@ -123,20 +137,51 @@ export class MentorshipController {
   };
 
   /**
+   * Retrieves unique tags from available mentorship slots.
+   */
+  getUniqueTags = async (req: Request, res: Response): Promise<void> => {
+    const tags = await this._getUniqueTagsUseCase.execute();
+    ApiResponseHelper.success(res, 'Tags retrieved successfully', { tags });
+  };
+
+  /**
    * Retrieves all available slots with optional filters.
    */
   getAvailableSlots = async (req: Request, res: Response): Promise<void> => {
-    const { jobTitle, minPrice, maxPrice, fromDate, toDate, tags } = req.query;
+    const {
+      search,
+      jobTitle,
+      minPrice,
+      maxPrice,
+      fromDate,
+      toDate,
+      tags,
+      page,
+      limit,
+    } = req.query;
+
+    // Parse tags safely (handle comma-separated string or array)
+    let parsedTags: string[] | undefined;
+    if (tags) {
+      if (Array.isArray(tags)) {
+        parsedTags = tags as string[];
+      } else {
+        parsedTags = (tags as string).split(',');
+      }
+    }
 
     const filters = {
+      search: search as string | undefined, // Mapping search param
       jobTitle: jobTitle as string | undefined,
       minPrice: minPrice ? Number(minPrice) : undefined,
       maxPrice: maxPrice ? Number(maxPrice) : undefined,
       fromDate: fromDate ? new Date(fromDate as string) : undefined,
       toDate: toDate ? new Date(toDate as string) : undefined,
-      tags: tags ? (tags as string).split(',') : undefined,
+      tags: parsedTags,
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
     };
-
+    // logger.info(`Fetching slots with filters: ${JSON.stringify(filters)}`);
     const slots = await this._getAvailableSlotsUseCase.execute(filters);
     ApiResponseHelper.success(res, 'Available slots retrieved successfully', {
       slots,
@@ -201,10 +246,16 @@ export class MentorshipController {
   getStudentBookings = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const studentId = authenticatedReq.user.id;
+    const { page, limit, status, fromDate, toDate } = req.query;
 
-    // Validate role? Middleware does it.
-
-    const bookings = await this._getStudentBookingsUseCase.execute(studentId);
+    const bookings = await this._getStudentBookingsUseCase.execute(
+      studentId,
+      page ? Number(page) : 1,
+      limit ? Number(limit) : 10,
+      status as string,
+      fromDate ? new Date(fromDate as string) : undefined,
+      toDate ? new Date(toDate as string) : undefined,
+    );
     ApiResponseHelper.success(res, 'Student bookings retrieved successfully', {
       bookings,
     });
@@ -219,13 +270,37 @@ export class MentorshipController {
   ): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const instructorId = authenticatedReq.user.id;
+    const { page, limit, status } = req.query;
 
-    const bookings =
-      await this._getInstructorBookingsUseCase.execute(instructorId);
+    const bookings = await this._getInstructorBookingsUseCase.execute(
+      instructorId,
+      page ? Number(page) : 1,
+      limit ? Number(limit) : 10,
+      status as string,
+    );
     ApiResponseHelper.success(
       res,
       'Instructor bookings retrieved successfully',
       { bookings },
     );
+  };
+
+  /**
+   * Generates a video room for a confirmed booking.
+   */
+  generateVideoRoom = async (req: Request, res: Response): Promise<void> => {
+    const { bookingId } = req.params;
+
+    if (!bookingId) {
+      throw new HttpError('Booking ID is required', HttpStatusCode.BAD_REQUEST);
+    }
+
+    const { roomId, roomUrl } =
+      await this._generateVideoRoomUseCase.execute(bookingId);
+
+    ApiResponseHelper.success(res, 'Video room generated successfully', {
+      roomId,
+      roomUrl,
+    });
   };
 }

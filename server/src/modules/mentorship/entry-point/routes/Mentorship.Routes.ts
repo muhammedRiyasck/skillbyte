@@ -42,6 +42,14 @@ router.delete(
 
 // ==================== Student Routes ====================
 
+// Get available slots with optional filters
+router.get(
+  '/slots/tags',
+  authenticate,
+  requireRole('student'),
+  asyncHandler(mentorshipController.getUniqueTags),
+);
+
 // Get all available slots (with optional filters)
 router.get(
   '/slots',
@@ -86,6 +94,13 @@ router.get(
   authenticate,
   requireRole('instructor'),
   asyncHandler(mentorshipController.getInstructorBookings),
+);
+
+// Generate/Get Video Room
+router.get(
+  '/bookings/:bookingId/video-room',
+  authenticate,
+  asyncHandler(mentorshipController.generateVideoRoom),
 );
 
 export default router;
