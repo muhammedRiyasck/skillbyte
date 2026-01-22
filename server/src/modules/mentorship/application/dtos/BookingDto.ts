@@ -6,5 +6,5 @@ export interface BookSlotDto {
 
 export interface CancelBookingDto {
   bookingId: string;
-  cancelledBy: 'student' | 'instructor';
+  cancelledBy: 'student' | 'instructor' | 'system';
 }

@@ -14,11 +14,23 @@ export interface ICancelBookingUseCase {
 }
 
 export interface IGetStudentBookingsUseCase {
-  execute(studentId: string): Promise<MentorshipBooking[]>;
+  execute(
+    studentId: string,
+    page?: number,
+    limit?: number,
+    status?: string,
+    fromDate?: Date,
+    toDate?: Date,
+  ): Promise<MentorshipBooking[]>;
 }
 
 export interface IGetInstructorBookingsUseCase {
-  execute(instructorId: string): Promise<MentorshipBooking[]>;
+  execute(
+    instructorId: string,
+    page?: number,
+    limit?: number,
+    status?: string,
+  ): Promise<MentorshipBooking[]>;
 }
 
 export interface ICompleteSessionUseCase {

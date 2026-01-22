@@ -51,6 +51,7 @@ export class UpdateSlotUseCase implements IUpdateSlotUseCase {
       dto.tags ?? existingSlot.tags,
       dto.timezone ?? existingSlot.timezone,
       slotId,
+      existingSlot.instructorDetails,
       existingSlot.createdAt,
       new Date(),
     );

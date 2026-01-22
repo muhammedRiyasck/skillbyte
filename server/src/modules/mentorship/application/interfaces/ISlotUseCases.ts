@@ -6,7 +6,16 @@ export interface ICreateSlotUseCase {
 }
 
 export interface IGetInstructorSlotsUseCase {
-  execute(instructorId: string): Promise<MentorshipSlot[]>;
+  execute(
+    instructorId: string,
+    filters?: {
+      status?: 'available' | 'booked' | 'cancelled';
+      fromDate?: Date;
+      toDate?: Date;
+      page?: number;
+      limit?: number;
+    },
+  ): Promise<MentorshipSlot[]>;
 }
 
 export interface IUpdateSlotUseCase {
@@ -27,4 +36,8 @@ export interface IGetAvailableSlotsUseCase {
 
 export interface IGetSlotByIdUseCase {
   execute(slotId: string): Promise<MentorshipSlot | null>;
+}
+
+export interface IGetUniqueTagsUseCase {
+  execute(): Promise<string[]>;
 }

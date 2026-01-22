@@ -24,10 +24,13 @@ export interface UpdateSlotDto {
 }
 
 export interface SlotFiltersDto {
+  search?: string;
   jobTitle?: string;
   minPrice?: number;
   maxPrice?: number;
   fromDate?: Date;
   toDate?: Date;
   tags?: string[];
+  page?: number;
+  limit?: number;
 }

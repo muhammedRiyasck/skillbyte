@@ -8,7 +8,16 @@ import { IGetInstructorSlotsUseCase } from '../interfaces/ISlotUseCases';
 export class GetInstructorSlotsUseCase implements IGetInstructorSlotsUseCase {
   constructor(private _slotRepo: IMentorshipSlotRepository) {}
 
-  async execute(instructorId: string): Promise<MentorshipSlot[]> {
-    return await this._slotRepo.findByInstructorId(instructorId);
+  async execute(
+    instructorId: string,
+    filters?: {
+      status?: 'available' | 'booked' | 'cancelled';
+      fromDate?: Date;
+      toDate?: Date;
+      page?: number;
+      limit?: number;
+    },
+  ): Promise<MentorshipSlot[]> {
+    return await this._slotRepo.findByInstructorId(instructorId, filters);
   }
 }

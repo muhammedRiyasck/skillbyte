@@ -8,6 +8,11 @@ import { IInitiatePayment } from '../../../payment/application/interfaces/IIniti
 import { StudentModel } from '../../../student/infrastructure/models/StudentModel';
 import { eventBus } from '../../../../shared/services/event-bus/EventBus';
 import { MENTORSHIP_EVENTS } from '../../../../shared/services/event-bus/MentorshipEvents';
+import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
+import {
+  QUEUE_NAMES,
+  JOB_NAMES,
+} from '../../../../shared/services/job-queue/JobTypes';
 
 export class BookSlotUseCase implements IBookSlotUseCase {
   constructor(
@@ -21,6 +26,15 @@ export class BookSlotUseCase implements IBookSlotUseCase {
     providerResponse: PaymentInitiationResponse;
   }> {
     const { slotId, studentId, providerName } = dto;
+
+    // Prevent "Griefing" (Too many pending bookings)
+    const pendingCount =
+      await this.bookingRepo.countPendingByStudentId(studentId);
+    if (pendingCount >= 1) {
+      throw new Error(
+        'You have already a pending booking. Please complete or cancel existing one before booking more.',
+      );
+    }
 
     // 1. Validate slot availability
     const slot = await this.slotRepo.findById(slotId);
@@ -45,15 +59,18 @@ export class BookSlotUseCase implements IBookSlotUseCase {
       throw new Error('Student not found');
     }
 
-    // 3. Create Pending Booking
+    // 3. Create Booking
+    const isFree = slot.price === 0;
+    const initialStatus = isFree ? 'confirmed' : 'pending';
+
     const newBooking = new MentorshipBooking(
       slotId,
       studentId,
       instructorId,
-      'pending_init',
+      null, // paymentId (null for free sessions)
       slot.price,
       slot.currency,
-      'pending',
+      initialStatus,
       null, // videoRoomId
       null, // videoRoomUrl
       slot.scheduledAt,
@@ -61,37 +78,68 @@ export class BookSlotUseCase implements IBookSlotUseCase {
 
     const savedBooking = await this.bookingRepo.save(newBooking);
 
-    const paymentResult = await this.initiatePaymentUc.execute({
-      userId: studentId,
-      courseId: undefined, // Explicitly undefined for mentorship
-      mentorshipBookingId: savedBooking.bookingId,
-      instructorId,
-      amount: slot.price,
-      currency: slot.currency,
-      providerName,
-      productName: `Mentorship: ${slot.title}`,
-      studentName: student.name,
-      studentEmail: student.email,
-    });
+    let paymentResult: {
+      paymentId: string;
+      providerResponse: PaymentInitiationResponse;
+    };
 
-    // 5. Update Booking with Payment ID
-    if (savedBooking.bookingId) {
-      await this.bookingRepo.updatePaymentId(
-        savedBooking.bookingId,
-        paymentResult.paymentId,
-      );
-      savedBooking.paymentId = paymentResult.paymentId;
+    if (!isFree) {
+      paymentResult = await this.initiatePaymentUc.execute({
+        userId: studentId,
+        courseId: undefined, // Explicitly undefined for mentorship
+        mentorshipBookingId: savedBooking.bookingId,
+        instructorId,
+        amount: slot.price,
+        currency: slot.currency,
+        providerName,
+        productName: `Mentorship: ${slot.title}`,
+        studentName: student.name,
+        studentEmail: student.email,
+      });
+
+      // Update Booking with Payment ID
+      if (savedBooking.bookingId) {
+        await this.bookingRepo.updatePaymentId(
+          savedBooking.bookingId,
+          paymentResult.paymentId,
+        );
+        savedBooking.paymentId = paymentResult.paymentId;
+      }
+
+      // Schedule Cleanup Job (Expire after 20 minutes if not confirmed)
+      if (savedBooking.bookingId) {
+        await jobQueueService.addJob(
+          QUEUE_NAMES.MENTORSHIP,
+          JOB_NAMES.MENTORSHIP_CLEANUP,
+          { bookingId: savedBooking.bookingId },
+          { delay: 20 * 60 * 1000 }, // 20 minutes
+        );
+      }
+    } else {
+      // Free Booking: Mock payment result
+      paymentResult = {
+        paymentId: '',
+        providerResponse: { id: 'free', client_secret: 'free' },
+      };
     }
 
-    // Emit Event
-    const eventPayload = {
+    // 6. Emit Events
+    const baseEventPayload = {
       bookingId: savedBooking.bookingId!,
       studentId: savedBooking.studentId,
       instructorId: savedBooking.instructorId,
       slotId: savedBooking.slotId,
       scheduledAt: savedBooking.scheduledAt,
     };
-    eventBus.emit(MENTORSHIP_EVENTS.BOOKING_CREATED, eventPayload);
+
+    eventBus.emit(MENTORSHIP_EVENTS.BOOKING_CREATED, baseEventPayload);
+
+    if (isFree) {
+      eventBus.emit(MENTORSHIP_EVENTS.BOOKING_CONFIRMED, {
+        ...baseEventPayload,
+        paymentId: 'free',
+      });
+    }
 
     return {
       booking: savedBooking,
