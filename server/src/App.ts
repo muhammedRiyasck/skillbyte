@@ -5,6 +5,7 @@ import passport from 'passport';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 
 import { config } from 'dotenv';
 config();
@@ -18,6 +19,7 @@ import './shared/config/passport/FacebookStrategy';
 import { paymentController } from './modules/payment/entry-point/PaymentContainer';
 
 const app = express();
+app.use(helmet());
 app.set('trust proxy', 1);
 app.use(
   session({
