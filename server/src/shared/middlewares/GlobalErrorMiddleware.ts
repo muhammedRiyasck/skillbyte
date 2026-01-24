@@ -14,7 +14,10 @@ function errorHandler(
   if (err instanceof HttpError) {
     ApiResponseHelper.error(res, err.message, err.message, err.status);
   } else {
-    ApiResponseHelper.error(res, 'Internal Server Error', err.message);
+    // Sanitize message in production
+    const isDev = process.env.NODE_ENV === 'development';
+    const message = isDev ? err.message : 'Internal Server Error';
+    ApiResponseHelper.error(res, 'Internal Server Error', message);
   }
 }
 
