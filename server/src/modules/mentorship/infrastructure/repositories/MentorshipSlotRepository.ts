@@ -1,4 +1,4 @@
-import { PipelineStage, Types } from 'mongoose';
+import { PipelineStage } from 'mongoose';
 import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { IMentorshipSlotRepository } from '../../domain/IRepositories/IMentorshipSlotRepository';
 import {
@@ -172,7 +172,7 @@ export class MentorshipSlotRepository
     // 3. Lookup Instructor Details
     pipeline.push({
       $lookup: {
-        from: 'instructors', 
+        from: 'instructors',
         localField: 'instructorId',
         foreignField: '_id',
         as: 'instructor',
@@ -204,7 +204,7 @@ export class MentorshipSlotRepository
     }
 
     // 5. Sort
-    pipeline.push({ $sort: { scheduledAt: 1 } });
+    pipeline.push({ $sort: { scheduledAt: 1, _id: 1 } });
 
     // 6. Pagination
     const page = filters?.page || 1;
