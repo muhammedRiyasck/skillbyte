@@ -7,7 +7,10 @@ import {
 import { MentorshipBookingModel } from '../models/MentorshipBookingModel';
 import { IMentorshipBookingDoc } from '../types/IMentorshipBookingDoc';
 import { Types } from 'mongoose';
-import { findByInstructorIdQueryType, findByStudentIdQueryType } from '../types/IQueryTypes';
+import {
+  findByInstructorIdQueryType,
+  findByStudentIdQueryType,
+} from '../types/IQueryTypes';
 
 export class MentorshipBookingRepository
   extends BaseRepository<MentorshipBooking, IMentorshipBookingDoc>

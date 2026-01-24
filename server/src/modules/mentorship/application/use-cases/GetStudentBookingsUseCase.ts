@@ -1,6 +1,9 @@
 import { IGetStudentBookingsUseCase } from '../interfaces/IBookingUseCases';
 import { IMentorshipBookingRepository } from '../../domain/IRepositories/IMentorshipBookingRepository';
-import { BookingStatus, MentorshipBooking } from '../../domain/entities/MentorshipBooking';
+import {
+  BookingStatus,
+  MentorshipBooking,
+} from '../../domain/entities/MentorshipBooking';
 
 export class GetStudentBookingsUseCase implements IGetStudentBookingsUseCase {
   constructor(private bookingRepo: IMentorshipBookingRepository) {}
@@ -17,7 +20,7 @@ export class GetStudentBookingsUseCase implements IGetStudentBookingsUseCase {
       studentId,
       page,
       limit,
-      status ,
+      status,
       fromDate,
       toDate,
     );
