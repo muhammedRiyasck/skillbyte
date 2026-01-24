@@ -5,11 +5,11 @@ import { Dialog, Transition } from "@headlessui/react";
 interface BaseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  title?: string;
-  onConfirm?: () => void;
-  confirmLabel?: string;
-  cancelLabel?: string;
-  children?: ReactNode;
+  title?: string | undefined;
+  onConfirm?: (() => void) | undefined;
+  confirmLabel?: string | undefined;
+  cancelLabel?: string | undefined;
+  children?: ReactNode | undefined;
 }
 
 export default function Modal({

@@ -67,8 +67,15 @@ export const validateCreateCourse = (data: CreateCourseData): Record<string, Val
   // Price
   if (!data.price.trim()) {
     errors.price = { success: false, message: "Course price is required" };
-  } else if (isNaN(Number(data.price))) {
-    errors.price = { success: false, message: "Price must be a valid number" };
+  } else {
+    const priceNum = Number(data.price);
+    if (isNaN(priceNum)) {
+      errors.price = { success: false, message: "Price must be a valid number" };
+    } else if (priceNum > 0 && priceNum < 99) {
+      errors.price = { success: false, message: "Price must be at least ₹99.00 or free" };
+    } else if (priceNum < 0) {
+      errors.price = { success: false, message: "Price cannot be negative" };
+    }
   }
 
   // Tags
