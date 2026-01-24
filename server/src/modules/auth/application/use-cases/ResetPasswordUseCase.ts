@@ -1,5 +1,6 @@
 import redis from '../../../../shared/utils/Redis';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 import { IStudentRepository } from '../../../student/domain/IRepositories/IStudentRepository';
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
 import { NodeMailerService } from '../../../../shared/services/mail/NodeMailerService';
@@ -37,7 +38,8 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
    * @throws Error if the token is invalid, expired, or if password reset fails.
    */
   async execute(token: string, password: string, role: string): Promise<void> {
-    const userId = await redis.get(`reset:${token}`);
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const userId = await redis.get(`reset:${tokenHash}`);
     if (!userId) {
       throw new HttpError(
         ERROR_MESSAGES.INVALID_OR_EXPIRED_TOKEN,
@@ -71,7 +73,7 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
     );
 
     if (updatedUser) {
-      await redis.del(`reset:${token}`);
+      await redis.del(`reset:${tokenHash}`);
       await this._nodeMailerService.sendMail(
         updatedUser.email,
         'Your password was changed',

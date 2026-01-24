@@ -1,5 +1,6 @@
 import { IStudentRepository } from '../../../student/domain/IRepositories/IStudentRepository';
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
+import crypto from 'crypto';
 import { createPasswordResetToken } from '../../../../shared/utils/TokenGenrator';
 import { NodeMailerService } from '../../../../shared/services/mail/NodeMailerService';
 import { ResetPasswordTemplate } from '../../../../shared/templates/ResetPassword';
@@ -77,7 +78,8 @@ export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
       );
       logger.info(`Password reset email sent to ${email}`);
     } catch (error) {
-      await redis.del(`reset:${token}`);
+      const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+      await redis.del(`reset:${tokenHash}`);
       throw error;
     }
   }

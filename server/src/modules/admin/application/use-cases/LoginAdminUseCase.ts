@@ -29,14 +29,14 @@ export class LoginAdminUseCase implements ILoginAdminUseCase {
     dto: LoginAdminDTO,
   ): Promise<{ admin: Admin; accessToken: string; refreshToken: string }> {
     const admin = await this._adminRepo.findByEmail(dto.email);
-    if (!admin) {
-      throw new HttpError(
-        ERROR_MESSAGES.INVALID_CREDENTIALS,
-        HttpStatusCode.UNAUTHORIZED,
-      );
-    }
-    const isMatch = await bcrypt.compare(dto.password, admin.passwordHash);
-    if (!isMatch) {
+
+    // Use a dummy hash for comparison if admin is not found to prevent timing attacks
+    const passwordHash = admin
+      ? admin.passwordHash
+      : '$2b$10$dummyhashplaceholder';
+    const isMatch = await bcrypt.compare(dto.password, passwordHash);
+
+    if (!admin || !isMatch) {
       throw new HttpError(
         ERROR_MESSAGES.INVALID_CREDENTIALS,
         HttpStatusCode.UNAUTHORIZED,

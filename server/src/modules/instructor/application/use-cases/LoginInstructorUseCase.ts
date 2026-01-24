@@ -32,15 +32,14 @@ export class LoginInstructorUseCase implements ILoginInstructorUseCase {
     password: string,
   ): Promise<{ user: Instructor; accessToken: string; refreshToken: string }> {
     const instructor = await this._instructorRepo.findByEmail(email);
-    if (!instructor) {
-      throw new HttpError(
-        ERROR_MESSAGES.INVALID_CREDENTIALS,
-        HttpStatusCode.UNAUTHORIZED,
-      );
-    }
 
-    const isMatch = await bcrypt.compare(password, instructor.passwordHash);
-    if (!isMatch) {
+    // Use a dummy hash for comparison if instructor is not found to prevent timing attacks
+    const passwordHash = instructor
+      ? instructor.passwordHash
+      : '$2b$10$dummyhashplaceholder';
+    const isMatch = await bcrypt.compare(password, passwordHash);
+
+    if (!instructor || !isMatch) {
       throw new HttpError(
         ERROR_MESSAGES.INVALID_CREDENTIALS,
         HttpStatusCode.UNAUTHORIZED,

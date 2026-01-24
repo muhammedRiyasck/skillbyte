@@ -32,16 +32,12 @@ export class LoginStudentUseCase implements ILoginStudentUseCase {
     password: string,
   ): Promise<{ user: Student; accessToken: string; refreshToken: string }> {
     const student = await this._studentRepo.findByEmail(email);
+    const passwordHash = student
+      ? student.passwordHash
+      : '$2b$10$dummyhashplaceholder';
+    const isMatch = await bcrypt.compare(password, passwordHash);
 
-    if (!student) {
-      throw new HttpError(
-        ERROR_MESSAGES.INVALID_CREDENTIALS,
-        HttpStatusCode.UNAUTHORIZED,
-      );
-    }
-
-    const isMatch = await bcrypt.compare(password, student.passwordHash);
-    if (!isMatch) {
+    if (!student || !isMatch) {
       throw new HttpError(
         ERROR_MESSAGES.INVALID_CREDENTIALS,
         HttpStatusCode.UNAUTHORIZED,

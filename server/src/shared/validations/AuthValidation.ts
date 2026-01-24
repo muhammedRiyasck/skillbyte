@@ -33,7 +33,13 @@ export const ForgotPasswordSchema = z.object({
  */
 export const ResetPasswordSchema = z.object({
   token: z.string().min(1, 'Token is required'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+    ),
   role: z.enum(['student', 'instructor'], {
     message: 'Role must be student or instructor',
   }),
@@ -48,7 +54,13 @@ export const InstructorRegistrationSchema = z.object({
     .min(1, 'Full name is required')
     .max(100, 'Full name must be less than 100 characters'),
   email: z.string().email('Invalid email format'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
+    ),
   phoneNumber: z.string().min(1, 'Phone number is required'),
   subject: z.string().min(1, 'Subject is required'),
   jobTitle: z.string().min(1, 'Job title is required'),
