@@ -8,22 +8,29 @@ export interface IMentorshipSlot {
   status: 'available' | 'booked' | 'cancelled' | 'maintenance';
   title?: string;
   description?: string;
+  instructorDetails?: {
+    name: string;
+    profilePictureUrl?: string;
+    jobTitle: string;
+  };
+  tags?: string[];
 }
 
 export interface IMentorshipBooking {
   bookingId: string;
-  slotId: string;
+  slotId: string | IMentorshipSlot;
   studentId: string | { _id: string; name: string; email: string; profileImageUrl?: string };
   instructorId: string | { _id: string; name: string; jobTitle?: string; profileImageUrl?: string };
-  paymentId: string;
+  paymentId?: string;
   amount: number;
   currency: string;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'refunded';
   videoRoomId?: string;
   videoRoomUrl?: string;
   scheduledAt: string; // ISO String
   completedAt?: string;
   cancelledAt?: string;
+  cancelledBy?: 'student' | 'instructor' | 'system' | null;
   createdAt: string;
 }
 
@@ -34,6 +41,7 @@ export interface CreateSlotRequest {
   title?: string | undefined;
   description?: string | undefined;
   status?: 'available' | 'booked' | 'cancelled' | 'maintenance';
+  tags?: string[];
 }
 
 export interface UpdateSlotRequest {
@@ -43,6 +51,7 @@ export interface UpdateSlotRequest {
   status?: 'available' | 'booked' | 'cancelled' | 'maintenance';
   title?: string | undefined;
   description?: string | undefined;
+  tags?: string[];
 }
 
 export interface PaymentInfo {
@@ -53,4 +62,47 @@ export interface PaymentInfo {
 export interface BookSlotResponse {
   bookingId: string;
   paymentInfo: PaymentInfo;
+}
+
+export interface SlotFilters {
+  search?: string;
+  jobTitle?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  fromDate?: string | Date;
+  toDate?: string | Date;
+  tags?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface InstructorSlotFilters {
+  status?: 'available' | 'booked' | 'cancelled';
+  fromDate?: string | Date;
+  toDate?: string | Date;
+  page?: number;
+  limit?: number;
+}
+
+export interface PaginationParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface UpdateBookingStatusRequest {
+    status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+}
+
+export interface InstructorBookingFilters {
+    page?: number;
+    limit?: number;
+    status?: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+}
+
+export interface StudentBookingFilters {
+    page?: number;
+    limit?: number;
+    status?: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+    fromDate?: string | Date;
+    toDate?: string | Date;
 }
