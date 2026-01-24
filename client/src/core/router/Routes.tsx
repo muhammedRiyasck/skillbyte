@@ -32,6 +32,8 @@ const ContentUploadPage = lazy(() => import("@features/course/pages/contentUploa
 const InstructorCourses = lazy(() => import("@features/course/pages/InstructorCourses.tsx"));
 const InstructorSlotsPage = lazy(() => import("@features/mentorship/pages/InstructorSlotsPage.tsx"));
 const InstructorBookingsPage = lazy(() => import("@features/mentorship/pages/InstructorBookingsPage.tsx"));
+const StudentBookingsPage = lazy(() => import("@features/mentorship/pages/StudentBookingsPage.tsx"));
+const MentorshipBrowsePage = lazy(() => import("@features/mentorship/pages/MentorshipBrowsePage.tsx"));
 
 import StudentLayout from "@layouts/student/StudentLayout.tsx";
 const SignIn = lazy(() => import("@features/auth/pages/SignIn.tsx"));
@@ -217,6 +219,26 @@ const router = createBrowserRouter([
           <ProtectedRoute roles={["student"]}>
             <Fallback>
               <NotificationPage />
+            </Fallback>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.student.mentorship.browse,
+        element: (
+          <ProtectedRoute roles={["student"]}>
+            <Fallback>
+              <MentorshipBrowsePage />
+            </Fallback>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.student.mentorship.bookings,
+        element: (
+          <ProtectedRoute roles={["student"]}>
+            <Fallback>
+              <StudentBookingsPage />
             </Fallback>
           </ProtectedRoute>
         ),

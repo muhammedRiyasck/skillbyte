@@ -24,6 +24,10 @@ export const ROUTES = {
     paymentSuccess: '/enrollment/success',
     purchases: '/purchases',
     enrolledCourses: '/my-courses',
+    mentorship: {
+      browse: '/mentorship/browse',
+      bookings: '/mentorship/bookings',
+    },
   },
 
   course: {

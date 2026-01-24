@@ -31,7 +31,7 @@ const Header = () => {
     <>
       {user ? (
         <header className="w-full sticky top-0 z-50">
-          <div className="flex items-center justify-between  md:px-8  bg-gray-50 border-b border-gray-200 px-4 dark:bg-gray-900 shadow-2xl dark:border-b dark:border-gray-700 dark:text-white">
+          <div className="flex items-center justify-between  md:px-8  bg-gray-50 border-b border-gray-200 px-4 dark:bg-gray-900  dark:border-b dark:border-gray-700 dark:text-white">
             <div className="flex items-center text-2xl font-bold">
               <Link to={ROUTES.root}>
                 <img className="w-30 h-20" src={orginalLogo} alt="logo" />
@@ -68,6 +68,22 @@ const Header = () => {
                   }
                 >
                   Purchases
+                </NavLink>
+                <NavLink
+                  to={ROUTES.student.mentorship.browse}
+                  className={({ isActive }) =>
+                    isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"
+                  }
+                >
+                  Mentorship
+                </NavLink>
+                <NavLink
+                  to={ROUTES.student.mentorship.bookings}
+                  className={({ isActive }) =>
+                    isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"
+                  }
+                >
+                  Bookings
                 </NavLink>
                 <NavLink
                   to={ROUTES.chat}
@@ -121,7 +137,7 @@ const Header = () => {
           </div>
           {isOpen && (
             <>
-              <div className="fixed top-0 right-0 min-h-screen w-80 bg-white/10 dark:bg-gray-900/20 backdrop-blur-lg border-l border-white/20 dark:border-gray-700/30 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out xl:hidden">
+              <div className="fixed top-0 right-0 min-h-screen w-80 bg-white/10 dark:bg-gray-900/20 backdrop-blur-lg border-l border-white/20 dark:border-gray-700/30  z-50 transform transition-transform duration-300 ease-in-out xl:hidden">
                 <div className="p-6">
                   <div className="flex justify-between items-center mb-8">
                     <h2 className="text-xl font-bold text-gray-800 dark:text-white">Student Menu</h2>
@@ -180,6 +196,30 @@ const Header = () => {
                     >
                       <ReceiptText size={20} className="text-pink-600 group-hover:scale-110 transition-transform" />
                       <span className="font-medium">Purchases</span>
+                    </NavLink>
+                    <NavLink
+                      to={ROUTES.student.mentorship.browse}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${
+                          isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
+                        }`
+                      }
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <User size={20} className="text-teal-600 group-hover:scale-110 transition-transform" />
+                      <span className="font-medium">Mentorship</span>
+                    </NavLink>
+                    <NavLink
+                      to={ROUTES.student.mentorship.bookings}
+                      className={({ isActive }) =>
+                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${
+                          isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
+                        }`
+                      }
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <BookOpen size={20} className="text-orange-600 group-hover:scale-110 transition-transform" />
+                      <span className="font-medium">My Bookings</span>
                     </NavLink>
                     <NavLink
                       to={ROUTES.chat}
