@@ -13,6 +13,8 @@ import {
   QUEUE_NAMES,
   JOB_NAMES,
 } from '../../../../shared/services/job-queue/JobTypes';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 export class BookSlotUseCase implements IBookSlotUseCase {
   constructor(
@@ -31,18 +33,22 @@ export class BookSlotUseCase implements IBookSlotUseCase {
     const pendingCount =
       await this.bookingRepo.countPendingByStudentId(studentId);
     if (pendingCount >= 1) {
-      throw new Error(
+      throw new HttpError(
         'You have already a pending booking. Please complete or cancel existing one before booking more.',
+        HttpStatusCode.BAD_REQUEST,
       );
     }
 
     // 1. Validate slot availability
     const slot = await this.slotRepo.findById(slotId);
     if (!slot) {
-      throw new Error('Slot not found');
+      throw new HttpError('Slot not found', HttpStatusCode.NOT_FOUND);
     }
     if (slot.status !== 'available') {
-      throw new Error('Slot is not available for booking');
+      throw new HttpError(
+        'Slot is not available for booking',
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     const instructorId = slot.instructorId;
@@ -56,7 +62,7 @@ export class BookSlotUseCase implements IBookSlotUseCase {
     // 2. Fetch student details (for payment metadata)
     const student = await StudentModel.findById(studentId);
     if (!student) {
-      throw new Error('Student not found');
+      throw new HttpError('Student not found', HttpStatusCode.NOT_FOUND);
     }
 
     // 3. Create Booking

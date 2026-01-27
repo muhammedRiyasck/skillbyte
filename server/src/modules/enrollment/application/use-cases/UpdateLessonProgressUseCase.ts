@@ -3,6 +3,8 @@ import { IEnrollment } from '../../domain/entities/Enrollment';
 import logger from '../../../../shared/utils/Logger';
 import { IUpdateLessonProgress } from '../interfaces/IUpdateLessonProgress';
 import { ILessonRepository } from '../../../course/domain/IRepositories/ILessonRepository';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 export class UpdateLessonProgressUseCase implements IUpdateLessonProgress {
   constructor(
@@ -20,7 +22,10 @@ export class UpdateLessonProgressUseCase implements IUpdateLessonProgress {
     },
   ): Promise<IEnrollment | null> {
     if (!enrollmentId || !lessonId) {
-      throw new Error('Enrollment ID and Lesson ID are required');
+      throw new HttpError(
+        'Enrollment ID and Lesson ID are required',
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     // 1. Update lesson progress in repository (data-only operation)

@@ -4,6 +4,8 @@ import { IPayment } from '../../domain/entities/Payment';
 import { PaymentInitiationResponse } from '../../../../shared/services/payment/interfaces/IPaymentProvider';
 import { InitiatePaymentRequest } from '../dtos/InitiatePaymentDto';
 import { IInitiatePayment } from '../interfaces/IInitiatePayment';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 export class InitiatePaymentUseCase implements IInitiatePayment {
   constructor(
@@ -31,7 +33,10 @@ export class InitiatePaymentUseCase implements IInitiatePayment {
 
     // 0. Minimum amount validation for INR (Stripe/PayPal requirement)
     if (currency === 'INR' && amount > 0 && amount < 99) {
-      throw new Error('Transaction amount must be at least ₹99.00 or free');
+      throw new HttpError(
+        'Transaction amount must be at least ₹99.00 or free',
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     // 1. Get provider from factory

@@ -31,7 +31,11 @@ passport.use(
 
         const email = profile.emails?.[0]?.value;
         const name = profile.displayName;
-        if (!email) return done(new Error('No email from Google'), false);
+        if (!email)
+          return done(
+            new HttpError('No email from Google', HttpStatusCode.UNAUTHORIZED),
+            false,
+          );
 
         if (role === 'student') {
           let student = await StudentModel.findByEmail(email);
@@ -61,14 +65,20 @@ passport.use(
           const instructor = await InstructorModel.findOne({ email });
           if (!instructor)
             return done(
-              new Error('Instructor not found. You must register manually.'),
+              new HttpError(
+                'Instructor not found. You must register manually.',
+                HttpStatusCode.NOT_FOUND,
+              ),
               false,
             );
 
           return done(null, { user: instructor, role: 'instructor' });
         } else {
           return done(
-            new Error('Unsupported role or invalid role selection.'),
+            new HttpError(
+              'Unsupported role or invalid role selection.',
+              HttpStatusCode.BAD_REQUEST,
+            ),
             false,
           );
         }

@@ -2,6 +2,8 @@ import { IGetMessagesUseCase } from '../interfaces/IGetMessagesUseCase';
 import { IMessageReadRepository } from '../../domain/IRepositories/IMessageRepository';
 import { IConversationReadRepository } from '../../domain/IRepositories/IConversationReadRepository';
 import { IMessage } from '../../domain/entities/Message';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 export class GetMessagesUseCase implements IGetMessagesUseCase {
   constructor(
@@ -20,14 +22,17 @@ export class GetMessagesUseCase implements IGetMessagesUseCase {
       await this.conversationReadRepository.findById(conversationId);
 
     if (!conversation) {
-      throw new Error('Conversation not found');
+      throw new HttpError('Conversation not found', HttpStatusCode.NOT_FOUND);
     }
 
     if (
       conversation.studentId !== userId &&
       conversation.instructorId !== userId
     ) {
-      throw new Error('Unauthorized access to conversation');
+      throw new HttpError(
+        'Unauthorized access to conversation',
+        HttpStatusCode.FORBIDDEN,
+      );
     }
 
     // Fetch messages

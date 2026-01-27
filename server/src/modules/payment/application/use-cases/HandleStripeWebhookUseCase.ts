@@ -9,6 +9,8 @@ import {
   PaymentFailedEvent,
 } from '../../../../shared/services/event-bus/PaymentEvents';
 import { IHandleStripeWebhook } from '../interfaces/IHandleStripeWebhook';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
   constructor(
@@ -28,7 +30,10 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       logger.error(`Webhook signature verification failed: ${message}`);
-      throw new Error(`Webhook Error: ${message}`);
+      throw new HttpError(
+        `Webhook Error: ${message}`,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     // Handle the event

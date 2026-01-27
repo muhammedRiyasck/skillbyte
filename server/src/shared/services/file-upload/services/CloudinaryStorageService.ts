@@ -51,7 +51,10 @@ export class CloudinaryStorageService implements IStorageService {
   }
 
   async generateUploadUrl(): Promise<{ signedUrl: string; publicUrl: string }> {
-    throw new Error('Method not implemented for Cloudinary');
+    throw new HttpError(
+      'Method not implemented for Cloudinary',
+      HttpStatusCode.INTERNAL_SERVER_ERROR,
+    );
   }
 
   getIdentifierFromUrl(url: string): string {
@@ -59,6 +62,9 @@ export class CloudinaryStorageService implements IStorageService {
     if (match) {
       return match[1];
     }
-    throw new Error('Could not extract public ID from URL');
+    throw new HttpError(
+      'Could not extract public ID from URL',
+      HttpStatusCode.INTERNAL_SERVER_ERROR,
+    );
   }
 }

@@ -1,6 +1,8 @@
 import { Server as HttpServer } from 'http';
 import { Server, Socket } from 'socket.io';
 import logger from '../../utils/Logger';
+import { HttpError } from '../../types/HttpError';
+import { HttpStatusCode } from '../../enums/HttpStatusCodes';
 
 export class SocketService {
   private static instance: SocketService;
@@ -107,7 +109,10 @@ export class SocketService {
 
   public getIO(): Server {
     if (!this.io) {
-      throw new Error('Socket.io not initialized!');
+      throw new HttpError(
+        'Socket.io not initialized!',
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
     }
     return this.io;
   }

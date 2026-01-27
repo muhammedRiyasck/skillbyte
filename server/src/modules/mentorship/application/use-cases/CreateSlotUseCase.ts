@@ -3,6 +3,8 @@ import { IInstructorRepository } from '../../../instructor/domain/IRepositories/
 import { MentorshipSlot } from '../../domain/entities/MentorshipSlot';
 import { CreateSlotDto } from '../dtos/SlotDto';
 import { ICreateSlotUseCase } from '../interfaces/ISlotUseCases';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 /**
  * Use case for creating a new mentorship slot.
@@ -17,7 +19,10 @@ export class CreateSlotUseCase implements ICreateSlotUseCase {
     // Validate scheduled time is in the future
     const now = new Date();
     if (new Date(dto.scheduledAt) <= now) {
-      throw new Error('Scheduled time must be in the future');
+      throw new HttpError(
+        'Scheduled time must be in the future',
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     // specific job title check
@@ -25,13 +30,16 @@ export class CreateSlotUseCase implements ICreateSlotUseCase {
     if (!jobTitle) {
       const instructor = await this._instructorRepo.findById(dto.instructorId);
       if (!instructor) {
-        throw new Error('Instructor not found');
+        throw new HttpError('Instructor not found', HttpStatusCode.NOT_FOUND);
       }
       jobTitle = instructor.jobTitle;
     }
 
     if (!jobTitle) {
-      throw new Error('Instructor job title is required');
+      throw new HttpError(
+        'Instructor job title is required',
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     const slot = new MentorshipSlot(

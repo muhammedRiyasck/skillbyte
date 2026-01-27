@@ -175,7 +175,10 @@ export class AdminInstructorController {
     const fileResponse = await fetch(freshSignedUrl);
 
     if (!fileResponse.ok)
-      throw new Error('Failed to fetch file from Backblaze');
+      throw new HttpError(
+        'Failed to fetch file from Backblaze',
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
 
     // 5. Set headers to view inline
     res.setHeader(

@@ -2,6 +2,8 @@ import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { IStudentRepository } from '../../domain/IRepositories/IStudentRepository';
 import { Student } from '../../domain/entities/Student';
 import { StudentModel, IStudent } from '../models/StudentModel';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 export class StudentRepository
   extends BaseRepository<Student, IStudent>
@@ -43,7 +45,10 @@ export class StudentRepository
       else return;
     } catch (error) {
       console.error('Error saving student:', error);
-      throw new Error('Failed to resent password student');
+      throw new HttpError(
+        'Failed to reset password for student',
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 

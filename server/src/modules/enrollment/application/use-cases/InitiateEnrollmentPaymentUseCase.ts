@@ -4,6 +4,8 @@ import { StudentModel } from '../../../student/infrastructure/models/StudentMode
 import { IInitiateEnrollmentPayment } from '../interfaces/IInitiateEnrollmentPayment';
 import { InitiatePaymentUseCase } from '../../../payment/application/use-cases/InitiatePaymentUseCase';
 import { PaymentInitiationResponse } from '../../../../shared/services/payment/interfaces/IPaymentProvider';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 export class InitiateEnrollmentPaymentUseCase
   implements IInitiateEnrollmentPayment
@@ -24,13 +26,13 @@ export class InitiateEnrollmentPaymentUseCase
     // 1. Fetch course details
     const course = await CourseModel.findById(courseId);
     if (!course) {
-      throw new Error('Course not found');
+      throw new HttpError('Course not found', HttpStatusCode.NOT_FOUND);
     }
 
     // 1.1 Fetch student details
     const student = await StudentModel.findById(userId);
     if (!student) {
-      throw new Error('Student not found');
+      throw new HttpError('Student not found', HttpStatusCode.NOT_FOUND);
     }
 
     // 2. Check if already enrolled
@@ -39,7 +41,10 @@ export class InitiateEnrollmentPaymentUseCase
       courseId,
     );
     if (enrollment) {
-      throw new Error('Already enrolled in this course');
+      throw new HttpError(
+        'Already enrolled in this course',
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     // 3. Initiate payment via Payment Module

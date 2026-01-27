@@ -7,6 +7,8 @@ import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositor
 import { IConversation } from '../../domain/entities/Conversation';
 import { SocketService } from '../../../../shared/services/socket-service.ts/SocketService';
 import { IConversationReadRepository } from '../../domain/IRepositories/IConversationReadRepository';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 export class CreateConversationUseCase implements ICreateConversationUseCase {
   constructor(
@@ -25,8 +27,9 @@ export class CreateConversationUseCase implements ICreateConversationUseCase {
     );
 
     if (!enrollment || enrollment.status !== 'active') {
-      throw new Error(
+      throw new HttpError(
         'Student must be enrolled in the course to start a conversation',
+        HttpStatusCode.BAD_REQUEST,
       );
     }
 

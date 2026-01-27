@@ -1,6 +1,8 @@
 import { IGenerateVideoRoomUseCase } from '../interfaces/IBookingUseCases';
 import { IMentorshipBookingRepository } from '../../domain/IRepositories/IMentorshipBookingRepository';
 import logger from '../../../../shared/utils/Logger';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 export class GenerateVideoRoomUseCase implements IGenerateVideoRoomUseCase {
   constructor(private bookingRepo: IMentorshipBookingRepository) {}
@@ -12,12 +14,13 @@ export class GenerateVideoRoomUseCase implements IGenerateVideoRoomUseCase {
 
     const booking = await this.bookingRepo.findById(bookingId);
     if (!booking) {
-      throw new Error('Booking not found');
+      throw new HttpError('Booking not found', HttpStatusCode.NOT_FOUND);
     }
 
     if (booking.status !== 'confirmed') {
-      throw new Error(
+      throw new HttpError(
         'Video room can only be generated for confirmed bookings',
+        HttpStatusCode.BAD_REQUEST,
       );
     }
 

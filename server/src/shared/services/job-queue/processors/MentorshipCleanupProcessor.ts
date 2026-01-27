@@ -18,7 +18,7 @@ export class MentorshipCleanupProcessor {
       QUEUE_NAMES.MENTORSHIP,
       JOB_NAMES.MENTORSHIP_CLEANUP,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this._processCleanup.bind(this) as any ,
+      this._processCleanup.bind(this) as any,
     );
   }
 

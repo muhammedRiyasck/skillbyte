@@ -7,6 +7,8 @@ import {
   PaymentInitiationResponse,
 } from './interfaces/IPaymentProvider';
 import logger from '../../utils/Logger';
+import { HttpError } from '../../types/HttpError';
+import { HttpStatusCode } from '../../enums/HttpStatusCodes';
 
 interface PayPalLink {
   href: string;
@@ -29,7 +31,10 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
 
   private async getAccessToken(): Promise<string> {
     if (!this.clientId || !this.clientSecret) {
-      throw new Error('PayPal credentials are not configured.');
+      throw new HttpError(
+        'PayPal credentials are not configured.',
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
     }
 
     const auth = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString(
@@ -47,7 +52,10 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
     if (!response.ok) {
       const errorData = await response.json();
       logger.error('PayPal Auth Error:', errorData);
-      throw new Error('Failed to authenticate with PayPal');
+      throw new HttpError(
+        'Failed to authenticate with PayPal',
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
     }
 
     const data = (await response.json()) as { access_token: string };
@@ -98,7 +106,10 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
     if (!response.ok) {
       const errorData = await response.json();
       logger.error('PayPal Create Order Error:', errorData);
-      throw new Error('Failed to create PayPal order');
+      throw new HttpError(
+        'Failed to create PayPal order',
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
     }
 
     return response.json() as Promise<{ id: string; links: PayPalLink[] }>;
@@ -121,7 +132,10 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
     if (!response.ok) {
       const errorData = await response.json();
       logger.error('PayPal Capture Payment Error:', errorData);
-      throw new Error('Failed to capture PayPal payment');
+      throw new HttpError(
+        'Failed to capture PayPal payment',
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

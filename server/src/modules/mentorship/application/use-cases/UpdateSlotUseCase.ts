@@ -2,6 +2,8 @@ import { IMentorshipSlotRepository } from '../../domain/IRepositories/IMentorshi
 import { MentorshipSlot } from '../../domain/entities/MentorshipSlot';
 import { UpdateSlotDto } from '../dtos/SlotDto';
 import { IUpdateSlotUseCase } from '../interfaces/ISlotUseCases';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 /**
  * Use case for updating an existing mentorship slot.
@@ -24,14 +26,20 @@ export class UpdateSlotUseCase implements IUpdateSlotUseCase {
       existingSlot.status === 'booked' ||
       existingSlot.status === 'completed'
     ) {
-      throw new Error('Cannot update a booked or completed slot');
+      throw new HttpError(
+        'Cannot update a booked or completed slot',
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     // If updating scheduledAt, validate it's in the future
     if (dto.scheduledAt) {
       const now = new Date();
       if (new Date(dto.scheduledAt) <= now) {
-        throw new Error('Scheduled time must be in the future');
+        throw new HttpError(
+          'Scheduled time must be in the future',
+          HttpStatusCode.BAD_REQUEST,
+        );
       }
     }
 

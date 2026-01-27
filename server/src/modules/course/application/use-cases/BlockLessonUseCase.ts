@@ -1,5 +1,7 @@
 import { Lesson } from '../../domain/entities/Lesson';
 import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { IBlockLessonUseCase } from '../interfaces/IBlockLessonUseCase';
 
 export class BlockLessonUseCase implements IBlockLessonUseCase {
@@ -8,7 +10,7 @@ export class BlockLessonUseCase implements IBlockLessonUseCase {
   async execute(lessonId: string, isBlocked: boolean): Promise<Lesson> {
     const lesson = await this._lessonRepository.findById(lessonId);
     if (!lesson) {
-      throw new Error('Lesson not found');
+      throw new HttpError('Lesson not found', HttpStatusCode.NOT_FOUND);
     }
 
     lesson.isBlocked = isBlocked;

@@ -1,6 +1,9 @@
 import { IGetInstructorBookingsUseCase } from '../interfaces/IBookingUseCases';
 import { IMentorshipBookingRepository } from '../../domain/IRepositories/IMentorshipBookingRepository';
-import { BookingStatus, MentorshipBooking } from '../../domain/entities/MentorshipBooking';
+import {
+  BookingStatus,
+  MentorshipBooking,
+} from '../../domain/entities/MentorshipBooking';
 
 export class GetInstructorBookingsUseCase
   implements IGetInstructorBookingsUseCase
@@ -17,7 +20,7 @@ export class GetInstructorBookingsUseCase
       instructorId,
       page,
       limit,
-      status ,
+      status,
     );
   }
 }

@@ -4,6 +4,8 @@ import { StudentModel } from '../../../modules/student/infrastructure/models/Stu
 import { InstructorModel } from '../../../modules/instructor/infrastructure/models/InstructorModel';
 
 import dotenv from 'dotenv';
+import { HttpError } from '../../types/HttpError';
+import { HttpStatusCode } from '../../enums/HttpStatusCodes';
 dotenv.config();
 
 passport.use(
@@ -23,7 +25,11 @@ passport.use(
         const email = profile.emails?.[0]?.value;
         const name = `${profile.name?.givenName ?? ''} ${profile.name?.familyName ?? ''}`;
 
-        if (!email) return done(new Error('Email is required'), null);
+        if (!email)
+          return done(
+            new HttpError('Email is required', HttpStatusCode.BAD_REQUEST),
+            null,
+          );
 
         if (role === 'student') {
           let student = await StudentModel.findOne({ email });
@@ -44,14 +50,20 @@ passport.use(
           const instructor = await InstructorModel.findOne({ email });
           if (!instructor)
             return done(
-              new Error('Instructor not found. You must register manually.'),
+              new HttpError(
+                'Instructor not found. You must register manually.',
+                HttpStatusCode.NOT_FOUND,
+              ),
               null,
             );
 
           return done(null, { user: instructor, role });
         } else {
           return done(
-            new Error('Unsupported role or invalid role selection'),
+            new HttpError(
+              'Unsupported role or invalid role selection',
+              HttpStatusCode.BAD_REQUEST,
+            ),
             null,
           );
         }
