@@ -24,8 +24,8 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
   private clientSecret = process.env.PAYPAL_CLIENT_SECRET;
   private baseUrl =
     process.env.NODE_ENV === 'production'
-      ? 'https://api-m.paypal.com'
-      : 'https://api-m.sandbox.paypal.com';
+      ? process.env.PAYPAL_LIVE_URL
+      : process.env.PAYPAL_SANDBOX_URL;
 
   private async getAccessToken(): Promise<string> {
     if (!this.clientId || !this.clientSecret) {
@@ -59,7 +59,12 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
     currency: string,
   ): Promise<PaymentInitiationResponse> {
     const order = await this.createOrder(amount, currency);
-    return { id: order.id };
+    const approveLink = order.links.find((link) => link.rel === 'approve');
+
+    return {
+      id: order.id,
+      client_secret: approveLink?.href, // Return approval URL as client_secret for frontend redirect
+    };
   }
 
   async createOrder(
@@ -83,6 +88,10 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
             },
           },
         ],
+        application_context: {
+          return_url: `${process.env.FRONTEND_URL}/mentorship/bookings`,
+          cancel_url: `${process.env.FRONTEND_URL}/mentorship/bookings`,
+        },
       }),
     });
 
@@ -115,6 +124,42 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
       throw new Error('Failed to capture PayPal payment');
     }
 
-    return response.json() as Promise<PayPalCaptureResponse>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const data = (await response.json()) as any;
+
+    // Extract actual capture ID if nested
+    const captureId =
+      data.purchase_units?.[0]?.payments?.captures?.[0]?.id || data.id;
+    return {
+      id: captureId,
+      status: data.status,
+    };
+  }
+
+  async refund(captureId: string): Promise<boolean> {
+    try {
+      const accessToken = await this.getAccessToken();
+      const response = await fetch(
+        `${this.baseUrl}/v2/payments/captures/${captureId}/refund`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        logger.error('PayPal Refund Error:', errorData);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      logger.error('PayPal Refund Exception:', error);
+      return false;
+    }
   }
 }

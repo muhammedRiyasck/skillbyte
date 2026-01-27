@@ -11,6 +11,7 @@ export interface IPaymentDocument extends Document {
   currency: string;
   stripePaymentIntentId?: string;
   paypalOrderId?: string;
+  paypalCaptureId?: string;
   status: 'pending' | 'succeeded' | 'failed' | 'refunded';
   metadata?: Record<string, unknown>;
   instructorId: mongoose.Types.ObjectId;

@@ -20,11 +20,21 @@ import { MentorshipFulfillmentService } from '../../application/services/Mentors
 import { MentorshipSocketService } from '../../infrastructure/services/MentorshipSocketService';
 
 import { InstructorRepository } from '../../../instructor/infrastructure/repositories/InstructorRepository';
+import { PaymentReadRepository } from '../../../payment/infrastructure/repositories/PaymentReadRepository';
+import { PaymentWriteRepository } from '../../../payment/infrastructure/repositories/PaymentWriteRepository';
+import { StripeProvider } from '../../../../shared/services/payment/StripeProvider';
+import { PayPalProvider } from '../../../../shared/services/payment/PayPalProvider';
 
 // Repositories
 const slotRepository = new MentorshipSlotRepository();
 const bookingRepository = new MentorshipBookingRepository();
 const instructorRepository = new InstructorRepository();
+const paymentReadRepository = new PaymentReadRepository();
+const paymentWriteRepository = new PaymentWriteRepository();
+
+// Providers
+const stripeProvider = new StripeProvider();
+const paypalProvider = new PayPalProvider();
 
 // Services (Side-effects on instantiation)
 new MentorshipFulfillmentService(bookingRepository);
@@ -49,6 +59,10 @@ const bookSlotUC = new BookSlotUseCase(
 export const cancelBookingUC = new CancelBookingUseCase(
   bookingRepository,
   slotRepository,
+  paymentReadRepository,
+  paymentWriteRepository,
+  stripeProvider,
+  paypalProvider,
 );
 export const getStudentBookingsUC = new GetStudentBookingsUseCase(
   bookingRepository,

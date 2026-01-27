@@ -9,6 +9,7 @@ export interface IPayment {
   currency: string;
   stripePaymentIntentId?: string;
   paypalOrderId?: string;
+  paypalCaptureId?: string;
   status: 'pending' | 'succeeded' | 'failed' | 'refunded';
   metadata?: Record<string, unknown>;
   productName: string;

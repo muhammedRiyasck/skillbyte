@@ -29,6 +29,11 @@ export class InitiatePaymentUseCase implements IInitiatePayment {
       studentEmail,
     } = request;
 
+    // 0. Minimum amount validation for INR (Stripe/PayPal requirement)
+    if (currency === 'INR' && amount > 0 && amount < 99) {
+      throw new Error('Transaction amount must be at least ₹99.00 or free');
+    }
+
     // 1. Get provider from factory
     const provider = this.paymentProviderFactory.getProvider(providerName);
 
@@ -46,14 +51,14 @@ export class InitiatePaymentUseCase implements IInitiatePayment {
     }
 
     // 3. Initiate payment with provider
+    const metadata: Record<string, string> = { userId };
+    if (courseId) metadata.courseId = courseId;
+    if (mentorshipBookingId) metadata.mentorshipBookingId = mentorshipBookingId;
+
     const providerResponse = await provider.initiate(
       amountToCharge,
       chargeCurrency,
-      {
-        userId,
-        courseId,
-        mentorshipBookingId,
-      },
+      metadata,
     );
 
     // 4. Calculate fees

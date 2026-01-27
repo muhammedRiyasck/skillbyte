@@ -66,4 +66,18 @@ export class PaymentWriteRepository
     );
     return doc ? this.toEntity(doc) : null;
   }
+
+  async updatePayPalCaptureId(
+    orderId: string,
+    captureId: string,
+  ): Promise<void> {
+    await this.model.updateOne(
+      { paypalOrderId: orderId },
+      { paypalCaptureId: captureId },
+    );
+  }
+
+  async updateStatus(paymentId: string, status: string): Promise<void> {
+    await this.model.findByIdAndUpdate(paymentId, { status });
+  }
 }

@@ -34,7 +34,12 @@ export class CapturePayPalPaymentUseCase implements ICapturePayPalPayment {
         return { success: false };
       }
 
-      // 3. Update Payment record to succeeded
+      // 3. Update Payment record to succeeded and save captureId
+      await this._paymentRepository.updatePayPalCaptureId(
+        orderId,
+        captureData.id,
+      );
+
       const payment =
         await this._paymentRepository.updatePaymentStatusByPayPalOrder(
           orderId,

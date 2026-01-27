@@ -81,7 +81,6 @@ const InstructorBookingsPage = () => {
             setIsConfirmOpen(false);
         } catch (error) {
             console.error(error);
-            toast.error("Failed to cancel booking");
         } finally {
             setIsCancelling(false);
             setBookingToCancel(null);
@@ -226,9 +225,28 @@ const InstructorBookingsPage = () => {
                 confirmLabel={isCancelling ? "Cancelling..." : "Yes, Cancel"}
                 cancelLabel="Keep Booking"
             >
-                <p className="text-gray-600 dark:text-gray-400">
-                    Are you sure you want to cancel this mentorship session? This action cannot be undone.
-                </p>
+                <div className="space-y-3">
+                    <p className="text-gray-600 dark:text-gray-400">
+                        Are you sure you want to cancel this session?
+                    </p>
+                    
+                    {bookingToCancel && (() => {
+                        const booking = bookings.find(b => b.bookingId === bookingToCancel);
+                        if (booking && booking.amount > 0 && booking.status === 'confirmed') {
+                            return (
+                                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg text-sm text-blue-700 dark:text-blue-300">
+                                    <p className="font-semibold">The student will be fully refunded.</p>
+                                    <p className="text-xs mt-1">Instructor cancellations automatically trigger the refund.</p>
+                                </div>
+                            );
+                        }
+                        return null;
+                    })()}
+
+                    <p className="text-xs text-gray-500">
+                        This action cannot be undone.
+                    </p>
+                </div>
             </Modal>
         </div>
     );

@@ -21,7 +21,14 @@ const PaymentSchema = new Schema(
     amount: { type: Number, required: true },
     currency: { type: String, default: 'inr' },
     stripePaymentIntentId: { type: String },
-    paypalOrderId: { type: String },
+    paypalOrderId: {
+      type: String,
+      default: null,
+    },
+    paypalCaptureId: {
+      type: String,
+      default: null,
+    },
     status: {
       type: String,
       enum: ['pending', 'succeeded', 'failed', 'refunded'],

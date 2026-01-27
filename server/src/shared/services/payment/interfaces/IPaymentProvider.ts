@@ -9,4 +9,6 @@ export interface IPaymentProvider {
     currency: string,
     metadata: Record<string, string>,
   ): Promise<PaymentInitiationResponse>;
+
+  refund(paymentId: string): Promise<boolean>;
 }

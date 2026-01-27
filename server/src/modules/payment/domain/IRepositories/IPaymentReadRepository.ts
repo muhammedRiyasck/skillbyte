@@ -1,6 +1,7 @@
 import { IPayment } from '../entities/Payment';
 
 export interface IPaymentReadRepository {
+  findById(id: string): Promise<IPayment | null>;
   findPaymentByIntentId(paymentIntentId: string): Promise<IPayment | null>;
   findPaymentByPayPalOrderId(orderId: string): Promise<IPayment | null>;
   findPaymentsByUser(

@@ -41,4 +41,16 @@ export class StripeProvider implements IStripeProvider, IPaymentProvider {
   ): Stripe.Event {
     return this.stripe.webhooks.constructEvent(payload, header, secret);
   }
+
+  async refund(paymentIntentId: string): Promise<boolean> {
+    try {
+      await this.stripe.refunds.create({
+        payment_intent: paymentIntentId,
+      });
+      return true;
+    } catch (error) {
+      console.error('Stripe Refund Error:', error);
+      return false;
+    }
+  }
 }

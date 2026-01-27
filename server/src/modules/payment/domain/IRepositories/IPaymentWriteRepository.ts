@@ -3,11 +3,13 @@ import { IPayment } from '../entities/Payment';
 export interface IPaymentWriteRepository {
   createPayment(paymentData: Partial<IPayment>): Promise<IPayment>;
   updatePaymentStatus(
-    paymentIntentId: string,
-    status: string,
+    paymentId: string,
+    status: 'pending' | 'succeeded' | 'failed' | 'refunded',
   ): Promise<IPayment | null>;
   updatePaymentStatusByPayPalOrder(
     orderId: string,
-    status: string,
+    status: 'pending' | 'succeeded' | 'failed',
   ): Promise<IPayment | null>;
+  updatePayPalCaptureId(orderId: string, captureId: string): Promise<void>;
+  updateStatus(paymentId: string, status: string): Promise<void>;
 }

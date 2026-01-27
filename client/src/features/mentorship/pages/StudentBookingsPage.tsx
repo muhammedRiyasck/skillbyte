@@ -24,6 +24,7 @@ const StudentBookingsPage = () => {
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
     const [isCancelling, setIsCancelling] = useState(false);
+    const [cantRefund,setCantRefund] = useState(false)
 
     const lastBookingElementRef = useCallback((node: HTMLDivElement | null) => {
         if (loading) return;
@@ -125,7 +126,24 @@ const StudentBookingsPage = () => {
     }, [handlePayPalCapture, statusFilter]);
 
     const handleCancelClick = (bookingId: string) => {
+        const booking = bookings.find(b => b.bookingId === bookingId);
+        if (!booking) return;
+
         setBookingToCancel(bookingId);
+
+        if (booking.amount > 0 && booking.status === 'confirmed') {
+            const scheduledDate = new Date(booking.scheduledAt);
+            const now = new Date();
+            const hoursDiff = (scheduledDate.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+            if (hoursDiff <= 24) {
+                setCantRefund(true);
+                setIsConfirmOpen(false);
+                return;
+            }
+        }
+        
+        setCantRefund(false);
         setIsConfirmOpen(true);
     };
 
@@ -168,6 +186,8 @@ const StudentBookingsPage = () => {
             }
         }
     };
+
+    const selectedBooking = bookings.find(b => b.bookingId === bookingToCancel);
 
     return (
         <div className="min-h-screen bg-white dark:bg-gray-900 pb-8">
@@ -291,9 +311,45 @@ const StudentBookingsPage = () => {
                 confirmLabel={isCancelling ? "Cancelling..." : "Yes, Cancel"}
                 cancelLabel="Keep Booking"
             >
-                <p className="text-gray-600 dark:text-gray-400">
-                    Are you sure you want to cancel this mentorship session? This action cannot be undone.
-                </p>
+                <div className="space-y-3">
+                    <p className="text-gray-600 dark:text-gray-400">
+                        Are you sure you want to cancel this mentorship session?
+                    </p>
+                    
+                    {selectedBooking?.amount && selectedBooking.amount > 0 ? (
+                        <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-sm text-green-700 dark:text-green-300">
+                            <p className="font-semibold">You are eligible for a full refund.</p>
+                            <p className="text-xs mt-1">Cancellation is more than 24 hours before the session.</p>
+                        </div>
+                    ) : null}
+
+                    <p className="text-xs text-gray-500">
+                        This action cannot be undone.
+                    </p>
+                </div>
+            </Modal>
+
+            <Modal
+                isOpen={cantRefund}
+                onClose={() => setCantRefund(false)}
+                title="No Refund"
+                onConfirm={()=>setCantRefund(false)}
+                confirmLabel="Understood"
+                cancelLabel="Close"
+            >   
+              <div className="space-y-3">
+                <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg text-sm text-amber-700 dark:text-amber-300">
+                    <p className="font-semibold">No refund will be issued.</p>
+                    <p className="text-xs mt-1">Cancellation is within 24 hours of the session start time.</p>
+                </div>
+                <div className="p-3 bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300">
+                  <p className="font-semibold">No further action is required at this time.</p>
+                  <p className="text-sm mt-1">
+                    No changes were made due to the cancellation timing.
+                  </p>
+                </div>
+                </div>
+
             </Modal>
         </div>
     );
