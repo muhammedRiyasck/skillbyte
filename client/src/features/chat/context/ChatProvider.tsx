@@ -27,7 +27,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await ChatService.getConversations();
       return response;
     },
-    enabled: !!currentUser,
+    enabled: !!currentUser && currentUser.role !== 'admin',
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
   const conversations = useMemo(() => {
