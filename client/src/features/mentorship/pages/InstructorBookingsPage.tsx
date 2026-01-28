@@ -36,7 +36,6 @@ const InstructorBookingsPage = () => {
             }
         } catch (error) {
             console.error(error);
-            toast.error("Failed to load bookings");
         } finally {
             setLoading(false);
         }
@@ -104,7 +103,6 @@ const InstructorBookingsPage = () => {
             } catch (error) {
                 toast.dismiss();
                 console.error(error);
-                toast.error("Failed to generate video room. Please try again.");
             }
         }
     };

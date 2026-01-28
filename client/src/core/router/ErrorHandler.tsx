@@ -1,5 +1,6 @@
 import { useRouteError } from 'react-router-dom';
 import ErrorPage from '@shared/ui/ErrorPage';
+import { HttpStatusCode } from '@shared/constants/HttpStatusCode';
 
 interface RouteError {
   status?: number;
@@ -14,8 +15,8 @@ const ErrorHandler = () => {
 
   if (error && typeof error === 'object' && 'status' in error) {
     const routeError = error as RouteError;
-    statusCode = routeError.status || 500;
-    if (statusCode === 404) {
+    statusCode = routeError.status || HttpStatusCode.INTERNAL_SERVER_ERROR;
+    if (statusCode === HttpStatusCode.NOT_FOUND) {
       message = 'Page Not Found';
     } else {
       message = routeError.statusText || 'Error';

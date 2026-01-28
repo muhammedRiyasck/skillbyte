@@ -4,7 +4,6 @@ import { CheckCircle, XCircle, UserX, RotateCcw, Trash2, Eye } from "lucide-reac
 
 import Table from "@shared/ui/Table";
 import Modal from "@shared/ui/Modal";
-import { toast } from "sonner";
 import type { Instructor } from "../types/IInstructor";
 import type { IReqestPlayload } from "../types/IReqestPlayload";
 import api from "@/shared/utils/AxiosInstance";
@@ -56,7 +55,6 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
       window.open(`${api.defaults.baseURL}/instructors/${instructorId}/resume`, '_blank');
     } catch (error) {
       console.error('Error opening resume:', error);
-      toast.error('Failed to open resume');
     }
   }, []);
 

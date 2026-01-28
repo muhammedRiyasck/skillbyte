@@ -31,33 +31,18 @@ export const createLesson = async (data: LessonType): Promise<{message:string}> 
 };
 
 export const updateLesson = async (data: {lessonId: string, title?: string, description?: string, resources?: string[]}) => {
-  try {
-    const { lessonId, ...updateData } = data;
-    const response = await api.patch(`/course/lesson/${lessonId}`, updateData);
-    return response.data;
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'An unknown error occurred';
-    throw new Error(message);
-  }
+  const { lessonId, ...updateData } = data;
+  const response = await api.patch(`/course/lesson/${lessonId}`, updateData);
+  return response.data;
 };
 
 export const deleteLesson = async (lessonId: string) => {
-  try {
-    const response = await api.delete(`/course/lesson/${lessonId}`);
-    return response.data;
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'An unknown error occurred';
-    throw new Error(message);
-  }
+  const response = await api.delete(`/course/lesson/${lessonId}`);
+  return response.data;
 };
 
 export const blockLesson = async (lessonId: string, isBlocked: boolean) => {
-  try {
-    const response = await api.patch(`/course/lesson/${lessonId}/block`, { isBlocked });
-    return response.data;
-  } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'An unknown error occurred';
-    throw new Error(message);
-  }
+  const response = await api.patch(`/course/lesson/${lessonId}/block`, { isBlocked });
+  return response.data;
 };
 

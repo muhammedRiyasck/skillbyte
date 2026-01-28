@@ -62,7 +62,6 @@ export default function StudentSignUp () {
       toast.success(response.message);
     } catch (error) {
       console.error('Registration failed:', error);
-      toast.error('Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }

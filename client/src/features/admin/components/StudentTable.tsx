@@ -47,8 +47,8 @@ const StudentTable: React.FC<StudentTableProps> = ({
       queryClient.invalidateQueries({ queryKey: ["students"] });
       toast.success(`User ${modalAction === "unblock" ? "Unblocked" : "Blocked"} Successfully`);
     },
-    onError: (error: unknown) => {
-      toast.error((error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to update student status");
+    onError: () => {
+      // Global toast handles this
     }
   });
 

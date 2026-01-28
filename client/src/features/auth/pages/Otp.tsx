@@ -33,7 +33,7 @@ function Otp() {
         setTime(remaining > 0 ? remaining : 0);
       }
     }
-    // return () => sessionStorage.removeItem("emailForOtp");
+    return () => sessionStorage.removeItem("emailForOtp");
   }, [navigate]);
 
   useEffect(() => {
@@ -105,11 +105,7 @@ function Otp() {
       } else {
         setError("OTP should be 4 digit");
       }
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Something went wrong';
-      toast.error(message);
-      throw err;
-    }finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -136,7 +132,6 @@ function Otp() {
           navigate(ROUTES.auth.instructorRegister);
         }
       }
-      toast.error(message);
       throw err;
     } finally {
       setLoading(false);

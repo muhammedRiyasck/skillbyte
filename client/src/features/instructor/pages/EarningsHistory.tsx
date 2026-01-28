@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getInstructorEarnings } from '../../enrollment/services/EnrollmentService';
-import { toast } from 'sonner';
 import Spiner from '@shared/ui/Spiner';
 import { RefreshCw, TrendingUp, Users, DollarSign, ArrowUpRight } from 'lucide-react';
 
@@ -36,7 +35,7 @@ const EarningsHistory: React.FC = () => {
       setTotalRevenue(data?.data?.statistics?.totalRevenue|| 0);
       setTotalProfit(data?.data?.statistics?.totalProfit|| 0);
     } catch {
-      toast.error('Failed to load earnings data');
+      console.error('Failed to load earnings data');
     } finally {
       setLoading(false);
     }

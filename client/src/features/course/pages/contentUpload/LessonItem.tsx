@@ -122,7 +122,6 @@ export default function LessonItem({ lesson, courseId, moduleId, order, setModul
       }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "An unknown error occurred";
-      toast.error(message);
       throw message;
     }
   };
@@ -178,8 +177,7 @@ export default function LessonItem({ lesson, courseId, moduleId, order, setModul
       toast.success("Lesson deleted successfully");
       setIsDeleteModalOpen(false);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "An unknown error occurred";
-      toast.error(message);
+      console.error("Failed to delete lesson", error);
     }
   }, [lesson.lessonId, moduleId, removeLesson, queryClient, courseId]);
 

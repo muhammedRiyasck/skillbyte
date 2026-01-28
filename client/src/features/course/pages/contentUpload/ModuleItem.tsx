@@ -117,8 +117,7 @@ export default function ModuleItem({ courseId, module, order, moduleLength, setM
       toast.success("Module deleted successfully");
       setIsDeleteModalOpen(false);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "An unknown error occurred";
-      toast.error(message);
+      console.error("Failed to delete module", error);
     }
   }, [module.moduleId, removeModule, queryClient, courseId]);
 

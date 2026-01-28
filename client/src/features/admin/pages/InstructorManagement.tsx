@@ -32,7 +32,7 @@ const InstructorManagement: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['instructors', dropDownValue, page] });
     },
     onError: () => {
-      toast.error("Failed to approve instructor");
+      // Global toast handles this
     }
   });
 
@@ -43,7 +43,7 @@ const InstructorManagement: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['instructors', dropDownValue, page] });
     },
     onError: () => {
-      toast.error("Failed to decline instructor");
+      // Global toast handles this
     }
   });
 
@@ -54,7 +54,7 @@ const InstructorManagement: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['instructors', dropDownValue, page] });
     },
     onError: () => {
-      toast.error("Failed to suspend instructor");
+      // Global toast handles this
     }
   });
 
@@ -65,7 +65,7 @@ const InstructorManagement: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['instructors', dropDownValue, page] });
     },
     onError: () => {
-      toast.error("Failed to re-open instructor account");
+      // Global toast handles this
     }
   });
 
@@ -76,7 +76,7 @@ const InstructorManagement: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['instructors', dropDownValue, page] });
     },
     onError: () => {
-      toast.error("Failed to delete instructor account");
+      // Global toast handles this
     }
   });
 

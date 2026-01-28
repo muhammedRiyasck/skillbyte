@@ -16,7 +16,6 @@ export const PayPalButton: React.FC<PayPalButtonProps> = ({ courseId }) => {
       return result.data.providerResponse.id;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "An unknown error occurred";
-      toast.error(message);
       throw new Error(message);
     }
   };
@@ -32,7 +31,6 @@ export const PayPalButton: React.FC<PayPalButtonProps> = ({ courseId }) => {
       }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "An unknown error occurred";
-      toast.error(message);
       throw new Error(message);
     }
   };

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { toast } from "sonner";
 import { Lock } from "lucide-react";
 
 export const CheckoutForm: React.FC = () => {
@@ -25,7 +24,6 @@ export const CheckoutForm: React.FC = () => {
     });
     if (error) {
       setErrorMessage(error.message || "An unexpected error occurred.");
-      toast.error(error.message || "Payment failed");
       localStorage.removeItem('paymentClicked');
     }
     setIsProcessing(false);

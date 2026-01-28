@@ -1,4 +1,5 @@
-import { Link, useRouteError } from "react-router-dom";
+import { Link, useRouteError } from 'react-router-dom';
+import { HttpStatusCode } from '../constants/HttpStatusCode';
 
 interface RouteError {
   status?: number;
@@ -11,7 +12,7 @@ const NotFound = () => {
      <div className="min-h-screen bg-white dark:bg-gray-900 flex flex-col items-center justify-center px-4 text-center">
       {/* Main Content */}
       <h1 className="text-9xl font-extrabold text-gray-300 dark:text-gray-700 select-none">
-       {error.status || 404}
+       {error.status || HttpStatusCode.NOT_FOUND}
       </h1>
       <h2 className="mt-4 text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
         Page Not Found

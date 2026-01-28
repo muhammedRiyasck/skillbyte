@@ -13,7 +13,7 @@ const StudentManagement: React.FC = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
 
-  const { data, isLoading, isError, error, refetch } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['students', page, search],
     queryFn: () =>
       api.get(`/students/allStudents?page=${page}&limit=${ITEMS_PER_PAGE}&search=${search}`).then(r => r.data?.data),
@@ -23,9 +23,6 @@ const StudentManagement: React.FC = () => {
   const students = data?.students?.data || [];
   const meta = data?.students?.meta;
 
-  if (isError) {
-    toast.error((error as { response?: { data?: { message?: string } } })?.response?.data?.message || "Failed to fetch data");
-  }
 
   return (
     <div className="p-6 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">

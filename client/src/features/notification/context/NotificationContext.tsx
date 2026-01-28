@@ -30,7 +30,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             }
         } catch (error) {
             console.error('Failed to fetch notifications', error);
-            toast.error('Failed to load notifications');
         } finally {
             setIsLoading(false);
         }
@@ -59,7 +58,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             );
         } catch (error) {
             console.error('Failed to mark as read', error);
-            toast.error('Failed to update notification');
         }
     };
 
@@ -71,7 +69,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             toast.success('All notifications marked as read');
         } catch (error) {
              console.error('Failed to mark all as read', error);
-             toast.error('Failed to update notifications');
         }
     };
 

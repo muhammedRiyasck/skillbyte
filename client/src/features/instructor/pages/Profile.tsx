@@ -48,7 +48,6 @@ const Profile: React.FC = () => {
     },
     onError: (err) => {
       console.error(err);
-      toast.error('Failed to update profile');
       setLoading(false);
     },
   });
@@ -92,11 +91,10 @@ const Profile: React.FC = () => {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
         profileUrl = response.data?.data?.url;
-  } catch {
-    toast.error('Failed to upload image');
-    setLoading(false);
-    return;
-  }
+      } catch {
+        setLoading(false);
+        return;
+      }
     }
     const updatedData = { ...formData, profilePictureUrl: profileUrl };
     updateMutation.mutate(updatedData);
@@ -427,7 +425,7 @@ const Profile: React.FC = () => {
                   toast.success('Profile image removed');
                   queryClient.invalidateQueries({ queryKey: ["instructor-profile"] });
                 } catch {
-                  toast.error('Failed to remove image');
+                   // Global toast handles this
                 } finally {
                   setLoading(false);
                 }

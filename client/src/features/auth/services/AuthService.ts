@@ -1,5 +1,4 @@
 import api from "@shared/utils/AxiosInstance";
-import { toast } from "sonner";
 
 import type {
   IresetPassword,
@@ -11,13 +10,8 @@ import type {
 } from "../types/Auth";
 
 export const studentRegister = async (payload: IStudentSignUpPayload) => {
-  try {
-    const response = await api.post("/student/register", payload);
-    return response.data;
-  } catch (error) {
-    toast.error((error as Error).message);
-    throw error;
-  }
+  const response = await api.post("/student/register", payload);
+  return response.data;
 };
 
 export const studentVerifyOtp = async (payload: IotpPayload) => {
@@ -26,53 +20,43 @@ export const studentVerifyOtp = async (payload: IotpPayload) => {
 };
 
 export const instructorRegister = async (payload: IinstrctorSignUpPayload) => {
-  try {
-    const formData = new FormData();
+  const formData = new FormData();
 
-    // Append all fields to FormData
-    Object.entries(payload).forEach(([key, value]) => {
-      if (key === "resume" && value instanceof File) {
-        formData.append("resume", value);
-      } else if (value !== null && value !== undefined) {
-        formData.append(key, String(value));
-      }
-    });
+  // Append all fields to FormData
+  Object.entries(payload).forEach(([key, value]) => {
+    if (key === "resume" && value instanceof File) {
+      formData.append("resume", value);
+    } else if (value !== null && value !== undefined) {
+      formData.append(key, String(value));
+    }
+  });
 
-    const response = await api.post("/instructor/register", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    return response.data;
-  } catch (error) {
-    toast.error((error as Error).message);
-    throw error;
-  }
+  const response = await api.post("/instructor/register", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
 };
 
 export const reapplyInstructor = async (payload: IinstrctorSignUpPayload) => {
-  try {
-    const formData = new FormData();
+  const formData = new FormData();
 
-    // Append all fields to FormData
-    Object.entries(payload).forEach(([key, value]) => {
-      if (key === "resume" && value instanceof File) {
-        formData.append("resume", value);
-      } else if (value !== null && value !== undefined) {
-        formData.append(key, String(value));
-      }
-    });
+  // Append all fields to FormData
+  Object.entries(payload).forEach(([key, value]) => {
+    if (key === "resume" && value instanceof File) {
+      formData.append("resume", value);
+    } else if (value !== null && value !== undefined) {
+      formData.append(key, String(value));
+    }
+  });
 
-    const response = await api.put("/instructor/reapply", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    return response.data;
-  } catch (error) {
-    toast.error((error as Error).message);
-    throw error;
-  }
+  const response = await api.put("/instructor/reapply", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
 };
 
 export const instructorVerifyOtp = async (payload: IotpPayload) => {
@@ -86,46 +70,21 @@ export const resendOtp = async (email: string) => {
 };
 
 export const login = async (payload: IsingInPayload) => {
-  try {
-    const response = await api.post("/auth/login", payload);
-    return response.data;
-  } catch (error) {
-    console.log(error);
-    toast.error((error as Error).message);
-    throw error;
-  }
+  const response = await api.post("/auth/login", payload);
+  return response.data;
 };
 
 export const forgotPassword = async (playload: IforgotPassword) => {
-  try {
-    const response = await api.post("/auth/forgot-password", playload);
-    return response.data;
-  } catch (error) {
-    toast.error((error as Error).message);
-    throw error;
-  }
+  const response = await api.post("/auth/forgot-password", playload);
+  return response.data;
 };
 
 export const resetPassword = async (playload: IresetPassword) => {
-  try {
-    const response = await api.post("/auth/reset-password", playload);
-    return response.data;
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      toast.error(error.message);
-    } else {
-      toast.error("An error occurred");
-    }
-    throw error;
-  }
+  const response = await api.post("/auth/reset-password", playload);
+  return response.data;
 };
 
 export const logout = async () => {
-  try {
-    const response = await api.post("/auth/logout");
-    return response.data;
-  } catch (error) {
-    toast.error("Logout failed. Please try again.");
-    throw error;
-  }
+  const response = await api.post("/auth/logout");
+  return response.data;
 };

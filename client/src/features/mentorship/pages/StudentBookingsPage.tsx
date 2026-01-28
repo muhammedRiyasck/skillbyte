@@ -66,7 +66,6 @@ const StudentBookingsPage = () => {
             }
         } catch (error) {
             console.error(error);
-            toast.error("Failed to load bookings");
         } finally {
             setLoading(false);
             setInitialLoading(false);
@@ -106,12 +105,11 @@ const StudentBookingsPage = () => {
                 // Clean up URL
                 window.history.replaceState({}, document.title, window.location.pathname);
             } else {
-                toast.error("Failed to confirm booking. Please contact support.");
+                // Removed toast.error("Failed to confirm booking. Please contact support.");
             }
         } catch (error) {
             toast.dismiss();
             console.error(error);
-            toast.error("An error occurred during payment confirmation");
         }
     }, [refreshBookings]);
     useEffect(() => {
@@ -157,7 +155,6 @@ const StudentBookingsPage = () => {
             setIsConfirmOpen(false);
         } catch (error) {
             console.error(error);
-            toast.error("Failed to cancel booking");
         } finally {
             setIsCancelling(false);
             setBookingToCancel(null);
@@ -182,7 +179,6 @@ const StudentBookingsPage = () => {
             } catch (error) {
                 toast.dismiss();
                 console.error(error);
-                toast.error("Failed to join video room. It might not be generated yet.");
             }
         }
     };

@@ -46,7 +46,6 @@ const Dashboard: React.FC = () => {
       setTotalCount(data?.data?.totalCount);
     } catch {
       setError('Failed to load enrollment data');
-      toast.error('Failed to load enrollment data');
     } finally {
       setLoading(false);
     }

@@ -160,7 +160,6 @@ const CreateCourse = () => {
         })
         .catch((error) => {
           console.error("Failed to fetch course details:", error);
-          toast.error("Failed to load course data");
         });
     }
   }, [location.state, setValue, getValues, courseId]);
@@ -176,11 +175,7 @@ const CreateCourse = () => {
         navigate(ROUTES.instructor.uploadCourseContent, { state: { courseId, page } });
         toast.success("Course created successfully!");
       } catch (error: unknown) {
-        if (error instanceof Error) {
-          toast.error(error.message || "Something went wrong");
-        } else {
-          toast.error("Something went wrong");
-        }
+        console.error(error);
       } finally {
         setSpining(false);
       }
@@ -212,11 +207,7 @@ const CreateCourse = () => {
       toast.success("Course updated successfully!");
       setIsEditing(false);
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(error.message || "Something went wrong");
-      } else {
-        toast.error("Something went wrong");
-      }
+      console.error(error);
     } finally {
       setSpining(false);
     }
@@ -237,11 +228,7 @@ const CreateCourse = () => {
     
       
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast.error(error.message || "Failed to delete course");
-      } else {
-        toast.error("Failed to delete course");
-      }
+      console.error(error);
     } finally {
       setSpining(false);
     }

@@ -41,8 +41,7 @@ export const CheckoutPage: React.FC = () => {
         const courseData = await getCourseDetails(courseId);
         setCourse(courseData.data);
       } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : "Failed to initialize checkout";
-        toast.error(message);
+        console.error("Failed to initialize checkout", error);
       } finally {
         setIsLoading(false);
       }
@@ -59,8 +58,7 @@ export const CheckoutPage: React.FC = () => {
         const paymentData = await initiateEnrollmentPayment(courseId, 'stripe');
         setClientSecret(paymentData?.data?.providerResponse?.client_secret || paymentData?.data?.clientSecret);
     } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : "Failed to initialize payment";
-        toast.error(message);
+        console.error("Failed to initialize payment", error);
     } finally {
         setIsPaymentInitializing(false);
     }

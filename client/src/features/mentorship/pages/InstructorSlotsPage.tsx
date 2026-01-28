@@ -74,7 +74,6 @@ const InstructorSlotsPage = () => {
             setIsDeleteModalOpen(false);
         } catch (error) {
             console.error("Failed to delete slot", error);
-            toast.error("Failed to delete slot");
         } finally {
             setIsDeleting(false);
             setSlotToDelete(null);

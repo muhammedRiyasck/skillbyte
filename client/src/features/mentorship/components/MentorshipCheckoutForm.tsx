@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { toast } from "sonner";
 import { Lock, Loader2 } from "lucide-react";
 
 interface MentorshipCheckoutFormProps {
@@ -29,7 +28,6 @@ export const MentorshipCheckoutForm: React.FC<MentorshipCheckoutFormProps> = ({ 
 
     if (error) {
       setErrorMessage(error.message || "An unexpected error occurred.");
-      toast.error(error.message || "Payment failed");
     } else {
       onSuccess();
     }

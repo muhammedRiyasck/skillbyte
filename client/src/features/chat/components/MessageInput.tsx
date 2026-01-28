@@ -65,7 +65,6 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage, onTyping, di
       inputRef.current?.focus();
     } catch (error) {
       console.error('Failed to send message:', error);
-      toast.error('Failed to send message');
     } finally {
       setIsSending(false);
     }

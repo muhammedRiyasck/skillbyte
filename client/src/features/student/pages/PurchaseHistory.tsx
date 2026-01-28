@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getStudentPurchases } from '../../enrollment/services/EnrollmentService';
-import { toast } from 'sonner';
 import Spiner from '@shared/ui/Spiner';
 import { RefreshCw, ReceiptText, Calendar, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -37,7 +36,7 @@ const PurchaseHistory: React.FC = () => {
       setPurchases(data?.data?.purchases || []);
       setTotalCount(data?.data?.totalCount || 0);
     } catch {
-      toast.error('Failed to load purchase history');
+      console.error('Failed to load purchase history');
     } finally {
       setIsLoading(false);
     }

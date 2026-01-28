@@ -1,8 +1,17 @@
-import axios, { type AxiosError, type AxiosResponse, type AxiosRequestConfig } from "axios";
+import axios, { type AxiosError, type AxiosResponse } from "axios";
 import { store } from "@core/store/Index";
 import { clearUser } from "@features/auth/AuthSlice";
 import { toast } from "sonner";
 import type { ApiResponse } from "../types/Common";
+import { HttpStatusCode } from "../constants/HttpStatusCode";
+import { isAuthPath } from "../constants/AuthPaths";
+
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    _retry?: boolean;
+    _skipGlobalToast?: boolean;
+  }
+}
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -18,41 +27,39 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config;
     
     // Safety check for originalRequest existence
     if (!originalRequest) {
       return Promise.reject(error);
     }
 
+    const url = originalRequest.url || '';
+    const isAuth = isAuthPath(url);
+
     if (error.response?.data) {
       const errorData = error.response.data as ApiResponse;
-      // Prioritize 'error' field over 'message' because backend puts specific error in 'error' field
-      error.message = typeof errorData === 'string' ? errorData : errorData.error || errorData.message || 'An error occurred';
+      // Prioritize 'error' field then 'message'
+      error.message = typeof errorData === 'string' 
+        ? errorData 
+        : errorData.error || errorData.message || 'An error occurred';
       
-      // Don't show toast for 401s as they are handled by auth flow
-      if (error.response.status !== 401) {
+      // Handle global toast logic
+      // We skip global toast for 401s generally (to avoid spamming on token expiry)
+      // BUT we want to show them for explicit auth actions (like login failure)
+      const skipToast = originalRequest?._skipGlobalToast || 
+        (error.response.status === HttpStatusCode.UNAUTHORIZED && !isAuth);
+      
+      if (!skipToast) {
         toast.error(error.message);
       }
+    } else if (!originalRequest?._skipGlobalToast) {
+      // Handle cases with no response data (e.g., timeout, network error)
+      toast.error(error.message || 'Network error occurred');
     }
 
-    // Check if the error is 401 and we haven't retried yet
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      const url = originalRequest.url || '';
-      
-      // Paths that should NOT trigger a refresh on 401
-      // These are usually paths where 401 means "invalid credentials" or "unauthorized"
-      // rather than "token expired".
-      const isAuthPath = 
-        url.includes('/auth/login') || 
-        url.includes('/admin/login') || 
-        url.includes('/auth/register') ||
-        url.includes('/student/register') ||
-        url.includes('/instructor/register') ||
-        url.includes('/auth/verify-otp') ||
-        url.includes('/auth/refresh-token')
-
-      if (isAuthPath) {
+    if (error.response?.status === HttpStatusCode.UNAUTHORIZED && !originalRequest?._retry) {
+      if (isAuth) {
         // For auth paths, we want the 401 to propagate to the caller 
         // (to show "Invalid credentials" error) instead of attempting a refresh.
         if (url.includes('/auth/refresh-token')) {
@@ -75,9 +82,9 @@ api.interceptors.response.use(
       }
     }
 
-    // Handle other HTTP errors
-    if (typeof error.response?.status === "number" && error.response.status >= 500) {
-      console.error('Server error:', error.message);
+    // Handle other HTTP errors (logging)
+    if (typeof error.response?.status === "number" && error.response.status >= HttpStatusCode.INTERNAL_SERVER_ERROR) {
+      console.error('Critical server error:', error.message);
     }
 
     return Promise.reject(error);

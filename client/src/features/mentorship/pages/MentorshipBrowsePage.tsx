@@ -130,7 +130,6 @@ const MentorshipBrowsePage = () => {
             }
         } catch (error) {
             console.error(error);
-            toast.error("Failed to load available slots");
             setHasMore(false);
         } finally {
             setLoading(false);
