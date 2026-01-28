@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 import { useSocket } from '../../../context/SocketContext';
+import type { RootState } from '../../../core/store/Index';
 import { 
     getUserNotifications, 
     markNotificationAsRead, 
@@ -15,6 +17,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const [totalPages, setTotalPages] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const { socket } = useSocket();
+    const { user, loading: authLoading } = useSelector((state: RootState) => state.auth);
 
     const unreadCount = useMemo(() => notifications.filter(n => !n.isRead).length, [notifications]);
 
@@ -73,8 +76,12 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     };
 
     useEffect(() => {
-        fetchNotifications();
-    }, [fetchNotifications]);
+        if (!authLoading && user) {
+            fetchNotifications();
+        } else if (!authLoading && !user) {
+            setNotifications([]);
+        }
+    }, [fetchNotifications, user, authLoading]);
 
     useEffect(() => {
         if (!socket) return;
