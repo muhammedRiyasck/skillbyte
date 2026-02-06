@@ -3,11 +3,13 @@ import { Server, Socket } from 'socket.io';
 import logger from '../../utils/Logger';
 import { HttpError } from '../../types/HttpError';
 import { HttpStatusCode } from '../../enums/HttpStatusCodes';
+import { VideoSignalingService } from '../video-signaling/VideoSignalingService';
 
 export class SocketService {
   private static instance: SocketService;
   private io: Server | null = null;
   private userSockets: Map<string, string> = new Map(); // Map userId to socketId
+  private videoSignaling: VideoSignalingService = new VideoSignalingService();
 
   private constructor() {}
 
@@ -104,6 +106,11 @@ export class SocketService {
           }
         }
       });
+
+      // Register video signaling handlers
+      if (this.io) {
+        this.videoSignaling.registerHandlers(this.io, socket);
+      }
     });
   }
 
