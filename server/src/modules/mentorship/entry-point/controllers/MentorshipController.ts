@@ -13,6 +13,7 @@ import {
   IGetStudentBookingsUseCase,
   IGetInstructorBookingsUseCase,
   IGenerateVideoRoomUseCase,
+  IValidateVideoRoomAccessUseCase,
 } from '../../application/interfaces/IBookingUseCases';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { HttpError } from '../../../../shared/types/HttpError';
@@ -34,6 +35,7 @@ export class MentorshipController {
     private _getStudentBookingsUseCase: IGetStudentBookingsUseCase,
     private _getInstructorBookingsUseCase: IGetInstructorBookingsUseCase,
     private _generateVideoRoomUseCase: IGenerateVideoRoomUseCase,
+    private _validateVideoRoomAccessUseCase: IValidateVideoRoomAccessUseCase,
   ) {}
 
   /**
@@ -302,5 +304,34 @@ export class MentorshipController {
       roomId,
       roomUrl,
     });
+  };
+
+  /**
+   * Validates video room access for a user.
+   */
+  validateVideoRoomAccess = async (
+    req: Request,
+    res: Response,
+  ): Promise<void> => {
+    const authenticatedReq = req as AuthenticatedRequest;
+    const { roomId } = req.params;
+    const userId = authenticatedReq.user.id;
+    const userRole = authenticatedReq.user.role;
+
+    if (!roomId) {
+      throw new HttpError('Room ID is required', HttpStatusCode.BAD_REQUEST);
+    }
+
+    if (userRole !== 'student' && userRole !== 'instructor') {
+      throw new HttpError('Invalid user role', HttpStatusCode.FORBIDDEN);
+    }
+
+    const result = await this._validateVideoRoomAccessUseCase.execute(
+      roomId,
+      userId,
+      userRole,
+    );
+
+    ApiResponseHelper.success(res, 'Video room access validated', result);
   };
 }

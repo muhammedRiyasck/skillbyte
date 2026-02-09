@@ -33,10 +33,12 @@ export class GenerateVideoRoomUseCase implements IGenerateVideoRoomUseCase {
     }
 
     // Generate unique room ID
-    // Format: skillbyte-mentorship-<bookingId>-<randomString>
-    const randomStr = Math.random().toString(36).substring(7);
-    const roomId = `skillbyte-mentorship-${bookingId}-${randomStr}`;
-    const roomUrl = `https://meet.jit.si/${roomId}`;
+    // Format: skillbyte-mentorship-<bookingId>-<tokening>
+    const uniqueToken = crypto
+      .getRandomValues(new Uint32Array(1))[0]
+      .toString(36);
+    const roomId = `skillbyte-mentorship-${bookingId}-${uniqueToken}`;
+    const roomUrl = `/video-call/${roomId}`; // Internal app route
 
     // Save to database
     await this.bookingRepo.setVideoRoom(bookingId, roomId, roomUrl);

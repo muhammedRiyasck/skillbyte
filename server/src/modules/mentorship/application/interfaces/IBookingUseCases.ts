@@ -40,3 +40,11 @@ export interface ICompleteSessionUseCase {
 export interface IGenerateVideoRoomUseCase {
   execute(bookingId: string): Promise<{ roomId: string; roomUrl: string }>;
 }
+
+export interface IValidateVideoRoomAccessUseCase {
+  execute(
+    roomId: string,
+    userId: string,
+    userRole: 'student' | 'instructor',
+  ): Promise<{ bookingId: string; isValid: boolean }>;
+}

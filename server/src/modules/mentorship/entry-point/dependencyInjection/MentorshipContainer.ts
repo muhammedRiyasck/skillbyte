@@ -14,6 +14,7 @@ import { CancelBookingUseCase } from '../../application/use-cases/CancelBookingU
 import { GetStudentBookingsUseCase } from '../../application/use-cases/GetStudentBookingsUseCase';
 import { GetInstructorBookingsUseCase } from '../../application/use-cases/GetInstructorBookingsUseCase';
 import { GenerateVideoRoomUseCase } from '../../application/use-cases/GenerateVideoRoomUseCase';
+import { ValidateVideoRoomAccessUseCase } from '../../application/use-cases/ValidateVideoRoomAccessUseCase';
 import { initiatePaymentUc } from '../../../payment/entry-point/PaymentContainer';
 
 import { MentorshipFulfillmentService } from '../../application/services/MentorshipFulfillmentService';
@@ -71,6 +72,9 @@ export const getInstructorBookingsUC = new GetInstructorBookingsUseCase(
   bookingRepository,
 );
 const generateVideoRoomUC = new GenerateVideoRoomUseCase(bookingRepository);
+const validateVideoRoomAccessUC = new ValidateVideoRoomAccessUseCase(
+  bookingRepository,
+);
 export { bookingRepository, slotRepository };
 
 // Controller
@@ -87,4 +91,5 @@ export const mentorshipController = new MentorshipController(
   getStudentBookingsUC,
   getInstructorBookingsUC,
   generateVideoRoomUC,
+  validateVideoRoomAccessUC,
 );

@@ -103,4 +103,11 @@ router.get(
   asyncHandler(mentorshipController.generateVideoRoom),
 );
 
+// Validate Video Room Access
+router.post(
+  '/video-room/:roomId/validate',
+  authenticate,
+  asyncHandler(mentorshipController.validateVideoRoomAccess),
+);
+
 export default router;
