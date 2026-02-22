@@ -7,14 +7,18 @@ import ErrorPage from "@shared/ui/ErrorPage";
 
 
 import PublicLayout from "@layouts/auth/PublicLayout.tsx";
+
+import PublicRoute from "./PublicRoute.tsx";
+import ProtectedRoute from "./RoleBaseRoute.tsx";
+
 const Otp = lazy(() => import("@features/auth/pages/Otp.tsx"));
 const ResetPassword = lazy(() => import("@features/auth/pages/ResetPassword.tsx"));
 const OAuthSuccess = lazy(() => import("@/features/auth/hooks/UseOAuthSuccess.tsx"));
 const ForgotPassword = lazy(() => import("@features/auth/pages/ForgotPassword.tsx"));
+const NotificationPage = lazy(() => import("@features/notification/pages/NotificationPage.tsx"));
 const ChatPage = lazy(() => import("@features/chat/pages/ChatPage.tsx"));
+const VideoCallPage = lazy(() => import("@features/video-call/pages/VideoCallPage.tsx"));
 
-import PublicRoute from "./PublicRoute.tsx";
-import ProtectedRoute from "./RoleBaseRoute.tsx";
 
 import AdminLayout from "@layouts/admin/AdminLayout.tsx";
 const AdminSignIn = lazy(() => import("@features/admin/pages/SignIn.tsx"));
@@ -32,8 +36,6 @@ const ContentUploadPage = lazy(() => import("@features/course/pages/contentUploa
 const InstructorCourses = lazy(() => import("@features/course/pages/InstructorCourses.tsx"));
 const InstructorSlotsPage = lazy(() => import("@features/mentorship/pages/InstructorSlotsPage.tsx"));
 const InstructorBookingsPage = lazy(() => import("@features/mentorship/pages/InstructorBookingsPage.tsx"));
-const StudentBookingsPage = lazy(() => import("@features/mentorship/pages/StudentBookingsPage.tsx"));
-const MentorshipBrowsePage = lazy(() => import("@features/mentorship/pages/MentorshipBrowsePage.tsx"));
 
 import StudentLayout from "@layouts/student/StudentLayout.tsx";
 const SignIn = lazy(() => import("@features/auth/pages/SignIn.tsx"));
@@ -45,9 +47,11 @@ const CourseDetails = lazy(() => import("@features/course/pages/CourseDetails.ts
 const CheckoutPage = lazy(() => import("@features/enrollment").then(module => ({ default: module.CheckoutPage })));
 const SuccessPage = lazy(() => import("@features/enrollment").then(module => ({ default: module.SuccessPage })));
 const PurchaseHistory = lazy(() => import("@features/student/pages/PurchaseHistory.tsx"));
-const NotificationPage = lazy(() => import("@features/notification/pages/NotificationPage.tsx"));
+const MentorshipBrowsePage = lazy(() => import("@features/mentorship/pages/MentorshipBrowsePage.tsx"));
+const StudentBookingsPage = lazy(() => import("@features/mentorship/pages/StudentBookingsPage.tsx"));
 
 const router = createBrowserRouter([
+  // auth routes
   {
     path: ROUTES.auth.signIn,
     element: <PublicLayout />,
@@ -116,7 +120,7 @@ const router = createBrowserRouter([
     ],
     errorElement: <ErrorHandler />,
   },
-  //layout is different for otp and reset password
+  //layout are different for below pages
   {
     path: ROUTES.auth.otp,
     element: (
@@ -139,16 +143,27 @@ const router = createBrowserRouter([
     ),
     errorElement: <ErrorHandler />,
   },
-    {
-        path: ROUTES.chat,
-        element: (
-          <ProtectedRoute roles={["student", "instructor"]}>
-            <Fallback>
-              <ChatPage />
-            </Fallback>
-          </ProtectedRoute>
-        ),
-      },
+  {
+    path: ROUTES.chat,
+    element: (
+      <ProtectedRoute roles={["student", "instructor"]}>
+        <Fallback>
+          <ChatPage />
+        </Fallback>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: ROUTES.videoCall,
+    element: (
+      <ProtectedRoute roles={["student", "instructor"]}>
+        <Fallback>
+          <VideoCallPage />
+        </Fallback>
+      </ProtectedRoute>
+    ),
+  },
+  // student routes
   {
     path: ROUTES.root,
     element: <StudentLayout />,
@@ -245,6 +260,7 @@ const router = createBrowserRouter([
       },
     ],
   },
+  // course detail page
    {
     path: ROUTES.course.details,
     element: (
@@ -255,6 +271,7 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+  // instructor routes
   {
     path: ROUTES.instructor.dashboard,
     element: <InstructorLayout />,
@@ -346,6 +363,7 @@ const router = createBrowserRouter([
     path: "*",
     element: <ErrorPage message="Page Not Found" statusCode={404} />,
   },
+  // admin routes
   {
     path: ROUTES.admin.signIn,
     element: <AdminLayout />,

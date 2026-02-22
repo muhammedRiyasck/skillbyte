@@ -1,10 +1,11 @@
-// Centralized route constants and helpers
+// Centralized route constants
 
 export const ROUTES = {
   root: '/',
   notFound: '/404',
   notifications: '/notifications',
   chat: '/chat',
+  videoCall: '/video-call/:roomId',
 
   auth: {
     signIn: '/auth',
