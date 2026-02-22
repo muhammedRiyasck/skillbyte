@@ -24,7 +24,7 @@ const StudentBookingsPage = () => {
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
     const [isCancelling, setIsCancelling] = useState(false);
-    const [cantRefund,setCantRefund] = useState(false)
+    const [cantRefund, setCantRefund] = useState(false)
 
     const lastBookingElementRef = useCallback((node: HTMLDivElement | null) => {
         if (loading) return;
@@ -49,7 +49,7 @@ const StudentBookingsPage = () => {
             }
 
             const data = await getStudentBookings(filters);
-            
+
             if (isRefresh) {
                 setBookings(data);
                 setHasMore(data.length === ITEMS_PER_PAGE);
@@ -73,55 +73,55 @@ const StudentBookingsPage = () => {
     };
 
     useEffect(() => {
-        if (page > 1) {
-            fetchBookings(page, false, statusFilter);
+        window.scrollTo(0, 0);
+    }, []);
+
+    const refreshBookings = useCallback(() => {
+        if (page === 1) {
+            fetchBookings(1, true, statusFilter);
+        } else {
+            setPage(1);
+            setHasMore(true);
         }
     }, [page, statusFilter]);
 
-    const handleStatusChange = (newStatus: string) => {
-        setStatusFilter(newStatus);
-        setPage(1);
-        setHasMore(true);
-        fetchBookings(1, true, newStatus);
-    };
-
-    const refreshBookings = useCallback(() => {
-        setPage(1);
-        setHasMore(true);
-        fetchBookings(1, true, statusFilter);
-    }, [statusFilter]);
-
-    
     const handlePayPalCapture = useCallback(async (orderId: string) => {
         try {
             toast.loading("Confirming your booking...");
             const { capturePayPalPayment } = await import("@features/enrollment/services/EnrollmentService");
             const result = await capturePayPalPayment(orderId);
             toast.dismiss();
-            
+
             if (result.success) {
                 toast.success("Mentorship booking confirmed!");
                 refreshBookings();
                 // Clean up URL
                 window.history.replaceState({}, document.title, window.location.pathname);
-            } else {
-                // Removed toast.error("Failed to confirm booking. Please contact support.");
             }
         } catch (error) {
             toast.dismiss();
             console.error(error);
         }
     }, [refreshBookings]);
-    useEffect(() => {
-        fetchBookings(1, true, statusFilter);
 
-        // Handle PayPal return
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token');
-        if (token) {
-            handlePayPalCapture(token);
+    useEffect(() => {
+        fetchBookings(page, page === 1, statusFilter);
+
+        // Handle PayPal return on initial mount
+        if (page === 1) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            if (token) {
+                handlePayPalCapture(token);
+            }
         }
-    }, [handlePayPalCapture, statusFilter]);
+    }, [page, statusFilter, handlePayPalCapture]);
+
+    const handleStatusChange = (newStatus: string) => {
+        setStatusFilter(newStatus);
+        setPage(1);
+        setHasMore(true);
+    };
 
     const handleCancelClick = (bookingId: string) => {
         const booking = bookings.find(b => b.bookingId === bookingId);
@@ -140,7 +140,7 @@ const StudentBookingsPage = () => {
                 return;
             }
         }
-        
+
         setCantRefund(false);
         setIsConfirmOpen(true);
     };
@@ -165,21 +165,24 @@ const StudentBookingsPage = () => {
         const booking = bookings.find(b => b.bookingId === bookingId);
         if (!booking) return;
 
-        if (booking.videoRoomUrl) {
-            window.open(booking.videoRoomUrl, '_blank', 'noopener,noreferrer');
-        } else {
-            try {
-                toast.loading("Joining video room...");
-                const { roomUrl } = await generateVideoRoom(bookingId);
+        try {
+            // Generate video room if not exists
+            if (!booking.videoRoomUrl) {
+                toast.loading("Preparing video room...");
+                const { roomUrl, roomId } = await generateVideoRoom(bookingId);
                 toast.dismiss();
-                
-                setBookings(prev => prev.map(b => b.bookingId === bookingId ? { ...b, videoRoomUrl: roomUrl } : b));
-                
-                window.open(roomUrl, '_blank', 'noopener,noreferrer');
-            } catch (error) {
-                toast.dismiss();
-                console.error(error);
+                setBookings(prev => prev.map(b => b.bookingId === bookingId ? { ...b, videoRoomUrl: roomUrl, videoRoomId: roomId } : b));
             }
+
+            // Extract roomId from videoRoomUrl (format: /video-call/{roomId})
+            const roomId = booking.videoRoomId || booking.videoRoomUrl?.split('/').pop();
+            if (roomId) {
+                navigate(ROUTES.videoCall.replace(':roomId', roomId));
+            }
+        } catch (error) {
+            toast.dismiss();
+            toast.error("Failed to join video call");
+            console.error(error);
         }
     };
 
@@ -202,7 +205,7 @@ const StudentBookingsPage = () => {
                                 className="w-full md:w-48 pl-9 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:text-white appearance-none cursor-pointer hover:border-indigo-300 transition-colors shadow-sm"
                                 value={statusFilter}
                                 onChange={(e) => handleStatusChange(e.target.value)}
-                            >   
+                            >
                                 <option value="all">All Status</option>
                                 <option value="pending">Pending</option>
                                 <option value="confirmed">Confirmed</option>
@@ -233,15 +236,15 @@ const StudentBookingsPage = () => {
                 ) : bookings.length === 0 ? (
                     <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 shadow-sm">
                         <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded-full w-fit mx-auto mb-4">
-                           <Filter className="w-8 h-8 text-gray-400" />
-                       </div>
+                            <Filter className="w-8 h-8 text-gray-400" />
+                        </div>
                         <p className="text-gray-500 dark:text-gray-400">
-                            {statusFilter !== 'all' 
-                                ? `No ${statusFilter} bookings found.` 
+                            {statusFilter !== 'all'
+                                ? `No ${statusFilter} bookings found.`
                                 : "You haven't booked any sessions yet."}
                         </p>
                         {statusFilter === 'all' && (
-                            <button 
+                            <button
                                 onClick={() => navigate(ROUTES.student.mentorship.browse)}
                                 className="mt-4 text-indigo-600 cursor-pointer font-medium hover:underline"
                             >
@@ -249,7 +252,7 @@ const StudentBookingsPage = () => {
                             </button>
                         )}
                         {statusFilter !== 'all' && (
-                            <button 
+                            <button
                                 onClick={() => handleStatusChange('all')}
                                 className="mt-4 text-indigo-600 cursor-pointer font-medium hover:underline"
                             >
@@ -264,8 +267,8 @@ const StudentBookingsPage = () => {
                                 if (bookings.length === index + 1) {
                                     return (
                                         <div ref={lastBookingElementRef} key={booking.bookingId}>
-                                            <BookingCard 
-                                                booking={booking} 
+                                            <BookingCard
+                                                booking={booking}
                                                 onCancel={handleCancelClick}
                                                 onJoinSession={handleJoinSession}
                                                 userRole="student"
@@ -274,9 +277,9 @@ const StudentBookingsPage = () => {
                                     );
                                 } else {
                                     return (
-                                        <BookingCard 
-                                            key={booking.bookingId} 
-                                            booking={booking} 
+                                        <BookingCard
+                                            key={booking.bookingId}
+                                            booking={booking}
                                             onCancel={handleCancelClick}
                                             onJoinSession={handleJoinSession}
                                             userRole="student"
@@ -311,7 +314,7 @@ const StudentBookingsPage = () => {
                     <p className="text-gray-600 dark:text-gray-400">
                         Are you sure you want to cancel this mentorship session?
                     </p>
-                    
+
                     {selectedBooking?.amount && selectedBooking.amount > 0 ? (
                         <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-sm text-green-700 dark:text-green-300">
                             <p className="font-semibold">You are eligible for a full refund.</p>
@@ -329,21 +332,21 @@ const StudentBookingsPage = () => {
                 isOpen={cantRefund}
                 onClose={() => setCantRefund(false)}
                 title="No Refund"
-                onConfirm={()=>setCantRefund(false)}
+                onConfirm={() => setCantRefund(false)}
                 confirmLabel="Understood"
                 cancelLabel="Close"
-            >   
-              <div className="space-y-3">
-                <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg text-sm text-amber-700 dark:text-amber-300">
-                    <p className="font-semibold">No refund will be issued.</p>
-                    <p className="text-xs mt-1">Cancellation is within 24 hours of the session start time.</p>
-                </div>
-                <div className="p-3 bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300">
-                  <p className="font-semibold">No further action is required at this time.</p>
-                  <p className="text-sm mt-1">
-                    No changes were made due to the cancellation timing.
-                  </p>
-                </div>
+            >
+                <div className="space-y-3">
+                    <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg text-sm text-amber-700 dark:text-amber-300">
+                        <p className="font-semibold">No refund will be issued.</p>
+                        <p className="text-xs mt-1">Cancellation is within 24 hours of the session start time.</p>
+                    </div>
+                    <div className="p-3 bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300">
+                        <p className="font-semibold">No further action is required at this time.</p>
+                        <p className="text-sm mt-1">
+                            No changes were made due to the cancellation timing.
+                        </p>
+                    </div>
                 </div>
 
             </Modal>

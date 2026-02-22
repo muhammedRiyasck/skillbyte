@@ -5,8 +5,11 @@ import { getInstructorBookings, cancelBooking, generateVideoRoom } from "../serv
 import type { IMentorshipBooking, InstructorBookingFilters } from "../types/mentorshipTypes";
 import { BookingCard } from "../components/BookingCard";
 import Modal from "@shared/ui/Modal";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@/core/router/paths";
 
 const InstructorBookingsPage = () => {
+    const navigate = useNavigate();
     const [bookings, setBookings] = useState<IMentorshipBooking[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -27,7 +30,7 @@ const InstructorBookingsPage = () => {
             setLoading(true);
             const data = await getInstructorBookings(filters);
             setBookings(data);
-            
+
             // Simple check for pagination end
             if (data.length < (filters.limit || 10)) {
                 setHasMore(false);
@@ -62,7 +65,7 @@ const InstructorBookingsPage = () => {
 
     const handlePageChange = (newPage: number) => {
         setFilters(prev => ({ ...prev, page: newPage }));
-        window.scrollTo({ top: 0, behavior: 'smooth' }); 
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleCancelClick = (bookingId: string) => {
@@ -90,20 +93,25 @@ const InstructorBookingsPage = () => {
         const booking = bookings.find(b => b.bookingId === bookingId);
         if (!booking) return;
 
-        if (booking.videoRoomUrl) {
-            window.open(booking.videoRoomUrl, '_blank', 'noopener,noreferrer');
-        } else {
-            try {
+        try {
+            // Generate video room if not exists
+            if (!booking.videoRoomUrl) {
                 toast.loading("Generating your secure video room...");
-                const { roomUrl } = await generateVideoRoom(bookingId);
+                const { roomUrl, roomId } = await generateVideoRoom(bookingId);
                 toast.dismiss();
-                toast.success("Room ready! Opening...");
-                setBookings(prev => prev.map(b => b.bookingId === bookingId ? { ...b, videoRoomUrl: roomUrl } : b));
-                window.open(roomUrl, '_blank', 'noopener,noreferrer');
-            } catch (error) {
-                toast.dismiss();
-                console.error(error);
+                toast.success("Room ready!");
+                setBookings(prev => prev.map(b => b.bookingId === bookingId ? { ...b, videoRoomUrl: roomUrl, videoRoomId: roomId } : b));
             }
+
+            // Extract roomId from videoRoomUrl (format: /video-call/{roomId})
+            const roomId = booking.videoRoomId || booking.videoRoomUrl?.split('/').pop();
+            if (roomId) {
+                navigate(ROUTES.videoCall.replace(':roomId', roomId));
+            }
+        } catch (error) {
+            toast.dismiss();
+            toast.error("Failed to join video call");
+            console.error(error);
         }
     };
 
@@ -163,14 +171,14 @@ const InstructorBookingsPage = () => {
                                 {filters.status
                                     ? `You don't have any ${filters.status} bookings. Try changing the filter.`
                                     : "You haven't received any bookings yet."}
-                            </p></> : <p className="text-gray-500 max-w-md">Go Back To The Previous Page.<br/>No More Bookings To Show.</p>}
+                            </p></> : <p className="text-gray-500 max-w-md">Go Back To The Previous Page.<br />No More Bookings To Show.</p>}
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in duration-500">
                         {bookings.map(booking => (
-                            <BookingCard 
-                                key={booking.bookingId} 
-                                booking={booking} 
+                            <BookingCard
+                                key={booking.bookingId}
+                                booking={booking}
                                 onCancel={handleCancelClick}
                                 onJoinSession={handleJoinSession}
                                 userRole="instructor"
@@ -185,16 +193,15 @@ const InstructorBookingsPage = () => {
                         <button
                             onClick={() => handlePageChange((filters.page || 1) - 1)}
                             disabled={(filters.page || 1) <= 1 || loading}
-                            className={`flex items-center  gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                                (filters.page || 1) <= 1 
-                                    ? 'text-gray-300 dark:text-gray-600 bg-gray-50 dark:bg-gray-800/50 cursor-not-allowed'
-                                    : 'text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm cursor-pointer'
-                            }`}
+                            className={`flex items-center  gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${(filters.page || 1) <= 1
+                                ? 'text-gray-300 dark:text-gray-600 bg-gray-50 dark:bg-gray-800/50 cursor-not-allowed'
+                                : 'text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm cursor-pointer'
+                                }`}
                         >
                             <ChevronLeft size={16} />
                             Previous
                         </button>
-                        
+
                         <span className="text-sm font-semibold text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-lg">
                             Page {filters.page || 1}
                         </span>
@@ -202,11 +209,10 @@ const InstructorBookingsPage = () => {
                         <button
                             onClick={() => handlePageChange((filters.page || 1) + 1)}
                             disabled={!hasMore || loading}
-                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                                !hasMore
-                                    ? 'text-gray-300 dark:text-gray-600 bg-gray-50 dark:bg-gray-800/50 cursor-not-allowed'
-                                    : 'text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm cursor-pointer'
-                            }`}
+                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${!hasMore
+                                ? 'text-gray-300 dark:text-gray-600 bg-gray-50 dark:bg-gray-800/50 cursor-not-allowed'
+                                : 'text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm cursor-pointer'
+                                }`}
                         >
                             Next
                             <ChevronRight size={16} />
@@ -227,7 +233,7 @@ const InstructorBookingsPage = () => {
                     <p className="text-gray-600 dark:text-gray-400">
                         Are you sure you want to cancel this session?
                     </p>
-                    
+
                     {bookingToCancel && (() => {
                         const booking = bookings.find(b => b.bookingId === bookingToCancel);
                         if (booking && booking.amount > 0 && booking.status === 'confirmed') {

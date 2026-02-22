@@ -128,19 +128,19 @@ export const BookingCard = ({ booking, onJoinSession, onCancel, userRole }: Book
          )}
          
          {isCancelled && (
-             <button disabled className="w-full cursor-not-allowed py-2 bg-gray-100 dark:bg-gray-700 text-gray-400 rounded-lg text-sm cursor-not-allowed">
+             <button disabled className="w-full py-2 bg-gray-100 dark:bg-gray-700 text-gray-400 rounded-lg text-sm cursor-not-allowed">
                  Cancelled
              </button>
          )}
          
           {isCompleted && (
-             <button disabled className="w-full cursor-not-allowed py-2 bg-gray-100 dark:bg-gray-700 text-gray-500 rounded-lg text-sm cursor-not-allowed flex items-center justify-center gap-2">
+             <button disabled className="w-full  py-2 bg-gray-100 dark:bg-gray-700 text-gray-500 rounded-lg text-sm cursor-not-allowed flex items-center justify-center gap-2">
                  Completed
              </button>
          )}
 
          {booking.status === 'refunded' && (
-             <button disabled className="w-full cursor-not-allowed py-2 bg-gray-100 dark:bg-gray-700 text-gray-500 rounded-lg text-sm cursor-not-allowed flex items-center justify-center gap-2">
+             <button disabled className="w-full  py-2 bg-gray-100 dark:bg-gray-700 text-gray-500 rounded-lg text-sm cursor-not-allowed flex items-center justify-center gap-2">
                  Refunded
              </button>
          )}
