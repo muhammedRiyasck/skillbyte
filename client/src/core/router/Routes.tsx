@@ -163,6 +163,16 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+   {
+        path: ROUTES.notifications,
+        element: (
+          <ProtectedRoute roles={["student","instructor"]}>
+            <Fallback>
+              <NotificationPage />
+            </Fallback>
+          </ProtectedRoute>
+        ),
+      },
   // student routes
   {
     path: ROUTES.root,
@@ -224,16 +234,6 @@ const router = createBrowserRouter([
           <ProtectedRoute roles={["student"]}>
             <Fallback>
               <EnrolledCourses />
-            </Fallback>
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: ROUTES.notifications,
-        element: (
-          <ProtectedRoute roles={["student"]}>
-            <Fallback>
-              <NotificationPage />
             </Fallback>
           </ProtectedRoute>
         ),

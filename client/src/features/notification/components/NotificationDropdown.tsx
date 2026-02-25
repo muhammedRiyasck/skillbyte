@@ -4,7 +4,6 @@ import { useNotifications } from '../hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../../../core/router/paths';
-import { sendTestNotification } from '../services/NotificationService';
 
 const NotificationDropdown = () => {
     const { 
@@ -36,14 +35,6 @@ const NotificationDropdown = () => {
         };
     }, [isOpen, refreshNotifications]);
 
-    const handleSendTest = async () => {
-        try {
-            await sendTestNotification();
-            // Notification will be received via socket and added to context state
-        } catch (error) {
-            console.error('Failed to send test notification', error);
-        }
-    };
 
     const toggleDropdown = () => setIsOpen(!isOpen);
 
@@ -122,10 +113,8 @@ const NotificationDropdown = () => {
                    </div>
                    
                    <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800 px-4">
-                        <button onClick={handleSendTest} className="text-xs cursor-pointer text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-                            Test Notification
-                        </button>
-                        <Link to={ROUTES.notifications} onClick={() => setIsOpen(false)} className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">
+                        
+                        <Link to={ROUTES.notifications} onClick={() => setIsOpen(false)} className="text-sm ml-auto text-indigo-600 dark:text-indigo-400 hover:underline">
                             View all
                         </Link>
                    </div>

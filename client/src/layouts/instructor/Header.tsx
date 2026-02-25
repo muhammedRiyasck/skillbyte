@@ -10,6 +10,7 @@ import { logout } from "@features/auth/services/AuthService";
 import { clearUser } from "@features/auth/AuthSlice";
 import { toast } from "sonner";
 import { useChat } from "@features/chat/hooks/useChat";
+import NotificationDropdown from "@/features/notification/components/NotificationDropdown";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,6 +34,7 @@ const Header = () => {
             </Link>
           </div>
           <div className="flex gap-4">
+            <NotificationDropdown />
             <ThemeToggle />
             {user && (
               <button className=" focus:outline-none dark:text-white cursor-pointer" onClick={() => setIsOpen(!isOpen)}>

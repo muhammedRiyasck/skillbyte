@@ -40,7 +40,4 @@ export const markAllNotificationsAsRead = async (): Promise<ApiResponse<void>> =
   return response.data;
 };
 
-export const sendTestNotification = async (): Promise<ApiResponse<Notification>> => {
-  const response = await api.post('/notifications/test');
-  return response.data;
-};
+
