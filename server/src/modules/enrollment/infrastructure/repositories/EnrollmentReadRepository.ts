@@ -48,6 +48,14 @@ export class EnrollmentReadRepository
     return doc ? this.toEntity(doc) : null;
   }
 
+  async findStudentIdsByCourseId(courseId: string): Promise<string[]> {
+    const docs = await this.model
+      .find({ courseId, status: 'active' })
+      .select('userId')
+      .lean();
+    return docs.map((doc) => doc.userId.toString());
+  }
+
   async findEnrollmentsForUser(
     userId: string,
     courseIds: string[],

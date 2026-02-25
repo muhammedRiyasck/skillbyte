@@ -11,7 +11,10 @@ const courseRepository = new CourseRepository();
 const moduleRepository = new ModuleRepository();
 const lessonRepository = new LessonRepository();
 
-const createModuleUC = new CreateModuleUseCase(moduleRepository);
+const createModuleUC = new CreateModuleUseCase(
+  moduleRepository,
+  courseRepository,
+);
 
 const updateModuleUseCase = new UpdateModuleUseCase(
   moduleRepository,

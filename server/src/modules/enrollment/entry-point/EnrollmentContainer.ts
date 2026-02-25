@@ -9,11 +9,13 @@ import { EnrollmentFulfillmentService } from '../application/services/Enrollment
 import { InitiateEnrollmentPaymentUseCase } from '../application/use-cases/InitiateEnrollmentPaymentUseCase';
 import { initiatePaymentUc } from '../../payment/entry-point/PaymentContainer';
 import { LessonRepository } from '../../course/infrastructure/repositories/LessonRepository';
+import { CourseRepository } from '../../course/infrastructure/repositories/CourseRepository';
 
 // Initialize repositories
 const enrollmentReadRepo = new EnrollmentReadRepository();
 const enrollmentWriteRepo = new EnrollmentWriteRepository();
 const lessonRepo = new LessonRepository();
+const courseRepo = new CourseRepository();
 
 // Initialize use cases with split repository interfaces
 const checkEnrollmentUc = new CheckEnrollmentUseCase(enrollmentReadRepo);
@@ -36,6 +38,7 @@ const initiateEnrollmentPaymentUc = new InitiateEnrollmentPaymentUseCase(
 const enrollmentFulfillmentService = new EnrollmentFulfillmentService(
   enrollmentReadRepo,
   enrollmentWriteRepo,
+  courseRepo,
 );
 
 export const enrollmentController = new EnrollmentController(

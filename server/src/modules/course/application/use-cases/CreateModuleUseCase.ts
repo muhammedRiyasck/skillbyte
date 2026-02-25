@@ -1,8 +1,11 @@
 import mongoose from 'mongoose';
 import { Module } from '../../domain/entities/Module';
 import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
+import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
 import { ICreateModuleUseCase } from '../interfaces/ICreateModuleUseCase';
 import { CreateModuleDto } from '../dtos/ModuleDtos';
+import { eventBus } from '../../../../shared/services/event-bus/EventBus';
+import { COURSE_EVENTS } from '../../../../shared/services/event-bus/CourseEvents';
 
 /**
  * Use case for creating a new module.
@@ -12,8 +15,12 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
   /**
    * Constructs a new CreateModuleUseCase instance.
    * @param _moduleRepo - The repository for module data operations.
+   * @param _courseRepo - The repository for course data operations.
    */
-  constructor(private _moduleRepo: IModuleRepository) {}
+  constructor(
+    private _moduleRepo: IModuleRepository,
+    private _courseRepo?: ICourseRepository,
+  ) {}
 
   /**
    * Executes the module creation logic.
@@ -28,9 +35,11 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
       mongoose.Types.ObjectId.isValid(dto.moduleId) &&
       String(new mongoose.Types.ObjectId(dto.moduleId)) === dto.moduleId;
 
+    let savedModule: Module | null = null;
+
     // If moduleId is not a valid ObjectId, create a new module
     if (!isObjectId) {
-      return await this._moduleRepo.save({
+      savedModule = await this._moduleRepo.save({
         courseId: dto.courseId,
         title: dto.title!,
         description: dto.description || '',
@@ -42,7 +51,7 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
 
       // Create the module only if it does not exist, to prevent duplicates when adding lessons
       if (!isModuleExist) {
-        return await this._moduleRepo.save({
+        savedModule = await this._moduleRepo.save({
           courseId: dto.courseId,
           title: dto.title!,
           description: dto.description || '',
@@ -51,7 +60,19 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
       }
     }
 
-    // Return null if no module was created (e.g., module already exists)
-    return null;
+    // Emit event if a new module was created
+    if (savedModule && this._courseRepo) {
+      const course = await this._courseRepo.findById(dto.courseId);
+      if (course) {
+        eventBus.emit(COURSE_EVENTS.MODULE_CREATED, {
+          courseId: dto.courseId,
+          courseTitle: course.title,
+          moduleTitle: dto.title!,
+          instructorId: course.instructorId,
+        });
+      }
+    }
+
+    return savedModule;
   }
 }

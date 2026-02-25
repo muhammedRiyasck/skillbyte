@@ -6,6 +6,8 @@ import { Lesson } from '../../domain/entities/Lesson';
 import { ICreateLessonUseCase } from '../interfaces/ICreateLessonUseCase';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
+import { eventBus } from '../../../../shared/services/event-bus/EventBus';
+import { COURSE_EVENTS } from '../../../../shared/services/event-bus/CourseEvents';
 
 type WithInstructorId<T> = T & { instructorId: string };
 
@@ -71,6 +73,16 @@ export class CreateLessonUseCase implements ICreateLessonUseCase {
       dto.isPublished || false,
     );
 
-    return await this._lessonRepo.create(lesson);
+    const savedLesson = await this._lessonRepo.create(lesson);
+
+    // Emit event so enrolled students get notified
+    eventBus.emit(COURSE_EVENTS.LESSON_CREATED, {
+      courseId: course.courseId!,
+      courseTitle: course.title,
+      lessonTitle: dto.title,
+      instructorId: dto.instructorId,
+    });
+
+    return savedLesson;
   }
 }

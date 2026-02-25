@@ -5,6 +5,8 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
+import { eventBus } from '../../../../shared/services/event-bus/EventBus';
+import { COURSE_EVENTS } from '../../../../shared/services/event-bus/CourseEvents';
 
 export class UpdateCourseStatusUseCase implements IUpdateCourseStatusUseCase {
   constructor(
@@ -48,5 +50,18 @@ export class UpdateCourseStatusUseCase implements IUpdateCourseStatusUseCase {
     }
 
     await this._courseRepo.updateStatus(courseId, status);
+
+    // Emit event so enrolled students get notified
+    const eventPayload = {
+      courseId,
+      courseTitle: course.title,
+      instructorId,
+    };
+
+    if (status === 'list') {
+      eventBus.emit(COURSE_EVENTS.COURSE_PUBLISHED, eventPayload);
+    } else {
+      eventBus.emit(COURSE_EVENTS.COURSE_UNLISTED, eventPayload);
+    }
   }
 }

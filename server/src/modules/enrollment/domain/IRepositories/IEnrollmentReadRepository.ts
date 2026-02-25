@@ -6,6 +6,7 @@ import { IEnrollmentFilters } from '../../types/IInstructorEnrollment';
 
 export interface IEnrollmentReadRepository {
   findEnrollment(userId: string, courseId: string): Promise<IEnrollment | null>;
+  findStudentIdsByCourseId(courseId: string): Promise<string[]>;
   findEnrollmentsForUser(
     userId: string,
     courseIds: string[],

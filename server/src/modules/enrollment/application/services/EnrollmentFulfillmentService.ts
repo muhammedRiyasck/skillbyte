@@ -5,12 +5,15 @@ import {
   PAYMENT_EVENTS,
   PaymentSucceededEvent,
 } from '../../../../shared/services/event-bus/PaymentEvents';
+import { COURSE_EVENTS } from '../../../../shared/services/event-bus/CourseEvents';
+import { ICourseRepository } from '../../../course/domain/IRepositories/ICourseRepository';
 import logger from '../../../../shared/utils/Logger';
 
 export class EnrollmentFulfillmentService {
   constructor(
     private enrollmentReadRepo: IEnrollmentReadRepository,
     private enrollmentWriteRepo: IEnrollmentWriteRepository,
+    private courseRepo?: ICourseRepository,
   ) {
     this.registerEventListeners();
   }
@@ -59,6 +62,19 @@ export class EnrollmentFulfillmentService {
       logger.info(
         `Enrollment created for user ${event.userId} and course ${event.courseId}`,
       );
+
+      // Emit enrollment created event to notify the instructor
+      if (this.courseRepo && event.courseId) {
+        const course = await this.courseRepo.findById(event.courseId);
+        if (course) {
+          eventBus.emit(COURSE_EVENTS.ENROLLMENT_CREATED, {
+            courseId: event.courseId,
+            courseTitle: course.title,
+            studentId: event.userId,
+            instructorId: course.instructorId,
+          });
+        }
+      }
     } catch (error) {
       logger.error(
         'Error in EnrollmentFulfillmentService.handlePaymentSucceeded:',
