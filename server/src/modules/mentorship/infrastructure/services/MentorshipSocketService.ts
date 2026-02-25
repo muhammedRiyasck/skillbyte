@@ -1,5 +1,5 @@
 import { eventBus } from '../../../../shared/services/event-bus/EventBus';
-import { SocketService } from '../../../../shared/services/socket-service.ts/SocketService'; // Using the weird path I found
+import { SocketService } from '../../../../shared/services/socket-service.ts/SocketService';
 import {
   MENTORSHIP_EVENTS,
   MentorshipBookingCreatedEvent,
@@ -8,6 +8,9 @@ import {
 } from '../../../../shared/services/event-bus/MentorshipEvents';
 import logger from '../../../../shared/utils/Logger';
 
+/**
+ * Handles real-time mentorship-specific socket events for live UI updates
+ */
 export class MentorshipSocketService {
   private socketService: SocketService;
 
@@ -33,16 +36,14 @@ export class MentorshipSocketService {
 
   private handleBookingConfirmed(payload: unknown) {
     const event = payload as MentorshipBookingConfirmedEvent;
-    logger.info(`Notifying users of confirmed booking: ${event.bookingId}`);
+    logger.info(`Emitting booking confirmed event: ${event.bookingId}`);
 
-    // Notify Instructor
+    // Emit mentorship-specific events for live UI updates (refreshing booking lists)
     this.socketService.emitToUser(
       event.instructorId,
       'mentorship:booking_confirmed',
       event,
     );
-
-    // Notify Student
     this.socketService.emitToUser(
       event.studentId,
       'mentorship:booking_confirmed',
@@ -52,14 +53,13 @@ export class MentorshipSocketService {
 
   private handleBookingCancelled(payload: unknown) {
     const event = payload as MentorshipBookingCancelledEvent;
-    logger.info(`Notifying users of cancelled booking: ${event.bookingId}`);
+    logger.info(`Emitting booking cancelled event: ${event.bookingId}`);
 
     this.socketService.emitToUser(
       event.instructorId,
       'mentorship:booking_cancelled',
       event,
     );
-
     this.socketService.emitToUser(
       event.studentId,
       'mentorship:booking_cancelled',
@@ -71,7 +71,7 @@ export class MentorshipSocketService {
     const event = payload as MentorshipBookingCreatedEvent;
     this.socketService.emitToUser(
       event.instructorId,
-      'mentorship:booking_created', // Payload pending
+      'mentorship:booking_created',
       event,
     );
   }
