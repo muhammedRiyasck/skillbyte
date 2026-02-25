@@ -4,12 +4,34 @@ import {
   PaymentSucceededEvent,
   PaymentFailedEvent,
 } from './PaymentEvents';
+import {
+  MENTORSHIP_EVENTS,
+  MentorshipBookingCreatedEvent,
+  MentorshipBookingConfirmedEvent,
+  MentorshipBookingCancelledEvent,
+} from './MentorshipEvents';
+import {
+  COURSE_EVENTS,
+  LessonCreatedEvent,
+  ModuleCreatedEvent,
+  CoursePublishedEvent,
+  CourseUnlistedEvent,
+  EnrollmentCreatedEvent,
+} from './CourseEvents';
 
 // Centralized type mapping for all application events
 export interface AppEvents {
   [key: string]: unknown;
   [PAYMENT_EVENTS.PAYMENT_SUCCEEDED]: PaymentSucceededEvent;
   [PAYMENT_EVENTS.PAYMENT_FAILED]: PaymentFailedEvent;
+  [MENTORSHIP_EVENTS.BOOKING_CREATED]: MentorshipBookingCreatedEvent;
+  [MENTORSHIP_EVENTS.BOOKING_CONFIRMED]: MentorshipBookingConfirmedEvent;
+  [MENTORSHIP_EVENTS.BOOKING_CANCELLED]: MentorshipBookingCancelledEvent;
+  [COURSE_EVENTS.LESSON_CREATED]: LessonCreatedEvent;
+  [COURSE_EVENTS.MODULE_CREATED]: ModuleCreatedEvent;
+  [COURSE_EVENTS.COURSE_PUBLISHED]: CoursePublishedEvent;
+  [COURSE_EVENTS.COURSE_UNLISTED]: CourseUnlistedEvent;
+  [COURSE_EVENTS.ENROLLMENT_CREATED]: EnrollmentCreatedEvent;
 }
 
 export class EventBus {
