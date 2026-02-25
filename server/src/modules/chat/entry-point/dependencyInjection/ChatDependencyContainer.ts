@@ -12,6 +12,8 @@ import { EnrollmentReadRepository } from '../../../enrollment/infrastructure/rep
 import { StudentRepository } from '../../../student/infrastructure/repositories/StudentRepository';
 import { InstructorRepository } from '../../../instructor/infrastructure/repositories/InstructorRepository';
 import { CourseRepository } from '../../../course/infrastructure/repositories/CourseRepository';
+import { NotificationRepository } from '../../../notification/infrastructure/repositories/NotificationRepository';
+import { CreateNotificationUseCase } from '../../../notification/application/use-cases/CreateNotificationUseCase';
 
 // Repositories
 const conversationReadRepository = new ConversationReadRepository();
@@ -29,10 +31,16 @@ const createConversationUseCase = new CreateConversationUseCase(
   enrollmentReadRepository,
 );
 
+const notificationRepository = new NotificationRepository();
+const createNotificationUseCase = new CreateNotificationUseCase(
+  notificationRepository,
+);
+
 const sendMessageUseCase = new SendMessageUseCase(
   messageWriteRepository,
   conversationWriteRepository,
   conversationReadRepository,
+  createNotificationUseCase,
 );
 
 const getConversationsUseCase = new GetConversationsUseCase(

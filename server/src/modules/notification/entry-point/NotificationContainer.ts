@@ -5,8 +5,11 @@ import { MarkAllNotificationsAsReadUseCase } from '../application/use-cases/Mark
 import { CreateNotificationUseCase } from '../application/use-cases/CreateNotificationUseCase';
 import { NotificationRepository } from '../infrastructure/repositories/NotificationRepository';
 import { NotificationController } from './NotificationController';
+import { NotificationEventListener } from '../infrastructure/events/NotificationEventListener';
+import { EnrollmentReadRepository } from '../../enrollment/infrastructure/repositories/EnrollmentReadRepository';
 
 const notificationRepo = new NotificationRepository();
+const enrollmentReadRepo = new EnrollmentReadRepository();
 
 const getUserNotificationsUC = new GetUserNotificationsUseCase(
   notificationRepo,
@@ -21,6 +24,9 @@ const markAllNotificationsAsReadUC = new MarkAllNotificationsAsReadUseCase(
   notificationRepo,
 );
 const createNotificationUC = new CreateNotificationUseCase(notificationRepo);
+
+// It listens to domain events and creates persisted + real-time notifications
+new NotificationEventListener(createNotificationUC, enrollmentReadRepo);
 
 export const notificationContainer = new NotificationController(
   getUserNotificationsUC,

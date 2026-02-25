@@ -19,9 +19,5 @@ notificationRouter.patch(
   '/read-all',
   asyncHandler(notificationContainer.markAllAsRead),
 );
-notificationRouter.post(
-  '/test',
-  asyncHandler(notificationContainer.sendTestNotification),
-);
 
 export { notificationRouter };

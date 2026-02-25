@@ -83,30 +83,6 @@ export class NotificationController {
     }
   };
 
-  sendTestNotification = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const authenticatedReq = req as AuthenticatedRequest;
-      const userId = authenticatedReq.user.id;
-      const notification = await this._createNotificationUseCase.execute({
-        userId,
-        title: 'Test Notification',
-        message: 'This is a test notification to verify the real-time system.',
-        type: 'error',
-      });
-      ApiResponseHelper.success(
-        res,
-        'Test notification sent',
-        NotificationMapper.toResponse(notification),
-      );
-    } catch (error) {
-      ApiResponseHelper.error(
-        res,
-        'Failed to send test notification',
-        error instanceof Error ? error.message : undefined,
-      );
-    }
-  };
-
   markAllAsRead = async (req: Request, res: Response): Promise<void> => {
     try {
       const authenticatedReq = req as AuthenticatedRequest;

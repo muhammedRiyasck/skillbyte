@@ -7,12 +7,15 @@ import { IConversationWriteRepository } from '../../domain/IRepositories/IConver
 import { IConversationReadRepository } from '../../domain/IRepositories/IConversationReadRepository';
 import { IMessage } from '../../domain/entities/Message';
 import { SocketService } from '../../../../shared/services/socket-service.ts/SocketService';
+import { ICreateNotificationUseCase } from '../../../notification/application/interfaces/ICreateNotificationUseCase';
+import logger from '../../../../shared/utils/Logger';
 
 export class SendMessageUseCase implements ISendMessageUseCase {
   constructor(
     private messageWriteRepository: IMessageWriteRepository,
     private conversationWriteRepository: IConversationWriteRepository,
     private conversationReadRepository: IConversationReadRepository,
+    private createNotificationUseCase?: ICreateNotificationUseCase,
   ) {}
 
   async execute(data: ISendMessageData): Promise<IMessage> {
@@ -90,6 +93,25 @@ export class SendMessageUseCase implements ISendMessageUseCase {
         'chat:conversation-updated',
         { conversationId },
       );
+
+      // 4. Create a push notification for the recipient
+      if (this.createNotificationUseCase) {
+        const preview =
+          content && content.length > 50
+            ? content.substring(0, 50) + '...'
+            : content || 'Sent a file';
+
+        this.createNotificationUseCase
+          .execute({
+            userId: recipientId,
+            title: 'New Message',
+            message: preview,
+            type: 'info',
+          })
+          .catch((err) => {
+            logger.error('Failed to create notification', err);
+          });
+      }
     }
 
     return savedMessage;
