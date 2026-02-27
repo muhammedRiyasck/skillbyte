@@ -16,7 +16,6 @@ import { IMailerService } from '../../../../shared/services/mail/IMailerService'
  * Handles token validation, password hashing, and notification via email.
  */
 export class ResetPasswordUseCase implements IResetPasswordUseCase {
-
   /**
    * Constructs the ResetPasswordUseCase.
    * @param studentRepo - Repository for student operations.

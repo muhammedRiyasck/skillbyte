@@ -3,13 +3,13 @@ import { Server, Socket } from 'socket.io';
 import logger from '../../utils/Logger';
 import { HttpError } from '../../types/HttpError';
 import { HttpStatusCode } from '../../enums/HttpStatusCodes';
-import { VideoSignalingService } from '../video-signaling/VideoSignalingService';
+import { IVideoSignalingService } from '../video-signaling/IVideoSignalingService';
 
 export class SocketService {
   private static instance: SocketService;
   private io: Server | null = null;
   private userSockets: Map<string, string> = new Map(); // Map userId to socketId
-  private videoSignaling: VideoSignalingService = new VideoSignalingService();
+  private videoSignaling: IVideoSignalingService | null = null;
 
   private constructor() {}
 
@@ -20,7 +20,11 @@ export class SocketService {
     return SocketService.instance;
   }
 
-  public init(httpServer: HttpServer): void {
+  public init(
+    httpServer: HttpServer,
+    videoSignaling: IVideoSignalingService,
+  ): void {
+    this.videoSignaling = videoSignaling;
     this.io = new Server(httpServer, {
       cors: {
         origin: process.env.CORS_ALLOWED_ORIGIN || '*',
@@ -108,7 +112,7 @@ export class SocketService {
       });
 
       // Register video signaling handlers
-      if (this.io) {
+      if (this.io && this.videoSignaling) {
         this.videoSignaling.registerHandlers(this.io, socket);
       }
     });

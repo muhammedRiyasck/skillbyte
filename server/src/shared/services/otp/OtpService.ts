@@ -13,15 +13,17 @@ import { HttpError } from '../../types/HttpError';
 import { HttpStatusCode } from '../../enums/HttpStatusCodes';
 import logger from '../../utils/Logger';
 
+import { IOtpRateLimiter } from './interfaces/IOtpRateLimiter';
+
 export class RedisOtpService implements IOtpService {
   private _redis: Redis;
-  private _rateLimiter: OtpRateLimiter;
+  private _rateLimiter: IOtpRateLimiter;
   private _OTP_EXPIRE; // 2 minute , 1 minute for resend
   private _DATA_EXPIRE = 6 * 60;
 
-  constructor(time?: number) {
+  constructor(rateLimiter: IOtpRateLimiter, time?: number) {
     this._redis = redisClient; // Use the shared Redis instance
-    this._rateLimiter = new OtpRateLimiter();
+    this._rateLimiter = rateLimiter;
     this._OTP_EXPIRE = time ?? 2 * 60;
   }
 

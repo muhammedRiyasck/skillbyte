@@ -14,8 +14,13 @@ import errorHandler from './shared/middlewares/GlobalErrorMiddleware';
 
 import rootRouter from './routes';
 
-import './shared/config/passport/GoogleStrategy';
-import './shared/config/passport/FacebookStrategy';
+import { configurePassport } from './shared/config/passport/PassportSetup';
+import {
+  studentRepo,
+  instructorRepo,
+} from './modules/auth/entry-point/dependencyInjection/CommonAuthContainer';
+
+configurePassport(studentRepo, instructorRepo);
 import { paymentController } from './modules/payment/entry-point/PaymentContainer';
 
 const app = express();

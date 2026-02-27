@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { IStudentRepository } from '../../domain/IRepositories/IStudentRepository';
-import { RedisOtpService } from '../../../../shared/services/otp/OtpService';
+import { IOtpService } from '../../../../shared/services/otp/interfaces/IOtpService';
 import { Student } from '../../domain/entities/Student';
 import { IRegisterStudentUseCase } from '../interfaces/IRegisterStudentUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
@@ -8,19 +8,10 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { StudentRegistrationSchema } from '../../../../shared/validations/StudentValidation';
 
-/**
- * Use case for registering a new student.
- * Verifies OTP, validates data, and creates a new student account.
- */
 export class RegisterStudentUseCase implements IRegisterStudentUseCase {
-  /**
-   * Constructs the RegisterStudentUseCase.
-   * @param studentRepo - The student repository for data operations.
-   * @param otpService - The OTP service for verification.
-   */
   constructor(
     private _studentRepo: IStudentRepository,
-    private readonly _otpService: RedisOtpService,
+    private readonly _otpService: IOtpService,
   ) {}
 
   /**

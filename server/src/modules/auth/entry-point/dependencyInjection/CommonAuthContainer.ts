@@ -16,20 +16,29 @@ import { InstructorRepository } from '../../../instructor/infrastructure/reposit
 import { AdminRepository } from '../../../admin/infrastructure/repositories/AdminRepository';
 import { NodeMailerService } from '../../../../shared/services/mail/NodeMailerService';
 
-const studentRepo = new StudentRepository();
-const instructorRepo = new InstructorRepository();
-const adminRepo = new AdminRepository();
+export const studentRepo = new StudentRepository();
+export const instructorRepo = new InstructorRepository();
+export const adminRepo = new AdminRepository();
 
 const studentLoginUC = new LoginStudentUseCase(studentRepo);
 const instructorLoginUC = new LoginInstructorUseCase(instructorRepo);
 const accessTokenUC = new AccessTokenUseCase();
-const resendOtpUC = new ResendOtpUseCase(
-  new RedisOtpService(60),
-  new OtpRateLimiter(),
-);
 const nodeMailer = new NodeMailerService();
-const forgotPasswordUc = new ForgotPasswordUseCase(studentRepo, instructorRepo, nodeMailer);
-const resetPasswordUc = new ResetPasswordUseCase(studentRepo, instructorRepo, nodeMailer);
+
+const otpRateLimiter = new OtpRateLimiter();
+const redisOtpService = new RedisOtpService(otpRateLimiter, 60);
+const resendOtpUC = new ResendOtpUseCase(redisOtpService, otpRateLimiter);
+
+const forgotPasswordUc = new ForgotPasswordUseCase(
+  studentRepo,
+  instructorRepo,
+  nodeMailer,
+);
+const resetPasswordUc = new ResetPasswordUseCase(
+  studentRepo,
+  instructorRepo,
+  nodeMailer,
+);
 const amILoggedLoginUc = new AmILoggedInUseCase(
   studentRepo,
   instructorRepo,

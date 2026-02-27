@@ -1,11 +1,12 @@
 import http from 'http';
-import { SocketService } from './shared/services/socket-service.ts/SocketService';
-
 import app from './App';
-const server = http.createServer(app);
+import { SocketService } from './shared/services/socket-service.ts/SocketService';
+import { VideoSignalingService } from './shared/services/video-signaling/VideoSignalingService';
 
+const server = http.createServer(app);
+const videoSignaling = new VideoSignalingService();
 // Initialize Socket.io
-SocketService.getInstance().init(server);
+SocketService.getInstance().init(server, videoSignaling);
 import logger from './shared/utils/Logger';
 
 import connectToMongoDB from './shared/config/db/Mongodb';

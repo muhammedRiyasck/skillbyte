@@ -3,19 +3,22 @@ import { InstructorAuthController } from '../controllers/InstructorAuthControlle
 import { RegisterInstructorUseCase } from '../../application/use-cases/RegisterInstructorUseCase';
 import { RedisOtpService } from '../../../../shared/services/otp/OtpService';
 
-import { InstructorRepository } from '../../infrastructure/repositories/InstructorRepository';
 import { ReapplyInstructorUseCase } from '../../application/use-cases/ReapplyInstructorUseCase';
 
-const instructorRepo = new InstructorRepository();
+import { instructorRepo } from '../../../auth/entry-point/dependencyInjection/CommonAuthContainer';
+import { OtpRateLimiter } from '../../../../shared/services/otp/OtpRateLimiter';
+
+const otpRateLimiter = new OtpRateLimiter();
+const OtpService = new RedisOtpService(otpRateLimiter);
+
 const registerInstructorUC = new RegisterInstructorUseCase(
   instructorRepo,
-  new RedisOtpService(),
+  OtpService,
 );
-const generateOtpUC = new RedisOtpService();
 const reapplyInstructorUseCase = new ReapplyInstructorUseCase(instructorRepo);
 
 export const instructorAuthController = new InstructorAuthController(
   registerInstructorUC,
-  generateOtpUC,
+  OtpService,
   reapplyInstructorUseCase,
 );

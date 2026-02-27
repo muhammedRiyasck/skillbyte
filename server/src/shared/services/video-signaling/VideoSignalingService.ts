@@ -1,5 +1,6 @@
 import { Server, Socket } from 'socket.io';
 import logger from '../../utils/Logger';
+import { IVideoSignalingService } from './IVideoSignalingService';
 
 interface VideoRoomParticipant {
   userId: string;
@@ -16,7 +17,7 @@ interface VideoRoom {
   participants: Map<string, VideoRoomParticipant>;
 }
 
-export class VideoSignalingService {
+export class VideoSignalingService implements IVideoSignalingService {
   private videoRooms: Map<string, VideoRoom> = new Map();
 
   public registerHandlers(io: Server, socket: Socket): void {

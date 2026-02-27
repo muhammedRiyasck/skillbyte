@@ -1,8 +1,8 @@
 import Redis from 'ioredis';
-
 import redisClient from '../../../shared/utils/Redis';
+import { IOtpRateLimiter } from './interfaces/IOtpRateLimiter';
 
-export class OtpRateLimiter {
+export class OtpRateLimiter implements IOtpRateLimiter {
   constructor(
     private readonly _keyPrefix: string = 'otp:rate_limit',
     private readonly _redis: Redis = redisClient,

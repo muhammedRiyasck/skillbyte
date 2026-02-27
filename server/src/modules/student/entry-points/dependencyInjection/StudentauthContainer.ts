@@ -4,18 +4,17 @@ import { RegisterStudentUseCase } from '../../application/use-cases/RegisterStud
 
 import { RedisOtpService } from '../../../../shared/services/otp/OtpService';
 
-import { StudentRepository } from '../../infrastructure/repositories/StudentRepository';
-
 // Instantiate services
-const studentRepo = new StudentRepository();
+import { studentRepo } from '../../../auth/entry-point/dependencyInjection/CommonAuthContainer';
+import { OtpRateLimiter } from '../../../../shared/services/otp/OtpRateLimiter';
+
+const otpRateLimiter = new OtpRateLimiter();
+const OtpService = new RedisOtpService(otpRateLimiter);
 
 // Instantiate use cases
-const registerStudentUC = new RegisterStudentUseCase(
-  studentRepo,
-  new RedisOtpService(),
-);
+const registerStudentUC = new RegisterStudentUseCase(studentRepo, OtpService);
 // const loginUC = new LoginStudentUseCase(studentRepo);
-const generateOtpUC = new RedisOtpService();
+const generateOtpUC = OtpService;
 
 // Final controller
 export const studentAuthController = new StudentAuthController(

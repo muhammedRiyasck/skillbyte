@@ -1,5 +1,5 @@
 import { IOtpService } from '../../../../shared/services/otp/interfaces/IOtpService';
-import { OtpRateLimiter } from '../../../../shared/services/otp/OtpRateLimiter';
+import { IOtpRateLimiter } from '../../../../shared/services/otp/interfaces/IOtpRateLimiter';
 import { IResendOtpUseCase } from '../interfaces/IResendOtpUseCase';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
@@ -16,7 +16,7 @@ export class ResendOtpUseCase implements IResendOtpUseCase {
    */
   constructor(
     private _otpService: IOtpService,
-    private _rateLimiter: OtpRateLimiter,
+    private _rateLimiter: IOtpRateLimiter,
   ) {}
 
   /**
