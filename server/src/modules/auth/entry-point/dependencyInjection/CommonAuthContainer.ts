@@ -14,6 +14,7 @@ import { RedisOtpService } from '../../../../shared/services/otp/OtpService';
 import { StudentRepository } from '../../../student/infrastructure/repositories/StudentRepository';
 import { InstructorRepository } from '../../../instructor/infrastructure/repositories/InstructorRepository';
 import { AdminRepository } from '../../../admin/infrastructure/repositories/AdminRepository';
+import { NodeMailerService } from '../../../../shared/services/mail/NodeMailerService';
 
 const studentRepo = new StudentRepository();
 const instructorRepo = new InstructorRepository();
@@ -26,8 +27,9 @@ const resendOtpUC = new ResendOtpUseCase(
   new RedisOtpService(60),
   new OtpRateLimiter(),
 );
-const forgotPasswordUc = new ForgotPasswordUseCase(studentRepo, instructorRepo);
-const resetPasswordUc = new ResetPasswordUseCase(studentRepo, instructorRepo);
+const nodeMailer = new NodeMailerService();
+const forgotPasswordUc = new ForgotPasswordUseCase(studentRepo, instructorRepo, nodeMailer);
+const resetPasswordUc = new ResetPasswordUseCase(studentRepo, instructorRepo, nodeMailer);
 const amILoggedLoginUc = new AmILoggedInUseCase(
   studentRepo,
   instructorRepo,

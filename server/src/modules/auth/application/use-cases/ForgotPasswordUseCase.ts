@@ -2,7 +2,7 @@ import { IStudentRepository } from '../../../student/domain/IRepositories/IStude
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
 import crypto from 'crypto';
 import { createPasswordResetToken } from '../../../../shared/utils/TokenGenrator';
-import { NodeMailerService } from '../../../../shared/services/mail/NodeMailerService';
+import { IMailerService } from '../../../../shared/services/mail/IMailerService';
 import { ResetPasswordTemplate } from '../../../../shared/templates/ResetPassword';
 import redis from '../../../../shared/utils/Redis';
 import logger from '../../../../shared/utils/Logger';
@@ -17,8 +17,6 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
  * This class generates a password reset token and sends a reset email to the user.
  */
 export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
-  private _nodeMailer: NodeMailerService;
-
   /**
    * Creates an instance of ForgotPasswordUseCase.
    * @param studentRepo - The repository for student data.
@@ -27,9 +25,8 @@ export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
   constructor(
     private _studentRepo: IStudentRepository,
     private _instructorRepo: IInstructorRepository,
-  ) {
-    this._nodeMailer = new NodeMailerService();
-  }
+    private _nodeMailer: IMailerService,
+  ) {}
 
   /**
    * Executes the forgot password process.

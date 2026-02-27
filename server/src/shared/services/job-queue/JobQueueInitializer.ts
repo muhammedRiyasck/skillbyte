@@ -10,6 +10,7 @@ import {
   bookingRepository,
   cancelBookingUC,
 } from '../../../modules/mentorship/entry-point/dependencyInjection/MentorshipContainer';
+import { NodeMailerService } from '../mail/NodeMailerService';
 
 /**
  * Initializes job queue processors and services
@@ -27,8 +28,9 @@ export class JobQueueInitializer {
       // Initialize processors
       const instructorRepo = new InstructorRepository();
       const s3StorageService = new S3StorageService();
+      const nodeMailer = new NodeMailerService();
       new ResumeUploadProcessor(instructorRepo, s3StorageService);
-      new EmailProcessor();
+      new EmailProcessor(nodeMailer);
       new DeleteDeclinedInstructorProcessor(instructorRepo);
       new MentorshipCleanupProcessor(bookingRepository, cancelBookingUC);
 

@@ -5,10 +5,8 @@ import { NodeMailerService } from '../../mail/NodeMailerService';
 import logger from '../../../utils/Logger';
 
 export class EmailProcessor {
-  private _nodeMailer: NodeMailerService;
 
-  constructor() {
-    this._nodeMailer = new NodeMailerService();
+  constructor(private readonly _nodeMailer: NodeMailerService) {
     this._registerProcessor();
   }
 

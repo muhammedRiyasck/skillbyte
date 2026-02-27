@@ -3,20 +3,19 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { IStudentRepository } from '../../../student/domain/IRepositories/IStudentRepository';
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
-import { NodeMailerService } from '../../../../shared/services/mail/NodeMailerService';
 import { SuccessResetPasswordTemplate } from '../../../../shared/templates/SuccessResetPassword';
 import { IResetPasswordUseCase } from '../interfaces/IResetPasswordUseCase';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ResetPasswordSchema } from '../../../../shared/validations/AuthValidation';
+import { IMailerService } from '../../../../shared/services/mail/IMailerService';
 
 /**
  * Use case for resetting a user's password.
  * Handles token validation, password hashing, and notification via email.
  */
 export class ResetPasswordUseCase implements IResetPasswordUseCase {
-  private readonly _nodeMailerService: NodeMailerService;
 
   /**
    * Constructs the ResetPasswordUseCase.
@@ -26,9 +25,8 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
   constructor(
     private readonly _studentRepo: IStudentRepository,
     private readonly _instructorRepo: IInstructorRepository,
-  ) {
-    this._nodeMailerService = new NodeMailerService();
-  }
+    private readonly _nodeMailerService: IMailerService,
+  ) {}
 
   /**
    * Executes the password reset process.
