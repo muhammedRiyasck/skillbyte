@@ -1,17 +1,14 @@
 import Queue from 'bull';
 
-interface JobData {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [key: string]: any;
-}
+// Removed JobData interface to use generics directly
 
 export class JobQueueService {
-  private _queues: Map<string, Queue.Queue<JobData>> = new Map();
+  private _queues: Map<string, Queue.Queue<any>> = new Map();
 
   /**
    * Creates or gets an existing queue
    */
-  getQueue(queueName: string): Queue.Queue<JobData> {
+  getQueue<T = any>(queueName: string): Queue.Queue<T> {
     if (!this._queues.has(queueName)) {
       const queue = new Queue(queueName, {
         redis: process.env.REDIS_URL!,
@@ -35,25 +32,25 @@ export class JobQueueService {
   /**
    * Adds a job to the specified queue
    */
-  async addJob(
+  async addJob<T>(
     queueName: string,
     jobName: string,
-    data: JobData,
+    data: T,
     options?: Queue.JobOptions,
-  ): Promise<Queue.Job<JobData>> {
-    const queue = this.getQueue(queueName);
+  ): Promise<Queue.Job<T>> {
+    const queue = this.getQueue<T>(queueName);
     return await queue.add(jobName, data, options);
   }
 
   /**
    * Processes jobs in the specified queue
    */
-  processJob(
+  processJob<T>(
     queueName: string,
     jobName: string,
-    processor: (job: Queue.Job<JobData>) => Promise<void>,
+    processor: (job: Queue.Job<T>) => Promise<void>,
   ): void {
-    const queue = this.getQueue(queueName);
+    const queue = this.getQueue<T>(queueName);
     queue.process(jobName, processor);
   }
 

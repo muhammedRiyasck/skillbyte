@@ -1,6 +1,7 @@
 import { PutBucketCorsCommand, S3Client } from '@aws-sdk/client-s3';
+
 export const s3 = new S3Client({
-  endpoint: 'https://s3.us-east-005.backblazeb2.com',
+  endpoint: `https://${process.env.B2_S3_ENDPOINT}`,
   region: 'us-east-005',
   credentials: {
     accessKeyId: process.env.B2_S3_KEY_ID!,
@@ -9,13 +10,13 @@ export const s3 = new S3Client({
 });
 
 export async function updateCors() {
-  const bucketName = 'skillbyte-courses';
+  const bucketName = process.env.B2_S3_BUCKET_NAME!;
 
   const corsConfig = {
     CORSRules: [
       {
-        AllowedOrigins: ['http://localhost:5173', 'http://localhost:3000'], // your dev frontend
-        AllowedMethods: ['PUT', 'POST', 'GET', 'HEAD'], // allow uploads and downloads
+        AllowedOrigins: [process.env.FRONTEND_URL!],
+        AllowedMethods: ['PUT', 'POST', 'GET', 'HEAD'],
         AllowedHeaders: ['*'],
         ExposeHeaders: ['ETag', 'x-amz-request-id'],
         MaxAgeSeconds: 3600,

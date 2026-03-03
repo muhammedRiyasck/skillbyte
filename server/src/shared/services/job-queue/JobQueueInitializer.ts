@@ -31,7 +31,7 @@ export class JobQueueInitializer {
       const nodeMailer = new NodeMailerService();
       new ResumeUploadProcessor(instructorRepo, s3StorageService);
       new EmailProcessor(nodeMailer);
-      new DeleteDeclinedInstructorProcessor(instructorRepo);
+      new DeleteDeclinedInstructorProcessor(instructorRepo, s3StorageService);
       new MentorshipCleanupProcessor(bookingRepository, cancelBookingUC);
 
       logger.info('Job queue processors initialized successfully');

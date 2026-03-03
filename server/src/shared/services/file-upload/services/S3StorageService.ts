@@ -4,8 +4,9 @@ import {
   DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { s3, updateCors } from '../../../config/backblaze/S3Client';
+import { s3 } from '../../../config/backblaze/S3Client';
 import fs from 'fs/promises';
+import path from 'path';
 import { IStorageService, UploadOptions } from '../interfaces/IStorageService';
 import { ERROR_MESSAGES } from '../../../constants/messages';
 import { HttpError } from '../../../types/HttpError';
@@ -24,7 +25,9 @@ export class S3StorageService implements IStorageService {
   async upload(filePath: string, options: UploadOptions): Promise<string> {
     try {
       const fileContent = await fs.readFile(filePath);
-      const fileName = `${options.folder}/${Date.now()}-${Math.random().toString(36).substring(2)}-${filePath.split('/').pop()}`;
+      // Use path.basename to correctly handle both Unix and Windows paths
+      const baseName = path.basename(filePath);
+      const fileName = `${options.folder}/${Date.now()}-${Math.random().toString(36).substring(2)}-${baseName}`;
 
       const command = new PutObjectCommand({
         Bucket: this.bucket,
@@ -35,8 +38,20 @@ export class S3StorageService implements IStorageService {
 
       await s3.send(command);
       return fileName;
-    } catch (err) {
-      logger.error('S3 upload error:', err);
+    } catch (err: unknown) {
+      const error = err as Error & {
+        Code?: string;
+        code?: string;
+        $metadata?: { httpStatusCode?: number };
+      };
+      // Log the full error including Backblaze-specific details
+      logger.error('S3 upload error:', {
+        message: error?.message,
+        code: error?.Code || error?.code,
+        status: error?.$metadata?.httpStatusCode,
+        filePath,
+        folder: options.folder,
+      });
       throw new HttpError(
         ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
         HttpStatusCode.INTERNAL_SERVER_ERROR,
@@ -45,18 +60,17 @@ export class S3StorageService implements IStorageService {
   }
 
   async delete(key: string): Promise<void> {
+    if (!key) return;
     try {
       const command = new DeleteObjectCommand({
         Bucket: this.bucket,
         Key: key,
       });
       await s3.send(command);
+      logger.info(`S3 object deleted: ${key}`);
     } catch (err) {
-      logger.error('S3 delete error:', err);
-      throw new HttpError(
-        ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
-        HttpStatusCode.INTERNAL_SERVER_ERROR,
-      );
+      // Log the error but don't rethrow — deletion failures should not block DB operations
+      logger.error('S3 delete error (non-blocking):', err);
     }
   }
 
@@ -90,8 +104,6 @@ export class S3StorageService implements IStorageService {
       const signedUrl = await getSignedUrl(s3, command, { expiresIn: 300 });
       const publicUrl = `${this.endpoint}/${encodeURIComponent(fileName)}`;
 
-      await updateCors();
-
       return { signedUrl, publicUrl };
     } catch (err) {
       logger.error('S3 generateUploadUrl error:', err);
@@ -103,15 +115,9 @@ export class S3StorageService implements IStorageService {
   }
 
   getIdentifierFromUrl(url: string): string {
-    // For S3/Backblaze, the identifier is the key, which is usually the last part of the URL
-    // or we can just return the URL itself if we store the key separately.
-    // In your implementation, you return the fileName/key.
-    // If you have a full URL like https://endpoint/bucket/key, we extract key.
     try {
       const urlObj = new URL(url);
       const pathname = decodeURIComponent(urlObj.pathname);
-      // Pathname usually starts with /bucket/key or just /key depending on endpoint usage
-      // Here we assume it's just the key for now based on how publicUrl is constructed.
       return pathname.startsWith('/') ? pathname.substring(1) : pathname;
     } catch {
       return url; // fallback
