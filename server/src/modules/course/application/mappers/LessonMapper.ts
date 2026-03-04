@@ -1,4 +1,5 @@
 import { CreateLessonDto } from '../dtos/LessonDtos';
+import { Lesson } from '../../domain/entities/Lesson';
 
 export class LessonMapper {
   static toCreateEntity(dto: CreateLessonDto, instructorId: string) {
@@ -15,6 +16,25 @@ export class LessonMapper {
       isFreePreview: dto.isFreePreview || false,
       isBlocked: false,
       isPublished: dto.isPublished ?? true,
+    };
+  }
+
+  static toResponse(lesson: Lesson) {
+    return {
+      id: lesson.lessonId,
+      moduleId: lesson.moduleId,
+      title: lesson.title,
+      description: lesson.description,
+      contentType: lesson.contentType,
+      fileName: lesson.fileName,
+      order: lesson.order,
+      duration: lesson.duration,
+      resources: lesson.resources,
+      isFreePreview: lesson.isFreePreview,
+      isPublished: lesson.isPublished,
+      isBlocked: lesson.isBlocked,
+      createdAt: lesson.createdAt,
+      updatedAt: lesson.updatedAt,
     };
   }
 

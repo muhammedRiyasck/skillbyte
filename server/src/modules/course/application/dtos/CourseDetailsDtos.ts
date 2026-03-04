@@ -55,3 +55,24 @@ export type PaginationQueryValidationType = z.infer<
   typeof PaginationQuerySchema
 >;
 export type GetCourseQueryValidationType = z.infer<typeof GetCourseQuerySchema>;
+
+export interface CourseResponseDto {
+  id?: string;
+  instructorId: string;
+  thumbnailUrl: string | null;
+  title: string;
+  subText: string;
+  category: string;
+  courseLevel: string;
+  language: string;
+  price: number;
+  features: string[];
+  description: string;
+  duration: string;
+  tags: string[];
+  status: string;
+  isBlocked: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  isEnrolled?: boolean;
+}

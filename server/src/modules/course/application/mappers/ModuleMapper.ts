@@ -1,14 +1,32 @@
-import { CreateModuleDto } from '../dtos/ModuleDtos';
+import { z } from 'zod';
+import { CreateModuleSchema } from '../dtos/ModuleDtos';
+import { LessonMapper } from './LessonMapper';
+import { Module } from '../../domain/entities/Module';
 
 export class ModuleMapper {
-  static toCreateEntity(dto: CreateModuleDto) {
+  static toCreateEntity(dto: z.infer<typeof CreateModuleSchema>) {
     return {
-      courseId: dto.courseId,
+      courseId: dto.courseId || dto.id || '',
       moduleId: dto.moduleId,
       title: dto.title,
       description: dto.description || '',
       order: dto.order,
       lessons: dto.lessons || [],
+    };
+  }
+
+  static toResponse(module: Module) {
+    return {
+      id: module.moduleId,
+      courseId: module.courseId,
+      title: module.title,
+      description: module.description,
+      order: module.order,
+      lessons: module.lessons
+        ? module.lessons.map((l) => LessonMapper.toResponse(l))
+        : [],
+      createdAt: module.createdAt,
+      updatedAt: module.updatedAt,
     };
   }
 

@@ -3,7 +3,9 @@ import {
   InstructorVerifyOtpDto,
   InstructorReapplyDto,
   InstructorProfileUpdateDto,
+  InstructorResponseDto,
 } from '../dtos/InstructorDtos';
+import { Instructor } from '../../domain/entities/Instructor';
 
 export class InstructorMapper {
   static toRegisterInstructorEntity(
@@ -52,5 +54,28 @@ export class InstructorMapper {
       updates.experience = Number(updates.experience);
     }
     return updates;
+  }
+
+  static toResponseDto(instructor: Instructor): InstructorResponseDto {
+    return {
+      id: instructor.instructorId,
+      name: instructor.name,
+      email: instructor.email,
+      subject: instructor.subject,
+      jobTitle: instructor.jobTitle,
+      experience: instructor.experience,
+      socialProfile: instructor.socialProfile,
+      portfolio: instructor.portfolio,
+      bio: instructor.bio,
+      phoneNumber: instructor.phoneNumber,
+      resumeUrl: instructor.resumeUrl,
+      profilePicture: instructor.profilePictureUrl,
+      isEmailVerified: instructor.isEmailVerified,
+      accountStatus: instructor.accountStatus,
+      averageRating: instructor.averageRating,
+      totalReviews: instructor.totalReviews,
+      approved: instructor.approved,
+      rejected: instructor.rejected,
+    };
   }
 }
