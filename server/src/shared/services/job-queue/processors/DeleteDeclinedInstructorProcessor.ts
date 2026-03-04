@@ -3,9 +3,13 @@ import { jobQueueService } from '../JobQueueService';
 import { JOB_NAMES, QUEUE_NAMES } from '../JobTypes';
 import { IInstructorRepository } from '../../../../modules/instructor/domain/IRepositories/IInstructorRepository';
 import logger from '../../../utils/Logger';
+import { IStorageService } from '../../file-upload/interfaces/IStorageService';
 
 export class DeleteDeclinedInstructorProcessor {
-  constructor(private _instructorRepo: IInstructorRepository) {
+  constructor(
+    private _instructorRepo: IInstructorRepository,
+    private _storageService: IStorageService,
+  ) {
     this._registerProcessor();
   }
 
@@ -41,6 +45,21 @@ export class DeleteDeclinedInstructorProcessor {
           `Instructor ${instructorId} is not declined. Skipping delete.`,
         );
         return;
+      }
+
+      // Clean up media from cloud storage
+      if (instructor.resumeUrl) {
+        try {
+          const resumeId = this._storageService.getIdentifierFromUrl(
+            instructor.resumeUrl,
+          );
+          await this._storageService.delete(resumeId);
+        } catch (error) {
+          logger.error(
+            `Failed to delete cloud resume for instructor ${instructorId}:`,
+            error,
+          );
+        }
       }
 
       await this._instructorRepo.deleteById(instructorId);

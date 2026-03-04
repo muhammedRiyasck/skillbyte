@@ -16,8 +16,11 @@ const declineUC = new DeclineInstructorUseCase(instructorRepo);
 const changeInstructorStatusUC = new ChangeInstructorStatusUseCase(
   instructorRepo,
 );
-const deleteInstructorUC = new DeleteInstructorUseCase(instructorRepo);
 const storageService = new S3StorageService();
+const deleteInstructorUC = new DeleteInstructorUseCase(
+  instructorRepo,
+  storageService,
+);
 
 export const adminInstructorController = new AdminInstructorController(
   listInstructorUC,

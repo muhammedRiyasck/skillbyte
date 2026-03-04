@@ -5,6 +5,7 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
+import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 import {
   JOB_NAMES,
   QUEUE_NAMES,
@@ -13,7 +14,10 @@ import {
 import bcrypt from 'bcryptjs';
 
 export class ReapplyInstructorUseCase implements IReapplyInstructorUseCase {
-  constructor(private readonly _instructorRepo: IInstructorRepository) {}
+  constructor(
+    private readonly _instructorRepo: IInstructorRepository,
+    private readonly _storageService: IStorageService,
+  ) {}
 
   async execute(
     email: string,
@@ -66,6 +70,21 @@ export class ReapplyInstructorUseCase implements IReapplyInstructorUseCase {
     );
 
     if (resumeFile) {
+      // Fire-and-forget: clean up old resume in background, don't block response
+      if (instructor.resumeUrl) {
+        try {
+          const oldResumeId = this._storageService.getIdentifierFromUrl(
+            instructor.resumeUrl,
+          );
+          void this._storageService.delete(oldResumeId); // non-blocking
+        } catch (error) {
+          console.error(
+            `Failed to parse old resume URL for instructor ${instructor.instructorId}:`,
+            error,
+          );
+        }
+      }
+
       const resumeUploadData: ResumeUploadJobData = {
         instructorId: instructor.instructorId!,
         filePath: resumeFile.path,

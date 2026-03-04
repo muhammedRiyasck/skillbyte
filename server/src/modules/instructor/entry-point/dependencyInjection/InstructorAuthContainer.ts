@@ -7,15 +7,22 @@ import { ReapplyInstructorUseCase } from '../../application/use-cases/ReapplyIns
 
 import { instructorRepo } from '../../../auth/entry-point/dependencyInjection/CommonAuthContainer';
 import { OtpRateLimiter } from '../../../../shared/services/otp/OtpRateLimiter';
+import { S3StorageService } from '../../../../shared/services/file-upload/services/S3StorageService';
+import { IOtpService } from '../../../../shared/services/otp/interfaces/IOtpService';
+import { TempInstructorData } from '../../../../shared/services/otp/interfaces/ITempInstructorData ';
 
 const otpRateLimiter = new OtpRateLimiter();
-const OtpService = new RedisOtpService(otpRateLimiter);
+const OtpService = new RedisOtpService(otpRateLimiter, 60);
 
 const registerInstructorUC = new RegisterInstructorUseCase(
   instructorRepo,
-  OtpService,
+  OtpService as IOtpService<TempInstructorData>,
 );
-const reapplyInstructorUseCase = new ReapplyInstructorUseCase(instructorRepo);
+const storageService = new S3StorageService();
+const reapplyInstructorUseCase = new ReapplyInstructorUseCase(
+  instructorRepo,
+  storageService,
+);
 
 export const instructorAuthController = new InstructorAuthController(
   registerInstructorUC,
