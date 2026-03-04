@@ -46,7 +46,7 @@ export class InstructorProfileController {
     ApiResponseHelper.success(
       res,
       'Instructor profile retrieved successfully',
-      { instructor },
+      { instructor: InstructorMapper.toResponseDto(instructor) },
     );
   };
 
@@ -82,6 +82,22 @@ export class InstructorProfileController {
         ERROR_MESSAGES.NO_FILE_UPLOADED,
         HttpStatusCode.BAD_REQUEST,
       );
+    }
+
+    const instructor =
+      await this._getInstructorProfileUseCase.execute(instructorId);
+    if (instructor && instructor.profilePictureUrl) {
+      try {
+        const oldPicId = this._storageService.getIdentifierFromUrl(
+          instructor.profilePictureUrl,
+        );
+        await this._storageService.delete(oldPicId);
+      } catch (error) {
+        console.error(
+          'Failed to delete old profile picture from cloud:',
+          error,
+        );
+      }
     }
 
     const url = await this._storageService.upload(file.path, {

@@ -39,7 +39,9 @@ export class ModuleController {
     const instructorId = authenticatedReq.user.id;
 
     // Check ownership
-    const course = await this._courseRepo.findById(validatedData.courseId);
+    const course = await this._courseRepo.findById(
+      validatedData.courseId || validatedData.id || '',
+    );
     if (!course || course.instructorId !== instructorId) {
       logger.warn(
         `Unauthorized module creation attempt for course ${validatedData.courseId} by instructor ${instructorId}`,
@@ -54,9 +56,13 @@ export class ModuleController {
 
     const module = await this._createUseCase.execute(moduleEntity);
     logger.info(
-      `Module created successfully for course ${validatedData.courseId}`,
+      `Module created successfully for course ${moduleEntity.courseId}`,
     );
-    ApiResponseHelper.created(res, 'Module created successfully.', module);
+    if (!module) {
+      throw new HttpError('Module not found', HttpStatusCode.NOT_FOUND);
+    }
+    const responseDto = ModuleMapper.toResponse(module);
+    ApiResponseHelper.created(res, 'Module created successfully.', responseDto);
   };
 
   /**
@@ -68,7 +74,7 @@ export class ModuleController {
     const authenticatedReq = req as AuthenticatedRequest;
     logger.info(`Update module attempt from IP: ${authenticatedReq.ip}`);
 
-    const moduleId = authenticatedReq.params.moduleId;
+    const moduleId = authenticatedReq.params.id;
     const instructorId = authenticatedReq.user.id;
     const validatedUpdates = UpdateModuleSchema.parse(authenticatedReq.body);
     const updates = ModuleMapper.toUpdateEntity(validatedUpdates);
@@ -87,7 +93,7 @@ export class ModuleController {
     const authenticatedReq = req as AuthenticatedRequest;
     logger.info(`Delete module attempt from IP: ${authenticatedReq.ip}`);
 
-    const moduleId = authenticatedReq.params.moduleId;
+    const moduleId = authenticatedReq.params.id;
     const instructorId = authenticatedReq.user.id;
 
     await this._deleteModuleUseCase.execute(moduleId, instructorId);

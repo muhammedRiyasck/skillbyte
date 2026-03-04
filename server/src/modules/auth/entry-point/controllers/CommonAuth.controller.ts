@@ -17,6 +17,9 @@ import {
 import logger from '../../../../shared/utils/Logger';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
+import { Student } from '../../../student/domain/entities/Student';
+import { Instructor } from '../../../instructor/domain/entities/Instructor';
+import { AuthMapper } from '../../application/mappers/AuthMapper';
 
 export class CommonAuthController {
   constructor(
@@ -42,15 +45,21 @@ export class CommonAuthController {
       decodedUserData.role,
     );
     logger.info(`User logged in status: ${user ? true : false}`);
-    ApiResponseHelper.success(res, 'User is logged in', {
-      userData: {
-        id: decodedUserData.id,
-        name: user?.name,
-        email: user?.email,
-        profilePicture: user?.profilePictureUrl,
-        role: decodedUserData.role,
-      },
-    });
+
+    if (!user) {
+      ApiResponseHelper.unauthorized(res, 'User not found');
+      return;
+    }
+
+    ApiResponseHelper.success(
+      res,
+      'User is logged in',
+      AuthMapper.toAuthResponseDto(
+        user,
+        decodedUserData.role,
+        decodedUserData.id,
+      ),
+    );
   };
 
   /**
@@ -72,7 +81,11 @@ export class CommonAuthController {
 
     const { email, password, role } = validationResult.data;
 
-    let data;
+    let data: {
+      user: Student | Instructor;
+      accessToken: string;
+      refreshToken: string;
+    };
 
     switch (role) {
       case 'student':
@@ -106,22 +119,11 @@ export class CommonAuthController {
     }
     logger.info(`Login successful for ${role}: ${email}`);
 
-    ApiResponseHelper.success(res, 'Login successful', {
-      userData: {
-        id:
-          role === 'student'
-            ? (user as { studentId: string }).studentId
-            : (user as { instructorId: string }).instructorId,
-        name: user.name,
-        email: user.email,
-        role,
-        profilePicture: user.profilePictureUrl,
-        accountStatus:
-          role === 'instructor'
-            ? (user as { accountStatus: string }).accountStatus
-            : undefined,
-      },
-    });
+    ApiResponseHelper.success(
+      res,
+      'Login successful',
+      AuthMapper.toAuthResponseDto(user, role),
+    );
   };
 
   /**

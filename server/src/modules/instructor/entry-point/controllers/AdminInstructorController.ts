@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { InstructorMapper } from '../../application/mappers/InstructorMapper';
 import { Readable } from 'node:stream';
 import { IlistInstructorsUC } from '../../application/interfaces/IlistInstructorsUseCase';
 import { IApproveInstructorUseCase } from '../../application/interfaces/IApproveInstructorUseCase';
@@ -57,11 +58,15 @@ export class AdminInstructorController {
       validatedQuery.limit,
       sort,
     );
-    ApiResponseHelper.success(
-      res,
-      'Instructors retrieved successfully',
-      instructors,
-    );
+    const instructorDtos =
+      instructors?.data?.map((instructor) =>
+        InstructorMapper.toResponseDto(instructor),
+      ) || [];
+
+    ApiResponseHelper.success(res, 'Instructors retrieved successfully', {
+      ...instructors,
+      data: instructorDtos,
+    });
   };
 
   /**
@@ -76,7 +81,7 @@ export class AdminInstructorController {
     );
     const adminId = AuthenticatedRequest.user.id;
 
-    await this._approveUC.execute(validatedData.instructorId, adminId);
+    await this._approveUC.execute(validatedData.id, adminId);
     ApiResponseHelper.success(res, 'Instructor approved');
   };
 
@@ -93,7 +98,7 @@ export class AdminInstructorController {
     const adminId = AuthenticatedRequest.user.id;
 
     await this._declineUC.execute(
-      validatedData.instructorId,
+      validatedData.id,
       adminId,
       validatedData.reason,
     );
@@ -111,11 +116,11 @@ export class AdminInstructorController {
     req: Request,
     res: Response,
   ): Promise<void> => {
-    const { instructorId } = req.params;
+    const { id } = req.params;
     const validatedData = ChangeInstructorStatusSchema.parse(req.body);
 
     await this._changeStatusUC.execute(
-      instructorId,
+      id,
       validatedData.status,
       validatedData.reason,
     );
@@ -131,8 +136,8 @@ export class AdminInstructorController {
    * @param res - Express response object.
    */
   deleteInstructor = async (req: Request, res: Response): Promise<void> => {
-    const { instructorId } = req.params;
-    await this._deleteInstructorUC.execute(instructorId);
+    const { id } = req.params;
+    await this._deleteInstructorUC.execute(id);
     ApiResponseHelper.success(res, 'Instructor deleted successfully');
   };
 
@@ -142,11 +147,11 @@ export class AdminInstructorController {
    * @param res - Express response object.
    */
   getInstructorResume = async (req: Request, res: Response): Promise<void> => {
-    const { instructorId } = req.params;
+    const { id } = req.params;
 
     // Get instructor details to retrieve resume URL
     const instructors = await this._listInstructorsUC.execute(
-      { _id: instructorId },
+      { _id: id },
       1,
       1,
       {},
@@ -187,8 +192,9 @@ export class AdminInstructorController {
     );
     res.setHeader('Content-Disposition', 'inline');
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const nodeStream = Readable.fromWeb(fileResponse.body as any);
+    const nodeStream = Readable.fromWeb(
+      fileResponse.body as import('stream/web').ReadableStream,
+    );
     nodeStream.pipe(res);
   };
 }

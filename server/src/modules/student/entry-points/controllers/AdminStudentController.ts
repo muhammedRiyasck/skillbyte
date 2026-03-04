@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { StudentMapper } from '../../application/mappers/StudentMapper';
 
 import { IChangeStudentStatusUseCase } from '../../application/interfaces/IChangeStudentStatusUseCase';
 import { IGetPaginatedStudentsUseCase } from '../../application/interfaces/IGetPaginatedStudentsUseCase';
@@ -34,8 +35,13 @@ export class AdminStudentController {
       validatedQuery.limit,
       sort,
     );
+
+    const studentDtos =
+      students?.data?.map((student) => StudentMapper.toResponseDto(student)) ||
+      [];
+
     ApiResponseHelper.success(res, 'Students retrieved successfully', {
-      students,
+      students: { ...students, data: studentDtos },
     });
   };
   /**
@@ -46,10 +52,7 @@ export class AdminStudentController {
    */
   changeStatus = async (req: Request, res: Response) => {
     const validatedData = ChangeStudentStatusSchema.parse(req.body);
-    await this._changeStatusUC.execute(
-      validatedData.studentId,
-      validatedData.status,
-    );
+    await this._changeStatusUC.execute(validatedData.id, validatedData.status);
     ApiResponseHelper.success(
       res,
       `Student account status changed to ${validatedData.status}`,

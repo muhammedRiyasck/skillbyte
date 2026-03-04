@@ -24,21 +24,21 @@ router.patch(
   asyncHandler(adminInstructorController.decline),
 );
 router.patch(
-  '/:instructorId/status',
+  '/:id/status',
   authenticate,
   requireRole('admin'),
   asyncHandler(adminInstructorController.changeInstructorStatus),
 );
 
 router.delete(
-  '/:instructorId',
+  '/:id',
   authenticate,
   requireRole('admin'),
   asyncHandler(adminInstructorController.deleteInstructor),
 );
 
 router.get(
-  '/:instructorId/resume',
+  '/:id/resume',
   authenticate,
   requireRole('admin'),
   asyncHandler(adminInstructorController.getInstructorResume),

@@ -63,7 +63,7 @@ export class CourseController {
       `Course base created successfully for instructor ${instructorId}`,
     );
     ApiResponseHelper.created(res, 'Details added successfully', {
-      courseId: course.courseId,
+      id: course.courseId,
     });
   };
 
@@ -76,8 +76,8 @@ export class CourseController {
    */
   uploadThumbnail = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
-    const { courseId } = authenticatedReq.params;
-    if (!courseId) {
+    const { id } = authenticatedReq.params;
+    if (!id) {
       throw new HttpError(
         ERROR_MESSAGES.CANT_SEE_COURSEID,
         HttpStatusCode.BAD_REQUEST,
@@ -108,16 +108,16 @@ export class CourseController {
     const url = await this._storageService.upload(authenticatedReq.file.path, {
       folder: 'skillbyte/thumbnails',
       resourceType: 'image',
-      publicId: `thumbnail_${courseId}`,
+      publicId: `thumbnail_${id}`,
       overwrite: true,
     });
 
-    await this._updateBaseUseCase.execute(courseId, authenticatedReq.user.id, {
+    await this._updateBaseUseCase.execute(id, authenticatedReq.user.id, {
       thumbnailUrl: url,
     });
 
     ApiResponseHelper.success(res, 'Course Base Created Successfully', {
-      courseId,
+      id,
     });
 
     // Delete the local uploaded file
@@ -136,13 +136,13 @@ export class CourseController {
    */
   updateBase = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
-    const courseId = authenticatedReq.params.courseId;
+    const id = authenticatedReq.params.id;
     const instructorId = authenticatedReq.user.id;
 
     const validatedData = UpdateBaseSchema.parse(authenticatedReq.body);
     const data = CourseMapper.toUpdateBaseEntity(validatedData);
 
-    await this._updateBaseUseCase.execute(courseId, instructorId, data);
+    await this._updateBaseUseCase.execute(id, instructorId, data);
     ApiResponseHelper.success(res, 'Course updated successfully');
   };
 
@@ -154,17 +154,13 @@ export class CourseController {
    */
   updateCourseStatus = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
-    const courseId = authenticatedReq.params.courseId;
+    const id = authenticatedReq.params.id;
     const instructorId = authenticatedReq.user.id;
 
     const validatedData = UpdateStatusSchema.parse(authenticatedReq.body);
     const { status } = validatedData; // status is typed now
 
-    await this._updateCourseStatusUseCase.execute(
-      courseId,
-      instructorId,
-      status,
-    );
+    await this._updateCourseStatusUseCase.execute(id, instructorId, status);
     ApiResponseHelper.success(res, `Course ${status} successfully`);
   };
 
@@ -175,7 +171,7 @@ export class CourseController {
    */
   blockCourse = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
-    const courseId = authenticatedReq.params.courseId;
+    const id = authenticatedReq.params.id;
     const { isBlocked } = authenticatedReq.body;
 
     // Basic validation, could add Zod schema if needed
@@ -186,7 +182,7 @@ export class CourseController {
       );
     }
 
-    await this._blockCourseUseCase.execute(courseId, isBlocked);
+    await this._blockCourseUseCase.execute(id, isBlocked);
     ApiResponseHelper.success(
       res,
       `Course ${isBlocked ? 'blocked' : 'unblocked'} successfully`,
@@ -200,17 +196,29 @@ export class CourseController {
    */
   getCourseById = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
-    const courseId = authenticatedReq.params.courseId;
+    const id = authenticatedReq.params.id;
     const { include } = authenticatedReq.query;
     const role = authenticatedReq.user.role || 'student';
     const userId = authenticatedReq.user.id;
     const course = await this._getCourseDetailsUseCase.execute(
-      courseId,
+      id,
       role,
       include as string,
       userId,
     );
-    ApiResponseHelper.success(res, 'Course retrieved successfully', course);
+
+    if (!course) {
+      throw new HttpError(
+        ERROR_MESSAGES.COURSE_NOT_FOUND,
+        HttpStatusCode.NOT_FOUND,
+      );
+    }
+
+    ApiResponseHelper.success(
+      res,
+      'Course retrieved successfully',
+      CourseMapper.toDetailsResponse(course),
+    );
   };
 
   /**
@@ -293,23 +301,28 @@ export class CourseController {
         enrollments.map((e: IEnrollment) => e.courseId.toString()),
       );
 
-      // Create a new data array with isEnrolled property
-      const coursesWithEnrollment = courses.data.map((course) => ({
-        ...course,
-        isEnrolled: enrolledCourseIdSet.has(
-          (course.courseId || (course as { _id?: string })._id)?.toString() ||
-            '',
-        ),
-      }));
+      const mappedCourses = courses.data.map((course) => {
+        const dto = CourseMapper.toResponseDto(course);
+        return {
+          ...dto,
+          isEnrolled: enrolledCourseIdSet.has(
+            (course.courseId || (course as { _id?: string })._id)?.toString() ||
+              '',
+          ),
+        };
+      });
 
       ApiResponseHelper.success(res, 'Courses retrieved successfully', {
-        courses: { ...courses, data: coursesWithEnrollment },
+        courses: { ...courses, data: mappedCourses },
       });
       return;
     }
 
+    const mappedCourses =
+      courses?.data?.map((course) => CourseMapper.toResponseDto(course)) || [];
+
     ApiResponseHelper.success(res, 'Courses retrieved successfully', {
-      courses,
+      courses: { ...courses, data: mappedCourses },
     });
   };
 
@@ -367,7 +380,13 @@ export class CourseController {
       sort,
     );
 
-    ApiResponseHelper.success(res, 'Courses retrieved successfully', courses);
+    const mappedCourses =
+      courses?.data?.map((course) => CourseMapper.toResponseDto(course)) || [];
+
+    ApiResponseHelper.success(res, 'Courses retrieved successfully', {
+      ...courses,
+      data: mappedCourses,
+    });
   };
 
   /**
@@ -407,8 +426,12 @@ export class CourseController {
       limit,
       sort,
     );
+
+    const mappedCourses =
+      courses?.data?.map((course) => CourseMapper.toResponseDto(course)) || [];
+
     ApiResponseHelper.success(res, 'Courses retrieved successfully', {
-      courses,
+      courses: { ...courses, data: mappedCourses },
     });
   };
 
@@ -420,10 +443,10 @@ export class CourseController {
    */
   deleteCourse = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
-    const courseId = authenticatedReq.params.courseId;
+    const id = authenticatedReq.params.id;
     const instructorId = authenticatedReq.user.id;
 
-    await this._deleteCourseUseCase.execute(courseId, instructorId);
+    await this._deleteCourseUseCase.execute(id, instructorId);
     ApiResponseHelper.success(res, 'Course deleted successfully');
   };
 }

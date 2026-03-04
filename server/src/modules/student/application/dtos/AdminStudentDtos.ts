@@ -18,7 +18,7 @@ export type AdminStudentPaginationDto = z.infer<
 >;
 
 export const ChangeStudentStatusSchema = z.object({
-  studentId: z.string().min(1, 'Student ID is required'),
+  id: z.string().min(1, 'Student ID is required'),
   status: z.enum(['active', 'blocked']),
 });
 

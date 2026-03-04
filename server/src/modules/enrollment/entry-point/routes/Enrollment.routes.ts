@@ -6,7 +6,7 @@ import { requireRole } from '../../../../shared/middlewares/RequireRole';
 const router = express.Router();
 
 // Check Enrollment Status - Protected Route
-router.get('/check/:courseId', authenticate, async (req, res) => {
+router.get('/check/:id', authenticate, async (req, res) => {
   await enrollmentController.checkEnrollmentStatus(req, res);
 });
 

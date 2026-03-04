@@ -12,6 +12,8 @@ import {
   InstructorReapplySchema,
 } from '../../application/dtos/InstructorDtos';
 import { InstructorMapper } from '../../application/mappers/InstructorMapper';
+import { TempInstructorData } from '../../../../shared/services/otp/interfaces/ITempInstructorData ';
+import { TempStudentData } from '../../../../shared/services/otp/interfaces/ITempStudentData';
 
 /**
  * Controller for instructor authentication operations.
@@ -25,7 +27,9 @@ export class InstructorAuthController {
    */
   constructor(
     private readonly _registerInstructorUseCase: IRegisterInstructorUseCase,
-    private readonly _generateOtpUseCase: IOtpService,
+    private readonly _generateOtpUseCase: IOtpService<
+      TempInstructorData | TempStudentData
+    >,
     private readonly _reapplyInstructorUseCase: IReapplyInstructorUseCase,
   ) {}
 

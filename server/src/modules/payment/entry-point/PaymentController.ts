@@ -49,7 +49,12 @@ export class PaymentController {
 
       const result = await this._capturePayPalPaymentUc.execute(orderId);
 
-      if (result.success) {
+      if (result.success && result.payment) {
+        return ApiResponseHelper.success(res, 'Payment captured successfully', {
+          ...result,
+          payment: PaymentMapper.toResponse(result.payment),
+        });
+      } else if (result.success) {
         return ApiResponseHelper.success(
           res,
           'Payment captured successfully',

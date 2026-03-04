@@ -18,7 +18,7 @@ router.post(
   asyncHandler(courseController.createBase),
 );
 router.post(
-  '/upload-thumbnail/:courseId',
+  '/upload-thumbnail/:id',
   authenticate,
   requireRole('instructor'),
   upload.single('thumbnail'),
@@ -37,7 +37,7 @@ router.get(
   asyncHandler(courseController.getInstructorCourses),
 );
 router.get(
-  '/details/:courseId',
+  '/details/:id',
   authenticate,
   requireRole('instructor', 'student', 'admin'),
   asyncHandler(courseController.getCourseById),
@@ -56,25 +56,25 @@ router.get(
   asyncHandler(courseController.getAllCourses),
 );
 router.patch(
-  '/:courseId',
+  '/:id',
   authenticate,
   requireRole('instructor', 'admin'),
   asyncHandler(courseController.updateBase),
 );
 router.patch(
-  '/:courseId/status',
+  '/:id/status',
   authenticate,
   requireRole('instructor'),
   asyncHandler(courseController.updateCourseStatus),
 );
 router.patch(
-  '/:courseId/block',
+  '/:id/block',
   authenticate,
   requireRole('admin'),
   asyncHandler(courseController.blockCourse),
 );
 router.delete(
-  '/:courseId',
+  '/:id',
   authenticate,
   requireRole('instructor'),
   asyncHandler(courseController.deleteCourse),
@@ -88,13 +88,13 @@ router.post(
   asyncHandler(moduleWithLessonController.createModule),
 );
 router.patch(
-  '/module/:moduleId',
+  '/module/:id',
   authenticate,
   requireRole('instructor'),
   asyncHandler(moduleWithLessonController.updateModule),
 );
 router.delete(
-  '/module/:moduleId',
+  '/module/:id',
   authenticate,
   requireRole('instructor'),
   asyncHandler(moduleWithLessonController.deleteModule),
@@ -119,25 +119,25 @@ router.post(
   asyncHandler(lessonController.getVideoSignedUrls),
 );
 router.get(
-  '/lesson/:lessonId/play',
+  '/lesson/:id/play',
   authenticate,
   requireRole('student', 'instructor', 'admin'),
   asyncHandler(lessonController.getLessonPlayUrl),
 );
 router.patch(
-  '/lesson/:lessonId',
+  '/lesson/:id',
   authenticate,
   requireRole('instructor'),
   asyncHandler(lessonController.updateLesson),
 );
 router.patch(
-  '/lesson/:lessonId/block',
+  '/lesson/:id/block',
   authenticate,
   requireRole('admin'),
   asyncHandler(lessonController.blockLesson),
 );
 router.delete(
-  '/lesson/:lessonId',
+  '/lesson/:id',
   authenticate,
   requireRole('instructor'),
   asyncHandler(lessonController.deleteLesson),

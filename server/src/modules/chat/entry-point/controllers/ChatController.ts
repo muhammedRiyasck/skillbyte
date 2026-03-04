@@ -6,6 +6,7 @@ import { IGetMessagesUseCase } from '../../application/interfaces/IGetMessagesUs
 import { IMarkMessagesAsReadUseCase } from '../../application/interfaces/IMarkMessagesAsReadUseCase';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
+import { ChatMapper } from '../../application/mappers/ChatMapper';
 
 export class ChatController {
   constructor(
@@ -18,15 +19,19 @@ export class ChatController {
 
   createConversation = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { studentId, instructorId, courseId } = req.body;
+      const { studentId, instructorId, id } = req.body;
 
       const conversation = await this.createConversationUseCase.execute({
         studentId,
         instructorId,
-        courseId,
+        courseId: id,
       });
 
-      ApiResponseHelper.created(res, 'Conversation created', conversation);
+      ApiResponseHelper.created(
+        res,
+        'Conversation created',
+        ChatMapper.toConversationResponseDto(conversation),
+      );
     } catch (error) {
       ApiResponseHelper.badRequest(
         res,
@@ -52,7 +57,16 @@ export class ChatController {
         role,
       );
 
-      ApiResponseHelper.success(res, 'Conversations fetched', conversations);
+      const mappedConversations =
+        conversations?.map((conv) =>
+          ChatMapper.toConversationResponseDto(conv),
+        ) || [];
+
+      ApiResponseHelper.success(
+        res,
+        'Conversations fetched',
+        mappedConversations,
+      );
     } catch (error) {
       ApiResponseHelper.error(
         res,
@@ -86,7 +100,11 @@ export class ChatController {
         fileName,
       });
 
-      ApiResponseHelper.created(res, 'Message sent', message);
+      ApiResponseHelper.created(
+        res,
+        'Message sent',
+        ChatMapper.toMessageResponseDto(message),
+      );
     } catch (error) {
       ApiResponseHelper.badRequest(
         res,
@@ -115,7 +133,10 @@ export class ChatController {
         limit,
         offset,
       );
-      ApiResponseHelper.success(res, 'Messages fetched', messages);
+      const mappedMessages =
+        messages?.map((msg) => ChatMapper.toMessageResponseDto(msg)) || [];
+
+      ApiResponseHelper.success(res, 'Messages fetched', mappedMessages);
     } catch (error) {
       ApiResponseHelper.badRequest(
         res,

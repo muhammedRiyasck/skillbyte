@@ -10,6 +10,8 @@ import {
   StudentVerifyOtpSchema,
 } from '../../application/dtos/StudentDtos';
 import { StudentMapper } from '../../application/mappers/StudentMapper';
+import { TempInstructorData } from '../../../../shared/services/otp/interfaces/ITempInstructorData ';
+import { TempStudentData } from '../../../../shared/services/otp/interfaces/ITempStudentData';
 
 /**
  * Controller for student authentication operations.
@@ -23,7 +25,9 @@ export class StudentAuthController {
    */
   constructor(
     private readonly _registerStudentUseCase: IRegisterStudentUseCase,
-    private readonly _generateOtpUseCase: IOtpService,
+    private readonly _generateOtpUseCase: IOtpService<
+      TempInstructorData | TempStudentData
+    >,
   ) {}
 
   /**

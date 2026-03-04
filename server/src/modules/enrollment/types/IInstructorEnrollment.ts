@@ -21,14 +21,14 @@ export interface IInstructorEnrollment {
 
 export interface IEnrollmentFilters {
   search?: string;
-  courseId?: string;
+  id?: string;
   status?: string;
   sort?: 'newest' | 'oldest';
 }
 
 export interface ICourseEnrollmentSummary {
   data: {
-    courseId: string;
+    id: string;
     courseTitle: string;
     courseThumbnail?: string;
     coursePrice: number;

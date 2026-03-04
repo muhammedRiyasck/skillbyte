@@ -1,3 +1,4 @@
+import { IPayment } from '../../domain/entities/Payment';
 import { IPaymentWriteRepository } from '../../domain/IRepositories/IPaymentWriteRepository';
 import { IPayPalProvider } from '../../../../shared/services/payment/interfaces/IPayPalProvider';
 import logger from '../../../../shared/utils/Logger';
@@ -14,7 +15,9 @@ export class CapturePayPalPaymentUseCase implements ICapturePayPalPayment {
     private _paypalProvider: IPayPalProvider,
   ) {}
 
-  async execute(orderId: string): Promise<{ success: boolean }> {
+  async execute(
+    orderId: string,
+  ): Promise<{ success: boolean; payment?: IPayment }> {
     try {
       // 1. Capture the PayPal payment
       const captureData = await this._paypalProvider.capturePayment(orderId);
@@ -69,7 +72,7 @@ export class CapturePayPalPaymentUseCase implements ICapturePayPalPayment {
       );
       eventBus.emit(PAYMENT_EVENTS.PAYMENT_SUCCEEDED, paymentEvent);
 
-      return { success: true };
+      return { success: true, payment };
     } catch (error) {
       logger.error('Error in CapturePayPalPaymentUseCase:', error);
       await this._paymentRepository.updatePaymentStatusByPayPalOrder(

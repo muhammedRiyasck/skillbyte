@@ -116,7 +116,7 @@ export class EnrollmentReadRepository
           progress: 1,
           status: 1,
           course: {
-            courseId: '$course._id',
+            id: '$course._id',
             instructorId: '$course.instructorId',
             title: '$course.title',
             thumbnailUrl: '$course.thumbnailUrl',
@@ -145,7 +145,7 @@ export class EnrollmentReadRepository
         progress: number;
         status: string;
         course: {
-          courseId: Types.ObjectId;
+          id: Types.ObjectId;
           instructorId: Types.ObjectId;
           title: string;
           thumbnailUrl: string;
@@ -159,7 +159,7 @@ export class EnrollmentReadRepository
         };
       }) => ({
         ...item.course,
-        courseId: item.course.courseId.toString(),
+        id: item.course.id.toString(),
         instructorId: item.course.instructorId.toString(),
         enrolledAt: item.enrolledAt,
         progress: item.progress,
@@ -199,10 +199,10 @@ export class EnrollmentReadRepository
       },
     ];
 
-    if (filters?.courseId) {
+    if (filters?.id) {
       pipeline.push({
         $match: {
-          courseId: new Types.ObjectId(filters.courseId),
+          courseId: new Types.ObjectId(filters.id),
         },
       });
     }

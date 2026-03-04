@@ -33,13 +33,13 @@ export class GetConversationsUseCase implements IGetConversationsUseCase {
 
         return {
           ...conversation,
-          id: conversation.conversationId,
+          conversationId: conversation.conversationId,
           student: student
             ? {
                 id: student.studentId,
                 name: student.name,
                 email: student.email,
-                profilePicture: student.profilePictureUrl,
+                profilePicture: student.profilePictureUrl || undefined,
               }
             : null,
           instructor: instructor
@@ -47,7 +47,7 @@ export class GetConversationsUseCase implements IGetConversationsUseCase {
                 id: instructor.instructorId,
                 name: instructor.name,
                 email: instructor.email,
-                profilePicture: instructor.profilePictureUrl,
+                profilePicture: instructor.profilePictureUrl || undefined,
                 jobTitle: instructor.jobTitle,
                 experience: instructor.experience,
               }
@@ -56,10 +56,10 @@ export class GetConversationsUseCase implements IGetConversationsUseCase {
             ? {
                 id: course.courseId,
                 title: course.title,
-                thumbnail: course.thumbnailUrl,
+                thumbnail: course.thumbnailUrl || undefined,
               }
             : null,
-        };
+        } as IConversation;
       }),
     );
 

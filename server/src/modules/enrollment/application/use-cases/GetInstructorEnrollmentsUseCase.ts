@@ -35,7 +35,7 @@ export class GetInstructorEnrollmentsUseCase
 
       if (!courseMap.has(courseId)) {
         courseMap.set(courseId, {
-          courseId,
+          id: courseId,
           courseTitle: enrollment.courseId.title,
           courseThumbnail: enrollment.courseId.thumbnailUrl,
           coursePrice: enrollment.courseId.price,

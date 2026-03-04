@@ -1,5 +1,5 @@
 export interface IStudentEnrollment {
-  courseId: string;
+  id: string;
   title: string;
   instructorId: string;
   thumbnailUrl: string;

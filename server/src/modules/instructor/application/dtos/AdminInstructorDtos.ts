@@ -19,13 +19,13 @@ export type AdminInstructorPaginationDto = z.infer<
 >;
 
 export const ApproveInstructorSchema = z.object({
-  instructorId: z.string().min(1, 'Instructor ID is required'),
+  id: z.string().min(1, 'Instructor ID is required'),
 });
 
 export type ApproveInstructorDto = z.infer<typeof ApproveInstructorSchema>;
 
 export const DeclineInstructorSchema = z.object({
-  instructorId: z.string().min(1, 'Instructor ID is required'),
+  id: z.string().min(1, 'Instructor ID is required'),
   reason: z.string().min(1, 'Reason is required'),
 });
 

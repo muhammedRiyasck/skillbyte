@@ -19,17 +19,14 @@ export class EnrollmentController {
 
   async checkEnrollmentStatus(req: Request, res: Response) {
     try {
-      const { courseId } = req.params;
+      const id = req.params.id;
       const userId = (req as AuthenticatedRequest).user.id;
 
       if (!userId) {
         return ApiResponseHelper.unauthorized(res, 'Unauthorized');
       }
 
-      const enrollment = await this._checkEnrollmentUc.execute(
-        userId,
-        courseId,
-      );
+      const enrollment = await this._checkEnrollmentUc.execute(userId, id);
 
       return ApiResponseHelper.success(res, 'Enrollment status checked', {
         isEnrolled: !!enrollment,
@@ -54,7 +51,7 @@ export class EnrollmentController {
 
       const filters = {
         search: req.query.search as string,
-        courseId: req.query.courseId as string,
+        id: req.query.id as string,
         status: req.query.status as string,
         sort: req.query.sort as 'newest' | 'oldest',
       };
@@ -126,7 +123,7 @@ export class EnrollmentController {
 
   async initiatePayment(req: Request, res: Response) {
     try {
-      const { courseId, provider } = req.body;
+      const { id, provider } = req.body;
       const userId = (req as AuthenticatedRequest).user.id;
 
       if (!userId) {
@@ -134,7 +131,7 @@ export class EnrollmentController {
       }
       const result = await this._initiateEnrollmentPaymentUc.execute(
         userId,
-        courseId,
+        id,
         provider,
       );
 
