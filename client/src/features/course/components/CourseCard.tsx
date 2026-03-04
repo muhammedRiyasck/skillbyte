@@ -24,38 +24,38 @@ const CourseCard = memo<CourseCardProps>(({
   role = 'student',
   page = 1
 }) => {
-const navigate = useNavigate();
-const queryClient = useQueryClient();
-  const [confirmModal, setConfirmModal] = useState<{ 
-    isOpen: boolean; 
-    courseId: string; 
-    newStatus: string; 
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    id: string;
+    newStatus: string;
     action: "status" | "block";
-    isBlocked?: boolean; 
+    isBlocked?: boolean;
   }>({
     isOpen: false,
-    courseId: "",
+    id: "",
     newStatus: "list",
     action: "status"
   });
-  
+
   const user = useSelector((state: RootState) => state.auth.user);
   const [isCreatingChat, setIsCreatingChat] = useState<string | null>(null);
 
-  const handleMessageInstructor = async (courseId: string, instructorId: string | undefined) => {
+  const handleMessageInstructor = async (id: string, instructorId: string | undefined) => {
     if (!user || !instructorId) return;
-    
-    setIsCreatingChat(courseId);
+
+    setIsCreatingChat(id);
     try {
       await ChatService.createConversation({
         studentId: user.id,
         instructorId,
-        courseId
+        id
       });
-      
+
       // Invalidate conversations query to ensure the new conversation appears in the list
       queryClient.invalidateQueries({ queryKey: ['conversations', user.id] });
-      
+
       navigate(ROUTES.chat);
     } catch (error) {
       console.error("Failed to start conversation:", error);
@@ -66,11 +66,11 @@ const queryClient = useQueryClient();
 
   const handleToggleChange = useCallback((course: Ibase) => {
     if (role === 'admin') {
-      
-       setConfirmModal({
+
+      setConfirmModal({
         isOpen: true,
-        courseId: course.courseId,
-        newStatus: "", 
+        id: course.id,
+        newStatus: "",
         action: "block",
         isBlocked: !course.isBlocked
       });
@@ -78,7 +78,7 @@ const queryClient = useQueryClient();
       const newStatus = course.status === "list" ? "unlist" : "list";
       setConfirmModal({
         isOpen: true,
-        courseId: course.courseId,
+        id: course.id,
         newStatus,
         action: "status"
       });
@@ -88,22 +88,22 @@ const queryClient = useQueryClient();
   const confirmStatusChange = useCallback(async () => {
     try {
       if (confirmModal.action === "status") {
-        await updateCourseStatus(confirmModal.courseId, confirmModal.newStatus as "list" | "unlist");
+        await updateCourseStatus(confirmModal.id, confirmModal.newStatus as "list" | "unlist");
       } else if (confirmModal.action === "block") {
-         await blockCourse(confirmModal.courseId, confirmModal.isBlocked!);
+        await blockCourse(confirmModal.id, confirmModal.isBlocked!);
       }
-      
+
       // Invalidate queries directly after successful mutation
       await queryClient.invalidateQueries({ queryKey: ["courses"] });
     } catch (error) {
       console.error("Failed to update course status:", error);
     } finally {
-      setConfirmModal({ isOpen: false, courseId: "", newStatus: "list", action: "status" });
+      setConfirmModal({ isOpen: false, id: "", newStatus: "list", action: "status" });
     }
   }, [confirmModal, queryClient]);
 
   const cancelStatusChange = useCallback(() => {
-    setConfirmModal({ isOpen: false, courseId: "", newStatus: "list", action: "status" });
+    setConfirmModal({ isOpen: false, id: "", newStatus: "list", action: "status" });
   }, []);
 
   const getStatusBadge = (status: Ibase['status']) => {
@@ -115,7 +115,7 @@ const queryClient = useQueryClient();
 
     const config = statusConfig[status];
     if (!config) return null;
-    
+
     if (!courses || courses.length === 0) {
       return (
         <div className="text-center py-12">
@@ -134,88 +134,90 @@ const queryClient = useQueryClient();
       </span>
     );
   };
-  
+
   const getActionButton = (course: Ibase) => {
     if (role === 'student') {
       // Action Button for Students
       return (
         <>
-        <button
-          onClick={() => navigate(ROUTES.course.details.replace(':courseId', course.courseId), { state: { page } })}
-          className={cn(
-            "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 cursor-pointer",
-            course.isEnrolled 
-              ? "bg-green-800 hover:bg-green-900 focus:ring-green-500" 
-              : "bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500"
-          )}
-        >
-          {course.isEnrolled ? 'Continue Learning' : 'Enroll Now'}
-        </button>
-        {course.isEnrolled && (
           <button
-            onClick={() => {handleMessageInstructor(course.courseId, course.instructorId )}}
-            disabled={isCreatingChat === course.courseId}
-            className="mt-2 w-full text-indigo-600 border border-indigo-600 hover:bg-indigo-50 font-medium py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 cursor-pointer flex items-center justify-center gap-2"
-          >
-            {isCreatingChat === course.courseId ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <MessageSquare className="w-4 h-4" />
+            onClick={() => navigate(ROUTES.course.details.replace(':id', course.id), { state: { page } })}
+            className={cn(
+              "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 cursor-pointer",
+              course.isEnrolled
+                ? "bg-green-800 hover:bg-green-900 focus:ring-green-500"
+                : "bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500"
             )}
-            Message Instructor
+          >
+            {course.isEnrolled ? 'Continue Learning' : 'Enroll Now'}
           </button>
-        )}
-      </>
+          {course.isEnrolled && (
+            <button
+              onClick={() => { handleMessageInstructor(course.id, course.instructorId) }}
+              disabled={isCreatingChat === course.id}
+              className="mt-2 w-full text-indigo-600 border border-indigo-600 hover:bg-indigo-50 font-medium py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 cursor-pointer flex items-center justify-center gap-2"
+            >
+              {isCreatingChat === course.id ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <MessageSquare className="w-4 h-4" />
+              )}
+              Message Instructor
+            </button>
+          )}
+        </>
       );
-    }else if(role === 'instructor' ){
+    } else if (role === 'instructor') {
 
-    // Action Button for Instructors
-    return (
-      <button
-        onClick={() => {navigate(ROUTES.instructor.uploadCourseContent, {
-          state: { courseId: course.courseId, page }
-        })}}
-        className={
-          "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none cursor-pointer bg-indigo-500 hover:bg-indigo-600"}
-      >
-        Continue Upload
-      </button>
-    );
-  }else if(role === 'admin'){
-    return (
-      <button
-        onClick={() => navigate(ROUTES.course.details.replace(':courseId', course.courseId), { state: { page } })}
-        className={
-          "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none cursor-pointer bg-orange-500 hover:bg-orange-600"}
-      >
-        Manage Course
-      </button>
-    );
+      // Action Button for Instructors
+      return (
+        <button
+          onClick={() => {
+            navigate(ROUTES.instructor.uploadCourseContent, {
+              state: { id: course.id, page }
+            })
+          }}
+          className={
+            "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none cursor-pointer bg-indigo-500 hover:bg-indigo-600"}
+        >
+          Continue Upload
+        </button>
+      );
+    } else if (role === 'admin') {
+      return (
+        <button
+          onClick={() => navigate(ROUTES.course.details.replace(':id', course.id), { state: { page } })}
+          className={
+            "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none cursor-pointer bg-orange-500 hover:bg-orange-600"}
+        >
+          Manage Course
+        </button>
+      );
+    }
+
+    return null;
   }
-  
-  return null;
-}
 
   // Main Render
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 my-12">
       {courses.map((course) => (
         <div
-          key={course.courseId}
+          key={course.id}
           className={`bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 p-6 flex flex-col group hover:-translate-y-2 border border-gray-100 dark:border-gray-700 ${role === 'instructor' && course.isBlocked ? 'opacity-50 cursor-not-allowed' : ''}`}
         >
           <div className="rounded-lg overflow-hidden mb-4 relative">
 
             {role === 'instructor' && course.isBlocked && (
               <div className="absolute top-3 z-10 left-3  flex items-center gap-1.5 bg-gradient-to-r bg-yellow-800 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm">
-            
+
                 <span className="font-light">! Blocked by Admin</span>
               </div>
             )}
             {role !== 'student' && course.isBlocked === false && getStatusBadge(course.status)}
             {role === 'student' && course.isEnrolled && (
               <div className="absolute top-3 left-3  flex items-center gap-1.5 bg-gradient-to-r bg-green-800 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm">
-                
+
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
@@ -238,12 +240,12 @@ const queryClient = useQueryClient();
                 checked={course.status === "list"}
                 onChange={() => handleToggleChange(course)}
               />
-            ):role==='admin'?
-            <ToggleSwitch
+            ) : role === 'admin' ?
+              <ToggleSwitch
                 checked={course.isBlocked || false} // Default to false if undefined
                 label="block"
                 onChange={() => handleToggleChange(course)}
-              />:null}
+              /> : null}
           </h2>
 
           <div className="flex items-center gap-3 mb-4 text-sm flex-wrap">
@@ -268,7 +270,7 @@ const queryClient = useQueryClient();
         isOpen={confirmModal.isOpen}
         onClose={cancelStatusChange}
         title={
-          confirmModal.action === 'block' 
+          confirmModal.action === 'block'
             ? `Confirm ${confirmModal.isBlocked ? 'Block' : 'Unblock'} Course`
             : `Confirm ${confirmModal.newStatus === "list" ? "List" : "Unlist"} Course`
         }
@@ -277,7 +279,7 @@ const queryClient = useQueryClient();
         cancelLabel="Cancel"
       >
         <p className="text-gray-700 dark:text-gray-300">
-           {confirmModal.action === 'block'
+          {confirmModal.action === 'block'
             ? `Are you sure you want to ${confirmModal.isBlocked ? 'block' : 'unblock'} this course?`
             : `Are you sure you want to ${confirmModal.newStatus === "list" ? "list" : "unlist"} this course?`
           }

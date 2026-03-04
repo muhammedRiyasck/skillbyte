@@ -1,5 +1,5 @@
 export interface IReqestPlayload {
-    instructorId:string;
-    reason?:string
+    id: string;
+    reason?: string
     status?: 'active' | 'suspend';
 }

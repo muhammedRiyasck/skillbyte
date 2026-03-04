@@ -12,64 +12,71 @@ import { Plus } from "lucide-react";
 
 const ContentUploadPage = () => {
   const location = useLocation();
-  const courseId = location.state?.courseId ?? null;
-  const page = location.state?.page || 1;
+  const id = location.state?.id ?? null;
+  const page = location.state?.page ?? 1;
 
-  const { data, isLoading, isError, error } = useCourse(courseId, "modules,lessons");
+  const { data, isLoading, isError, error } = useCourse(id, "modules,lessons");
   const [modules, setModules] = useState<ModuleType[]>([]);
+
+  // Memoize data.modules to prevent unnecessary re-renders
+  const courseModules = useMemo(() => data?.modules || [], [data]);
 
   // Memoize file names to avoid recalculating
   const fileNames = useMemo(() => {
-    if (!data || !Array.isArray(data)) return [];
-    return data
+    if (!courseModules.length) return [];
+    return courseModules
       .flatMap((mod: ModuleType) => mod.lessons.map((les: LessonType) => les.fileName ?? ""))
       .filter((fileName: string) => fileName !== "");
-  }, [data]);
+  }, [courseModules]);
 
   // Use useQuery for signed URLs with caching
   const { data: signedUrlsData } = useQuery({
-    queryKey: ["signedUrls", courseId, fileNames.sort().join(",")],
+    queryKey: ["signedUrls", id, fileNames.sort().join(",")],
     queryFn: async () => {
       if (!fileNames.length) return [];
       const response = await api.post("/course/signedUrl", { fileNames });
       return response.data.data; // [{ fileName, url }, ...]
     },
-    enabled: !!courseId && fileNames.length > 0,
+    enabled: !!id && fileNames.length > 0,
   });
 
-  // Set modules based on data and signed URLs
+  // 1. Initial Data Loading: Only runs when data first arrives or id changes
   useEffect(() => {
     if (!data) return;
 
-    if (!fileNames.length) {
-      setModules(
-        data && data.length ? data : [{ moduleId: Date.now().toString(), title: "", description: "", lessons: [] }]
-      );
-      return;
-    }
+    // Only initialize if we don't have modules yet, or if the course ID changed
+    const hasOnlyDrafts = modules.length === 0 || modules.every(m => /^\d{13,}$/.test(m.id));
 
-    if (signedUrlsData) {
-      // Map modules and attach signed URLs to lessons
-      const modulesWithSignedUrls = data.map((mod: ModuleType) => ({
-        ...mod,
-        lessons: mod.lessons.map((les: LessonType) => ({
-          ...les,
-          signedVideoUrl:
-            signedUrlsData.find((item: { fileName: string; url: string }) => item.fileName === les.fileName)?.url || "",
-        })),
-      }));
-      setModules(modulesWithSignedUrls);
-    } else {
-      // Fallback to original data without signed URLs
-      setModules(data);
+    if (courseModules.length > 0 && hasOnlyDrafts) {
+      setModules(courseModules);
+    } else if (modules.length === 0) {
+      // Default empty module if nothing exists at all
+      setModules([{ id: Date.now().toString(), title: "", description: "", lessons: [] }]);
     }
-  }, [data, signedUrlsData, fileNames]);
+  }, [id, courseModules, data, modules]);
+
+  // 2. Signed URL Syncing: Updates existing state without overwriting local edits
+  useEffect(() => {
+    if (!signedUrlsData || !signedUrlsData.length) return;
+
+    setModules((prev) =>
+      prev.map((mod) => ({
+        ...mod,
+        lessons: mod.lessons.map((les) => {
+          const signedUrlItem = signedUrlsData.find(
+            (item: { fileName: string; url: string }) => item.fileName === les.fileName
+          );
+          return signedUrlItem ? { ...les, signedVideoUrl: signedUrlItem.url } : les;
+        }),
+      }))
+    );
+  }, [signedUrlsData]);
 
   const addModule = () => {
-    setModules((prev) => [...prev, { moduleId: Date.now().toString(), title: "", description: "", lessons: [] }]);
+    setModules((prev) => [...prev, { id: Date.now().toString(), title: "", description: "", lessons: [] }]);
   };
 
-  if (!courseId) {
+  if (!id) {
     return (
       <div className="min-h-screen flex-col p-8 space-y-2 pt-50 dark:text-white dark:bg-gray-900">
         <h1 className="text-center mx-auto text-2xl">Sorry, We Can't Figure Out The Base Info!</h1>
@@ -117,7 +124,7 @@ const ContentUploadPage = () => {
           <span className="text-gray-500 dark:text-gray-400">{">"}</span>
           <Link
             to={ROUTES.instructor.createCourseBase}
-            state={{ courseId, page }}
+            state={{ id, page }}
             className="text-blue-600 font-bold hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
           >
             Course Details
@@ -129,7 +136,7 @@ const ContentUploadPage = () => {
 
       <div className="max-w-4xl mx-auto p-6">
         <h1 className="text-2xl font-bold my-4 text-center dark:text-white">Modules & Lessons</h1>
-        <ModuleList courseId={courseId} modules={modules} setModules={setModules} />
+        <ModuleList id={id} modules={modules} setModules={setModules} />
         <div className="flex justify-between">
           <button
             className="flex items-center gap-1 mt-4 cursor-pointer rounded px-4 py-2 dark:text-white outline bg-gray-100 dark:bg-gray-700 hover:bg-gray-400"

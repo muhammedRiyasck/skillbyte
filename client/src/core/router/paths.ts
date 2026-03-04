@@ -21,7 +21,7 @@ export const ROUTES = {
   student: {
     courses: '/courses',
     profile: '/profile',
-    checkout: '/checkout/:courseId',
+    checkout: '/checkout/:id',
     paymentSuccess: '/enrollment/success',
     purchases: '/purchases',
     enrolledCourses: '/my-courses',
@@ -32,7 +32,7 @@ export const ROUTES = {
   },
 
   course: {
-    details: '/course/:courseId',
+    details: '/course/:id',
   },
 
   instructor: {

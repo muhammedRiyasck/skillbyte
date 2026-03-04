@@ -12,14 +12,14 @@ import default_profile from "@assets/default_profile.svg";
 import TextInput from "@shared/ui/TextInput";
 
 interface FormData {
-  name:string;
+  name: string;
   subject: string;
   jobTitle: string;
   experience: string;
   socialProfile: string;
   portfolio: string;
   profile: string;
-  bio:string
+  bio: string
 }
 
 const Profile: React.FC = () => {
@@ -60,8 +60,8 @@ const Profile: React.FC = () => {
       experience: data.experience,
       socialProfile: data.socialProfile,
       portfolio: data.portfolio,
-      profile: data.profilePictureUrl,
-      bio:data.bio
+      profile: data.profilePicture,
+      bio: data.bio
     } : {},
   });
 
@@ -74,8 +74,8 @@ const Profile: React.FC = () => {
         experience: data.experience,
         socialProfile: data.socialProfile,
         portfolio: data.portfolio,
-        profile: data.profilePictureUrl,
-        bio:data.bio
+        profile: data.profilePicture,
+        bio: data.bio
       });
     }
   }, [data, reset]);
@@ -96,7 +96,7 @@ const Profile: React.FC = () => {
         return;
       }
     }
-    const updatedData = { ...formData, profilePictureUrl: profileUrl };
+    const updatedData = { ...formData, profilePicture: profileUrl };
     updateMutation.mutate(updatedData);
   };
 
@@ -125,7 +125,7 @@ const Profile: React.FC = () => {
   if (isLoading) return <Spiner />;
   if (isError) return <ErrorPage message={error?.message || "Failed to load profile"} statusCode={500} />;
 
-  const profileImage = croppedImage || data?.profilePictureUrl || default_profile;
+  const profileImage = croppedImage || data?.profilePicture || default_profile;
 
   return (
     <div className="p-6 min-h-screen bg-gray-50 dark:bg-gray-800">
@@ -146,10 +146,10 @@ const Profile: React.FC = () => {
               <h2 className="mt-4 text-2xl font-bold text-gray-900 dark:text-white">{data?.name}</h2>
               <p className="text-gray-600 dark:text-gray-300">{data?.email}</p>
             </div>
-              <div className="bg-gray-50 dark:bg-gray-800 p-4  rounded-lg shadow-sm">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Bio</label>
-                <p className="mt-1 text-gray-900 dark:text-white font-semibold">{data?.bio}</p>
-              </div>
+            <div className="bg-gray-50 dark:bg-gray-800 p-4  rounded-lg shadow-sm">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Bio</label>
+              <p className="mt-1 text-gray-900 dark:text-white font-semibold">{data?.bio}</p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg shadow-sm">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Subject</label>
@@ -228,7 +228,7 @@ const Profile: React.FC = () => {
                 )}
               />
             </div>
-         
+
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Subject</label>
               <Controller
@@ -295,7 +295,7 @@ const Profile: React.FC = () => {
                 )}
               />
             </div>
-               <div>
+            <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Bio</label>
               <Controller
                 name="bio"
@@ -310,7 +310,7 @@ const Profile: React.FC = () => {
                       value={field.value}
                       onChange={field.onChange}
                       className="mt-1 p-4 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                  
+
                     />
                     {fieldState.error && <p className="text-red-500 text-sm">{fieldState.error.message}</p>}
                   </>
@@ -360,7 +360,7 @@ const Profile: React.FC = () => {
                 )}
               />
             </div>
-            
+
             <div className="md:col-span-2 flex justify-end space-x-4">
               <button
                 type="button"
@@ -418,14 +418,14 @@ const Profile: React.FC = () => {
             type="button"
             onClick={async () => {
               setShowConfirmModal(false);
-              if (data?.profilePictureUrl && !croppedImage) {
+              if (data?.profilePicture && !croppedImage) {
                 setLoading(true);
                 try {
                   await api.delete('/instructor/profile-image');
                   toast.success('Profile image removed');
                   queryClient.invalidateQueries({ queryKey: ["instructor-profile"] });
                 } catch {
-                   // Global toast handles this
+                  // Global toast handles this
                 } finally {
                   setLoading(false);
                 }

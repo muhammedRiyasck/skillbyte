@@ -1,13 +1,13 @@
 export interface LessonType {
-  lessonId:string
-  moduleId:string
+  id: string
+  moduleId: string
   title: string;
-  description:string;
-  contentType:string
+  description: string;
+  contentType: string
   fileName?: string;
   signedVideoUrl?: string;
-  duration:number|null
-  order:number
+  duration: number | null
+  order: number
   resources: readonly string[];
   isFreePreview?: boolean;
   isBlocked?: boolean;

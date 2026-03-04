@@ -1,12 +1,12 @@
 export interface Instructor {
-  _id: string;
+  id: string;
   name: string;
   email: string;
-  profilePictureUrl: string;
+  profilePicture: string;
   subject: string;
   jobTitle: string;
   experience: string;
   socialProfile: string;
   portfolio: string;
-  
+
 }

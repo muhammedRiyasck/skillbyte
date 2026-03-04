@@ -7,14 +7,14 @@ import ErrorPage from "@shared/ui/ErrorPage";
 import { toast } from "sonner";
 
 interface LessonPlayerProps {
-  lessonId: string;
+  id: string;
   onClose: () => void;
   title?: string;
   enrollmentId?: string;
   initialProgress?: number;
 }
 
-const LessonPlayer: React.FC<LessonPlayerProps> = ({ lessonId, onClose, title, enrollmentId, initialProgress = 0 }) => {
+const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollmentId, initialProgress = 0 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const initialSeekDone = useRef(false);
@@ -37,7 +37,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ lessonId, onClose, title, e
     try {
       lastSavedTime.current = time;
       await updateLessonProgress(enrollmentId, {
-        lessonId,
+        lessonId: id,
         lastWatchedSecond: time,
         totalDuration: total,
         isCompleted: completed,
@@ -48,9 +48,9 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ lessonId, onClose, title, e
   };
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["lessonPlayUrl", lessonId],
-    queryFn: () => getLessonPlayUrl(lessonId),
-    enabled: !!lessonId,
+    queryKey: ["lessonPlayUrl", id],
+    queryFn: () => getLessonPlayUrl(id),
+    enabled: !!id,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -68,7 +68,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ lessonId, onClose, title, e
     if (videoRef.current) {
       videoRef.current.load();
     }
-  }, [lessonId, initialProgress]);
+  }, [id, initialProgress]);
 
   // Handle online/offline status
   useEffect(() => {
@@ -223,7 +223,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ lessonId, onClose, title, e
         videoRef.current.currentTime -= 10;
       }
     }
-    if(e.key === "ArrowUp") {
+    if (e.key === "ArrowUp") {
       e.preventDefault();
       if (videoRef.current) {
         const newVolume = Math.min(videoRef.current.volume + 0.1, 1);
@@ -232,7 +232,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ lessonId, onClose, title, e
       }
 
     }
-    if(e.key === "ArrowDown") {
+    if (e.key === "ArrowDown") {
       e.preventDefault();
       if (videoRef.current) {
         const newVolume = Math.max(videoRef.current.volume - 0.1, 0);
@@ -326,7 +326,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ lessonId, onClose, title, e
           onEnded={handleEnded}
         />
 
-        {/* Offline Indicator */} 
+        {/* Offline Indicator */}
         {isOffline && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-70 z-20">
             <WifiOff className="w-16 h-16 text-gray-400 mb-4" />
@@ -352,9 +352,8 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ lessonId, onClose, title, e
 
         {/* Controls Overlay */}
         <div
-          className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-4 transition-opacity duration-300 ${
-            showControls ? "opacity-100" : "opacity-0"
-          }`}
+          className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-4 transition-opacity duration-300 ${showControls ? "opacity-100" : "opacity-0"
+            }`}
         >
           {/* Progress Bar */}
           <input
@@ -365,9 +364,8 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ lessonId, onClose, title, e
             onChange={handleSeek}
             className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer mb-4"
             style={{
-              background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${(currentTime / duration) * 100}%, #4b5563 ${
-                (currentTime / duration) * 100
-              }%, #4b5563 100%)`,
+              background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${(currentTime / duration) * 100}%, #4b5563 ${(currentTime / duration) * 100
+                }%, #4b5563 100%)`,
             }}
           />
 

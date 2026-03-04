@@ -10,7 +10,7 @@ export interface IMentorshipSlot {
   description?: string;
   instructorDetails?: {
     name: string;
-    profilePictureUrl?: string;
+    profilePicture?: string;
     jobTitle: string;
   };
   tags?: string[];
@@ -19,8 +19,8 @@ export interface IMentorshipSlot {
 export interface IMentorshipBooking {
   bookingId: string;
   slotId: string | IMentorshipSlot;
-  studentId: string | { _id: string; name: string; email: string; profileImageUrl?: string };
-  instructorId: string | { _id: string; name: string; jobTitle?: string; profileImageUrl?: string };
+  studentId: string | { id: string; name: string; email: string; profilePicture?: string };
+  instructorId: string | { id: string; name: string; jobTitle?: string; profilePicture?: string };
   paymentId?: string;
   amount: number;
   currency: string;
@@ -90,19 +90,19 @@ export interface PaginationParams {
 }
 
 export interface UpdateBookingStatusRequest {
-    status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
 }
 
 export interface InstructorBookingFilters {
-    page?: number;
-    limit?: number;
-    status?: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  page?: number;
+  limit?: number;
+  status?: 'pending' | 'confirmed' | 'cancelled' | 'completed';
 }
 
 export interface StudentBookingFilters {
-    page?: number;
-    limit?: number;
-    status?: 'pending' | 'confirmed' | 'cancelled' | 'completed';
-    fromDate?: string | Date;
-    toDate?: string | Date;
+  page?: number;
+  limit?: number;
+  status?: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  fromDate?: string | Date;
+  toDate?: string | Date;
 }

@@ -6,7 +6,7 @@ import type { IConversation } from '../types/IConversation';
 export interface ICreateConversationRequest {
   studentId: string;
   instructorId: string;
-  courseId: string;
+  id: string;
 }
 
 export interface ISendMessageRequest {

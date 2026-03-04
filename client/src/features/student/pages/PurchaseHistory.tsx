@@ -3,6 +3,7 @@ import { getStudentPurchases } from '../../enrollment/services/EnrollmentService
 import Spiner from '@shared/ui/Spiner';
 import { RefreshCw, ReceiptText, Calendar, CreditCard } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Pagination } from '@/shared/ui';
 
 interface Purchase {
   id: string;
@@ -227,37 +228,11 @@ const PurchaseHistory: React.FC = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 pt-6">
-                <button
-                  disabled={page === 1 || isLoading}
-                  onClick={() => setPage(p => p - 1)}
-                  className="p-2 cursor-pointer rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 disabled:opacity-50"
-                >
-                  Prev
-                </button>
-                <div className="flex items-center gap-1">
-                  {[...Array(totalPages)].map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setPage(i + 1)}
-                      className={`w-10 cursor-pointer h-10 rounded-xl font-bold transition-all ${
-                        page === i + 1
-                          ? 'bg-blue-600 text-white shadow-md'
-                          : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50'
-                      }`}
-                    >
-                      {i + 1}
-                    </button>
-                  ))}
-                </div>
-                <button
-                  disabled={page === totalPages || isLoading}
-                  onClick={() => setPage(p => p + 1)}
-                  className="p-2 cursor-pointer rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 disabled:opacity-50"
-                >
-                  Next
-                </button>
-              </div>
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                onPageChange={setPage}
+              />
             )}
           </div>
         )}

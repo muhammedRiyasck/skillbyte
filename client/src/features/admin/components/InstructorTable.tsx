@@ -18,11 +18,11 @@ interface InstructorTableProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
-  onApprove: (instructorId: string) => void;
-  onDecline: (payload: { instructorId: string; reason: string }) => void;
-  onSuspend: (payload: { instructorId: string; reason: string; status: string }) => void;
+  onApprove: (id: string) => void;
+  onDecline: (payload: { id: string; reason: string }) => void;
+  onSuspend: (payload: { id: string; reason: string; status: string }) => void;
   onReOpen: (payload: IReqestPlayload) => void;
-  onDelete: (instructorId: string) => void;
+  onDelete: (id: string) => void;
 }
 
 const InstructorTable: React.FC<InstructorTableProps> = ({
@@ -64,12 +64,12 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
       action === "approve"
         ? "Approve Instructor"
         : action === "decline"
-        ? "Decline Instructor"
-        : action === "suspend"
-        ? "Suspend Instructor"
-        : action === "delete"
-        ? "Delete Instructor"
-        : "ReOpen Instructor"
+          ? "Decline Instructor"
+          : action === "suspend"
+            ? "Suspend Instructor"
+            : action === "delete"
+              ? "Delete Instructor"
+              : "ReOpen Instructor"
     );
     setIsModalOpen(true);
     setReason("");
@@ -94,7 +94,7 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
           setIsModalOpen(true);
           return;
         }
-        onDecline({ instructorId: selectedInstructor.id, reason: reason.trim() });
+        onDecline({ id: selectedInstructor.id, reason: reason.trim() });
         break;
       case "Suspend Instructor":
         if (!reason.trim()) {
@@ -107,10 +107,10 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
           setIsModalOpen(true);
           return;
         }
-        onSuspend({ instructorId: selectedInstructor.id, reason: reason.trim(), status: "suspend" });
+        onSuspend({ id: selectedInstructor.id, reason: reason.trim(), status: "suspend" });
         break;
       case "ReOpen Instructor":
-        onReOpen({ instructorId: selectedInstructor.id, status: "active" });
+        onReOpen({ id: selectedInstructor.id, status: "active" });
         break;
       case "Delete Instructor":
         onDelete(selectedInstructor.id);
@@ -131,7 +131,7 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
           <div className="h-10 w-10 flex-shrink-0">
             <img
               className="h-10 w-10 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
-              src={row.profile ?? default_profile}
+              src={row.profilePicture ?? default_profile}
               alt={row.name}
             />
           </div>
@@ -197,7 +197,7 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
       accessor: (row: Instructor) =>
         row.resumeUrl ? (
           <button
-            onClick={() => handleViewResume(row.instructorId)}
+            onClick={() => handleViewResume(row.id)}
             className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center cursor-pointer"
           >
             <Eye className="w-4 h-4 mr-1" />
@@ -208,19 +208,19 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
         ),
       className: "hidden lg:table-cell",
     },
-{
-  header: "Bio",
-  accessor: (row: Instructor) => (
-    <div
-      className="max-w-xs break-words overflow-hidden text-ellipsis whitespace-normal"
-      title={row.bio}
-      style={{ wordBreak: 'break-word',  overflow: 'hidden' }}
-    >
-      {row.bio || "N/A"}
-    </div>
-  ),
-  className: "hidden lg:table-cell",
-},
+    {
+      header: "Bio",
+      accessor: (row: Instructor) => (
+        <div
+          className="max-w-xs break-words overflow-hidden text-ellipsis whitespace-normal"
+          title={row.bio}
+          style={{ wordBreak: 'break-word', overflow: 'hidden' }}
+        >
+          {row.bio || "N/A"}
+        </div>
+      ),
+      className: "hidden lg:table-cell",
+    },
     {
       header: "Phone",
       accessor: (row: Instructor) => row.phoneNumber || "N/A",
@@ -230,13 +230,12 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
       header: "Status",
       accessor: (row: Instructor) => (
         <span
-          className={`inline-flex px-6 py-2 text-lg font-semibold rounded-full ${
-            row.approved
+          className={`inline-flex px-6 py-2 text-lg font-semibold rounded-full ${row.approved
               ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
               : row.accountStatus === "pending"
-              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-          }`}
+                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+            }`}
         >
           {row.accountStatus}
         </span>
@@ -245,18 +244,19 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
     {
       header: "Actions",
       accessor: (row: Instructor) => {
+        console.log(row);
         if (row.accountStatus === "pending" && !row.approved) {
           return (
             <div className="flex space-x-2">
               <button
-                onClick={() => handleAction(row.instructorId, "approve", row.name)}
+                onClick={() => handleAction(row.id, "approve", row.name)}
                 className="inline-flex items-center px-3 py-2 border border-transparent text-lg leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer focus:ring-green-500"
               >
                 <CheckCircle className="w-4 h-4 mr-1" />
                 Approve
               </button>
               <button
-                onClick={() => handleAction(row.instructorId, "decline", row.name)}
+                onClick={() => handleAction(row.id, "decline", row.name)}
                 className="inline-flex items-center px-3 py-2 border border-transparent text-lg leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer focus:ring-red-500"
               >
                 <XCircle className="w-4 h-4 mr-1" />
@@ -267,7 +267,7 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
         } else if (row.accountStatus === "active" && row.approved) {
           return (
             <button
-              onClick={() => handleAction(row.instructorId, "suspend", row.name)}
+              onClick={() => handleAction(row.id, "suspend", row.name)}
               className="inline-flex items-center px-2 py-2 border border-transparent text-lg leading-4 font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer focus:ring-yellow-500"
             >
               <UserX className="w-4 h-4 mr-1" />
@@ -277,7 +277,7 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
         } else if (row.accountStatus === "rejected" && row.rejected) {
           return (
             <button
-              onClick={() => handleAction(row.instructorId, "delete", row.name)}
+              onClick={() => handleAction(row.id, "delete", row.name)}
               className="inline-flex items-center px-3 py-2 border border-transparent text-lg leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer focus:ring-red-500"
             >
               <Trash2 className="w-4 h-4 mr-1" />
@@ -287,7 +287,7 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
         } else {
           return (
             <button
-              onClick={() => handleAction(row.instructorId, "reOpen", row.name)}
+              onClick={() => handleAction(row.id, "reOpen", row.name)}
               className="inline-flex items-center px-3 py-2 border border-transparent text-lg leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer focus:ring-blue-500"
             >
               <RotateCcw className="w-4 h-4 mr-1" />

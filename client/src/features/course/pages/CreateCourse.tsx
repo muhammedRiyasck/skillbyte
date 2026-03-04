@@ -131,13 +131,13 @@ const CreateCourse = () => {
     setCroppedBlob(croppedBlob);
   };
 
-  // Pre-fill form if courseId is in location.state
-  const courseId = location.state?.courseId;
+  // Pre-fill form if id is in location.state
+  const id = location.state?.id;
   const page = location.state?.page || 1;
-  const isDisabled = courseId && !isEditing;
+  const isDisabled = id && !isEditing;
   useEffect(() => {
-    if (courseId) {
-      getCourseDetails(courseId)
+    if (id) {
+      getCourseDetails(id)
         .then((courseData) => {
           const course = courseData.data;
           const category = Category.includes(course.category) ? course.category : "Other";
@@ -162,17 +162,17 @@ const CreateCourse = () => {
           console.error("Failed to fetch course details:", error);
         });
     }
-  }, [location.state, setValue, getValues, courseId]);
+  }, [location.state, setValue, getValues, id]);
 
   const createCourse = useCreateCourse();
 
   const onSubmit = async (data: FormData) => {
-    if (courseId) return;
+    if (id) return;
     if (croppedBlob && thumbnailFile) {
       try {
         setSpining(true);
-        const courseId = await createCourse({ formData: data, croppedBlob, thumbnailFile });
-        navigate(ROUTES.instructor.uploadCourseContent, { state: { courseId, page } });
+        const id = await createCourse({ formData: data, croppedBlob, thumbnailFile });
+        navigate(ROUTES.instructor.uploadCourseContent, { state: { id, page } });
         toast.success("Course created successfully!");
       } catch (error: unknown) {
         console.error(error);
@@ -193,13 +193,13 @@ const CreateCourse = () => {
   };
 
   const handleChange = async (data: FormData) => {
-    if (!courseId) return;
+    if (!id) return;
     try {
       setSpining(true);
-      await updateBase(courseId, data);
+      await updateBase(id, data);
       if (croppedBlob && thumbnailFile) {
         await uploadThumbnail({
-          courseId,
+          id,
           blob: croppedBlob,
           fileName: thumbnailFile.name,
         });
@@ -214,19 +214,19 @@ const CreateCourse = () => {
   };
 
   const handleDelete = async () => {
-    if (!courseId) return;
+    if (!id) return;
 
     const confirmed = window.confirm("Are you sure you want to delete this course permanently? This action cannot be undone.");
     if (!confirmed) return;
 
     try {
       setSpining(true);
-      await deleteCourse(courseId);
+      await deleteCourse(id);
       toast.success("Course deleted successfully!");
       queryClient.invalidateQueries({ queryKey: ['courses', category, page, email] });
       navigate(`${ROUTES.instructor.myCourses}?page=${page}`);
-    
-      
+
+
     } catch (error: unknown) {
       console.error(error);
     } finally {
@@ -251,23 +251,22 @@ const CreateCourse = () => {
         </div>
       </div>
       <div className="flex-col pt-28 bg-white dark:bg-gray-800 min-h-screen">
-          {courseId &&<button
-              type="button"
-              title="Delete this course permanently!!"
-              className="cursor-pointer border border-gray-400 dark:border-gray-600 dark:text-gray-100 p-2 rounded-lg my-4 ml-3 lg:ml-20"
-              onClick={handleDelete}
-            >
-             🗑️ Delete  
-          </button>}
+        {id && <button
+          type="button"
+          title="Delete this course permanently!!"
+          className="cursor-pointer border border-gray-400 dark:border-gray-600 dark:text-gray-100 p-2 rounded-lg my-4 ml-3 lg:ml-20"
+          onClick={handleDelete}
+        >
+          🗑️ Delete
+        </button>}
         <form
           onSubmit={(e) => e.preventDefault()}
-          className={` lg:w-4/6 rounded-lg shadow-2xl p-6 m-6 mx-auto  dark:bg-gray-700 dark:text-gray-100 dark:border ${
-            Object.keys(errors).length > 0 ? "border border-red-600" : ""
-          } `}
+          className={` lg:w-4/6 rounded-lg shadow-2xl p-6 m-6 mx-auto  dark:bg-gray-700 dark:text-gray-100 dark:border ${Object.keys(errors).length > 0 ? "border border-red-600" : ""
+            } `}
         >
           <div className="flex justify-between mb-6 ">
             <h2 className=" font-semibold text-lg">Basics</h2>
-            {courseId && (
+            {id && (
               <button onClick={() => setIsEditing(true)} className=" text-2xl cursor-pointer">
                 &#128393;
               </button>
@@ -294,9 +293,8 @@ const CreateCourse = () => {
               )}
               <div className="flex gap-3 mt-2">
                 <label
-                  className={`cursor-pointer bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition ${
-                    isDisabled ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  className={`cursor-pointer bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition ${isDisabled ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                 >
                   Change
                   <input
@@ -314,9 +312,8 @@ const CreateCourse = () => {
                       setValue("thumbnailFile", null);
                       setCroppedBlob(null);
                     }}
-                    className={`cursor-pointer border border-gray-300 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition ${
-                      isDisabled ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
+                    className={`cursor-pointer border border-gray-300 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition ${isDisabled ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                     disabled={isDisabled}
                   >
                     Remove
@@ -559,13 +556,12 @@ const CreateCourse = () => {
 
           {/* Next Button */}
           <div className="flex justify-end mt-8 gap-4">
-            {!courseId ? (
+            {!id ? (
               <button
                 type="submit"
                 onClick={handleSubmit(onSubmit)}
-                className={`bg-indigo-600 text-white rounded-lg px-6 py-2 hover:bg-indigo-700 transition cursor-pointer ${
-                  Object.keys(errors).length > 0 ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                className={`bg-indigo-600 text-white rounded-lg px-6 py-2 hover:bg-indigo-700 transition cursor-pointer ${Object.keys(errors).length > 0 ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
               >
                 Next →
               </button>
@@ -579,18 +575,17 @@ const CreateCourse = () => {
                 </button>
                 <button
                   onClick={handleSubmit(handleChange)}
-                  className={`bg-indigo-600 text-white rounded-lg px-6 py-2 hover:bg-indigo-700 transition cursor-pointer ${
-                    Object.keys(errors).length > 0 ? "opacity-50 cursor-not-allowed" : ""
-                  }`}
+                  className={`bg-indigo-600 text-white rounded-lg px-6 py-2 hover:bg-indigo-700 transition cursor-pointer ${Object.keys(errors).length > 0 ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                 >
                   Change
                 </button>
               </>
             ) : (
-              // navigate to content upload page if courseId exists and not editing
+              // navigate to content upload page if id exists and not editing
               <Link
                 to={ROUTES.instructor.uploadCourseContent}
-                state={{ courseId, page }}
+                state={{ id, page }}
                 className="bg-indigo-600 text-white rounded-lg px-6 py-2 hover:bg-indigo-700 transition cursor-pointer"
               >
                 Next →

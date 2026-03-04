@@ -7,7 +7,7 @@ export interface CourseDetailsResponse {
 }
 
 export interface CourseDetails {
-  courseId: string;
+  id: string;
   instructorId: string;
   instructor?: InstructorInfo;
   thumbnailUrl: string | null;
@@ -28,7 +28,7 @@ export interface CourseDetails {
   modules?: ModuleType[];
 }
 
- interface InstructorInfo {
+interface InstructorInfo {
   name: string;
   title: string;
   avatar: string;

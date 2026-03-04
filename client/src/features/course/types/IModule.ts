@@ -1,8 +1,8 @@
 import type { LessonType } from "./ILesson";
 
 export interface ModuleType {
-  moduleId: string;
+  id: string;
   title: string;
-  description:string;
+  description: string;
   lessons: LessonType[];
 }

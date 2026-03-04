@@ -26,7 +26,7 @@ import { checkEnrollmentStatus } from '@features/enrollment/services/EnrollmentS
 import LessonPlayer from '../components/LessonPlayer';
 
 import ErrorPage from '@shared/ui/ErrorPage';
-import type {ModuleType} from '../types/IModule';
+import type { ModuleType } from '../types/IModule';
 import type { LessonType } from '../types/ILesson';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/core/store/Index';
@@ -34,30 +34,30 @@ import ToggleSwitch from '@/shared/ui/ToggleSwitch';
 import { toast } from 'sonner';
 
 const CourseDetails: React.FC = () => {
-  const { courseId } = useParams<{ courseId: string }>();
+  const { id } = useParams<{ id: string }>();
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [blockedLessons, setBlockedLessons] = useState<Set<string>>(new Set());
   const [currentLessonId, setCurrentLessonId] = useState<string | null>(null);
 
-  const role = useSelector((state:RootState) => state.auth.user?.role);
-  const userId = useSelector((state:RootState) => state.auth.user?.id);
+  const role = useSelector((state: RootState) => state.auth.user?.role);
+  const userId = useSelector((state: RootState) => state.auth.user?.id);
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
 
 
   const { data: courseData, isLoading, isError, error, refetch } = useQuery({
-    queryKey: ['courseDetails', courseId, role],
-    queryFn: () => getCourseDetails(courseId!),
-    enabled: !!courseId,
+    queryKey: ['courseDetails', id, role],
+    queryFn: () => getCourseDetails(id!),
+    enabled: !!id,
     staleTime: 5 * 60 * 1000,
   });
 
   // Check enrollment status for students
   const { data: enrollmentData } = useQuery({
-    queryKey: ['enrollmentStatus', courseId, userId],
-    queryFn: () => checkEnrollmentStatus(courseId!),
-    enabled: !!courseId && role === 'student',
+    queryKey: ['enrollmentStatus', id, userId],
+    queryFn: () => checkEnrollmentStatus(id!),
+    enabled: !!id && role === 'student',
     staleTime: 5 * 60 * 1000,
   });
 
@@ -65,7 +65,7 @@ const CourseDetails: React.FC = () => {
 
 
   const blockedLessonIds = useMemo(() => course?.modules?.flatMap((mod: ModuleType) =>
-    mod.lessons?.filter((les: LessonType) => les.isBlocked).map((les: LessonType) => les.lessonId) || []
+    mod.lessons?.filter((les: LessonType) => les.isBlocked).map((les: LessonType) => les.id) || []
   ) || [], [course?.modules]);
 
 
@@ -75,7 +75,7 @@ const CourseDetails: React.FC = () => {
 
 
   const isEnrolled = enrollmentData?.data?.isEnrolled || false;
-  
+
   const toggleModule = (moduleId: string) => {
     const newExpanded = new Set(expandedModules);
     if (newExpanded.has(moduleId)) {
@@ -88,10 +88,10 @@ const CourseDetails: React.FC = () => {
 
   const handleEnroll = () => {
     if (!role) {
-        navigate(ROUTES.auth.signIn); 
-        return;
+      navigate(ROUTES.auth.signIn);
+      return;
     }
-    navigate(ROUTES.student.checkout.replace(':courseId', courseId!));
+    navigate(ROUTES.student.checkout.replace(':id', id!));
   };
 
   const handleBlockLesson = async (lessonId: string) => {
@@ -152,30 +152,30 @@ const CourseDetails: React.FC = () => {
     }
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    
+
     if (minutes < 60) {
       return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
     }
-    
+
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
     return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
   };
 
-  const totalLessons = course.modules?.reduce((acc: number, mod:ModuleType) => acc + (mod.lessons?.length || 0), 0) || 0;
-  const totalDurationSeconds = course.modules?.reduce((acc: number, mod:ModuleType) =>
+  const totalLessons = course.modules?.reduce((acc: number, mod: ModuleType) => acc + (mod.lessons?.length || 0), 0) || 0;
+  const totalDurationSeconds = course.modules?.reduce((acc: number, mod: ModuleType) =>
     acc + (mod.lessons?.reduce((lessonAcc: number, les) => lessonAcc + (les.duration || 0), 0) || 0), 0
   ) || 0;
 
-  const currentLesson = currentLessonId 
-    ? course.modules?.flatMap((m: ModuleType) => m.lessons || []).find((l: LessonType) => l.lessonId === currentLessonId)
+  const currentLesson = currentLessonId
+    ? course.modules?.flatMap((m: ModuleType) => m.lessons || []).find((l: LessonType) => l.id === currentLessonId)
     : null;
 
-    
+
   const currentLessonProgress = enrollmentData?.data?.enrollment?.lessonProgress?.find(
     (p: { lessonId: string; lastWatchedSecond: number }) => p.lessonId === currentLessonId
   );
-  
+
   const initialProgress = currentLessonProgress?.lastWatchedSecond || 0;
   const enrollmentId = enrollmentData?.data?.enrollment?.enrollmentId;
 
@@ -185,7 +185,7 @@ const CourseDetails: React.FC = () => {
       <div className=" md:block bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl px-4 sm:px-6 xl:px-8 py-4">
           <div className=" flex items-start justify-start overflow-hidden">
-          
+
             <nav className="flex items-center gap-3 bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-full text-lg shadow-sm ">
               <Link to={ROUTES.root} className="flex items-center gap-2 hover:text-indigo-600 dark:hover:text-indigo-400 dark:text-gray-200 transition-colors">
                 <Home className="w-4 h-4" />
@@ -209,7 +209,7 @@ const CourseDetails: React.FC = () => {
               <span className="text-gray-900 dark:text-white font-semibold truncate max-w-xs ">
                 {course.title}
               </span>
-            
+
             </nav>
           </div>
         </div>
@@ -217,126 +217,126 @@ const CourseDetails: React.FC = () => {
 
       {/* Hero Section or Player */}
       {currentLessonId ? (
-         <div className="bg-gray-900 py-8 border-b border-gray-700">
-           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-             <LessonPlayer 
-                lessonId={currentLessonId} 
-                onClose={() => {
-                    setCurrentLessonId(null);
-                    queryClient.invalidateQueries({ queryKey: ['enrollmentStatus', courseId, userId] });
-                }}
-                title={currentLesson?.title || ''}
-                enrollmentId={enrollmentId}
-                initialProgress={initialProgress}
-             />
-           </div>
-         </div>
+        <div className="bg-gray-900 py-8 border-b border-gray-700">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <LessonPlayer
+              id={currentLessonId}
+              onClose={() => {
+                setCurrentLessonId(null);
+                queryClient.invalidateQueries({ queryKey: ['enrollmentStatus', id, userId] });
+              }}
+              title={currentLesson?.title || ''}
+              enrollmentId={enrollmentId}
+              initialProgress={initialProgress}
+            />
+          </div>
+        </div>
       ) : (
-      <div className="bg-gradient-to-r bg-gray-800  text-white">
+        <div className="bg-gradient-to-r bg-gray-800  text-white">
 
-    
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 ">
-        
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
-                  {course.category}
-                </span>
-                <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
-                  {course.courseLevel}
-                </span>
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 ">
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+              <div>
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
+                    {course.category}
+                  </span>
+                  <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
+                    {course.courseLevel}
+                  </span>
+                </div>
+                <h1 className="text-4xl font-bold mb-4">{course.title}</h1>
+                <p className="text-xl text-indigo-100 font-semibold mb-6">{course.subText}</p>
+
+                <div className="flex items-center gap-6 mb-6">
+                  <div className="flex items-center gap-2">
+                    <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    <span className="font-semibold">4.8</span>
+                    <span className="text-indigo-200">(1250 reviews)</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    <span>15420 students</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 mb-6">
+                  <img
+                    src={course.instructor?.avatar || default_profile}
+                    alt={course.instructor?.name || 'Instructor'}
+                    className="w-12 h-12 rounded-full"
+                  />
+                  <div>
+                    <p className="font-semibold">{course.instructor?.name || 'John Smith'}</p>
+                    <p className="text-indigo-200">{course.instructor?.title || 'Senior Web Developer'}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-6 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    <span>Last updated {new Date(course.updatedAt).toLocaleDateString()}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4" />
+                    <span>{course.language}</span>
+                  </div>
+                </div>
               </div>
-              <h1 className="text-4xl font-bold mb-4">{course.title}</h1>
-              <p className="text-xl text-indigo-100 font-semibold mb-6">{course.subText}</p>
 
-              <div className="flex items-center gap-6 mb-6">
-                <div className="flex items-center gap-2">
-                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold">4.8</span>
-                  <span className="text-indigo-200">(1250 reviews)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5" />
-                  <span>15420 students</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 mb-6">
-                <img
-                  src={course.instructor?.avatar || default_profile }
-                  alt={course.instructor?.name || 'Instructor'}
-                  className="w-12 h-12 rounded-full"
-                />
-                <div>
-                  <p className="font-semibold">{course.instructor?.name || 'John Smith'}</p>
-                  <p className="text-indigo-200">{course.instructor?.title || 'Senior Web Developer'}</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-6 text-sm">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  <span>Last updated {new Date(course.updatedAt).toLocaleDateString()}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4" />
-                  <span>{course.language}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="lg:pl-8">
+              <div className="lg:pl-8">
                 <button
-                  onClick={() =>{ refetch(); toast.success('Course details refreshed!')}}
+                  onClick={() => { refetch(); toast.success('Course details refreshed!') }}
                   disabled={isLoading}
                   className="w-12 h-12 ml-auto mb-4 cursor-pointer flex items-center justify-center bg-gray-600 hover:bg-gray-700 rounded-full transition-colors flex-shrink-0"
                 >
                   <RefreshCw className={`w-6 h-6 ${isLoading ? 'animate-spin' : ''}`} />
                 </button>
-              <div className='flex flex-col lg:flex-row w-full gap-4 items-center'>
-                <div className="bg-white flex-1 rounded-2xl shadow-2xl overflow-hidden">
-                  <img
-                    src={course.thumbnailUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=400&fit=crop'}
-                    alt={course.title}
-                    className="w-full h-64 object-cover"
-                  />
-                  <div className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="text-3xl font-bold text-gray-900">
-                        ₹{course.price.toLocaleString()}
+                <div className='flex flex-col lg:flex-row w-full gap-4 items-center'>
+                  <div className="bg-white flex-1 rounded-2xl shadow-2xl overflow-hidden">
+                    <img
+                      src={course.thumbnailUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=400&fit=crop'}
+                      alt={course.title}
+                      className="w-full h-64 object-cover"
+                    />
+                    <div className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="text-3xl font-bold text-gray-900">
+                          ₹{course.price.toLocaleString()}
+                        </div>
+                        <div className="text-sm text-gray-500 line-through">
+                          ₹{Math.round(course.price * 1.5)}
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-500 line-through">
-                        ₹{Math.round(course.price * 1.5)}
-                      </div>
-                    </div>
-                    {role === 'student' && <div>
-                    {role === 'student' && isEnrolled ? (
-                      <div className="w-full py-3 px-6 rounded-lg font-semibold bg-green-100 text-green-800 flex items-center justify-center gap-2">
-                        <Check className="w-5 h-5" />
-                        Already Enrolled
-                      </div>
-                    ) : (
-                      <button
-                        onClick={handleEnroll}
-                        className="w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white"
-                      >
-                        Enroll Now
-                      </button>
-                    )}
+                      {role === 'student' && <div>
+                        {role === 'student' && isEnrolled ? (
+                          <div className="w-full py-3 px-6 rounded-lg font-semibold bg-green-100 text-green-800 flex items-center justify-center gap-2">
+                            <Check className="w-5 h-5" />
+                            Already Enrolled
+                          </div>
+                        ) : (
+                          <button
+                            onClick={handleEnroll}
+                            className="w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white"
+                          >
+                            Enroll Now
+                          </button>
+                        )}
 
-                    <div className="mt-4 text-center text-sm text-gray-600">
-                      {course.duration}
+                        <div className="mt-4 text-center text-sm text-gray-600">
+                          {course.duration}
+                        </div>
+                      </div>}
                     </div>
-                    </div>}
                   </div>
+
                 </div>
-              
               </div>
             </div>
           </div>
         </div>
-      </div>
       )}
 
       {/* Main Content */}
@@ -372,9 +372,9 @@ const CourseDetails: React.FC = () => {
 
               <div className="space-y-4">
                 {course.modules?.map((module) => (
-                  <div key={module.moduleId} className="border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer">
+                  <div key={module.id} className="border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer">
                     <button
-                      onClick={() => toggleModule(module.moduleId)}
+                      onClick={() => toggleModule(module.id)}
                       className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
                       <div className="text-left">
@@ -389,7 +389,7 @@ const CourseDetails: React.FC = () => {
                         <span className="text-sm text-gray-500">
                           {module.lessons?.length || 0} lessons
                         </span>
-                        {expandedModules.has(module.moduleId) ? (
+                        {expandedModules.has(module.id) ? (
                           <ChevronDown className="w-5 h-5 text-gray-500" />
                         ) : (
                           <ChevronRight className="w-5 h-5 text-gray-500" />
@@ -397,13 +397,13 @@ const CourseDetails: React.FC = () => {
                       </div>
                     </button>
 
-                    {expandedModules.has(module.moduleId) && (
+                    {expandedModules.has(module.id) && (
 
                       <div className="border-t border-gray-200 dark:border-gray-700 ">
                         {module.lessons?.map((lesson) => (
                           ((lesson.isBlocked && role === 'admin') || !lesson.isBlocked) ? (
                             <div
-                              key={lesson.lessonId}
+                              key={lesson.id}
                               className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                             >
                               <div className="flex items-center justify-between p-4">
@@ -432,42 +432,42 @@ const CourseDetails: React.FC = () => {
                                   {role === 'student' && (lesson.isFreePreview || isEnrolled) && (
                                     <button
                                       onClick={() => {
-                                          setCurrentLessonId(lesson.lessonId);
-                                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        setCurrentLessonId(lesson.id);
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
                                       }}
                                       className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2"
                                     >
                                       <Play className="w-4 h-4" />
-                                      {(enrollmentData?.data?.enrollment?.lessonProgress?.find((p: { lessonId: string; lastWatchedSecond: number }) => p.lessonId === lesson.lessonId)?.lastWatchedSecond || 0) > 0 ? 'Resume' : 'Watch'}
+                                      {(enrollmentData?.data?.enrollment?.lessonProgress?.find((p: { lessonId: string; lastWatchedSecond: number }) => p.lessonId === lesson.id)?.lastWatchedSecond || 0) > 0 ? 'Resume' : 'Watch'}
                                     </button>
                                   )}
                                   {role === 'admin' && (
                                     <ToggleSwitch
-                                      checked={blockedLessons.has(lesson.lessonId)}
-                                      onChange={() => handleBlockLesson(lesson.lessonId)}
+                                      checked={blockedLessons.has(lesson.id)}
+                                      onChange={() => handleBlockLesson(lesson.id)}
                                       label='Block'
                                     />
                                   )}
                                 </div>
                               </div>
                               {/* Progress Bar for Enrolled Students */}
-                              {role === 'student' && isEnrolled && (function() {
-                                  const prog = enrollmentData?.data?.enrollment?.lessonProgress?.find((p: { lessonId: string; lastWatchedSecond: number; totalDuration: number; isCompleted: boolean }) => p.lessonId === lesson.lessonId);
-                                  const pct = prog ? Math.min(100, Math.max(0, (prog.lastWatchedSecond / (prog.totalDuration || lesson.duration || 1)) * 100)) : 0;
-                                  // Only show progress bar if there is some progress or it's completed
-                                  if (!prog && pct === 0) return null;
-                                  
-                                  return (
-                                    <div className="px-4 pb-2">
-                                       <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5">
-                                          <div 
-                                            className={`bg-indigo-600 h-1.5 rounded-full transition-all duration-300 ${prog?.isCompleted ? 'bg-green-500' : ''}`} 
-                                            style={{ width: `${prog?.isCompleted ? 100 : pct}%` }}
-                                          />
-                                       </div>
-                                       {prog?.isCompleted && <p className="text-xs text-green-600 mt-1 flex items-center gap-1"><CheckCircle className="w-3 h-3"/> Completed</p>}
+                              {role === 'student' && isEnrolled && (function () {
+                                const prog = enrollmentData?.data?.enrollment?.lessonProgress?.find((p: { lessonId: string; lastWatchedSecond: number; totalDuration: number; isCompleted: boolean }) => p.lessonId === lesson.id);
+                                const pct = prog ? Math.min(100, Math.max(0, (prog.lastWatchedSecond / (prog.totalDuration || lesson.duration || 1)) * 100)) : 0;
+                                // Only show progress bar if there is some progress or it's completed
+                                if (!prog && pct === 0) return null;
+
+                                return (
+                                  <div className="px-4 pb-2">
+                                    <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5">
+                                      <div
+                                        className={`bg-indigo-600 h-1.5 rounded-full transition-all duration-300 ${prog?.isCompleted ? 'bg-green-500' : ''}`}
+                                        style={{ width: `${prog?.isCompleted ? 100 : pct}%` }}
+                                      />
                                     </div>
-                                  );
+                                    {prog?.isCompleted && <p className="text-xs text-green-600 mt-1 flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Completed</p>}
+                                  </div>
+                                );
                               })()}
                             </div>
                           ) : (
@@ -481,7 +481,7 @@ const CourseDetails: React.FC = () => {
               </div>
             </div>
 
-          
+
 
             {/* Description */}
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
@@ -506,19 +506,19 @@ const CourseDetails: React.FC = () => {
               </h2>
               <div className="flex items-start gap-4">
                 <img
-                  src={course.instructor?.avatar||default_profile}
+                  src={course.instructor?.avatar || default_profile}
                   alt={course.instructor?.name || 'Instructor'}
                   className="w-16 h-16 rounded-full"
                 />
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                    {course.instructor?.name }
+                    {course.instructor?.name}
                   </h3>
                   <p className="text-gray-600 dark:text-gray-400 mb-4">
-                    {course.instructor?.title }
+                    {course.instructor?.title}
                   </p>
                   <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                    {course.instructor?.bio }
+                    {course.instructor?.bio}
                   </p>
                 </div>
               </div>

@@ -1,5 +1,6 @@
 import { X } from "lucide-react";
 import type { ModuleType } from "../../types/IModule";
+import type { LessonType } from "../../types/ILesson";
 
 import LessonItem from "./LessonItem";
 import { validateModule } from "../../validation/ModuleValidation";
@@ -11,7 +12,7 @@ import { Modal } from "@/shared/ui";
 import { toast } from "sonner";
 
 interface Props {
-  courseId: string;
+  id: string;
   module: ModuleType;
   order: number;
   moduleLength: number;
@@ -23,65 +24,73 @@ interface prevState {
   moduleDescription: string;
 }
 
-export default function ModuleItem({ courseId, module, order, moduleLength, setModules }: Props) {
+export default function ModuleItem({ id, module, order, moduleLength, setModules }: Props) {
   const queryClient = useQueryClient();
   const [errors, setErrors] = useState<Record<string, { success: boolean; message: string }>>({});
-  const [editModule, setEditModule] = useState<{ disable: boolean; initial: boolean; prevState: prevState }>({
-    disable: !/^\d{13,}$/.test(module.moduleId),
-    initial: /^\d{13,}$/.test(module.moduleId),
+  const [editModule, setEditModule] = useState<{ disable: boolean; prevState: prevState }>({
+    disable: !/^\d{13,}$/.test(module.id),
     prevState: { moduleTitle: "", moduleDescription: "" },
   });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  
+
   const updateModuleState = useCallback(
     (updated: ModuleType) => {
-      setModules((prev) => prev.map((m) => (m.moduleId === module.moduleId ? updated : m)));
+      setModules((prev) => prev.map((m) => (m.id === module.id ? updated : m)));
     },
-    [module.moduleId, setModules]
+    [module.id, setModules]
   );
+
   const addLesson = useCallback(async () => {
     const moduleValidationErrors = validateModule({ title: module.title, description: module.description });
     setErrors(moduleValidationErrors);
 
     if (Object.keys(moduleValidationErrors).length === 0) {
-      let Module;
-      if (/^\d{13,}$/.test(module.moduleId)) {
-        Module = await createModule({
-          courseId,
-          order,
-          moduleId: module.moduleId,
-          title: module.title,
-          description: module.description,
+      try {
+        let Module;
+        if (/^\d{13,}$/.test(module.id)) {
+          Module = await createModule({
+            id,
+            order,
+            moduleId: module.id,
+            title: module.title,
+            description: module.description,
+          });
+        }
+        updateModuleState({
+          ...(Module?.data ? Module.data : module),
+          lessons: [
+            ...(module?.lessons || []),
+            ...(!/^\d{13,}$/.test(module.id)
+              ? [
+                {
+                  id: Date.now().toString(),
+                  title: "",
+                  description: "",
+                  fileName: "",
+                  resources: [],
+                } as unknown as LessonType,
+              ]
+              : []),
+          ],
         });
+        // Invalidate the queries to refetch fresh data
+        queryClient.invalidateQueries({ queryKey: ["modulesAndLesson", id, "modules,lessons"] });
+      } catch (error) {
+        console.error("Failed to add lesson:", error);
       }
-      updateModuleState({
-        ...(Module?.data ? Module.data : module),
-        lessons: [
-          ...(module?.lessons || []),
-          !/^\d{13,}$/.test(module.moduleId) && {
-            lessonId: Date.now().toString(),
-            title: "",
-            description: "",
-            fileName: "",
-            resources: [],
-          },
-        ],
-      });
-      // Invalidate the queries to refetch fresh data
-      queryClient.invalidateQueries({ queryKey: ["modulesAndLesson", courseId, "modules,lessons"] });
     }
-  }, [module, courseId, order, updateModuleState, queryClient]);
+  }, [module, id, order, updateModuleState, queryClient]);
 
   const handleEditDiscard = useCallback(
     (moduleId: string) => {
       setModules((prev) =>
         prev.map((m) =>
-          m.moduleId === moduleId
+          m.id === moduleId
             ? { ...m, title: editModule.prevState.moduleTitle, description: editModule.prevState.moduleDescription }
             : m
         )
       );
-      setEditModule({ disable: true, initial: false, prevState: { moduleTitle: "", moduleDescription: "" } });
+      setEditModule({ disable: true, prevState: { moduleTitle: "", moduleDescription: "" } });
     },
     [editModule.prevState, setModules]
   );
@@ -91,35 +100,40 @@ export default function ModuleItem({ courseId, module, order, moduleLength, setM
     setErrors(moduleValidationErrors);
 
     if (Object.keys(moduleValidationErrors).length === 0) {
-      await updateModule({
-        moduleId: module.moduleId,
-        title: module.title,
-        description: module.description,
-      });
-      setEditModule({ disable: true, initial: false, prevState: { moduleTitle: "", moduleDescription: "" } });
-      // Invalidate the queries to refetch fresh data
-      queryClient.invalidateQueries({ queryKey: ["modulesAndLesson", courseId, "modules,lessons"] });
+      try {
+        await updateModule({
+          id: module.id,
+          title: module.title,
+          description: module.description,
+        });
+        setEditModule({ disable: true, prevState: { moduleTitle: "", moduleDescription: "" } });
+        // Invalidate the queries to refetch fresh data
+        queryClient.invalidateQueries({ queryKey: ["modulesAndLesson", id, "modules,lessons"] });
+        toast.success("Module updated successfully");
+      } catch (error) {
+        console.error("Failed to update module:", error);
+      }
     }
-  }, [module, queryClient, courseId]);
+  }, [module, queryClient, id]);
 
   const removeModule = useCallback(
     (moduleId: string) => {
-      setModules((prev) => prev.filter((m) => m.moduleId !== moduleId));
+      setModules((prev) => prev.filter((m) => m.id !== moduleId));
     },
     [setModules]
   );
 
   const handleDelete = useCallback(async () => {
     try {
-      await deleteModule(module.moduleId);
-      removeModule(module.moduleId);
-      queryClient.invalidateQueries({ queryKey: ["modulesAndLesson", courseId, "modules,lessons"] });
+      await deleteModule(module.id);
+      removeModule(module.id);
+      queryClient.invalidateQueries({ queryKey: ["modulesAndLesson", id, "modules,lessons"] });
       toast.success("Module deleted successfully");
       setIsDeleteModalOpen(false);
     } catch (error: unknown) {
       console.error("Failed to delete module", error);
     }
-  }, [module.moduleId, removeModule, queryClient, courseId]);
+  }, [module.id, removeModule, queryClient, id]);
 
   return (
     <div className=" space-y-4 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -128,10 +142,10 @@ export default function ModuleItem({ courseId, module, order, moduleLength, setM
           <button
             className="cursor-pointer"
             onClick={() => {
-              if (!/^\d{13,}$/.test(module.moduleId)) {
+              if (!/^\d{13,}$/.test(module.id)) {
                 setIsDeleteModalOpen(true);
               } else {
-                removeModule(module.moduleId);
+                removeModule(module.id);
               }
             }}
           >
@@ -142,12 +156,11 @@ export default function ModuleItem({ courseId, module, order, moduleLength, setM
       </div>
 
       <div className="bg-gray-200  dark:bg-gray-800 p-8 space-y-4 rounded-2xl">
-        {editModule.disable && !editModule.initial && (
+        {editModule.disable && !/^\d{13,}$/.test(module.id) && (
           <button
             onClick={() =>
               setEditModule({
                 disable: false,
-                initial: false,
                 prevState: { moduleTitle: module.title, moduleDescription: module.description },
               })
             }
@@ -187,10 +200,10 @@ export default function ModuleItem({ courseId, module, order, moduleLength, setM
           <ErrorMessage error={errors?.description?.message} />
         </div>
 
-        {!editModule.disable && !editModule.initial && (
+        {!editModule.disable && !/^\d{13,}$/.test(module.id) && (
           <div className="block text-right">
             <button
-              onClick={() => handleEditDiscard(module.moduleId)}
+              onClick={() => handleEditDiscard(module.id)}
               className="outline m-2 p-2 rounded cursor-pointer bg-red-500 text-white dark:bg-red-800"
             >
               Discard
@@ -203,33 +216,32 @@ export default function ModuleItem({ courseId, module, order, moduleLength, setM
       </div>
       {module.lessons.map((lesson, index) => (
         <LessonItem
-          key={lesson.lessonId ? lesson.lessonId : `lesson-${index}`}
+          key={lesson.id ? lesson.id : `lesson-${index}`}
           lesson={lesson}
-          moduleId={module.moduleId}
+          moduleId={module.id}
           order={index + 1}
           setModules={setModules}
-          courseId={courseId}
+          id={id}
         />
       ))}
 
       <button
-        className={`mt-2 rounded  hover:bg-gray-500 px-3 py-1 text-white cursor-pointer ${
-          /^\d{13,}$/.test(module.moduleId) ? "bg-gray-950" : "bg-gray-600"
-        }`}
+        className={`mt-2 rounded  hover:bg-gray-500 px-3 py-1 text-white cursor-pointer ${/^\d{13,}$/.test(module.id) ? "bg-gray-950" : "bg-gray-600"
+          }`}
         onClick={addLesson}
       >
-        {/^\d{13,}$/.test(module.moduleId) ? "Create Moduele" : "Add Lesson"}
+        {/^\d{13,}$/.test(module.id) ? "Create Module" : "Add Lesson"}
       </button>
-            <Modal
-              isOpen={isDeleteModalOpen}
-              onClose={() => setIsDeleteModalOpen(false)}
-              title="Confirm Deletion"
-              onConfirm={handleDelete}
-              confirmLabel="Delete"
-              cancelLabel="Cancel"
-            >
-              <p className="dark:text-white">Are you sure you want to delete this module you uploaded?<br /><br /> <strong>This action cannot be undone.</strong></p>
-            </Modal>
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="Confirm Deletion"
+        onConfirm={handleDelete}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+      >
+        <p className="dark:text-white">Are you sure you want to delete this module you uploaded?<br /><br /> <strong>This action cannot be undone.</strong></p>
+      </Modal>
     </div>
   );
 }

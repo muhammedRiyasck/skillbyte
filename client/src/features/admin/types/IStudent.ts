@@ -1,8 +1,8 @@
 export interface IStudent {
-  studentId:string
+  id: string
   name: string;
   email: string;
-  profilePictureUrl: string;
+  profilePicture: string;
   registeredVia: string
-  accountStatus:   "active" |'blocked'
+  accountStatus: "active" | 'blocked'
 }

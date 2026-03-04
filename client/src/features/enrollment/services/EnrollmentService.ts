@@ -1,7 +1,7 @@
 import api from "@shared/utils/AxiosInstance";
 
-export const initiateEnrollmentPayment = async (courseId: string, provider: string) => {
-  const response = await api.post("/enrollment/initiate-payment", { courseId, provider });
+export const initiateEnrollmentPayment = async (id: string, provider: string) => {
+  const response = await api.post("/enrollment/initiate-payment", { id, provider });
   return response.data;
 };
 
@@ -10,15 +10,15 @@ export const capturePayPalPayment = async (orderId: string) => {
   return response.data;
 };
 
-export const checkEnrollmentStatus = async (courseId: string) => {
-  const response = await api.get(`/enrollment/check/${courseId}`);
+export const checkEnrollmentStatus = async (id: string) => {
+  const response = await api.get(`/enrollment/check/${id}`);
   return response.data;
 };
 
 export const getInstructorEnrollments = async (
   page: number = 1,
   limit: number = 12,
-  filters: Record<string,string> = {},
+  filters: Record<string, string> = {},
 ) => {
   const params = new URLSearchParams({
     page: page.toString(),

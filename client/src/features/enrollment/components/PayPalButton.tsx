@@ -4,15 +4,15 @@ import { initiateEnrollmentPayment, capturePayPalPayment } from "../services/Enr
 import { toast } from "sonner";
 
 interface PayPalButtonProps {
-  courseId: string;
+  id: string;
 }
 
-export const PayPalButton: React.FC<PayPalButtonProps> = ({ courseId }) => {
+export const PayPalButton: React.FC<PayPalButtonProps> = ({ id }) => {
   const [{ isPending }] = usePayPalScriptReducer();
 
   const handleCreateOrder = async () => {
     try {
-      const result = await initiateEnrollmentPayment(courseId, "paypal");
+      const result = await initiateEnrollmentPayment(id, "paypal");
       return result.data.providerResponse.id;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : "An unknown error occurred";

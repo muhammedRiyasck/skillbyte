@@ -1,5 +1,5 @@
 export interface Ibase {
-    courseId: string;
+    id: string;
     instructorId?: string;
     thumbnailUrl: string
     title: string;
@@ -15,7 +15,7 @@ export interface Ibase {
     features: string[];
     status: 'draft' | 'list' | 'unlist';
     rating: number;
-    reviews:number;
+    reviews: number;
     isEnrolled?: boolean;
     isBlocked?: boolean;
 }

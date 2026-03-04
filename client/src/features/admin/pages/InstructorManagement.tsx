@@ -8,7 +8,7 @@ import InstructorTable from "../components/InstructorTable";
 import { approveRequest, changeInstructorStatusRequest, declineRequest, deleteInstructor } from "../services/InstructorService";
 import type { IReqestPlayload } from "../types/IReqestPlayload";
 import { DebouncedInput } from "@/shared/ui";
-const INSTRUCTOR_OPTIONS = ['Pending Instructors', 'Approved Instructors','Suspended Instructors','Rejected Instructors'];
+const INSTRUCTOR_OPTIONS = ['Pending Instructors', 'Approved Instructors', 'Suspended Instructors', 'Rejected Instructors'];
 const ITEMS_PER_PAGE = 12;
 
 const InstructorManagement: React.FC = () => {
@@ -70,7 +70,7 @@ const InstructorManagement: React.FC = () => {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (instructorId: string) => deleteInstructor(instructorId),
+    mutationFn: (id: string) => deleteInstructor(id),
     onSuccess: () => {
       toast.success("Account Deleted!!");
       queryClient.invalidateQueries({ queryKey: ['instructors', dropDownValue, page] });
@@ -80,24 +80,24 @@ const InstructorManagement: React.FC = () => {
     }
   });
 
-  const handleApprove = useCallback((instructorId: string) => {
-    approveMutation.mutate({ instructorId });
+  const handleApprove = useCallback((id: string) => {
+    approveMutation.mutate({ id });
   }, [approveMutation]);
 
-  const handleDecline = useCallback((payload: { instructorId: string; reason: string }) => {
+  const handleDecline = useCallback((payload: { id: string; reason: string }) => {
     declineMutation.mutate(payload);
   }, [declineMutation]);
 
-  const handleSuspend = useCallback((payload: { instructorId: string; reason: string; status: string }) => {
+  const handleSuspend = useCallback((payload: { id: string; reason: string; status: string }) => {
     suspendMutation.mutate({ ...payload, status: "suspend" });
   }, [suspendMutation]);
 
-  const handleReOpen = useCallback(({ instructorId }: { instructorId: string }) => {
-    reOpenMutation.mutate({ instructorId, status: "active" });
+  const handleReOpen = useCallback(({ id }: { id: string }) => {
+    reOpenMutation.mutate({ id, status: "active" });
   }, [reOpenMutation]);
 
-  const handleDelete = useCallback((instructorId: string) => {
-    deleteMutation.mutate(instructorId);
+  const handleDelete = useCallback((id: string) => {
+    deleteMutation.mutate(id);
   }, [deleteMutation]);
 
   const handleListStatus = useCallback((option: string) => {
@@ -130,13 +130,13 @@ const InstructorManagement: React.FC = () => {
         <p className="text-gray-600 dark:text-gray-300">Manage and oversee instructor accounts efficiently</p>
       </div>
       <div className="flex justify-end  mb-4">
-         <DropDown
-              options={INSTRUCTOR_OPTIONS}
-              isOpen={isDropDownOpend}
-              setIsOpen={setIsDropDownOpend}
-              handleListStatus={handleListStatus}
-              selectedValue={dropDownValue}
-            />
+        <DropDown
+          options={INSTRUCTOR_OPTIONS}
+          isOpen={isDropDownOpend}
+          setIsOpen={setIsDropDownOpend}
+          handleListStatus={handleListStatus}
+          selectedValue={dropDownValue}
+        />
       </div>
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6 border border-gray-200 dark:border-gray-700 transition-all duration-300 hover:shadow-xl">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
@@ -144,21 +144,21 @@ const InstructorManagement: React.FC = () => {
             <div className="w-12 h-12 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 rounded-xl flex items-center justify-center shadow-sm">
               <RefreshCw className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
             </div>
-            <div>          
+            <div>
               <h2 className="text-xl font-bold text-gray-800 dark:text-white">{dropDownValue}</h2>
               <p className="text-lg text-gray-500 dark:text-gray-400">Filter and manage instructors</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">
-              <DebouncedInput
+            <DebouncedInput
               id="search"
               type="text"
               placeholder="Search name or email..."
               value={search}
               setValue={setSearch}
-              icon={()=><Search className="w-5 h-5 text-gray-400" />}
+              icon={() => <Search className="w-5 h-5 text-gray-400" />}
             />
-              <button
+            <button
               onClick={() => {
                 refetch();
                 toast.success("Instructor Data refreshed");
@@ -168,7 +168,7 @@ const InstructorManagement: React.FC = () => {
             >
               <RefreshCw className={`w-5 h-5 text-gray-600 dark:text-gray-300 ${isLoading ? 'animate-spin' : ''}`} />
             </button>
-         
+
           </div>
         </div>
       </div>

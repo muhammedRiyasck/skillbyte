@@ -7,23 +7,23 @@ export const createBase = async (data: Ibase) => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const updateBase = async (courseId: string, data: any) => {
-  const response = await api.patch(`/course/${courseId}`, data);
+export const updateBase = async (id: string, data: any) => {
+  const response = await api.patch(`/course/${id}`, data);
   return response.data;
 };
 
-export const uploadThumbnail = async ({courseId,blob,fileName}: {
-  courseId: string;
+export const uploadThumbnail = async ({ id, blob, fileName }: {
+  id: string;
   blob: Blob;
   fileName: string;
 }) => {
   const photo = new FormData();
   photo.append("thumbnail", blob, fileName);
-  const { data } = await api.post(`/course/upload-thumbnail/${courseId}`, photo);
+  const { data } = await api.post(`/course/upload-thumbnail/${id}`, photo);
   return data;
 };
 
-export const deleteCourse = async (courseId: string) => {
-  const response = await api.delete(`/course/${courseId}`);
+export const deleteCourse = async (id: string) => {
+  const response = await api.delete(`/course/${id}`);
   return response.data;
 };

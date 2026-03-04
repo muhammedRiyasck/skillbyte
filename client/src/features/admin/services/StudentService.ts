@@ -1,8 +1,8 @@
 import api from "@shared/utils/AxiosInstance";
 
 interface RequestPayload {
-    studentId: string;
-    status?: string;
+  id: string;
+  status?: string;
 }
 
 export const changeStudentStatus = async (payload: RequestPayload) => {

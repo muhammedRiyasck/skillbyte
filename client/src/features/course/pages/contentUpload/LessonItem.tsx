@@ -19,7 +19,7 @@ interface Props {
   moduleId: string;
   order: number;
   setModules: React.Dispatch<React.SetStateAction<ModuleType[]>>;
-  courseId: string;
+  id: string;
 }
 
 interface prevState {
@@ -27,13 +27,13 @@ interface prevState {
   lessonDescription: string;
 }
 
-export default function LessonItem({ lesson, courseId, moduleId, order, setModules }: Props) {
+export default function LessonItem({ lesson, id, moduleId, order, setModules }: Props) {
   const [prevURL, setPrevURL] = useState<string | null>(null);
   const prevURLRef = useRef<string | null>(null);
   const [duration, setDuration] = useState<number | null>(null);
   const [editModule, setEditLesson] = useState<{ disable: boolean; initial: boolean; prevState: prevState }>({
-    disable: !/^\d{13,}$/.test(lesson.lessonId),
-    initial: /^\d{13,}$/.test(lesson.lessonId),
+    disable: !/^\d{13,}$/.test(lesson.id),
+    initial: /^\d{13,}$/.test(lesson.id),
     prevState: { lessonTitle: "", lessonDescription: "" },
   });
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -53,22 +53,22 @@ export default function LessonItem({ lesson, courseId, moduleId, order, setModul
     (changes: Partial<LessonType>) => {
       setModules((prev) =>
         prev.map((m) =>
-          m.moduleId === moduleId
+          m.id === moduleId
             ? {
-                ...m,
-                lessons: m.lessons.map((l) => (l.lessonId === lesson.lessonId ? { ...l, ...changes } : l)),
-              }
+              ...m,
+              lessons: m.lessons.map((l) => (l.id === lesson.id ? { ...l, ...changes } : l)),
+            }
             : m
         )
       );
     },
-    [moduleId, lesson.lessonId, setModules]
+    [moduleId, lesson.id, setModules]
   );
 
   const removeLesson = useCallback((moduleId: string, lessonId: string) =>
     setModules((prev) =>
       prev.map((m) =>
-        m.moduleId === moduleId ? { ...m, lessons: m.lessons.filter((l) => l.lessonId !== lessonId) } : m
+        m.id === moduleId ? { ...m, lessons: m.lessons.filter((l) => l.id !== lessonId) } : m
       )
     ), [setModules]);
 
@@ -107,7 +107,7 @@ export default function LessonItem({ lesson, courseId, moduleId, order, setModul
         const { signedUrl } = await getPresignedUrl(videoFile!);
         await uploadFile(signedUrl, videoFile, setUploadProgress);
         const response = await createLesson({
-          lessonId: lesson.lessonId,
+          id: lesson.id,
           moduleId,
           title: lesson.title,
           description: lesson.description,
@@ -158,34 +158,34 @@ export default function LessonItem({ lesson, courseId, moduleId, order, setModul
 
     if (Object.keys(validationErrors).length === 0) {
       await updateLesson({
-        lessonId: lesson.lessonId,
+        id: lesson.id,
         title: lesson.title,
         description: lesson.description,
         resources: watchedResources,
       });
       setEditLesson({ disable: true, initial: false, prevState: { lessonTitle: "", lessonDescription: "" } });
       // Invalidate the queries to refetch fresh data
-      queryClient.invalidateQueries({ queryKey: ["modulesAndLesson", courseId, "modules,lessons"] });
+      queryClient.invalidateQueries({ queryKey: ["modulesAndLesson", id, "modules,lessons"] });
     }
-  }, [lesson, watchedResources, queryClient, courseId]);
+  }, [lesson, watchedResources, queryClient, id]);
 
   const handleDelete = useCallback(async () => {
     try {
-      await deleteLesson(lesson.lessonId);
-      removeLesson(moduleId, lesson.lessonId);
-      queryClient.invalidateQueries({ queryKey: ["modulesAndLesson", courseId, "modules,lessons"] });
+      await deleteLesson(lesson.id);
+      removeLesson(moduleId, lesson.id);
+      queryClient.invalidateQueries({ queryKey: ["modulesAndLesson", id, "modules,lessons"] });
       toast.success("Lesson deleted successfully");
       setIsDeleteModalOpen(false);
     } catch (error: unknown) {
       console.error("Failed to delete lesson", error);
     }
-  }, [lesson.lessonId, moduleId, removeLesson, queryClient, courseId]);
+  }, [lesson.id, moduleId, removeLesson, queryClient, id]);
 
   return (
     <div className="space-y-4 mb-3 rounded-2xl  bg-gray-200  dark:bg-gray-800 shadow-2xl p-4">
       <div className="flex-col space-y-4">
         <p className="text-right font-semibold mb-2">Lession No : {order}</p>
-        {editModule.disable && !editModule.initial &&!lesson.isBlocked && (
+        {editModule.disable && !editModule.initial && !lesson.isBlocked && (
           <button
             onClick={() =>
               setEditLesson({
@@ -220,7 +220,7 @@ export default function LessonItem({ lesson, courseId, moduleId, order, setModul
           ) : (
             <p className="text-gray-400">No video selected</p>
           )}
-          {!uploadStared && /^\d{13,}$/.test(lesson.lessonId) && (
+          {!uploadStared && /^\d{13,}$/.test(lesson.id) && (
             <div className="flex gap-3 mt-2">
               <label className="cursor-pointer bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
                 {prevURL ? "Change" : "Select Video"}
@@ -295,15 +295,15 @@ export default function LessonItem({ lesson, courseId, moduleId, order, setModul
             <button
               type="button"
               onClick={() => {
-                if(!/^\d{13,}$/.test(lesson.lessonId) ) setIsDeleteModalOpen(true)
-                else removeLesson(moduleId, lesson.lessonId)
-                }
+                if (!/^\d{13,}$/.test(lesson.id)) setIsDeleteModalOpen(true)
+                else removeLesson(moduleId, lesson.id)
+              }
               }
               className="cursor-pointer border border-gray-400 p-2 rounded-lg my-4 "
             >
               Delete🗑️
             </button>
-            {/^\d{13,}$/.test(lesson.lessonId) && (
+            {/^\d{13,}$/.test(lesson.id) && (
               <button onClick={handleUpload} className="cursor-pointer border p-2 rounded-lg my-4">
                 Upload&#129093;
               </button>
