@@ -27,7 +27,7 @@ export class SocketService {
     this.videoSignaling = videoSignaling;
     this.io = new Server(httpServer, {
       cors: {
-        origin: process.env.CORS_ALLOWED_ORIGIN || '*',
+        origin: process.env.FRONTEND_URL! || '*',
         methods: ['GET', 'POST'],
         credentials: true,
       },

@@ -49,7 +49,7 @@ app.post(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const corsOptions = {
-  origin: process.env.CORS_ALLOWED_ORIGIN!, // allowed origins
+  origin: process.env.FRONTEND_URL!, // allowed origins
   methods: ['GET', 'get', 'POST', 'PUT', 'PATCH', 'DELETE'],
   credentials: true, // allow cookies or authorization headers
 };
