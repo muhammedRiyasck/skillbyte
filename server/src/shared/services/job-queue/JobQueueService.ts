@@ -3,12 +3,12 @@ import Queue from 'bull';
 // Removed JobData interface to use generics directly
 
 export class JobQueueService {
-  private _queues: Map<string, Queue.Queue<any>> = new Map();
+  private _queues: Map<string, Queue.Queue> = new Map();
 
   /**
    * Creates or gets an existing queue
    */
-  getQueue<T = any>(queueName: string): Queue.Queue<T> {
+  getQueue<T>(queueName: string): Queue.Queue<T> {
     if (!this._queues.has(queueName)) {
       const queue = new Queue(queueName, {
         redis: process.env.REDIS_URL!,
