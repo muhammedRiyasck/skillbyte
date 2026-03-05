@@ -1,7 +1,6 @@
 import { IOtpService } from './interfaces/IOtpService';
 import { TempInstructorData } from './interfaces/ITempInstructorData ';
 import { TempStudentData } from './interfaces/ITempStudentData';
-import { OtpRateLimiter } from './OtpRateLimiter';
 
 import { otpVerificationEmailTemplate } from '../../templates/OtpVerification';
 import Redis from 'ioredis';
@@ -15,7 +14,9 @@ import logger from '../../utils/Logger';
 
 import { IOtpRateLimiter } from './interfaces/IOtpRateLimiter';
 
-export class RedisOtpService implements IOtpService {
+export class RedisOtpService
+  implements IOtpService<TempInstructorData | TempStudentData>
+{
   private _redis: Redis;
   private _rateLimiter: IOtpRateLimiter;
   private _OTP_EXPIRE; // 2 minute , 1 minute for resend

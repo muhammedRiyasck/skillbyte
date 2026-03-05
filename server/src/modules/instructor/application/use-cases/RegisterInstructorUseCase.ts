@@ -13,6 +13,7 @@ import {
   ResumeUploadJobData,
 } from '../../../../shared/services/job-queue/JobTypes';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
+import { TempInstructorData } from '../../../../shared/services/otp/interfaces/ITempInstructorData ';
 
 /**
  * Use case for registering a new instructor.
@@ -26,7 +27,7 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
    */
   constructor(
     private readonly _instructorRepo: IInstructorRepository,
-    private readonly _otpService: IOtpService,
+    private readonly _otpService: IOtpService<TempInstructorData>,
   ) {}
 
   /**
@@ -111,10 +112,12 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
 
     // Queue resume upload if file exists
     if (dto.resumeFile) {
+      const file = dto.resumeFile as Express.Multer.File;
+
       const resumeUploadData: ResumeUploadJobData = {
         instructorId: savedInstructor.instructorId || '',
-        filePath: dto.resumeFile.path,
-        originalName: dto.resumeFile.originalname,
+        filePath: file.path,
+        originalName: file.originalname,
         email: validationResult.data.email,
       };
 

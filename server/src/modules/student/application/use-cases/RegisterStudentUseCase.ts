@@ -1,6 +1,8 @@
 import bcrypt from 'bcryptjs';
 import { IStudentRepository } from '../../domain/IRepositories/IStudentRepository';
 import { IOtpService } from '../../../../shared/services/otp/interfaces/IOtpService';
+import { TempInstructorData } from '../../../../shared/services/otp/interfaces/ITempInstructorData ';
+import { TempStudentData } from '../../../../shared/services/otp/interfaces/ITempStudentData';
 import { Student } from '../../domain/entities/Student';
 import { IRegisterStudentUseCase } from '../interfaces/IRegisterStudentUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
@@ -11,7 +13,9 @@ import { StudentRegistrationSchema } from '../../../../shared/validations/Studen
 export class RegisterStudentUseCase implements IRegisterStudentUseCase {
   constructor(
     private _studentRepo: IStudentRepository,
-    private readonly _otpService: IOtpService,
+    private readonly _otpService: IOtpService<
+      TempInstructorData | TempStudentData
+    >,
   ) {}
 
   /**

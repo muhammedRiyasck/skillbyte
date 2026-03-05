@@ -3,19 +3,12 @@ import { IOtpRateLimiter } from '../../../../shared/services/otp/interfaces/IOtp
 import { IResendOtpUseCase } from '../interfaces/IResendOtpUseCase';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { TempInstructorData } from '../../../../shared/services/otp/interfaces/ITempInstructorData ';
+import { TempStudentData } from '../../../../shared/services/otp/interfaces/ITempStudentData';
 
-/**
- * Use case for resending OTP to a user's email.
- * This class handles the logic for resending OTP with rate limiting to prevent abuse.
- */
 export class ResendOtpUseCase implements IResendOtpUseCase {
-  /**
-   * Creates an instance of ResendOtpUseCase.
-   * @param otpService - The OTP service for handling OTP operations.
-   * @param rateLimiter - The rate limiter for controlling OTP resend frequency.
-   */
   constructor(
-    private _otpService: IOtpService,
+    private _otpService: IOtpService<TempInstructorData | TempStudentData>,
     private _rateLimiter: IOtpRateLimiter,
   ) {}
 
