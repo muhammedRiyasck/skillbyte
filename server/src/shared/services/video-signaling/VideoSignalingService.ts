@@ -2,7 +2,7 @@ import { Server, Socket } from 'socket.io';
 import logger from '../../utils/Logger';
 import { IVideoSignalingService } from './IVideoSignalingService';
 
-interface VideoRoomParticipant {
+export interface VideoRoomParticipant {
   userId: string;
   socketId: string;
   bookingId: string;
