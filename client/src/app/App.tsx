@@ -1,11 +1,11 @@
-
 import { useEffect } from "react";
+import { AxiosError } from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { RouterProvider } from "react-router-dom";
 import router from "@core/router/Routes.tsx";
 import { Toaster } from "sonner";
 import { fetchCurrentUser } from "../features/auth/AuthSlice.ts";
-import type{ RootState, AppDispatch } from '@core/store/Index.ts';
+import type { RootState, AppDispatch } from "@core/store/Index.ts";
 import Home from "@shared/shimmer/Home.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SocketProvider } from "../context/SocketContext";
@@ -17,6 +17,13 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
       refetchOnWindowFocus: false,
+      retry: (failureCount, error) => {
+        const axiosError = error as AxiosError;
+        // Don't retry for 404 errors
+        if (axiosError?.response?.status === 404) return false;
+        // Otherwise use default retry (2 times)
+        return failureCount < 2;
+      },
     },
   },
 });
@@ -30,9 +37,7 @@ function App() {
   }, [dispatch]);
 
   if (loading) {
-    return (
-      <Home/>
-    );
+    return <Home />;
   }
 
   return (
