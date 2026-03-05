@@ -36,6 +36,7 @@ const deleteLessonUC = new DeleteLessonUseCase(
   LessonRepo,
   moduleRepository,
   courseRepository,
+  storageService,
 );
 
 const getLessonPlayUrlUC = new GetLessonPlayUrlUseCase(

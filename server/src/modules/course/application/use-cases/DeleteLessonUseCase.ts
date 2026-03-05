@@ -2,6 +2,7 @@ import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository'
 import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
 import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
 import { IDeleteLessonUseCase } from '../interfaces/IDeleteLessonUseCase';
+import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
@@ -21,6 +22,7 @@ export class DeleteLessonUseCase implements IDeleteLessonUseCase {
     private _lessonRepo: ILessonRepository,
     private _moduleRepo: IModuleRepository,
     private _courseRepo: ICourseRepository,
+    private _storageService: IStorageService,
   ) {}
 
   /**
@@ -58,7 +60,15 @@ export class DeleteLessonUseCase implements IDeleteLessonUseCase {
       );
     }
 
-    // Delete the lesson
+    // Delete the lesson record from the database immediately
     await this._lessonRepo.deleteById(lessonId);
+
+    // Fire-and-forget cloud cleanup — does NOT block the HTTP response
+    // Only delete the video file; resources are external links (not cloud-stored)
+    if (lesson.fileName) {
+      this._storageService.delete(lesson.fileName).catch((error) => {
+        console.error(`Cloud cleanup failed for lesson ${lessonId}:`, error);
+      });
+    }
   }
 }

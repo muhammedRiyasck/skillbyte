@@ -6,10 +6,12 @@ import { ModuleRepository } from '../../infrastructure/repositories/ModuleReposi
 import { LessonRepository } from '../../infrastructure/repositories/LessonRepository';
 import { UpdateModuleUseCase } from '../../application/use-cases/UpdateModuleUseCase';
 import { DeleteModuleUseCase } from '../../application/use-cases/DeleteModuleUseCase';
+import { S3StorageService } from '../../../../shared/services/file-upload/services/S3StorageService';
 
 const courseRepository = new CourseRepository();
 const moduleRepository = new ModuleRepository();
 const lessonRepository = new LessonRepository();
+const storageService = new S3StorageService();
 
 const createModuleUC = new CreateModuleUseCase(
   moduleRepository,
@@ -25,6 +27,7 @@ const deleteModuleUseCase = new DeleteModuleUseCase(
   moduleRepository,
   lessonRepository,
   courseRepository,
+  storageService,
 );
 
 export const moduleWithLessonController = new ModuleController(

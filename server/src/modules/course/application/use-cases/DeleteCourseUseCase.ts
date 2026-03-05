@@ -2,6 +2,7 @@ import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository'
 import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
 import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
 import { IDeleteCourseUseCase } from '../interfaces/IDeleteCourseUseCase';
+import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
@@ -22,6 +23,7 @@ export class DeleteCourseUseCase implements IDeleteCourseUseCase {
     private _courseRepo: ICourseRepository,
     private _moduleRepo: IModuleRepository,
     private _lessonRepo: ILessonRepository,
+    private _storageService: IStorageService,
   ) {}
 
   /**
@@ -60,6 +62,21 @@ export class DeleteCourseUseCase implements IDeleteCourseUseCase {
 
     // Delete all modules associated with the course
     await this._moduleRepo.deleteManyByCourseId(courseId);
+
+    // Delete course thumbnail from cloud storage
+    if (course.thumbnailUrl) {
+      try {
+        const thumbnailId = this._storageService.getIdentifierFromUrl(
+          course.thumbnailUrl,
+        );
+        await this._storageService.delete(thumbnailId);
+      } catch (error) {
+        console.error(
+          `Failed to delete cloud thumbnail for course ${courseId}:`,
+          error,
+        );
+      }
+    }
 
     // Finally, delete the course itself
     await this._courseRepo.deleteById(courseId);

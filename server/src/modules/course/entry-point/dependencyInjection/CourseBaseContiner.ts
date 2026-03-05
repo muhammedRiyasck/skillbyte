@@ -45,6 +45,7 @@ const deleteCourseUC = new DeleteCourseUseCase(
   courseRepository,
   moduleRepository,
   lessonRepository,
+  storageService,
 );
 
 const getCategoriesUC = new GetCategories(courseRepository);

@@ -30,6 +30,8 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
    * @returns A promise that resolves to the created Module entity or null if no module was created.
    */
   async execute(dto: CreateModuleDto): Promise<Module | null> {
+    const courseId = (dto.courseId || dto.id) as string;
+
     // Check if the provided moduleId is a valid MongoDB ObjectId
     const isObjectId =
       mongoose.Types.ObjectId.isValid(dto.moduleId) &&
@@ -40,7 +42,7 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
     // If moduleId is not a valid ObjectId, create a new module
     if (!isObjectId) {
       savedModule = await this._moduleRepo.save({
-        courseId: dto.courseId,
+        courseId: courseId,
         title: dto.title!,
         description: dto.description || '',
         order: dto.order!,
@@ -52,7 +54,7 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
       // Create the module only if it does not exist, to prevent duplicates when adding lessons
       if (!isModuleExist) {
         savedModule = await this._moduleRepo.save({
-          courseId: dto.courseId,
+          courseId: courseId,
           title: dto.title!,
           description: dto.description || '',
           order: dto.order!,
@@ -62,10 +64,10 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
 
     // Emit event if a new module was created
     if (savedModule && this._courseRepo) {
-      const course = await this._courseRepo.findById(dto.courseId);
+      const course = await this._courseRepo.findById(courseId);
       if (course) {
         eventBus.emit(COURSE_EVENTS.MODULE_CREATED, {
-          courseId: dto.courseId,
+          courseId: courseId,
           courseTitle: course.title,
           moduleTitle: dto.title!,
           instructorId: course.instructorId,
