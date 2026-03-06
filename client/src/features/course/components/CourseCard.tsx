@@ -12,6 +12,8 @@ import { MessageSquare, Loader2 } from "lucide-react";
 import type { RootState } from "@core/store/Index";
 
 import type { Ibase } from "../types/IBase";
+import { CourseStatus } from "@shared/enums/CourseStatus";
+import { UserRole } from "@shared/enums/UserRole";
 
 interface CourseCardProps {
   courses: Ibase[];
@@ -29,13 +31,13 @@ const CourseCard = memo<CourseCardProps>(({
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     id: string;
-    newStatus: string;
+    newStatus: CourseStatus;
     action: "status" | "block";
     isBlocked?: boolean;
   }>({
     isOpen: false,
     id: "",
-    newStatus: "list",
+    newStatus: CourseStatus.LIST,
     action: "status"
   });
 
@@ -65,17 +67,17 @@ const CourseCard = memo<CourseCardProps>(({
   };
 
   const handleToggleChange = useCallback((course: Ibase) => {
-    if (role === 'admin') {
+    if (role === UserRole.ADMIN) {
 
       setConfirmModal({
         isOpen: true,
         id: course.id,
-        newStatus: "",
+        newStatus: CourseStatus.DRAFT, // Dummy status for block action
         action: "block",
         isBlocked: !course.isBlocked
       });
     } else {
-      const newStatus = course.status === "list" ? "unlist" : "list";
+      const newStatus = course.status === CourseStatus.LIST ? CourseStatus.UNLIST : CourseStatus.LIST;
       setConfirmModal({
         isOpen: true,
         id: course.id,
@@ -88,7 +90,7 @@ const CourseCard = memo<CourseCardProps>(({
   const confirmStatusChange = useCallback(async () => {
     try {
       if (confirmModal.action === "status") {
-        await updateCourseStatus(confirmModal.id, confirmModal.newStatus as "list" | "unlist");
+        await updateCourseStatus(confirmModal.id, confirmModal.newStatus);
       } else if (confirmModal.action === "block") {
         await blockCourse(confirmModal.id, confirmModal.isBlocked!);
       }
@@ -98,19 +100,19 @@ const CourseCard = memo<CourseCardProps>(({
     } catch (error) {
       console.error("Failed to update course status:", error);
     } finally {
-      setConfirmModal({ isOpen: false, id: "", newStatus: "list", action: "status" });
+      setConfirmModal({ isOpen: false, id: "", newStatus: CourseStatus.LIST, action: "status" });
     }
   }, [confirmModal, queryClient]);
 
   const cancelStatusChange = useCallback(() => {
-    setConfirmModal({ isOpen: false, id: "", newStatus: "list", action: "status" });
+    setConfirmModal({ isOpen: false, id: "", newStatus: CourseStatus.LIST, action: "status" });
   }, []);
 
-  const getStatusBadge = (status: Ibase['status']) => {
+  const getStatusBadge = (status: CourseStatus) => {
     const statusConfig = {
-      draft: { label: 'Drafted', className: 'bg-orange-400' },
-      unlist: { label: 'Unlisted', className: 'bg-red-600' },
-      list: { label: 'Listed', className: 'bg-green-600' }
+      [CourseStatus.DRAFT]: { label: 'Drafted', className: 'bg-orange-400' },
+      [CourseStatus.UNLIST]: { label: 'Unlisted', className: 'bg-red-600' },
+      [CourseStatus.LIST]: { label: 'Listed', className: 'bg-green-600' }
     };
 
     const config = statusConfig[status];
@@ -136,7 +138,7 @@ const CourseCard = memo<CourseCardProps>(({
   };
 
   const getActionButton = (course: Ibase) => {
-    if (role === 'student') {
+    if (role === UserRole.STUDENT) {
       // Action Button for Students
       return (
         <>
@@ -167,7 +169,7 @@ const CourseCard = memo<CourseCardProps>(({
           )}
         </>
       );
-    } else if (role === 'instructor') {
+    } else if (role === UserRole.INSTRUCTOR) {
 
       // Action Button for Instructors
       return (
@@ -183,7 +185,7 @@ const CourseCard = memo<CourseCardProps>(({
           Continue Upload
         </button>
       );
-    } else if (role === 'admin') {
+    } else if (role === UserRole.ADMIN) {
       return (
         <button
           onClick={() => navigate(ROUTES.course.details.replace(':id', course.id), { state: { page } })}
@@ -208,14 +210,14 @@ const CourseCard = memo<CourseCardProps>(({
         >
           <div className="rounded-lg overflow-hidden mb-4 relative">
 
-            {role === 'instructor' && course.isBlocked && (
+            {role === UserRole.INSTRUCTOR && course.isBlocked && (
               <div className="absolute top-3 z-10 left-3  flex items-center gap-1.5 bg-gradient-to-r bg-yellow-800 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm">
 
                 <span className="font-light">! Blocked by Admin</span>
               </div>
             )}
-            {role !== 'student' && course.isBlocked === false && getStatusBadge(course.status)}
-            {role === 'student' && course.isEnrolled && (
+            {role !== UserRole.STUDENT && course.isBlocked === false && getStatusBadge(course.status)}
+            {role === UserRole.STUDENT && course.isEnrolled && (
               <div className="absolute top-3 left-3  flex items-center gap-1.5 bg-gradient-to-r bg-green-800 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm">
 
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -235,12 +237,12 @@ const CourseCard = memo<CourseCardProps>(({
 
           <h2 className="flex justify-between text-gray-900 dark:text-white text-xl font-bold mb-3 line-clamp-2 leading-tight">
             {course.title}
-            {role === 'instructor' && course.isBlocked === false ? (
+            {role === UserRole.INSTRUCTOR && course.isBlocked === false ? (
               <ToggleSwitch
-                checked={course.status === "list"}
+                checked={course.status === CourseStatus.LIST}
                 onChange={() => handleToggleChange(course)}
               />
-            ) : role === 'admin' ?
+            ) : role === UserRole.ADMIN ?
               <ToggleSwitch
                 checked={course.isBlocked || false} // Default to false if undefined
                 label="block"
@@ -272,7 +274,7 @@ const CourseCard = memo<CourseCardProps>(({
         title={
           confirmModal.action === 'block'
             ? `Confirm ${confirmModal.isBlocked ? 'Block' : 'Unblock'} Course`
-            : `Confirm ${confirmModal.newStatus === "list" ? "List" : "Unlist"} Course`
+            : `Confirm ${confirmModal.newStatus === CourseStatus.LIST ? "List" : "Unlist"} Course`
         }
         onConfirm={confirmStatusChange}
         confirmLabel="Confirm"
@@ -281,7 +283,7 @@ const CourseCard = memo<CourseCardProps>(({
         <p className="text-gray-700 dark:text-gray-300">
           {confirmModal.action === 'block'
             ? `Are you sure you want to ${confirmModal.isBlocked ? 'block' : 'unblock'} this course?`
-            : `Are you sure you want to ${confirmModal.newStatus === "list" ? "list" : "unlist"} this course?`
+            : `Are you sure you want to ${confirmModal.newStatus === CourseStatus.LIST ? "list" : "unlist"} this course?`
           }
         </p>
       </Modal>

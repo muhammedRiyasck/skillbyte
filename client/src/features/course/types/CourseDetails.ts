@@ -1,3 +1,4 @@
+import { CourseStatus } from "@shared/enums/CourseStatus";
 import type { ModuleType } from "./IModule";
 
 export interface CourseDetailsResponse {
@@ -22,7 +23,7 @@ export interface CourseDetails {
   description: string;
   duration: string;
   tags: string[];
-  status: "draft" | "list" | "unlist";
+  status: CourseStatus;
   createdAt: string;
   updatedAt: string;
   modules?: ModuleType[];

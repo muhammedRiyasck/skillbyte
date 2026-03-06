@@ -14,6 +14,9 @@ import getCroppedImg from "@shared/utils/GetCroppedImg";
 import useCreateCourse from "../hooks/useCreateCourse";
 import { getCourseDetails } from "../services/CourseDetails";
 import { updateBase, uploadThumbnail, deleteCourse } from "../services/CourseBase";
+import { CourseCategory } from "@shared/enums/CourseCategory";
+import { CourseLevel } from "@shared/enums/CourseLevel";
+import { CourseDuration } from "@shared/enums/CourseDuration";
 
 import { QueryClient } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
@@ -23,11 +26,11 @@ const queryClient = new QueryClient();
 type FormData = {
   title: string;
   subText: string;
-  category: string;
+  category: CourseCategory | "";
   customCategory: string;
-  courseLevel: string;
+  courseLevel: CourseLevel | "";
   language: string;
-  access: string;
+  access: CourseDuration | "";
   price: string;
   description: string;
   tags: string[];
@@ -36,7 +39,7 @@ type FormData = {
   thumbnailUrl?: string;
 };
 
-const Category = ["Marketing", "Programming", "Designing", "Business", "Other"];
+const Category = Object.values(CourseCategory);
 
 const CreateCourse = () => {
   const navigate = useNavigate();
@@ -96,18 +99,11 @@ const CreateCourse = () => {
   const watchedCategory = watch("category");
   const category = watch("category");
 
-  if (watchedCategory !== "Other") {
+  if (watchedCategory !== CourseCategory.OTHER) {
     setValue("customCategory", "");
   }
 
-  const Levels = [
-    "Beginner",
-    "Intermediate",
-    "Advanced",
-    "Beginner - Intermediate",
-    "Intermediate - Advanced",
-    "All Level",
-  ];
+  const Levels = Object.values(CourseLevel);
 
   const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -140,15 +136,15 @@ const CreateCourse = () => {
       getCourseDetails(id)
         .then((courseData) => {
           const course = courseData.data;
-          const category = Category.includes(course.category) ? course.category : "Other";
+          const category = Category.includes(course.category as CourseCategory) ? course.category as CourseCategory : CourseCategory.OTHER;
           setThumbnail(course.thumbnailUrl || "");
           setValue("title", course.title || "");
           setValue("subText", course.subText || "");
           setValue("category", category || "");
-          if (category === "Other") setValue("customCategory", course.category || "");
-          setValue("courseLevel", course.courseLevel || "");
+          if (category === CourseCategory.OTHER) setValue("customCategory", course.category || "");
+          setValue("courseLevel", course.courseLevel as CourseLevel || "");
           setValue("language", course.language || "");
-          setValue("access", course.duration || "");
+          setValue("access", course.duration as CourseDuration || "");
           setValue("price", course.price + "" || "");
           setValue("description", course.description || "");
           setValue("tags", course.tags || []);
@@ -477,9 +473,11 @@ const CreateCourse = () => {
                     <option disabled value="">
                       Select Duration
                     </option>
-                    <option value="Life Time Access">Life Time Access</option>
-                    <option value="1-Year Access">1-Year Access</option>
-                    <option value="6-Month Access">6-Month Access</option>
+                    {Object.values(CourseDuration).map((duration) => (
+                      <option key={duration} value={duration}>
+                        {duration}
+                      </option>
+                    ))}
                   </select>
                 )}
               />

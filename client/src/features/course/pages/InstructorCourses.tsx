@@ -10,8 +10,10 @@ import { toast } from "sonner";
 import CourseRender from "../components/CourseRender";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/core/store/Index";
+import { AdminCourseFilter } from "@shared/enums/AdminCourseFilter";
 
-const options = ["All Courses", "Drafted Courses", "Listed Courses", "Unlisted Courses"];
+const options = ["All Courses", AdminCourseFilter.DRAFTED, AdminCourseFilter.LISTED, AdminCourseFilter.UNLISTED] as const;
+type CourseFilterOption = typeof options[number];
 
 const InstructorCourses: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -26,7 +28,7 @@ const InstructorCourses: React.FC = () => {
   };
 
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState(options[0]);
+  const [selectedStatus, setSelectedStatus] = useState<CourseFilterOption>(options[0]);
   const email = useSelector((state: RootState) => state.auth.user?.email);
 
   const limit = 6;
@@ -34,7 +36,7 @@ const InstructorCourses: React.FC = () => {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["courses", selectedStatus, page, email],
     queryFn: () =>
-      api.get(`/course/instructor-courses?status=${selectedStatus}&page=${page}&limit=${limit}`).then((r) => r.data),
+      api.get(`/course/instructor-courses?status=${selectedStatus === "All Courses" ? "" : selectedStatus}&page=${page}&limit=${limit}`).then((r) => r.data),
     staleTime: 5 * 60 * 1000,
   });
 
@@ -46,7 +48,7 @@ const InstructorCourses: React.FC = () => {
         <ErrorPage message={error.message} statusCode={500} />
       </p>
     );
-  const handleListStatus = (option: string) => {
+  const handleListStatus = (option: CourseFilterOption) => {
     setIsOpen(false);
     setSelectedStatus(option);
   };

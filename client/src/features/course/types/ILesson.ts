@@ -1,9 +1,11 @@
+import { ContentType } from "@shared/enums/ContentType";
+
 export interface LessonType {
   id: string
   moduleId: string
   title: string;
   description: string;
-  contentType: string
+  contentType: ContentType
   fileName?: string;
   signedVideoUrl?: string;
   duration: number | null

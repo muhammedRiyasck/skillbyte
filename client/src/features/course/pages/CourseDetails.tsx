@@ -32,6 +32,8 @@ import { useSelector } from 'react-redux';
 import type { RootState } from '@/core/store/Index';
 import ToggleSwitch from '@/shared/ui/ToggleSwitch';
 import { toast } from 'sonner';
+import { UserRole } from '@shared/enums/UserRole';
+import { ContentType } from '@shared/enums/ContentType';
 
 const CourseDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -57,7 +59,7 @@ const CourseDetails: React.FC = () => {
   const { data: enrollmentData } = useQuery({
     queryKey: ['enrollmentStatus', id, userId],
     queryFn: () => checkEnrollmentStatus(id!),
-    enabled: !!id && role === 'student',
+    enabled: !!id && role === UserRole.STUDENT,
     staleTime: 5 * 60 * 1000,
   });
 
@@ -194,7 +196,7 @@ const CourseDetails: React.FC = () => {
               <ChevronRight className="w-4 h-4 text-gray-400 " />
               <button
                 onClick={() => {
-                  if (location.state?.page && role === 'instructor') {
+                  if (location.state?.page && role === UserRole.INSTRUCTOR) {
                     navigate(`${ROUTES.instructor.myCourses}?page=${location.state.page}`);
                   } else {
                     navigate(-1);
@@ -310,8 +312,8 @@ const CourseDetails: React.FC = () => {
                           ₹{Math.round(course.price * 1.5)}
                         </div>
                       </div>
-                      {role === 'student' && <div>
-                        {role === 'student' && isEnrolled ? (
+                      {role === UserRole.STUDENT && <div>
+                        {role === UserRole.STUDENT && isEnrolled ? (
                           <div className="w-full py-3 px-6 rounded-lg font-semibold bg-green-100 text-green-800 flex items-center justify-center gap-2">
                             <Check className="w-5 h-5" />
                             Already Enrolled
@@ -401,14 +403,14 @@ const CourseDetails: React.FC = () => {
 
                       <div className="border-t border-gray-200 dark:border-gray-700 ">
                         {module.lessons?.map((lesson) => (
-                          ((lesson.isBlocked && role === 'admin') || !lesson.isBlocked) ? (
+                          ((lesson.isBlocked && role === UserRole.ADMIN) || !lesson.isBlocked) ? (
                             <div
                               key={lesson.id}
                               className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                             >
                               <div className="flex items-center justify-between p-4">
                                 <div className="flex items-center gap-3 flex-1">
-                                  {lesson.contentType === 'video' ? (
+                                  {lesson.contentType === ContentType.VIDEO ? (
                                     <Play className="w-4 h-4 text-gray-500" />
                                   ) : (
                                     <FileText className="w-4 h-4 text-gray-500" />
@@ -429,7 +431,7 @@ const CourseDetails: React.FC = () => {
                                     </span>
                                   )}
                                   <span>{formatDuration(lesson.duration || 0)}</span>
-                                  {role === 'student' && (lesson.isFreePreview || isEnrolled) && (
+                                  {role === UserRole.STUDENT && (lesson.isFreePreview || isEnrolled) && (
                                     <button
                                       onClick={() => {
                                         setCurrentLessonId(lesson.id);
@@ -441,7 +443,7 @@ const CourseDetails: React.FC = () => {
                                       {(enrollmentData?.data?.enrollment?.lessonProgress?.find((p: { lessonId: string; lastWatchedSecond: number }) => p.lessonId === lesson.id)?.lastWatchedSecond || 0) > 0 ? 'Resume' : 'Watch'}
                                     </button>
                                   )}
-                                  {role === 'admin' && (
+                                  {role === UserRole.ADMIN && (
                                     <ToggleSwitch
                                       checked={blockedLessons.has(lesson.id)}
                                       onChange={() => handleBlockLesson(lesson.id)}
@@ -451,7 +453,7 @@ const CourseDetails: React.FC = () => {
                                 </div>
                               </div>
                               {/* Progress Bar for Enrolled Students */}
-                              {role === 'student' && isEnrolled && (function () {
+                              {role === UserRole.STUDENT && isEnrolled && (function () {
                                 const prog = enrollmentData?.data?.enrollment?.lessonProgress?.find((p: { lessonId: string; lastWatchedSecond: number; totalDuration: number; isCompleted: boolean }) => p.lessonId === lesson.id);
                                 const pct = prog ? Math.min(100, Math.max(0, (prog.lastWatchedSecond / (prog.totalDuration || lesson.duration || 1)) * 100)) : 0;
                                 // Only show progress bar if there is some progress or it's completed

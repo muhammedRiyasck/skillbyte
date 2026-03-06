@@ -1,3 +1,5 @@
+import { CourseStatus } from "@shared/enums/CourseStatus";
+
 export interface Ibase {
     id: string;
     instructorId?: string;
@@ -13,7 +15,7 @@ export interface Ibase {
     description: string;
     tags: string;
     features: string[];
-    status: 'draft' | 'list' | 'unlist';
+    status: CourseStatus;
     rating: number;
     reviews: number;
     isEnrolled?: boolean;

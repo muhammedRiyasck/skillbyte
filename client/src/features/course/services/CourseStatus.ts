@@ -1,7 +1,8 @@
 import { toast } from "sonner";
 import api from "@shared/utils/AxiosInstance";
+import { CourseStatus } from "@shared/enums/CourseStatus";
 
-export const updateCourseStatus = async (id: string, status: "list" | "unlist") => {
+export const updateCourseStatus = async (id: string, status: CourseStatus) => {
   const response = await api.patch(`/course/${id}/status`, { status });
   toast.success(`Course ${status}ed successfully`);
   return response.data;
