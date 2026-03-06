@@ -39,7 +39,10 @@ export interface FormError {
   [key: string]: string;
 }
 
-export type LoadingState = 'idle' | 'loading' | 'succeeded' | 'failed';
+import { LoadingState } from '../enums/LoadingState';
+
+export { LoadingState };
+
 
 export interface AsyncState<T> {
   data: T | null;
