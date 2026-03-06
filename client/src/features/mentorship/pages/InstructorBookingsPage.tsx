@@ -7,6 +7,8 @@ import { BookingCard } from "../components/BookingCard";
 import Modal from "@shared/ui/Modal";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/core/router/paths";
+import { BookingStatus } from "../../../shared/enums/BookingStatus";
+import { UserRole } from "../../../shared/enums/UserRole";
 
 const InstructorBookingsPage = () => {
     const navigate = useNavigate();
@@ -48,7 +50,7 @@ const InstructorBookingsPage = () => {
         fetchBookings();
     }, [filters, fetchBookings]);
 
-    const handleFilterChange = (status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'all') => {
+    const handleFilterChange = (status: BookingStatus | 'all') => {
         setFilters(prev => {
             const newFilters: InstructorBookingFilters = {
                 ...prev,
@@ -79,7 +81,7 @@ const InstructorBookingsPage = () => {
             setIsCancelling(true);
             await cancelBooking(bookingToCancel);
             toast.success("Booking cancelled");
-            setBookings(prev => prev.map(b => b.bookingId === bookingToCancel ? { ...b, status: 'cancelled' } : b));
+            setBookings(prev => prev.map(b => b.bookingId === bookingToCancel ? { ...b, status: BookingStatus.CANCELLED } : b));
             setIsConfirmOpen(false);
         } catch (error) {
             console.error(error);
@@ -131,13 +133,13 @@ const InstructorBookingsPage = () => {
                         <select
                             className="pl-9 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-transparent shadow-sm rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:text-white appearance-none cursor-pointer hover:border-indigo-300 transition-colors"
                             value={filters.status || 'all'}
-                            onChange={(e) => handleFilterChange(e.target.value as 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'all')}
+                            onChange={(e) => handleFilterChange(e.target.value as BookingStatus | 'all')}
                         >
                             <option value="all">All Status</option>
-                            <option value="pending">Pending</option>
-                            <option value="confirmed">Confirmed</option>
-                            <option value="completed">Completed</option>
-                            <option value="cancelled">Cancelled</option>
+                            <option value={BookingStatus.PENDING}>Pending</option>
+                            <option value={BookingStatus.CONFIRMED}>Confirmed</option>
+                            <option value={BookingStatus.COMPLETED}>Completed</option>
+                            <option value={BookingStatus.CANCELLED}>Cancelled</option>
                         </select>
                     </div>
 
@@ -181,7 +183,7 @@ const InstructorBookingsPage = () => {
                                 booking={booking}
                                 onCancel={handleCancelClick}
                                 onJoinSession={handleJoinSession}
-                                userRole="instructor"
+                                userRole={UserRole.INSTRUCTOR}
                             />
                         ))}
                     </div>
@@ -236,7 +238,7 @@ const InstructorBookingsPage = () => {
 
                     {bookingToCancel && (() => {
                         const booking = bookings.find(b => b.bookingId === bookingToCancel);
-                        if (booking && booking.amount > 0 && booking.status === 'confirmed') {
+                        if (booking && booking.amount > 0 && booking.status === BookingStatus.CONFIRMED) {
                             return (
                                 <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg text-sm text-blue-700 dark:text-blue-300">
                                     <p className="font-semibold">The student will be fully refunded.</p>
