@@ -8,14 +8,22 @@ import InstructorTable from "../components/InstructorTable";
 import { approveRequest, changeInstructorStatusRequest, declineRequest, deleteInstructor } from "../services/InstructorService";
 import type { IReqestPlayload } from "../types/IReqestPlayload";
 import { DebouncedInput } from "@/shared/ui";
-const INSTRUCTOR_OPTIONS = ['Pending Instructors', 'Approved Instructors', 'Suspended Instructors', 'Rejected Instructors'];
+import { AdminInstructorFilter } from "@shared/enums/AdminInstructorFilter";
+import { InstructorAccountStatus } from "@shared/enums/InstructorAccountStatus";
+
+const INSTRUCTOR_OPTIONS = [
+  AdminInstructorFilter.PENDING,
+  AdminInstructorFilter.APPROVED,
+  AdminInstructorFilter.SUSPENDED,
+  AdminInstructorFilter.REJECTED,
+];
 const ITEMS_PER_PAGE = 12;
 
 const InstructorManagement: React.FC = () => {
   const queryClient = useQueryClient();
 
   const [page, setPage] = useState(1);
-  const [dropDownValue, setDropDownValue] = useState(INSTRUCTOR_OPTIONS[0]);
+  const [dropDownValue, setDropDownValue] = useState<AdminInstructorFilter>(INSTRUCTOR_OPTIONS[0]);
   const [isDropDownOpend, setIsDropDownOpend] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -89,22 +97,22 @@ const InstructorManagement: React.FC = () => {
   }, [declineMutation]);
 
   const handleSuspend = useCallback((payload: { id: string; reason: string; status: string }) => {
-    suspendMutation.mutate({ ...payload, status: "suspend" });
+    suspendMutation.mutate({ ...payload, status: InstructorAccountStatus.SUSPENDED });
   }, [suspendMutation]);
 
   const handleReOpen = useCallback(({ id }: { id: string }) => {
-    reOpenMutation.mutate({ id, status: "active" });
+    reOpenMutation.mutate({ id, status: InstructorAccountStatus.ACTIVE });
   }, [reOpenMutation]);
 
   const handleDelete = useCallback((id: string) => {
     deleteMutation.mutate(id);
   }, [deleteMutation]);
 
-  const handleListStatus = useCallback((option: string) => {
+  const handleListStatus = useCallback((option: AdminInstructorFilter) => {
     setIsDropDownOpend(false);
     setDropDownValue(option);
     setPage(1);
-    queryClient.invalidateQueries({ queryKey: ['instructors', option, 1] });
+    queryClient.invalidateQueries({ queryKey: ["instructors", option, 1] });
   }, [queryClient]);
 
   if (isLoading) {

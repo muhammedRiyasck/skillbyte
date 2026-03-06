@@ -5,8 +5,8 @@ import { CheckCircle, XCircle, UserX, RotateCcw, Trash2, Eye } from "lucide-reac
 import Table from "@shared/ui/Table";
 import Modal from "@shared/ui/Modal";
 import type { Instructor } from "../types/IInstructor";
-import type { IReqestPlayload } from "../types/IReqestPlayload";
 import api from "@/shared/utils/AxiosInstance";
+import { InstructorAccountStatus } from "@shared/enums/InstructorAccountStatus";
 
 interface InstructorTableProps {
   data: {
@@ -20,8 +20,8 @@ interface InstructorTableProps {
   onPageChange: (page: number) => void;
   onApprove: (id: string) => void;
   onDecline: (payload: { id: string; reason: string }) => void;
-  onSuspend: (payload: { id: string; reason: string; status: string }) => void;
-  onReOpen: (payload: IReqestPlayload) => void;
+  onSuspend: (payload: { id: string; reason: string; status: InstructorAccountStatus.SUSPENDED }) => void;
+  onReOpen: (payload: { id: string; status: InstructorAccountStatus.ACTIVE }) => void;
   onDelete: (id: string) => void;
 }
 
@@ -107,10 +107,10 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
           setIsModalOpen(true);
           return;
         }
-        onSuspend({ id: selectedInstructor.id, reason: reason.trim(), status: "suspend" });
+        onSuspend({ id: selectedInstructor.id, reason: reason.trim(), status: InstructorAccountStatus.SUSPENDED });
         break;
       case "ReOpen Instructor":
-        onReOpen({ id: selectedInstructor.id, status: "active" });
+        onReOpen({ id: selectedInstructor.id, status: InstructorAccountStatus.ACTIVE });
         break;
       case "Delete Instructor":
         onDelete(selectedInstructor.id);
@@ -231,10 +231,10 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
       accessor: (row: Instructor) => (
         <span
           className={`inline-flex px-6 py-2 text-lg font-semibold rounded-full ${row.approved
-              ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-              : row.accountStatus === "pending"
-                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+            : row.accountStatus === InstructorAccountStatus.PENDING
+              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
             }`}
         >
           {row.accountStatus}
@@ -245,7 +245,7 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
       header: "Actions",
       accessor: (row: Instructor) => {
         console.log(row);
-        if (row.accountStatus === "pending" && !row.approved) {
+        if (row.accountStatus === InstructorAccountStatus.PENDING && !row.approved) {
           return (
             <div className="flex space-x-2">
               <button
@@ -264,7 +264,7 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
               </button>
             </div>
           );
-        } else if (row.accountStatus === "active" && row.approved) {
+        } else if (row.accountStatus === InstructorAccountStatus.ACTIVE && row.approved) {
           return (
             <button
               onClick={() => handleAction(row.id, "suspend", row.name)}
@@ -274,7 +274,7 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
               Suspend
             </button>
           );
-        } else if (row.accountStatus === "rejected" && row.rejected) {
+        } else if (row.accountStatus === InstructorAccountStatus.REJECTED && row.rejected) {
           return (
             <button
               onClick={() => handleAction(row.id, "delete", row.name)}

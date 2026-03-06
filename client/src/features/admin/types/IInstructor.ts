@@ -1,3 +1,5 @@
+import { InstructorAccountStatus } from "@shared/enums/InstructorAccountStatus";
+
 export interface Instructor {
   id: string
   name: string;
@@ -8,7 +10,7 @@ export interface Instructor {
   experience: string;
   socialProfile: string;
   portfolio: string;
-  accountStatus: "pending" | "active" | "suspend" | "rejected"
+  accountStatus: InstructorAccountStatus
   approved: boolean
   rejected: boolean
   bio: string;

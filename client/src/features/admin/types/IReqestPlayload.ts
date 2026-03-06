@@ -1,5 +1,7 @@
+import { InstructorAccountStatus } from "@shared/enums/InstructorAccountStatus";
+
 export interface IReqestPlayload {
     id: string;
     reason?: string
-    status?: 'active' | 'suspend';
+    status?: InstructorAccountStatus.ACTIVE | InstructorAccountStatus.SUSPENDED;
 }

@@ -7,6 +7,7 @@ import Modal from "@shared/ui/Modal";
 import { changeStudentStatus } from "../services/StudentService";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { UserAccountStatus } from "@shared/enums/UserAccountStatus";
 
 interface Student {
   id: string;
@@ -14,7 +15,7 @@ interface Student {
   email: string;
   profilePicture?: string;
   registeredVia: string;
-  accountStatus: "active" | "blocked";
+  accountStatus: UserAccountStatus;
 }
 
 interface StudentTableProps {
@@ -40,7 +41,7 @@ const StudentTable: React.FC<StudentTableProps> = ({
   const queryClient = useQueryClient();
 
   const toggleStudentStatusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: "active" | "blocked" }) => {
+    mutationFn: async ({ id, status }: { id: string; status: UserAccountStatus }) => {
       await changeStudentStatus({ id, status });
     },
     onSuccess: () => {
@@ -52,15 +53,15 @@ const StudentTable: React.FC<StudentTableProps> = ({
     }
   });
 
-  const handleAction = useCallback((id: string, action: "active" | "blocked", name: string) => {
+  const handleAction = useCallback((id: string, action: UserAccountStatus, name: string) => {
     setSelectedStudent({ id, name });
-    setModalAction(action === "active" ? "unblock" : "block");
+    setModalAction(action === UserAccountStatus.ACTIVE ? "unblock" : "block");
     setIsModalOpen(true);
   }, []);
 
   const handleSubmit = () => {
     setIsModalOpen(false);
-    const newStatus = modalAction === "unblock" ? "active" : "blocked";
+    const newStatus = modalAction === "unblock" ? UserAccountStatus.ACTIVE : UserAccountStatus.BLOCKED;
     toggleStudentStatusMutation.mutate({
       id: selectedStudent.id,
       status: newStatus,
@@ -111,7 +112,7 @@ const StudentTable: React.FC<StudentTableProps> = ({
       header: "Status",
       accessor: (row: Student & { index: number }) => (
         <span
-          className={`inline-flex px-2 py-1 text-lg font-semibold rounded-full ${row.accountStatus === "blocked"
+          className={`inline-flex px-2 py-1 text-lg font-semibold rounded-full ${row.accountStatus === UserAccountStatus.BLOCKED
             ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
             : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
             }`}
@@ -123,9 +124,9 @@ const StudentTable: React.FC<StudentTableProps> = ({
     {
       header: "Actions",
       accessor: (row: Student & { index: number }) => (
-        row.accountStatus === "blocked" ? (
+        row.accountStatus === UserAccountStatus.BLOCKED ? (
           <button
-            onClick={() => handleAction(row.id, "active", row.name)}
+            onClick={() => handleAction(row.id, UserAccountStatus.ACTIVE, row.name)}
             disabled={toggleStudentStatusMutation.status === "pending"}
             className="inline-flex items-center px-3 py-2 border border-transparent text-lg leading-4 font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors cursor-pointer disabled:opacity-50"
           >
@@ -134,7 +135,7 @@ const StudentTable: React.FC<StudentTableProps> = ({
           </button>
         ) : (
           <button
-            onClick={() => handleAction(row.id, "blocked", row.name)}
+            onClick={() => handleAction(row.id, UserAccountStatus.BLOCKED, row.name)}
             disabled={toggleStudentStatusMutation.status === "pending"}
             className="inline-flex items-center px-6 py-2 border border-transparent text-lg leading-4 font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors cursor-pointer disabled:opacity-50"
           >
