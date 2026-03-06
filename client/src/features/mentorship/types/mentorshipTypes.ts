@@ -1,3 +1,6 @@
+import { BookingStatus, CancelledBy } from "@shared/enums/BookingStatus";
+import { SlotStatus } from "@shared/enums/SlotStatus";
+
 export interface IMentorshipSlot {
   slotId: string;
   instructorId: string;
@@ -5,7 +8,7 @@ export interface IMentorshipSlot {
   duration: number; // minutes
   price: number;
   currency: string;
-  status: 'available' | 'booked' | 'cancelled' | 'maintenance';
+  status: SlotStatus;
   title?: string;
   description?: string;
   instructorDetails?: {
@@ -24,13 +27,13 @@ export interface IMentorshipBooking {
   paymentId?: string;
   amount: number;
   currency: string;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'refunded';
+  status: BookingStatus;
   videoRoomId?: string;
   videoRoomUrl?: string;
   scheduledAt: string; // ISO String
   completedAt?: string;
   cancelledAt?: string;
-  cancelledBy?: 'student' | 'instructor' | 'system' | null;
+  cancelledBy?: CancelledBy | null;
   createdAt: string;
 }
 
@@ -40,7 +43,7 @@ export interface CreateSlotRequest {
   price: number;
   title?: string | undefined;
   description?: string | undefined;
-  status?: 'available' | 'booked' | 'cancelled' | 'maintenance';
+  status?: SlotStatus;
   tags?: string[];
 }
 
@@ -48,7 +51,7 @@ export interface UpdateSlotRequest {
   scheduledAt?: Date | string | undefined;
   duration?: number | undefined;
   price?: number | undefined;
-  status?: 'available' | 'booked' | 'cancelled' | 'maintenance';
+  status?: SlotStatus;
   title?: string | undefined;
   description?: string | undefined;
   tags?: string[];
@@ -77,7 +80,7 @@ export interface SlotFilters {
 }
 
 export interface InstructorSlotFilters {
-  status?: 'available' | 'booked' | 'cancelled';
+  status?: SlotStatus;
   fromDate?: string | Date;
   toDate?: string | Date;
   page?: number;
@@ -90,19 +93,19 @@ export interface PaginationParams {
 }
 
 export interface UpdateBookingStatusRequest {
-  status: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  status: BookingStatus;
 }
 
 export interface InstructorBookingFilters {
   page?: number;
   limit?: number;
-  status?: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  status?: BookingStatus;
 }
 
 export interface StudentBookingFilters {
   page?: number;
   limit?: number;
-  status?: 'pending' | 'confirmed' | 'cancelled' | 'completed';
+  status?: BookingStatus;
   fromDate?: string | Date;
   toDate?: string | Date;
 }
