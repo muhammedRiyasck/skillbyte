@@ -1,20 +1,21 @@
 import { ERROR_MESSAGES } from '../constants/messages';
 import { HttpStatusCode } from '../enums/HttpStatusCodes';
 import { HttpError } from '../types/HttpError';
+import { CourseDuration } from '../enums/CourseDuration';
 
 export default function DurationConverter(durationStr: string): Date {
   const durationINString = durationStr;
   let calculatedDate: Date;
-  if (durationINString == 'Life Time Access') {
+  if (durationINString == CourseDuration.LIFETIME) {
     // find the current date and add 100 years to it
     calculatedDate = new Date(
       new Date().setFullYear(new Date().getFullYear() + 100),
     );
-  } else if (durationINString === '1-Year Access') {
+  } else if (durationINString === CourseDuration.ONE_YEAR) {
     calculatedDate = new Date(
       new Date().setFullYear(new Date().getFullYear() + 1),
     );
-  } else if (durationINString === '6-Month Access') {
+  } else if (durationINString === CourseDuration.SIX_MONTHS) {
     calculatedDate = new Date(new Date().setMonth(new Date().getMonth() + 6));
   } else {
     throw new HttpError(

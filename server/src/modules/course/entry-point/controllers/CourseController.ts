@@ -24,6 +24,9 @@ import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositor
 import { GetCategories } from '../../application/use-cases/GetCategoriesUseCase';
 import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 import { IEnrollment } from '../../../enrollment/domain/entities/Enrollment';
+import { UserRole } from '../../../../shared/enums/UserRole';
+import { AdminCourseFilter } from '../../../../shared/enums/AdminCourseFilter';
+import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
 export class CourseController {
   constructor(
@@ -230,7 +233,10 @@ export class CourseController {
     const authenticatedReq = req as AuthenticatedRequest;
     const validatedQuery = PaginationQuerySchema.parse(req.query);
 
-    const query: Record<string, unknown> = { status: 'list', isBlocked: false };
+    const query: Record<string, unknown> = {
+      status: CourseStatus.LIST,
+      isBlocked: false,
+    };
     const page = validatedQuery.page || 1;
     const limit = validatedQuery.limit || 6;
     const { level, language } = req.query;
@@ -282,7 +288,7 @@ export class CourseController {
     // Check enrollment status for each course if user is a student
     if (
       authenticatedReq.user &&
-      authenticatedReq.user.role === 'student' &&
+      authenticatedReq.user.role === UserRole.STUDENT &&
       courses &&
       courses.data
     ) {
@@ -358,12 +364,12 @@ export class CourseController {
     // Filter by status if provided
     if (status) {
       // Assuming schema allows status strings
-      if (status === 'Drafted Courses') {
-        query.status = 'draft';
-      } else if (status === 'Listed Courses') {
-        query.status = 'list';
-      } else if (status === 'Unlisted Courses') {
-        query.status = 'unlist';
+      if (status === AdminCourseFilter.DRAFTED) {
+        query.status = CourseStatus.DRAFT;
+      } else if (status === AdminCourseFilter.LISTED) {
+        query.status = CourseStatus.LIST;
+      } else if (status === AdminCourseFilter.UNLISTED) {
+        query.status = CourseStatus.UNLIST;
       }
     }
 
@@ -405,12 +411,12 @@ export class CourseController {
 
     // Filter by status if provided
     if (status) {
-      if (status === 'Drafted Courses') {
-        query.status = 'draft';
-      } else if (status === 'Listed Courses') {
-        query.status = 'list';
-      } else if (status === 'Unlisted Courses') {
-        query.status = 'unlist';
+      if (status === AdminCourseFilter.DRAFTED) {
+        query.status = CourseStatus.DRAFT;
+      } else if (status === AdminCourseFilter.LISTED) {
+        query.status = CourseStatus.LIST;
+      } else if (status === AdminCourseFilter.UNLISTED) {
+        query.status = CourseStatus.UNLIST;
       }
     }
 

@@ -4,6 +4,8 @@ import { MentorshipCleanupJobData, JOB_NAMES, QUEUE_NAMES } from '../JobTypes';
 import { ICancelBookingUseCase } from '../../../../modules/mentorship/application/interfaces/IBookingUseCases';
 import { IMentorshipBookingRepository } from '../../../../modules/mentorship/domain/IRepositories/IMentorshipBookingRepository';
 import logger from '../../../utils/Logger';
+import { BookingStatus } from '../../../../modules/mentorship/domain/entities/MentorshipBooking';
+import { CancelledBy } from '../../../../modules/mentorship/domain/entities/MentorshipBooking';
 
 export class MentorshipCleanupProcessor {
   constructor(
@@ -33,13 +35,13 @@ export class MentorshipCleanupProcessor {
         return;
       }
 
-      if (booking.status === 'pending') {
+      if (booking.status === BookingStatus.PENDING) {
         logger.info(
           `Cleanup: Booking ${bookingId} is still pending after timeout. Cancelling...`,
         );
         await this._cancelBookingUC.execute({
           bookingId,
-          cancelledBy: 'system',
+          cancelledBy: CancelledBy.SYSTEM,
         });
       } else {
         logger.info(

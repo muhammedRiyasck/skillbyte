@@ -8,6 +8,8 @@ import dotenv from 'dotenv';
 import { HttpError } from '../../types/HttpError';
 import { ERROR_MESSAGES } from '../../constants/messages';
 import { HttpStatusCode } from '../../enums/HttpStatusCodes';
+import { UserRole } from '../../enums/UserRole';
+import { UserAccountStatus } from '../../enums/UserAccountStatus';
 dotenv.config();
 
 export const configureGoogleStrategy = (
@@ -39,7 +41,7 @@ export const configureGoogleStrategy = (
               false,
             );
 
-          if (role === 'student') {
+          if (role === UserRole.STUDENT) {
             let student = await studentRepo.findByEmail(email);
             if (!student) {
               student = new Student(
@@ -51,7 +53,10 @@ export const configureGoogleStrategy = (
                 profile.photos?.[0]?.value || null,
               );
               await studentRepo.save(student);
-            } else if (student && student.accountStatus !== 'active') {
+            } else if (
+              student &&
+              student.accountStatus !== UserAccountStatus.ACTIVE
+            ) {
               return done(
                 new HttpError(
                   ERROR_MESSAGES.ACCOUNT_BLOCKED,
@@ -61,8 +66,8 @@ export const configureGoogleStrategy = (
               );
             }
 
-            return done(null, { user: student, role: 'student' });
-          } else if (role === 'instructor') {
+            return done(null, { user: student, role: UserRole.STUDENT });
+          } else if (role === UserRole.INSTRUCTOR) {
             const instructor = await instructorRepo.findByEmail(email);
             if (!instructor)
               return done(
@@ -73,7 +78,7 @@ export const configureGoogleStrategy = (
                 false,
               );
 
-            return done(null, { user: instructor, role: 'instructor' });
+            return done(null, { user: instructor, role: UserRole.INSTRUCTOR });
           } else {
             return done(
               new HttpError(

@@ -6,6 +6,7 @@ import { Student } from '../../../modules/student/domain/entities/Student';
 import dotenv from 'dotenv';
 import { HttpError } from '../../types/HttpError';
 import { HttpStatusCode } from '../../enums/HttpStatusCodes';
+import { UserRole } from '../../enums/UserRole';
 dotenv.config();
 
 export const configureFacebookStrategy = (
@@ -35,7 +36,7 @@ export const configureFacebookStrategy = (
               null,
             );
 
-          if (role === 'student') {
+          if (role === UserRole.STUDENT) {
             let student = await studentRepo.findByEmail(email);
 
             if (!student) {
@@ -51,7 +52,7 @@ export const configureFacebookStrategy = (
             }
 
             return done(null, { user: student, role });
-          } else if (role === 'instructor') {
+          } else if (role === UserRole.INSTRUCTOR) {
             const instructor = await instructorRepo.findByEmail(email);
             if (!instructor)
               return done(

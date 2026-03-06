@@ -4,6 +4,7 @@ import { JOB_NAMES, QUEUE_NAMES } from '../JobTypes';
 import { IInstructorRepository } from '../../../../modules/instructor/domain/IRepositories/IInstructorRepository';
 import logger from '../../../utils/Logger';
 import { IStorageService } from '../../file-upload/interfaces/IStorageService';
+import { InstructorAccountStatus } from '../../../../modules/instructor/../../shared/enums/InstructorAccountStatus';
 
 export class DeleteDeclinedInstructorProcessor {
   constructor(
@@ -39,7 +40,7 @@ export class DeleteDeclinedInstructorProcessor {
 
       if (
         instructor.rejected == true &&
-        instructor.accountStatus === 'rejected'
+        instructor.accountStatus === InstructorAccountStatus.REJECTED
       ) {
         logger.info(
           `Instructor ${instructorId} is not declined. Skipping delete.`,

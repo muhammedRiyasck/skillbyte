@@ -1,5 +1,6 @@
 import { IBaseRepository } from '../../../../shared/repositories/IBaseRepository';
 import { Student } from '../entities/Student';
+import { UserAccountStatus } from '../../../../shared/enums/UserAccountStatus';
 
 export interface IStudentRepository extends IBaseRepository<Student> {
   findByEmail(email: string): Promise<Student | null>;
@@ -7,5 +8,5 @@ export interface IStudentRepository extends IBaseRepository<Student> {
     id: string,
     password: string,
   ): Promise<{ name: string; email: string } | void>;
-  changeStatus(id: string, status: 'active' | 'blocked'): Promise<void>;
+  changeStatus(id: string, status: UserAccountStatus): Promise<void>;
 }

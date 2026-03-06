@@ -4,6 +4,7 @@ import {
   CourseResponseDto,
 } from '../dtos/CourseDetailsDtos';
 import { z } from 'zod';
+import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 import { Course } from '../../domain/entities/Course';
 import { ModuleMapper } from './ModuleMapper';
 
@@ -29,7 +30,7 @@ export class CourseMapper {
       description: dto.description || '',
       duration: dto.access || '',
       tags: dto.tags || [],
-      status: 'draft' as const,
+      status: CourseStatus.DRAFT,
     };
   }
 

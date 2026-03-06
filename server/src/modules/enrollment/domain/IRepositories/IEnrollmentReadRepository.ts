@@ -1,4 +1,5 @@
 import { Types } from 'mongoose';
+import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
 import { IEnrollment } from '../entities/Enrollment';
 import { IInstructorEnrollment } from '../../types/IInstructorEnrollment';
 import { IStudentEnrollment } from '../../types/IStudentEnrollment';
@@ -17,7 +18,7 @@ export interface IEnrollmentReadRepository {
     limit: number,
     filters?: {
       search?: string;
-      status?: 'active' | 'completed';
+      status?: EnrollmentStatus;
     },
   ): Promise<{ data: IStudentEnrollment[]; totalCount: number }>;
   findEnrollmentsByInstructor(

@@ -21,6 +21,8 @@ import {
 import { ICreateNotificationUseCase } from '../../application/interfaces/ICreateNotificationUseCase';
 import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentReadRepository';
 import logger from '../../../../shared/utils/Logger';
+import { CancelledBy } from '../../../mentorship/domain/entities/MentorshipBooking';
+import { NotificationType } from '../../../../shared/enums/NotificationType';
 
 /**
  * Centralized listener that converts domain events into persisted notifications.
@@ -85,7 +87,7 @@ export class NotificationEventListener {
     courseId: string,
     title: string,
     message: string,
-    type: 'info' | 'success' | 'warning' | 'error' = 'info',
+    type: NotificationType = NotificationType.INFO,
   ) {
     if (!this.enrollmentReadRepo) {
       logger.warn(
@@ -119,7 +121,7 @@ export class NotificationEventListener {
         userId: event.instructorId,
         title: 'New Mentorship Booking',
         message: 'A student has booked a mentorship session with you.',
-        type: 'info',
+        type: NotificationType.INFO,
       });
     } catch (error) {
       logger.error('NotificationEventListener: onBookingCreated failed', error);
@@ -134,7 +136,7 @@ export class NotificationEventListener {
         title: 'Booking Confirmed',
         message:
           'Your mentorship session has been confirmed! Check your bookings for details.',
-        type: 'success',
+        type: NotificationType.SUCCESS,
       });
 
       await this.createNotificationUseCase.execute({
@@ -142,7 +144,7 @@ export class NotificationEventListener {
         title: 'Booking Confirmed',
         message:
           'A mentorship session booking has been confirmed. Check your bookings for details.',
-        type: 'success',
+        type: NotificationType.SUCCESS,
       });
     } catch (error) {
       logger.error(
@@ -155,12 +157,12 @@ export class NotificationEventListener {
   private async onBookingCancelled(payload: unknown) {
     const event = payload as MentorshipBookingCancelledEvent;
     try {
-      if (event.cancelledBy === 'student') {
+      if (event.cancelledBy === CancelledBy.STUDENT) {
         await this.createNotificationUseCase.execute({
           userId: event.instructorId,
           title: 'Booking Cancelled',
           message: 'A student has cancelled their mentorship session with you.',
-          type: 'warning',
+          type: NotificationType.WARNING,
         });
       } else {
         await this.createNotificationUseCase.execute({
@@ -168,7 +170,7 @@ export class NotificationEventListener {
           title: 'Booking Cancelled',
           message:
             'Your instructor has cancelled the mentorship session. A refund has been initiated.',
-          type: 'warning',
+          type: NotificationType.WARNING,
         });
       }
     } catch (error) {
@@ -189,7 +191,7 @@ export class NotificationEventListener {
           title: 'Payment Successful',
           message:
             'Your payment was successful! You have been enrolled in the course.',
-          type: 'success',
+          type: NotificationType.SUCCESS,
         });
       }
     } catch (error) {
@@ -209,7 +211,7 @@ export class NotificationEventListener {
         message:
           event.reason ||
           'Your payment could not be processed. Please try again.',
-        type: 'error',
+        type: NotificationType.ERROR,
       });
     } catch (error) {
       logger.error('NotificationEventListener: onPaymentFailed failed', error);
@@ -251,7 +253,7 @@ export class NotificationEventListener {
         event.courseId,
         'Course Published',
         `The course "${event.courseTitle}" is now live and available!`,
-        'success',
+        NotificationType.SUCCESS,
       );
     } catch (error) {
       logger.error(
@@ -268,7 +270,7 @@ export class NotificationEventListener {
         event.courseId,
         'Course Unlisted',
         `The course "${event.courseTitle}" has been unlisted by the instructor.`,
-        'warning',
+        NotificationType.WARNING,
       );
     } catch (error) {
       logger.error('NotificationEventListener: onCourseUnlisted failed', error);
@@ -283,7 +285,7 @@ export class NotificationEventListener {
         userId: event.instructorId,
         title: 'New Student Enrolled',
         message: `A student has enrolled in your course "${event.courseTitle}".`,
-        type: 'success',
+        type: NotificationType.SUCCESS,
       });
     } catch (error) {
       logger.error(

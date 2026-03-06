@@ -7,6 +7,8 @@ import { IHandleStripeWebhook } from '../application/interfaces/IHandleStripeWeb
 import { ICapturePayPalPayment } from '../application/interfaces/ICapturePayPalPayment';
 import { PaymentMapper } from '../application/mappers/PaymentMapper';
 import logger from '../../../shared/utils/Logger';
+import { DateRange } from '../../../shared/enums/DateRange';
+import { PaymentStatus } from '../../../shared/enums/PaymentStatus';
 
 export class PaymentController {
   constructor(
@@ -78,19 +80,19 @@ export class PaymentController {
 
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
-      const status = req.query.status as string;
-      const dateRange = req.query.dateRange as string;
+      const status = req.query.status as PaymentStatus;
+      const dateRange = req.query.dateRange as DateRange;
 
       let startDate: Date | undefined;
       let endDate: Date | undefined;
 
       if (dateRange) {
         const now = new Date();
-        if (dateRange === '30_days') {
+        if (dateRange === DateRange.THIRTY_DAYS) {
           startDate = new Date(now.setDate(now.getDate() - 30));
-        } else if (dateRange === '3_months') {
+        } else if (dateRange === DateRange.THREE_MONTHS) {
           startDate = new Date(now.setMonth(now.getMonth() - 3));
-        } else if (dateRange === 'last_year') {
+        } else if (dateRange === DateRange.LAST_YEAR) {
           startDate = new Date(now.setFullYear(now.getFullYear() - 1));
         }
       }

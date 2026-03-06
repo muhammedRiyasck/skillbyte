@@ -1,15 +1,19 @@
 import { z } from 'zod';
+import { CourseCategory } from '../../../../shared/enums/CourseCategory';
+import { CourseLevel } from '../../../../shared/enums/CourseLevel';
+import { CourseDuration } from '../../../../shared/enums/CourseDuration';
+import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
 // Validation schemas for CourseController
 export const CreateBaseSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   thumbnail: z.string().nullable(),
   subText: z.string(),
-  category: z.string().optional(),
+  category: z.nativeEnum(CourseCategory).optional(),
   customCategory: z.string().optional(),
-  courseLevel: z.string(),
+  courseLevel: z.nativeEnum(CourseLevel),
   language: z.string(),
-  access: z.string(),
+  access: z.nativeEnum(CourseDuration),
   price: z.coerce.number(),
   description: z.string(),
   tags: z.array(z.string()),
@@ -19,7 +23,7 @@ export const CreateBaseSchema = z.object({
 export const UpdateBaseSchema = CreateBaseSchema.partial();
 
 export const UpdateStatusSchema = z.object({
-  status: z.enum(['list', 'unlist']),
+  status: z.nativeEnum(CourseStatus),
 });
 
 export const CourseIdParamSchema = z.object({
@@ -38,7 +42,7 @@ export const PaginationQuerySchema = z.object({
   sort: z.string().optional(),
   status: z.string().optional(),
   instructorId: z.string().optional(),
-  category: z.string().optional(),
+  category: z.nativeEnum(CourseCategory).or(z.string()).optional(),
   search: z.string().optional(),
 });
 

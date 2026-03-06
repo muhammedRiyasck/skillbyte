@@ -31,9 +31,14 @@ export const DeclineInstructorSchema = z.object({
 
 export type DeclineInstructorDto = z.infer<typeof DeclineInstructorSchema>;
 
+import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
+
 export const ChangeInstructorStatusSchema = z.object({
   // instructorId comes from params usually, but could be body. Controller uses params.
-  status: z.enum(['active', 'suspend']),
+  status: z.enum([
+    InstructorAccountStatus.ACTIVE,
+    InstructorAccountStatus.SUSPENDED,
+  ]),
   reason: z.string().optional(),
 });
 

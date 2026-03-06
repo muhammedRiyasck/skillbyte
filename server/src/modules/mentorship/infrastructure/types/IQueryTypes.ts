@@ -1,9 +1,9 @@
 import { BookingStatus } from '../../domain/entities/MentorshipBooking';
-type slotStatus = 'available' | 'booked';
+import { SlotStatus } from '../../domain/entities/MentorshipSlot';
 
 export interface findByInstructorIdQueryType {
   instructorId: string;
-  status?: BookingStatus | slotStatus;
+  status?: BookingStatus | SlotStatus;
   scheduledAt?: {
     $gte?: Date;
     $lte?: Date;
@@ -21,7 +21,7 @@ export interface findByStudentIdQueryType {
 
 export interface findAvailableSlotsType {
   status?: {
-    $in?: ['available', 'booked'];
+    $in?: SlotStatus[];
   };
   scheduledAt?: {
     $gte?: Date;

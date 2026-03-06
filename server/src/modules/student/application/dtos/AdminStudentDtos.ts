@@ -17,9 +17,11 @@ export type AdminStudentPaginationDto = z.infer<
   typeof AdminStudentPaginationSchema
 >;
 
+import { UserAccountStatus } from '../../../../shared/enums/UserAccountStatus';
+
 export const ChangeStudentStatusSchema = z.object({
   id: z.string().min(1, 'Student ID is required'),
-  status: z.enum(['active', 'blocked']),
+  status: z.enum([UserAccountStatus.ACTIVE, UserAccountStatus.BLOCKED]),
 });
 
 export type ChangeStudentStatusDto = z.infer<typeof ChangeStudentStatusSchema>;

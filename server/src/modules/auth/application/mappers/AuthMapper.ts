@@ -1,12 +1,13 @@
 import { Student } from '../../../student/domain/entities/Student';
 import { Instructor } from '../../../instructor/domain/entities/Instructor';
 import { Admin } from '../../../admin/domain/entities/Admin';
+import { UserRole } from '../../../../shared/enums/UserRole';
 
 export interface AuthUserData {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: UserRole;
   profilePicture?: string | null;
   accountStatus?: string;
 }
@@ -18,7 +19,7 @@ export interface AuthResponseDto {
 export class AuthMapper {
   static toAuthResponseDto(
     user: Student | Instructor | Admin,
-    role: string,
+    role: UserRole,
     id?: string,
   ): AuthResponseDto {
     const userData: AuthUserData = {
@@ -35,10 +36,10 @@ export class AuthMapper {
 
   private static extractId(
     user: Student | Instructor | Admin,
-    role: string,
+    role: UserRole,
   ): string {
-    if (role === 'student') return (user as Student).studentId!;
-    if (role === 'instructor') return (user as Instructor).instructorId!;
+    if (role === UserRole.STUDENT) return (user as Student).studentId!;
+    if (role === UserRole.INSTRUCTOR) return (user as Instructor).instructorId!;
     return (user as Admin)._id!;
   }
 }

@@ -1,4 +1,5 @@
 import { Types, PipelineStage } from 'mongoose';
+import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
 import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { IEnrollmentReadRepository } from '../../domain/IRepositories/IEnrollmentReadRepository';
 import { IEnrollment as IEnrollmentEntity } from '../../domain/entities/Enrollment';
@@ -24,7 +25,7 @@ export class EnrollmentReadRepository
       userId: doc.userId.toString(),
       courseId: doc.courseId.toString(),
       paymentId: doc.paymentId?.toString(),
-      status: doc.status,
+      status: doc.status as EnrollmentStatus,
       enrolledAt: doc.enrolledAt,
       completedAt: doc.completedAt,
       progress: doc.progress,
@@ -50,7 +51,7 @@ export class EnrollmentReadRepository
 
   async findStudentIdsByCourseId(courseId: string): Promise<string[]> {
     const docs = await this.model
-      .find({ courseId, status: 'active' })
+      .find({ courseId, status: EnrollmentStatus.ACTIVE })
       .select('userId')
       .lean();
     return docs.map((doc) => doc.userId.toString());
@@ -73,7 +74,7 @@ export class EnrollmentReadRepository
     limit: number,
     filters?: {
       search?: string;
-      status?: 'active' | 'completed';
+      status?: EnrollmentStatus;
     },
   ): Promise<{ data: IStudentEnrollment[]; totalCount: number }> {
     const skip = (page - 1) * limit;

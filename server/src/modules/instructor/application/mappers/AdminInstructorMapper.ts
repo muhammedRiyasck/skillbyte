@@ -1,18 +1,26 @@
 import { AdminInstructorPaginationDto } from '../dtos/AdminInstructorDtos';
+import { AdminInstructorFilter } from '../../../../shared/enums/AdminInstructorFilter';
+import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
 
 export class AdminInstructorMapper {
   static toGetInstructorsFilter(dto: AdminInstructorPaginationDto) {
     let query: Record<string, unknown> = {};
     const status = dto.status;
 
-    if (status?.trim() === 'Pending Instructors') {
-      query = { accountStatus: 'pending' };
-    } else if (status?.trim() === 'Approved Instructors') {
-      query = { accountStatus: 'active', approved: true };
-    } else if (status?.trim() === 'Rejected Instructors') {
-      query = { accountStatus: 'rejected', rejected: true };
-    } else if (status?.trim() === 'Suspended Instructors') {
-      query = { accountStatus: 'suspended', approved: true };
+    if (status?.trim() === AdminInstructorFilter.PENDING) {
+      query = { accountStatus: InstructorAccountStatus.PENDING };
+    } else if (status?.trim() === AdminInstructorFilter.APPROVED) {
+      query = { accountStatus: InstructorAccountStatus.ACTIVE, approved: true };
+    } else if (status?.trim() === AdminInstructorFilter.REJECTED) {
+      query = {
+        accountStatus: InstructorAccountStatus.REJECTED,
+        rejected: true,
+      };
+    } else if (status?.trim() === AdminInstructorFilter.SUSPENDED) {
+      query = {
+        accountStatus: InstructorAccountStatus.SUSPENDED,
+        approved: true,
+      };
     }
 
     const search = dto.search;

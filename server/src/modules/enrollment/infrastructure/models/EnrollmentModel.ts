@@ -1,11 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
 
 export interface IEnrollment extends Document {
   _id: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   courseId: mongoose.Types.ObjectId;
   paymentId?: mongoose.Types.ObjectId;
-  status: 'pending' | 'active' | 'completed' | 'failed' | 'refunded';
+  status: EnrollmentStatus;
   enrolledAt: Date;
   completedAt?: Date;
   progress: number;
@@ -35,8 +36,8 @@ const EnrollmentSchema = new Schema(
     paymentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Payment' },
     status: {
       type: String,
-      enum: ['pending', 'active', 'completed', 'failed', 'refunded'],
-      default: 'pending',
+      enum: Object.values(EnrollmentStatus),
+      default: EnrollmentStatus.PENDING,
     },
     enrolledAt: { type: Date, default: Date.now },
     completedAt: { type: Date },

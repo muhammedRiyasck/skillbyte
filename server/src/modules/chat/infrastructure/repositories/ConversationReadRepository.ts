@@ -5,6 +5,7 @@ import {
   ConversationModel,
   IConversationDocument,
 } from '../models/ConversationModel';
+import { UserRole } from '../../../../shared/enums/UserRole';
 
 export class ConversationReadRepository
   extends BaseRepository<IConversation, IConversationDocument>
@@ -38,10 +39,12 @@ export class ConversationReadRepository
 
   async findAllByUserId(
     userId: string,
-    role: 'student' | 'instructor',
+    role: UserRole.STUDENT | UserRole.INSTRUCTOR,
   ): Promise<IConversation[]> {
     const query =
-      role === 'student' ? { studentId: userId } : { instructorId: userId };
+      role === UserRole.STUDENT
+        ? { studentId: userId }
+        : { instructorId: userId };
 
     const docs = await ConversationModel.find(query)
       .sort({ updatedAt: -1 })
@@ -52,17 +55,19 @@ export class ConversationReadRepository
 
   async getUnreadCount(
     userId: string,
-    role: 'student' | 'instructor',
+    role: UserRole.STUDENT | UserRole.INSTRUCTOR,
   ): Promise<number> {
     const query =
-      role === 'student' ? { studentId: userId } : { instructorId: userId };
+      role === UserRole.STUDENT
+        ? { studentId: userId }
+        : { instructorId: userId };
 
     const conversations = await ConversationModel.find(query).exec();
 
     return conversations.reduce((total, conv) => {
       return (
         total +
-        (role === 'student'
+        (role === UserRole.STUDENT
           ? conv.unreadCount.student
           : conv.unreadCount.instructor)
       );

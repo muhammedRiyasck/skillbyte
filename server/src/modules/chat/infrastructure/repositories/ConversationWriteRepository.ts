@@ -1,6 +1,7 @@
 import { IConversationWriteRepository } from '../../domain/IRepositories/IConversationWriteRepository';
 import { IConversation } from '../../domain/entities/Conversation';
 import { ConversationModel } from '../models/ConversationModel';
+import { UserRole } from '../../../../shared/enums/UserRole';
 
 export class ConversationWriteRepository
   implements IConversationWriteRepository
@@ -23,10 +24,12 @@ export class ConversationWriteRepository
 
   async incrementUnreadCount(
     conversationId: string,
-    role: 'student' | 'instructor',
+    role: UserRole.STUDENT | UserRole.INSTRUCTOR,
   ): Promise<void> {
     const field =
-      role === 'student' ? 'unreadCount.student' : 'unreadCount.instructor';
+      role === UserRole.STUDENT
+        ? 'unreadCount.student'
+        : 'unreadCount.instructor';
 
     await ConversationModel.findByIdAndUpdate(conversationId, {
       $inc: { [field]: 1 },
@@ -35,10 +38,12 @@ export class ConversationWriteRepository
 
   async resetUnreadCount(
     conversationId: string,
-    role: 'student' | 'instructor',
+    role: UserRole.STUDENT | UserRole.INSTRUCTOR,
   ): Promise<void> {
     const field =
-      role === 'student' ? 'unreadCount.student' : 'unreadCount.instructor';
+      role === UserRole.STUDENT
+        ? 'unreadCount.student'
+        : 'unreadCount.instructor';
 
     await ConversationModel.findByIdAndUpdate(conversationId, {
       $set: { [field]: 0 },
