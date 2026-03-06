@@ -1,4 +1,9 @@
-export type SlotStatus = 'available' | 'booked' | 'completed' | 'cancelled';
+export enum SlotStatus {
+  AVAILABLE = 'available',
+  BOOKED = 'booked',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled',
+}
 
 export class MentorshipSlot {
   constructor(
@@ -9,7 +14,7 @@ export class MentorshipSlot {
     public price: number, // in smallest currency unit (cents/paise)
     public currency: string,
     public scheduledAt: Date,
-    public status: SlotStatus = 'available',
+    public status: SlotStatus = SlotStatus.AVAILABLE,
     public maxBookings: number = 1, // Usually 1 for 1:1
     public currentBookings: number = 0,
     public jobTitle: string,

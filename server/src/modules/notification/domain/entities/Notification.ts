@@ -1,8 +1,10 @@
+import { NotificationType } from '../../../../shared/enums/NotificationType';
+
 export interface INotification {
   userId: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error';
+  type: NotificationType;
   isRead: boolean;
   createdAt?: Date;
   updatedAt?: Date;

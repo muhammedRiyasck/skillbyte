@@ -1,9 +1,11 @@
+import { ContentType } from '../../../../shared/enums/ContentType';
+
 export class Lesson {
   constructor(
     public moduleId: string,
     public title: string,
     public description: string,
-    public contentType: 'video' | 'pdf',
+    public contentType: ContentType,
     public fileName: string,
     public order: number,
     public duration: number,

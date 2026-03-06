@@ -1,3 +1,5 @@
+import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
+
 export class Instructor {
   constructor(
     public name: string,
@@ -13,7 +15,7 @@ export class Instructor {
     public resumeUrl: string | null,
     public profilePictureUrl: string | null,
     public isEmailVerified: boolean,
-    public accountStatus: 'pending' | 'active' | 'suspended' | 'rejected',
+    public accountStatus: InstructorAccountStatus,
     public approved: boolean,
     public suspendNote: string | null,
     public rejected: boolean,

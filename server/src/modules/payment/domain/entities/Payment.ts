@@ -1,3 +1,5 @@
+import { PaymentStatus } from '../../../../shared/enums/PaymentStatus';
+
 export interface IPayment {
   paymentId?: string;
   userId: string;
@@ -10,7 +12,7 @@ export interface IPayment {
   stripePaymentIntentId?: string;
   paypalOrderId?: string;
   paypalCaptureId?: string;
-  status: 'pending' | 'succeeded' | 'failed' | 'refunded';
+  status: PaymentStatus;
   metadata?: Record<string, unknown>;
   productName: string;
   productImage?: string;

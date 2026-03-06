@@ -1,4 +1,6 @@
 import { Module } from '../entities/Module';
+import { CourseStatus } from '../../../../shared/enums/CourseStatus';
+
 export class Course {
   constructor(
     public instructorId: string,
@@ -13,7 +15,7 @@ export class Course {
     public description: string,
     public duration: string,
     public tags: string[],
-    public status: 'draft' | 'list' | 'unlist' = 'draft',
+    public status: CourseStatus = CourseStatus.DRAFT,
     public isBlocked: boolean = false,
     public courseId?: string,
     public createdAt: Date = new Date(),

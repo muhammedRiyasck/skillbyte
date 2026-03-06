@@ -1,11 +1,16 @@
-export type BookingStatus =
-  | 'pending'
-  | 'confirmed'
-  | 'completed'
-  | 'cancelled'
-  | 'refunded';
+export enum BookingStatus {
+  PENDING = 'pending',
+  CONFIRMED = 'confirmed',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled',
+  REFUNDED = 'refunded',
+}
 
-export type CancelledBy = 'student' | 'instructor' | 'system' | null;
+export enum CancelledBy {
+  STUDENT = 'student',
+  INSTRUCTOR = 'instructor',
+  SYSTEM = 'system',
+}
 
 export class MentorshipBooking {
   constructor(
@@ -15,13 +20,13 @@ export class MentorshipBooking {
     public paymentId: string | null,
     public amount: number, // in smallest currency unit
     public currency: string,
-    public status: BookingStatus = 'pending',
+    public status: BookingStatus = BookingStatus.PENDING,
     public videoRoomId: string | null = null,
     public videoRoomUrl: string | null = null,
     public scheduledAt: Date,
     public completedAt: Date | null = null,
     public cancelledAt: Date | null = null,
-    public cancelledBy: CancelledBy = null,
+    public cancelledBy: CancelledBy | null = null,
     public bookingId?: string,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),

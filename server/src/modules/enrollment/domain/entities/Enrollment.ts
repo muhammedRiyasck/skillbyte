@@ -1,3 +1,5 @@
+import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
+
 export interface ILessonProgress {
   lessonId: string;
   lastWatchedSecond: number;
@@ -11,7 +13,7 @@ export interface IEnrollment {
   userId: string;
   courseId: string;
   paymentId?: string;
-  status: 'pending' | 'active' | 'completed' | 'failed' | 'refunded';
+  status: EnrollmentStatus;
   enrolledAt: Date;
   completedAt?: Date;
   progress: number;
