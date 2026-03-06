@@ -7,6 +7,7 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
 import { eventBus } from '../../../../shared/services/event-bus/EventBus';
 import { COURSE_EVENTS } from '../../../../shared/services/event-bus/CourseEvents';
+import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
 export class UpdateCourseStatusUseCase implements IUpdateCourseStatusUseCase {
   constructor(
@@ -18,7 +19,7 @@ export class UpdateCourseStatusUseCase implements IUpdateCourseStatusUseCase {
   async execute(
     courseId: string,
     instructorId: string,
-    status: 'list' | 'unlist',
+    status: CourseStatus,
   ): Promise<void> {
     const course = await this._courseRepo.findById(courseId);
     if (!course)
@@ -58,7 +59,7 @@ export class UpdateCourseStatusUseCase implements IUpdateCourseStatusUseCase {
       instructorId,
     };
 
-    if (status === 'list') {
+    if (status === CourseStatus.LIST) {
       eventBus.emit(COURSE_EVENTS.COURSE_PUBLISHED, eventPayload);
     } else {
       eventBus.emit(COURSE_EVENTS.COURSE_UNLISTED, eventPayload);

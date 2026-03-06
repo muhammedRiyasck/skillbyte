@@ -2,12 +2,14 @@ import { IMentorshipBookingRepository } from '../../domain/IRepositories/IMentor
 import logger from '../../../../shared/utils/Logger';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { UserRole } from '../../../../shared/enums/UserRole';
+import { BookingStatus } from '../../domain/entities/MentorshipBooking';
 
 export interface IValidateVideoRoomAccessUseCase {
   execute(
     roomId: string,
     userId: string,
-    userRole: 'student' | 'instructor',
+    userRole: UserRole.STUDENT | UserRole.INSTRUCTOR,
   ): Promise<{ bookingId: string; isValid: boolean }>;
 }
 
@@ -24,7 +26,7 @@ export class ValidateVideoRoomAccessUseCase
   async execute(
     roomId: string,
     userId: string,
-    userRole: 'student' | 'instructor',
+    userRole: UserRole.STUDENT | UserRole.INSTRUCTOR,
   ): Promise<{ bookingId: string; isValid: boolean }> {
     logger.info(
       `Validating video room access: roomId=${roomId}, userId=${userId}, role=${userRole}`,
@@ -51,7 +53,7 @@ export class ValidateVideoRoomAccessUseCase
     }
 
     // Verify booking is confirmed
-    if (booking.status !== 'confirmed') {
+    if (booking.status !== BookingStatus.CONFIRMED) {
       throw new HttpError(
         `Cannot join video room: booking status is ${booking.status}`,
         HttpStatusCode.FORBIDDEN,
@@ -59,9 +61,10 @@ export class ValidateVideoRoomAccessUseCase
     }
 
     // Verify user is participant
-    const isStudent = userRole === 'student' && booking.studentId === userId;
+    const isStudent =
+      userRole === UserRole.STUDENT && booking.studentId === userId;
     const isInstructor =
-      userRole === 'instructor' && booking.instructorId === userId;
+      userRole === UserRole.INSTRUCTOR && booking.instructorId === userId;
 
     if (!isStudent && !isInstructor) {
       throw new HttpError(

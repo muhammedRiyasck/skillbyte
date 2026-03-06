@@ -1,5 +1,6 @@
 import { IStudentRepository } from '../../domain/IRepositories/IStudentRepository';
 import { IChangeStudentStatusUseCase } from '../interfaces/IChangeStudentStatusUseCase';
+import { UserAccountStatus } from '../../../../shared/enums/UserAccountStatus';
 
 /**
  * Use case for changing a student's account status.
@@ -19,7 +20,7 @@ export class ChangeStudentStatusUseCase implements IChangeStudentStatusUseCase {
    * @param status - The new status ('active' or 'blocked').
    * @throws Error if the status change fails.
    */
-  async execute(id: string, status: 'active' | 'blocked'): Promise<void> {
+  async execute(id: string, status: UserAccountStatus): Promise<void> {
     return await this._studentRepo.changeStatus(id, status);
   }
 }

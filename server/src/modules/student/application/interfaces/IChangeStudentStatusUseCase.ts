@@ -1,3 +1,5 @@
+import { UserAccountStatus } from '../../../../shared/enums/UserAccountStatus';
+
 export interface IChangeStudentStatusUseCase {
-  execute(id: string, status: 'active' | 'blocked'): Promise<void>;
+  execute(id: string, status: UserAccountStatus): Promise<void>;
 }

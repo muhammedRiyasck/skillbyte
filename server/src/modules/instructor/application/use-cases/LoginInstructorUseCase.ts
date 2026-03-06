@@ -7,6 +7,8 @@ import { ILoginInstructorUseCase } from '../interfaces/ILoginInstructorUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
+import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
+import { UserRole } from '../../../../shared/enums/UserRole';
 
 /**
  * Use case for logging in an instructor.
@@ -48,12 +50,12 @@ export class LoginInstructorUseCase implements ILoginInstructorUseCase {
 
     const accountStatus = instructor.accountStatus;
 
-    if (accountStatus === 'pending') {
+    if (accountStatus === InstructorAccountStatus.PENDING) {
       throw new HttpError(
         ERROR_MESSAGES.ACCOUNT_NOT_APPROVED,
         HttpStatusCode.FORBIDDEN,
       );
-    } else if (accountStatus === 'suspended') {
+    } else if (accountStatus === InstructorAccountStatus.SUSPENDED) {
       throw new HttpError(
         ERROR_MESSAGES.ACCOUNT_SUSPENDED,
         HttpStatusCode.FORBIDDEN,
@@ -61,11 +63,11 @@ export class LoginInstructorUseCase implements ILoginInstructorUseCase {
     }
     const accessToken = generateAccessToken({
       id: instructor.instructorId,
-      role: 'instructor',
+      role: UserRole.INSTRUCTOR,
     });
     const refreshToken = generateRefreshToken({
       id: instructor.instructorId,
-      role: 'instructor',
+      role: UserRole.INSTRUCTOR,
     });
     return { user: instructor, accessToken, refreshToken };
   }

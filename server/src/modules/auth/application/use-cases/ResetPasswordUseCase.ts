@@ -10,6 +10,7 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ResetPasswordSchema } from '../../../../shared/validations/AuthValidation';
 import { IMailerService } from '../../../../shared/services/mail/IMailerService';
+import { UserRole } from '../../../../shared/enums/UserRole';
 
 /**
  * Use case for resetting a user's password.
@@ -34,7 +35,11 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
    * @param role - The role of the user ('student' or 'instructor').
    * @throws Error if the token is invalid, expired, or if password reset fails.
    */
-  async execute(token: string, password: string, role: string): Promise<void> {
+  async execute(
+    token: string,
+    password: string,
+    role: UserRole,
+  ): Promise<void> {
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     const userId = await redis.get(`reset:${tokenHash}`);
     if (!userId) {
@@ -63,7 +68,7 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
     );
 
     const repository =
-      role === 'student' ? this._studentRepo : this._instructorRepo;
+      role === UserRole.STUDENT ? this._studentRepo : this._instructorRepo;
     const updatedUser = await repository.findByIdAndUpdatePassword(
       userId,
       hashedPassword,

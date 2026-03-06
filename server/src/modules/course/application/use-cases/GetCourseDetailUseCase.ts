@@ -8,11 +8,8 @@ import { IGetCourseUseCase } from '../interfaces/IGetCourseDetailsUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
-
-/**
- * Valid user roles for course access.
- */
-type UserRole = 'instructor' | 'student' | 'admin';
+import { UserRole } from '../../../../shared/enums/UserRole';
+import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
 /**
  * Use case for retrieving detailed course information with optional includes.
@@ -59,7 +56,11 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
     }
 
     // Validate the user role
-    const validRoles: UserRole[] = ['instructor', 'student', 'admin'];
+    const validRoles: UserRole[] = [
+      UserRole.INSTRUCTOR,
+      UserRole.STUDENT,
+      UserRole.ADMIN,
+    ];
     if (!validRoles.includes(role)) {
       throw new HttpError(
         ERROR_MESSAGES.INVALID_ROLE,
@@ -68,7 +69,7 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
     }
 
     // Check instructor ownership - instructors can only view their own courses
-    if (role === 'instructor') {
+    if (role === UserRole.INSTRUCTOR) {
       if (!userId || course.instructorId !== userId) {
         throw new HttpError(
           'You can only view your own courses.',
@@ -78,7 +79,7 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
     }
 
     // Check if students can access unlisted courses
-    if (role === 'student' && course.status !== 'list') {
+    if (role === UserRole.STUDENT && course.status !== CourseStatus.LIST) {
       throw new HttpError(
         ERROR_MESSAGES.COURSE_UNLISTED_OR_NOT_AVAILABLE,
         HttpStatusCode.FORBIDDEN,

@@ -5,6 +5,7 @@ import { IUpdateLessonProgress } from '../interfaces/IUpdateLessonProgress';
 import { ILessonRepository } from '../../../course/domain/IRepositories/ILessonRepository';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
 
 export class UpdateLessonProgressUseCase implements IUpdateLessonProgress {
   constructor(
@@ -57,8 +58,9 @@ export class UpdateLessonProgressUseCase implements IUpdateLessonProgress {
 
     // 4. Update overall progress
     const status =
-      progressPercentage === 100 && updatedEnrollment.status !== 'completed'
-        ? 'completed'
+      progressPercentage === 100 &&
+      updatedEnrollment.status !== EnrollmentStatus.COMPLETED
+        ? EnrollmentStatus.COMPLETED
         : undefined;
     const completedAt =
       progressPercentage === 100 && !updatedEnrollment.completedAt

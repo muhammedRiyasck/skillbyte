@@ -2,6 +2,7 @@ import { IMentorshipSlotRepository } from '../../domain/IRepositories/IMentorshi
 import { IDeleteSlotUseCase } from '../interfaces/ISlotUseCases';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { SlotStatus } from '../../domain/entities/MentorshipSlot';
 
 /**
  * Use case for deleting a mentorship slot.
@@ -17,7 +18,7 @@ export class DeleteSlotUseCase implements IDeleteSlotUseCase {
     }
 
     // Cannot delete a booked slot
-    if (existingSlot.status === 'booked') {
+    if (existingSlot.status === SlotStatus.BOOKED) {
       throw new HttpError(
         'Cannot delete a booked slot. Cancel the booking first.',
         HttpStatusCode.BAD_REQUEST,

@@ -1,6 +1,7 @@
 import { IPaymentWriteRepository } from '../../domain/IRepositories/IPaymentWriteRepository';
 import { PaymentProviderFactory } from '../../../../shared/services/payment/PaymentProviderFactory';
 import { IPayment } from '../../domain/entities/Payment';
+import { PaymentStatus } from '../../../../shared/enums/PaymentStatus';
 import { PaymentInitiationResponse } from '../../../../shared/services/payment/interfaces/IPaymentProvider';
 import { InitiatePaymentRequest } from '../dtos/InitiatePaymentDto';
 import { IInitiatePayment } from '../interfaces/IInitiatePayment';
@@ -78,7 +79,7 @@ export class InitiatePaymentUseCase implements IInitiatePayment {
       instructorId,
       amount,
       currency: 'INR', // Base currency is INR
-      status: 'pending',
+      status: PaymentStatus.PENDING,
       adminFee,
       instructorAmount,
       productName,

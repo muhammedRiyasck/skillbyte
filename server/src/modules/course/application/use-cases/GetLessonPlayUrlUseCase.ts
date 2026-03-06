@@ -6,6 +6,7 @@ import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository'
 import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentReadRepository';
 import { IGetLessonPlayUrlUseCase } from '../interfaces/IGetLessonPlayUrlUseCase';
 import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
+import { UserRole } from '../../../../shared/enums/UserRole';
 
 export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
   constructor(
@@ -18,7 +19,7 @@ export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
   async execute(
     userId: string,
     lessonId: string,
-    role: string,
+    role: UserRole,
   ): Promise<{ signedUrl: string }> {
     const lesson = await this._lessonRepo.findById(lessonId);
     if (!lesson) {
@@ -32,7 +33,7 @@ export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
       throw new HttpError('Lesson video not found', HttpStatusCode.NOT_FOUND);
     }
 
-    if (role === 'student') {
+    if (role === UserRole.STUDENT) {
       const module = await this._moduleRepo.findById(lesson.moduleId);
       if (!module) {
         throw new HttpError(

@@ -8,6 +8,8 @@ import { ILoginAdminUseCase } from '../interfaces/ILoginAdminUseCase';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { UserRole } from '../../../../shared/enums/UserRole';
+import { AdminAccountStatus } from '../../../../shared/enums/AdminAccountStatus';
 
 /**
  * Use case for handling admin login.
@@ -42,7 +44,7 @@ export class LoginAdminUseCase implements ILoginAdminUseCase {
         HttpStatusCode.UNAUTHORIZED,
       );
     }
-    const isBlocked = admin.accountStatus === 'blocked';
+    const isBlocked = admin.accountStatus === AdminAccountStatus.BLOCKED;
     if (isBlocked) {
       throw new HttpError(
         ERROR_MESSAGES.ACCOUNT_BLOCKED,
@@ -50,8 +52,14 @@ export class LoginAdminUseCase implements ILoginAdminUseCase {
       );
     }
 
-    const accessToken = generateAccessToken({ id: admin._id, role: 'admin' });
-    const refreshToken = generateRefreshToken({ id: admin._id, role: 'admin' });
+    const accessToken = generateAccessToken({
+      id: admin._id,
+      role: UserRole.ADMIN,
+    });
+    const refreshToken = generateRefreshToken({
+      id: admin._id,
+      role: UserRole.ADMIN,
+    });
 
     return { admin, accessToken, refreshToken };
   }

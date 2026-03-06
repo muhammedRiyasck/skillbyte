@@ -11,6 +11,7 @@ import { Student } from '../../../student/domain/entities/Student';
 import { Instructor } from '../../../instructor/domain/entities/Instructor';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { UserRole } from '../../../../shared/enums/UserRole';
 
 /**
  * Use case for handling forgot password functionality.
@@ -35,7 +36,7 @@ export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
    * @returns A promise that resolves to false if the user is not found, or void if the process succeeds.
    * @throws {HttpError} If the email or role is invalid, user ID is not found, or email sending fails.
    */
-  async execute(email: string, role: string): Promise<false | void> {
+  async execute(email: string, role: UserRole): Promise<false | void> {
     if (!email || !role) {
       throw new HttpError(
         'Email and role are required',
@@ -43,18 +44,19 @@ export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
       );
     }
 
-    if (role !== 'student' && role !== 'instructor') {
+    if (role !== UserRole.STUDENT && role !== UserRole.INSTRUCTOR) {
       throw new HttpError('Invalid role provided', HttpStatusCode.BAD_REQUEST);
     }
 
-    const repo = role === 'student' ? this._studentRepo : this._instructorRepo;
+    const repo =
+      role === UserRole.STUDENT ? this._studentRepo : this._instructorRepo;
     const user = await repo.findByEmail(email);
     if (!user) {
       return false;
     }
 
     const id =
-      role === 'student'
+      role === UserRole.STUDENT
         ? (user as Student).studentId
         : (user as Instructor).instructorId;
     if (!id) {

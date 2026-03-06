@@ -1,3 +1,7 @@
+import { UserRole } from '../../../../shared/enums/UserRole';
+import { PaymentStatus } from '../../../../shared/enums/PaymentStatus';
+import { BookingStatus } from '../../domain/entities/MentorshipBooking';
+import { SlotStatus } from '../../domain/entities/MentorshipSlot';
 import { ICancelBookingUseCase } from '../interfaces/IBookingUseCases';
 import { CancelBookingDto } from '../dtos/BookingDto';
 import { IMentorshipBookingRepository } from '../../domain/IRepositories/IMentorshipBookingRepository';
@@ -31,7 +35,10 @@ export class CancelBookingUseCase implements ICancelBookingUseCase {
     }
 
     // 2. Check status
-    if (booking.status === 'cancelled' || booking.status === 'completed') {
+    if (
+      booking.status === BookingStatus.CANCELLED ||
+      booking.status === BookingStatus.COMPLETED
+    ) {
       throw new HttpError(
         'Booking cannot be cancelled',
         HttpStatusCode.BAD_REQUEST,
@@ -41,7 +48,7 @@ export class CancelBookingUseCase implements ICancelBookingUseCase {
     // 3. Refund Logic
     if (booking.paymentId) {
       const payment = await this.paymentReadRepo.findById(booking.paymentId);
-      if (payment && payment.status === 'succeeded') {
+      if (payment && payment.status === PaymentStatus.SUCCEEDED) {
         // Policy Check
         let shouldRefund = false;
         const now = new Date();
@@ -49,7 +56,7 @@ export class CancelBookingUseCase implements ICancelBookingUseCase {
         const hoursDifference =
           (scheduledAt.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-        if (cancelledBy === 'instructor') {
+        if (cancelledBy === UserRole.INSTRUCTOR) {
           shouldRefund = true;
         } else if (hoursDifference > 24) {
           shouldRefund = true;
@@ -73,7 +80,7 @@ export class CancelBookingUseCase implements ICancelBookingUseCase {
           if (refundSuccess) {
             await this.paymentWriteRepo.updateStatus(
               payment.paymentId!,
-              'refunded',
+              PaymentStatus.REFUNDED,
             );
           } else {
             throw new HttpError('Refund failed', HttpStatusCode.BAD_REQUEST);
@@ -88,7 +95,7 @@ export class CancelBookingUseCase implements ICancelBookingUseCase {
     if (booking.slotId) {
       const slot = await this.slotRepo.findById(booking.slotId);
       if (slot && slot.slotId) {
-        await this.slotRepo.updateStatus(slot.slotId, 'available');
+        await this.slotRepo.updateStatus(slot.slotId, SlotStatus.AVAILABLE);
         await this.slotRepo.decrementBookings(slot.slotId);
       }
     }

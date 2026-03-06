@@ -1,5 +1,8 @@
 import { IMentorshipSlotRepository } from '../../domain/IRepositories/IMentorshipSlotRepository';
-import { MentorshipSlot } from '../../domain/entities/MentorshipSlot';
+import {
+  MentorshipSlot,
+  SlotStatus,
+} from '../../domain/entities/MentorshipSlot';
 import { UpdateSlotDto } from '../dtos/SlotDto';
 import { IUpdateSlotUseCase } from '../interfaces/ISlotUseCases';
 import { HttpError } from '../../../../shared/types/HttpError';
@@ -23,8 +26,8 @@ export class UpdateSlotUseCase implements IUpdateSlotUseCase {
 
     // Cannot update a booked or completed slot
     if (
-      existingSlot.status === 'booked' ||
-      existingSlot.status === 'completed'
+      existingSlot.status === SlotStatus.BOOKED ||
+      existingSlot.status === SlotStatus.COMPLETED
     ) {
       throw new HttpError(
         'Cannot update a booked or completed slot',

@@ -10,6 +10,7 @@ import {
 } from '../../../../shared/services/job-queue/JobTypes';
 import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
+import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
 
 /**
  * Use case for changing an instructor's status (activate or suspend).
@@ -35,11 +36,10 @@ export class ChangeInstructorStatusUseCase
    */
   async execute(
     id: string,
-    status: 'active' | 'suspend',
+    status: InstructorAccountStatus.ACTIVE | InstructorAccountStatus.SUSPENDED,
     note?: string,
   ): Promise<void> {
-    const mappedStatus = status === 'suspend' ? 'suspended' : 'active';
-    await this._instructorRepo.changeInstructorStatus(id, mappedStatus, note);
+    await this._instructorRepo.changeInstructorStatus(id, status, note);
 
     const instructor = await this._instructorRepo.findById(id);
     if (!instructor) {
@@ -47,12 +47,12 @@ export class ChangeInstructorStatusUseCase
     }
 
     const template =
-      status === 'suspend'
+      status === InstructorAccountStatus.SUSPENDED
         ? accountSuspendedEmailTemplate(instructor.name)
         : accountReactivatedEmailTemplate(instructor.name);
 
     const subject =
-      status === 'suspend'
+      status === InstructorAccountStatus.SUSPENDED
         ? '⚠️ SkillByte Account Suspended'
         : '✅ SkillByte Account Reactivated';
 
