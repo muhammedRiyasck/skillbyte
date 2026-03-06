@@ -1,12 +1,14 @@
 import type { IMentorshipBooking } from "../types/mentorshipTypes";
 import { format } from "date-fns";
 import { Calendar, Clock, Video, User, Timer, Wallet } from "lucide-react";
+import { BookingStatus } from "@shared/enums/BookingStatus";
+import { UserRole } from "@shared/enums/UserRole";
 
 interface BookingCardProps {
   booking: IMentorshipBooking;
   onJoinSession?: (bookingId: string) => void;
   onCancel?: (bookingId: string) => void;
-  userRole: "instructor" | "student";
+  userRole: UserRole.INSTRUCTOR | UserRole.STUDENT;
 }
 
 export const BookingCard = ({
@@ -15,16 +17,16 @@ export const BookingCard = ({
   onCancel,
   userRole,
 }: BookingCardProps) => {
-  const isConfirmed = booking.status === "confirmed";
-  const isPending = booking.status === "pending";
-  const isCancelled = booking.status === "cancelled";
-  const isCompleted = booking.status === "completed";
+  const isConfirmed = booking.status === BookingStatus.CONFIRMED;
+  const isPending = booking.status === BookingStatus.PENDING;
+  const isCancelled = booking.status === BookingStatus.CANCELLED;
+  const isCompleted = booking.status === BookingStatus.COMPLETED;
 
   const scheduledDate = new Date(booking.scheduledAt);
   const slot = typeof booking.slotId === "object" ? booking.slotId : null;
 
   const otherParty =
-    userRole === "instructor"
+    userRole === UserRole.INSTRUCTOR
       ? typeof booking.studentId === "object"
         ? booking.studentId
         : { name: "Student", profilePicture: "" }
@@ -32,14 +34,14 @@ export const BookingCard = ({
         ? booking.instructorId
         : { name: "Instructor", profilePicture: "", jobTitle: "" };
 
-  const statusColors: Record<IMentorshipBooking["status"], string> = {
-    confirmed:
+  const statusColors: Record<BookingStatus, string> = {
+    [BookingStatus.CONFIRMED]:
       "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-    pending:
+    [BookingStatus.PENDING]:
       "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-    cancelled: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-    completed: "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
-    refunded:
+    [BookingStatus.CANCELLED]: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+    [BookingStatus.COMPLETED]: "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
+    [BookingStatus.REFUNDED]:
       "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
   };
 
@@ -64,7 +66,7 @@ export const BookingCard = ({
               {otherParty.name}
             </h4>
             <p className="text-xs text-gray-500 capitalize">
-              {userRole === "student"
+              {userRole === UserRole.STUDENT
                 ? (otherParty as { jobTitle: string }).jobTitle
                 : "Student"}
             </p>
@@ -178,7 +180,7 @@ export const BookingCard = ({
           </button>
         )}
 
-        {booking.status === "refunded" && (
+        {booking.status === BookingStatus.REFUNDED && (
           <button
             disabled
             className="w-full  py-2 bg-gray-100 dark:bg-gray-700 text-gray-500 rounded-lg text-sm cursor-not-allowed flex items-center justify-center gap-2"
