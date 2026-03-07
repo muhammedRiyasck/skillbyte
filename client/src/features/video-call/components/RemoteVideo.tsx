@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { RefreshCw, User } from 'lucide-react';
 import Logo from '@/assets/OrginalLogo.png';
 import { getInitials } from '../utils/getIntials';
+import { VideoConnectionState } from '../../../shared/enums/VideoConnectionState';
 
 interface RemoteVideoProps {
   stream: MediaStream | null;
@@ -29,7 +30,7 @@ export const RemoteVideo = ({
   }, [stream, connectionState, isVideoEnabled]);
 
   // Only show video if stream exists, video is enabled, connection is good, AND there is actually a video track
-  const showVideo = stream && isVideoEnabled && connectionState === 'connected' && stream.getVideoTracks().length > 0;
+  const showVideo = stream && isVideoEnabled && connectionState === VideoConnectionState.CONNECTED && stream.getVideoTracks().length > 0;
 
   return (
     <div className="relative w-full h-full bg-zinc-900">
@@ -89,12 +90,12 @@ export const RemoteVideo = ({
       )}
 
       {/* Connection Status Indicator */}
-      {connectionState !== 'connected' && (
+      {connectionState !== VideoConnectionState.CONNECTED && (
         <div className="absolute top-4 left-4 bg-yellow-500/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs text-gray-900 font-medium">
-          {connectionState === 'connecting' && 'Connecting...'}
-          {connectionState === 'new' && 'Initializing...'}
-          {connectionState === 'disconnected' && 'Reconnecting...'}
-          {connectionState === 'failed' && 'Connection failed'}
+          {connectionState === VideoConnectionState.CONNECTING && 'Connecting...'}
+          {connectionState === VideoConnectionState.NEW && 'Initializing...'}
+          {connectionState === VideoConnectionState.DISCONNECTED && 'Reconnecting...'}
+          {connectionState === VideoConnectionState.FAILED && 'Connection failed'}
         </div>
       )}
 

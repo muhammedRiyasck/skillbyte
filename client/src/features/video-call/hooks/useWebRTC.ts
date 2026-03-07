@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { webrtcConfig } from '../utils/webrtcConfig';
 import { useVideoSocket } from './useVideoSocket';
+import { VideoConnectionState } from '../../../shared/enums/VideoConnectionState';
 
 interface UseWebRTCProps {
   roomId: string;
@@ -23,12 +24,12 @@ export const useWebRTC = ({
   const [remotePeerId, setRemotePeerId] = useState<string | null>(null);
   // State to hold remote participant info
   const [remoteParticipant, setRemoteParticipant] = useState<{ name: string; profileImage: string | undefined } | null>(null);
-  
+
   const [remoteVideoEnabled, setRemoteVideoEnabled] = useState(true);
   const [remoteAudioEnabled, setRemoteAudioEnabled] = useState(true);
 
   const pendingIceCandidatesRef = useRef<RTCIceCandidateInit[]>([]);
-  
+
   // Use a ref to keep track of the latest localStream without triggering effect re-runs for the connection creation logic
   const localStreamRef = useRef<MediaStream | null>(localStream);
 
@@ -43,26 +44,26 @@ export const useWebRTC = ({
   const renegotiate = useCallback(async () => {
     const pc = peerConnectionRef.current;
     if (!pc || !remotePeerId) {
-        console.warn('⚠️ Cannot renegotiate: No peer connection or remote peer ID');
-        return;
+      console.warn('⚠️ Cannot renegotiate: No peer connection or remote peer ID');
+      return;
     }
 
     try {
-        console.log('🔄 Renegotiating connection...');
-        const offer = await pc.createOffer({
-            offerToReceiveAudio: true,
-            offerToReceiveVideo: true,
-        });
-        await pc.setLocalDescription(offer);
+      console.log('🔄 Renegotiating connection...');
+      const offer = await pc.createOffer({
+        offerToReceiveAudio: true,
+        offerToReceiveVideo: true,
+      });
+      await pc.setLocalDescription(offer);
 
-        emit('video:offer', {
-            roomId,
-            offer,
-            to: remotePeerId,
-        });
-        console.log('✅ Renegotiation offer sent');
+      emit('video:offer', {
+        roomId,
+        offer,
+        to: remotePeerId,
+      });
+      console.log('✅ Renegotiation offer sent');
     } catch (err) {
-        console.error('❌ Error during renegotiation:', err);
+      console.error('❌ Error during renegotiation:', err);
     }
   }, [roomId, remotePeerId, emit]);
 
@@ -80,30 +81,30 @@ export const useWebRTC = ({
 
     // Replace video track
     if (newVideoTrack) {
-        if (videoSender) {
-            console.log('Replacing video track');
-            videoSender.replaceTrack(newVideoTrack).catch(err => console.error('Error replacing video track:', err));
-        } else {
-            console.log('Video track found but no sender to replace. Adding track and renegotiating.');
-            pc.addTrack(newVideoTrack, localStream);
-            renegotiate();
-        }
+      if (videoSender) {
+        console.log('Replacing video track');
+        videoSender.replaceTrack(newVideoTrack).catch(err => console.error('Error replacing video track:', err));
+      } else {
+        console.log('Video track found but no sender to replace. Adding track and renegotiating.');
+        pc.addTrack(newVideoTrack, localStream);
+        renegotiate();
+      }
     } else if (videoSender && !newVideoTrack) {
-        // Video turned off
-        // Optional: explicitly set to null effectively "mutes" it on the wire
-        // videoSender.replaceTrack(null);
+      // Video turned off
+      // Optional: explicitly set to null effectively "mutes" it on the wire
+      // videoSender.replaceTrack(null);
     }
 
-     // Replace audio track
-     if (newAudioTrack && audioSender) {
-        if (audioSender.track?.id !== newAudioTrack.id) {
-             console.log('Replacing audio track');
-             audioSender.replaceTrack(newAudioTrack).catch(err => console.error('Error replacing audio track:', err));
-        }
+    // Replace audio track
+    if (newAudioTrack && audioSender) {
+      if (audioSender.track?.id !== newAudioTrack.id) {
+        console.log('Replacing audio track');
+        audioSender.replaceTrack(newAudioTrack).catch(err => console.error('Error replacing audio track:', err));
+      }
     } else if (newAudioTrack && !audioSender) {
-        console.log('Audio track found but no sender. Adding track and renegotiating.');
-         pc.addTrack(newAudioTrack, localStream);
-         renegotiate();
+      console.log('Audio track found but no sender. Adding track and renegotiating.');
+      pc.addTrack(newAudioTrack, localStream);
+      renegotiate();
     }
 
   }, [localStream, renegotiate]);
@@ -111,7 +112,7 @@ export const useWebRTC = ({
   // Create peer connection - should only be called once per peer
   const createPeerConnection = useCallback((peerId: string) => {
     console.log('Creating peer connection for:', peerId);
-    
+
     // Close existing connection if any
     if (peerConnectionRef.current) {
       console.log('Closing existing peer connection');
@@ -132,7 +133,7 @@ export const useWebRTC = ({
         }
       });
     } else {
-        console.warn('⚠️ No local stream available when creating connection');
+      console.warn('⚠️ No local stream available when creating connection');
     }
 
     // Handle incoming remote stream
@@ -164,13 +165,13 @@ export const useWebRTC = ({
 
     // Connection timeout logic
     const connectionTimeout = setTimeout(() => {
-        if (pc.signalingState !== 'closed') {
-             if (pc.connectionState === 'new' || pc.connectionState === 'connecting') {
-                console.warn('⚠️ Connection timed out, forcing failed state');
-                setConnectionState('failed');
-                onConnectionStateChange?.('failed');
-            }
+      if (pc.signalingState !== 'closed') {
+        if (pc.connectionState === VideoConnectionState.NEW || pc.connectionState === VideoConnectionState.CONNECTING) {
+          console.warn('⚠️ Connection timed out, forcing failed state');
+          setConnectionState(VideoConnectionState.FAILED);
+          onConnectionStateChange?.(VideoConnectionState.FAILED);
         }
+      }
     }, 3000); // 3 seconds timeout
 
     pc.oniceconnectionstatechange = () => {
@@ -232,7 +233,7 @@ export const useWebRTC = ({
     try {
       await pc.setRemoteDescription(new RTCSessionDescription(offer));
       console.log('✅ Set remote description from offer');
-      
+
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
 
@@ -269,7 +270,7 @@ export const useWebRTC = ({
   const handleIceCandidate = useCallback(async (candidate: RTCIceCandidateInit, from: string) => {
     console.log('📥 Received ICE candidate from:', from);
     const pc = peerConnectionRef.current;
-    
+
     if (!pc || !pc.remoteDescription) {
       console.warn('⚠️ Peer connection not ready, queueing ICE candidate');
       pendingIceCandidatesRef.current.push(candidate);
@@ -303,25 +304,25 @@ export const useWebRTC = ({
     });
 
     on<{ userId: string; enabled: boolean }>('video:peer-video-toggled', ({ userId: peerId, enabled }) => {
-        console.log(`🎥 Peer ${peerId} video toggled: ${enabled}`);
-        setRemoteVideoEnabled((prev) => (peerId === remotePeerId ? enabled : prev));
+      console.log(`🎥 Peer ${peerId} video toggled: ${enabled}`);
+      setRemoteVideoEnabled((prev) => (peerId === remotePeerId ? enabled : prev));
     });
 
     on<{ userId: string; enabled: boolean }>('video:peer-audio-toggled', ({ userId: peerId, enabled }) => {
-        console.log(`🎤 Peer ${peerId} audio toggled: ${enabled}`);
-        setRemoteAudioEnabled((prev) => (peerId === remotePeerId ? enabled : prev));
+      console.log(`🎤 Peer ${peerId} audio toggled: ${enabled}`);
+      setRemoteAudioEnabled((prev) => (peerId === remotePeerId ? enabled : prev));
     });
 
 
 
 
-    on<{ userId: string; name: string; profileImage?: string; isVideoEnabled?: boolean; isAudioEnabled?: boolean }>('video:user-joined', ({ userId: joinedUserId, name, profileImage}) => {
+    on<{ userId: string; name: string; profileImage?: string; isVideoEnabled?: boolean; isAudioEnabled?: boolean }>('video:user-joined', ({ userId: joinedUserId, name, profileImage }) => {
       console.log('👤 User joined room:', joinedUserId);
       // Initiate offer to the new user (we are already in the room)
       if (joinedUserId !== userId) {
         console.log('📤 I will create an offer to the new user');
         setRemoteParticipant({ name, profileImage });
-        
+
         createOffer(joinedUserId);
       }
     });
@@ -331,17 +332,17 @@ export const useWebRTC = ({
       // If there are existing participants, create offer to first one
       if (participants.length > 0 && participants[0].userId !== userId) {
         console.log('📤 Will create offer to existing participant');
-        setRemoteParticipant({ 
-            name: participants[0].name, 
-            profileImage: participants[0].profileImage 
+        setRemoteParticipant({
+          name: participants[0].name,
+          profileImage: participants[0].profileImage
         });
         if (participants[0].isVideoEnabled !== undefined) setRemoteVideoEnabled(participants[0].isVideoEnabled);
         if (participants[0].isAudioEnabled !== undefined) setRemoteAudioEnabled(participants[0].isAudioEnabled);
-        
+
         createOffer(participants[0].userId);
       }
     });
-    
+
     on<{ userId: string }>('video:user-left', ({ userId: leftUserId }) => {
       console.log('👋 User left:', leftUserId);
       if (leftUserId === remotePeerId) {
@@ -352,7 +353,7 @@ export const useWebRTC = ({
         setRemoteStream(null);
         setRemoteParticipant(null);
         setRemotePeerId(null);
-        setConnectionState('new');
+        setConnectionState(VideoConnectionState.NEW);
         setRemoteVideoEnabled(true);
         setRemoteAudioEnabled(true);
       }
@@ -377,19 +378,19 @@ export const useWebRTC = ({
   const restartIce = useCallback(() => {
     const pc = peerConnectionRef.current;
     if (pc && remotePeerId) {
-        console.log('🔄 Restarting ICE connection...');
-        // Create a new offer with iceRestart: true
-        pc.createOffer({ iceRestart: true, offerToReceiveAudio: true, offerToReceiveVideo: true })
+      console.log('🔄 Restarting ICE connection...');
+      // Create a new offer with iceRestart: true
+      pc.createOffer({ iceRestart: true, offerToReceiveAudio: true, offerToReceiveVideo: true })
         .then((offer) => {
-            return pc.setLocalDescription(offer).then(() => offer);
+          return pc.setLocalDescription(offer).then(() => offer);
         })
         .then((offer) => {
-             emit('video:offer', {
-                roomId,
-                offer,
-                to: remotePeerId,
-              });
-              console.log('✅ ICE restart offer sent');
+          emit('video:offer', {
+            roomId,
+            offer,
+            to: remotePeerId,
+          });
+          console.log('✅ ICE restart offer sent');
         })
         .catch((err) => console.error('Error restarting ICE:', err));
     }
