@@ -1,7 +1,8 @@
-import { INotification } from '../../domain/entities/Notification';
+import { INotification as INotificationEntity } from '../../domain/entities/Notification';
+import { INotificationDocument } from '../../infrastructure/models/NotificationModel';
 
 export class NotificationMapper {
-  static toResponse(notification: INotification) {
+  static toResponse(notification: INotificationEntity) {
     return {
       id: notification.notificationId,
       userId: notification.userId,
@@ -13,7 +14,20 @@ export class NotificationMapper {
     };
   }
 
-  static toResponseList(notifications: INotification[]) {
+  static toResponseList(notifications: INotificationEntity[]) {
     return notifications.map((n) => this.toResponse(n));
+  }
+
+  static toEntity(doc: INotificationDocument): INotificationEntity {
+    return {
+      userId: doc.userId.toString(),
+      title: doc.title,
+      message: doc.message,
+      type: doc.type,
+      isRead: doc.isRead,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+      notificationId: (doc._id as any).toString(),
+    };
   }
 }

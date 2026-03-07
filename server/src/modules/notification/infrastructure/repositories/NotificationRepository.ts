@@ -5,26 +5,17 @@ import {
   INotificationDocument,
   NotificationModel,
 } from '../models/NotificationModel';
+import { NotificationMapper } from '../../application/mappers/NotificationMapper';
 
 export class NotificationRepository
   extends BaseRepository<INotification, INotificationDocument>
-  implements INotificationRepository
-{
+  implements INotificationRepository {
   constructor() {
     super(NotificationModel);
   }
 
   public toEntity(doc: INotificationDocument): INotification {
-    return {
-      userId: doc.userId,
-      title: doc.title,
-      message: doc.message,
-      type: doc.type,
-      isRead: doc.isRead,
-      createdAt: doc.createdAt,
-      updatedAt: doc.updatedAt,
-      notificationId: doc._id as string,
-    };
+    return NotificationMapper.toEntity(doc);
   }
 
   async paginatedList(

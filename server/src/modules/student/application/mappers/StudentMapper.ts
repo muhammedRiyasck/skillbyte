@@ -4,6 +4,7 @@ import {
   StudentResponseDto,
 } from '../dtos/StudentDtos';
 import { Student } from '../../domain/entities/Student';
+import { IStudent as IStudentDocument } from '../../infrastructure/models/StudentModel';
 
 export class StudentMapper {
   static toRegisterStudentEntity(dto: StudentRegistrationDto) {
@@ -31,5 +32,18 @@ export class StudentMapper {
       profilePicture: student.profilePictureUrl,
       accountStatus: student.accountStatus,
     };
+  }
+
+  static toEntity(doc: IStudentDocument): Student {
+    return new Student(
+      doc.name,
+      doc.email,
+      doc.passwordHash || '',
+      doc.isEmailVerified,
+      doc.registeredVia,
+      doc.profilePictureUrl,
+      doc.accountStatus,
+      doc._id.toString(),
+    );
   }
 }

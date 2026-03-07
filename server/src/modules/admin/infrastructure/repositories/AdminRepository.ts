@@ -2,26 +2,17 @@ import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { IAdminRepository } from '../../domain/IRepositories/IAdminRepository';
 import { Admin } from '../../domain/entities/Admin';
 import { AdminModel, IAdmin } from '../models/AdminModel';
+import { AdminMapper } from '../../application/mappers/AdminMapper';
 
 export class AdminRepository
   extends BaseRepository<Admin, IAdmin>
-  implements IAdminRepository
-{
+  implements IAdminRepository {
   constructor() {
     super(AdminModel);
   }
 
   toEntity(doc: IAdmin): Admin {
-    return new Admin(
-      doc.name,
-      doc.email,
-      doc.passwordHash || '',
-      doc.role,
-      doc.isEmailVerified,
-      doc.accountStatus,
-      doc.profilePictureUrl,
-      doc._id.toString(),
-    );
+    return AdminMapper.toEntity(doc);
   }
 
   // Override to exclude passwordHash as in original implementation

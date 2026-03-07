@@ -4,26 +4,17 @@ import { Student } from '../../domain/entities/Student';
 import { StudentModel, IStudent } from '../models/StudentModel';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { StudentMapper } from '../../application/mappers/StudentMapper';
 
 export class StudentRepository
   extends BaseRepository<Student, IStudent>
-  implements IStudentRepository
-{
+  implements IStudentRepository {
   constructor() {
     super(StudentModel);
   }
 
   toEntity(doc: IStudent): Student {
-    return new Student(
-      doc.name,
-      doc.email,
-      doc.passwordHash || '',
-      doc.isEmailVerified,
-      doc.registeredVia,
-      doc.profilePictureUrl,
-      doc.accountStatus,
-      doc._id.toString(),
-    );
+    return StudentMapper.toEntity(doc);
   }
 
   async findByEmail(email: string): Promise<Student | null> {
