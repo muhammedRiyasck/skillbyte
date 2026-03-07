@@ -7,6 +7,8 @@ import { Calendar, RefreshCw, Filter } from "lucide-react";
 import { ROUTES } from "@/core/router/paths";
 import { useNavigate } from "react-router-dom";
 import Modal from "@shared/ui/Modal";
+import { BookingStatus } from "../../../shared/enums/BookingStatus";
+import { UserRole } from "../../../shared/enums/UserRole";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -45,7 +47,7 @@ const StudentBookingsPage = () => {
                 limit: ITEMS_PER_PAGE,
             };
             if (activeStatus !== 'all') {
-                filters.status = activeStatus as 'pending' | 'confirmed' | 'cancelled' | 'completed';
+                filters.status = activeStatus as BookingStatus;
             }
 
             const data = await getStudentBookings(filters);
@@ -129,7 +131,7 @@ const StudentBookingsPage = () => {
 
         setBookingToCancel(bookingId);
 
-        if (booking.amount > 0 && booking.status === 'confirmed') {
+        if (booking.amount > 0 && booking.status === BookingStatus.CONFIRMED) {
             const scheduledDate = new Date(booking.scheduledAt);
             const now = new Date();
             const hoursDiff = (scheduledDate.getTime() - now.getTime()) / (1000 * 60 * 60);
@@ -151,7 +153,7 @@ const StudentBookingsPage = () => {
             setIsCancelling(true);
             await cancelBooking(bookingToCancel);
             toast.success("Booking cancelled");
-            setBookings(prev => prev.map(b => b.bookingId === bookingToCancel ? { ...b, status: 'cancelled' } : b));
+            setBookings(prev => prev.map(b => b.bookingId === bookingToCancel ? { ...b, status: BookingStatus.CANCELLED } : b));
             setIsConfirmOpen(false);
         } catch (error) {
             console.error(error);
@@ -207,10 +209,10 @@ const StudentBookingsPage = () => {
                                 onChange={(e) => handleStatusChange(e.target.value)}
                             >
                                 <option value="all">All Status</option>
-                                <option value="pending">Pending</option>
-                                <option value="confirmed">Confirmed</option>
-                                <option value="cancelled">Cancelled</option>
-                                <option value="completed">Completed</option>
+                                <option value={BookingStatus.PENDING}>Pending</option>
+                                <option value={BookingStatus.CONFIRMED}>Confirmed</option>
+                                <option value={BookingStatus.CANCELLED}>Cancelled</option>
+                                <option value={BookingStatus.COMPLETED}>Completed</option>
                             </select>
                         </div>
                         <button
@@ -271,7 +273,7 @@ const StudentBookingsPage = () => {
                                                 booking={booking}
                                                 onCancel={handleCancelClick}
                                                 onJoinSession={handleJoinSession}
-                                                userRole="student"
+                                                userRole={UserRole.STUDENT}
                                             />
                                         </div>
                                     );
@@ -282,7 +284,7 @@ const StudentBookingsPage = () => {
                                             booking={booking}
                                             onCancel={handleCancelClick}
                                             onJoinSession={handleJoinSession}
-                                            userRole="student"
+                                            userRole={UserRole.STUDENT}
                                         />
                                     );
                                 }
@@ -315,7 +317,7 @@ const StudentBookingsPage = () => {
                         Are you sure you want to cancel this mentorship session?
                     </p>
 
-                    {selectedBooking?.amount && selectedBooking.amount > 0 ? (
+                    {selectedBooking?.amount && selectedBooking.amount > 0 && selectedBooking.status === BookingStatus.CONFIRMED ? (
                         <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-sm text-green-700 dark:text-green-300">
                             <p className="font-semibold">You are eligible for a full refund.</p>
                             <p className="text-xs mt-1">Cancellation is more than 24 hours before the session.</p>

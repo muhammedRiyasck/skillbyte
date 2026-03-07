@@ -15,6 +15,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 
+import { SlotStatus } from "@shared/enums/SlotStatus";
+
 const ITEMS_PER_PAGE = 10;
 
 const MentorshipBrowsePage = () => {
@@ -167,18 +169,19 @@ const MentorshipBrowsePage = () => {
   }, [searchTerm]);
 
   // Unified Fetch Logic to prevent infinite loops
+  const tagsString = selectedTags.join(",");
   useEffect(() => {
     const isFilterChange = page === 1;
     fetchSlots(page, isFilterChange);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     page,
     debouncedSearch,
-    selectedTags.join(","),
+    tagsString,
     minPrice,
     maxPrice,
     fromDate,
     toDate,
+    fetchSlots,
   ]);
 
   const refreshSlots = () => {
@@ -345,41 +348,40 @@ const MentorshipBrowsePage = () => {
               >
                 {tagsLoading
                   ? // Skeleton loader for tags
-                    Array.from({ length: 8 }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="h-9 w-24 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse shrink-0"
-                      />
-                    ))
+                  Array.from({ length: 8 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-9 w-24 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse shrink-0"
+                    />
+                  ))
                   : categories.map((cat) => {
-                      const isActive =
-                        cat === "All"
-                          ? selectedTags.length === 0
-                          : selectedTags.includes(cat);
-                      return (
-                        <button
-                          key={cat}
-                          onClick={() => toggleTag(cat)}
-                          className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 shrink-0 ${
-                            isActive
-                              ? "bg-indigo-600 text-white border-indigo-600 shadow-md ring-2 ring-indigo-500/20"
-                              : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-gray-50 dark:hover:bg-gray-700"
+                    const isActive =
+                      cat === "All"
+                        ? selectedTags.length === 0
+                        : selectedTags.includes(cat);
+                    return (
+                      <button
+                        key={cat}
+                        onClick={() => toggleTag(cat)}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all cursor-pointer whitespace-nowrap flex items-center gap-2 shrink-0 ${isActive
+                          ? "bg-indigo-600 text-white border-indigo-600 shadow-md ring-2 ring-indigo-500/20"
+                          : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-500 hover:bg-gray-50 dark:hover:bg-gray-700"
                           }`}
-                        >
-                          {cat === "All" ? (
-                            <Filter size={16} />
-                          ) : (
-                            <Tag
-                              size={14}
-                              className={
-                                isActive ? "text-indigo-200" : "text-indigo-600"
-                              }
-                            />
-                          )}
-                          {cat}
-                        </button>
-                      );
-                    })}
+                      >
+                        {cat === "All" ? (
+                          <Filter size={16} />
+                        ) : (
+                          <Tag
+                            size={14}
+                            className={
+                              isActive ? "text-indigo-200" : "text-indigo-600"
+                            }
+                          />
+                        )}
+                        {cat}
+                      </button>
+                    );
+                  })}
               </div>
 
               {/* Right Scroll Button */}
@@ -436,7 +438,7 @@ const MentorshipBrowsePage = () => {
             <div className="space-y-12">
               {Object.entries(groupedSlots).map(([mentorId, data]) => {
                 const availableSlots = data.slots.filter(
-                  (slot) => slot.status === "available",
+                  (slot) => slot.status === SlotStatus.AVAILABLE,
                 );
                 const jobTitle =
                   data.instructor.jobTitle
