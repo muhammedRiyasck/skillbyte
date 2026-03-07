@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import Spiner from '@shared/ui/Spiner';
 import { RefreshCw, Search } from 'lucide-react';
 import { DebouncedInput } from '@/shared/ui';
+import { EnrollmentStatus } from '@shared/enums/EnrollmentStatus';
 
 // Types for the enrollment data
 interface StudentEnrollment {
@@ -11,7 +12,7 @@ interface StudentEnrollment {
   studentName: string;
   studentEmail: string;
   enrollmentDate: string;
-  status: string;
+  status: EnrollmentStatus;
   progress: number;
 }
 
@@ -75,13 +76,13 @@ const Dashboard: React.FC = () => {
     setCurrentPage(1);
   }, []);
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'active':
+  const getStatusColor = (status: EnrollmentStatus) => {
+    switch (status) {
+      case EnrollmentStatus.ACTIVE:
         return 'bg-green-100 text-green-800';
-      case 'completed':
+      case EnrollmentStatus.COMPLETED:
         return 'bg-blue-100 text-blue-800';
-      case 'cancelled':
+      case EnrollmentStatus.CANCELLED:
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -192,8 +193,8 @@ const Dashboard: React.FC = () => {
                 className="w-full cursor-pointer bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg px-4 py-2 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">All Statuses</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
+                <option value={EnrollmentStatus.COMPLETED}>Completed</option>
+                <option value={EnrollmentStatus.CANCELLED}>Cancelled</option>
               </select>
             </div>
 
