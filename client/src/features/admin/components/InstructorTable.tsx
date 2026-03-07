@@ -204,7 +204,7 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
             View Resume
           </button>
         ) : (
-          <span className="text-gray-500 dark:text-gray-400">N/A</span>
+          <td className="text-gray-500 dark:text-gray-400">N/A</td>
         ),
       className: "hidden lg:table-cell",
     },

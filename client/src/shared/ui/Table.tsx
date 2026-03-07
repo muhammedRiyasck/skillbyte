@@ -75,7 +75,6 @@ function Table<T>({
               })}
             </tr>
           ))}
-          <span></span>
         </tbody>
       </table>
       {totalPages && currentPage && onPageChange && totalPages > 1 && (
