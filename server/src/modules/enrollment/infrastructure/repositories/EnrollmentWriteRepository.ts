@@ -6,34 +6,17 @@ import {
   IEnrollment as IEnrollmentDocument,
 } from '../models/EnrollmentModel';
 
+import { EnrollmentMapper } from '../../application/mappers/EnrollmentMapper';
+
 export class EnrollmentWriteRepository
   extends BaseRepository<IEnrollmentEntity, IEnrollmentDocument>
-  implements IEnrollmentWriteRepository
-{
+  implements IEnrollmentWriteRepository {
   constructor() {
     super(EnrollmentModel);
   }
 
   toEntity(doc: IEnrollmentDocument): IEnrollmentEntity {
-    return {
-      enrollmentId: doc._id.toString(),
-      userId: doc.userId.toString(),
-      courseId: doc.courseId.toString(),
-      paymentId: doc.paymentId?.toString(),
-      status: doc.status,
-      enrolledAt: doc.enrolledAt,
-      completedAt: doc.completedAt,
-      progress: doc.progress,
-      lessonProgress: doc.lessonProgress.map((lp) => ({
-        lessonId: lp.lessonId.toString(),
-        lastWatchedSecond: lp.lastWatchedSecond,
-        totalDuration: lp.totalDuration,
-        isCompleted: lp.isCompleted,
-        lastUpdated: lp.lastUpdated,
-      })),
-      createdAt: doc.createdAt,
-      updatedAt: doc.updatedAt,
-    };
+    return EnrollmentMapper.toEntity(doc);
   }
 
   async updateEnrollmentStatus(

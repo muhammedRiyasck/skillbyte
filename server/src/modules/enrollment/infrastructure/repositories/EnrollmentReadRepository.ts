@@ -10,35 +10,17 @@ import {
 } from '../models/EnrollmentModel';
 import { IStudentEnrollment } from '../../types/IStudentEnrollment';
 import { IEnrollmentFilters } from '../../types/IInstructorEnrollment';
+import { EnrollmentMapper } from '../../application/mappers/EnrollmentMapper';
 
 export class EnrollmentReadRepository
   extends BaseRepository<IEnrollmentEntity, IEnrollmentDocument>
-  implements IEnrollmentReadRepository
-{
+  implements IEnrollmentReadRepository {
   constructor() {
     super(EnrollmentModel);
   }
 
   toEntity(doc: IEnrollmentDocument): IEnrollmentEntity {
-    return {
-      enrollmentId: doc._id.toString(),
-      userId: doc.userId.toString(),
-      courseId: doc.courseId.toString(),
-      paymentId: doc.paymentId?.toString(),
-      status: doc.status as EnrollmentStatus,
-      enrolledAt: doc.enrolledAt,
-      completedAt: doc.completedAt,
-      progress: doc.progress,
-      lessonProgress: doc.lessonProgress.map((lp) => ({
-        lessonId: lp.lessonId.toString(),
-        lastWatchedSecond: lp.lastWatchedSecond,
-        totalDuration: lp.totalDuration,
-        isCompleted: lp.isCompleted,
-        lastUpdated: lp.lastUpdated,
-      })),
-      createdAt: doc.createdAt,
-      updatedAt: doc.updatedAt,
-    };
+    return EnrollmentMapper.toEntity(doc);
   }
 
   async findEnrollment(
@@ -140,33 +122,8 @@ export class EnrollmentReadRepository
     );
 
     const result = await this.model.aggregate(pipeline);
-    const data: IStudentEnrollment[] = result[0].data.map(
-      (item: {
-        enrolledAt: Date;
-        progress: number;
-        status: string;
-        course: {
-          id: Types.ObjectId;
-          instructorId: Types.ObjectId;
-          title: string;
-          thumbnailUrl: string;
-          subText: string;
-          category: string;
-          courseLevel: string;
-          language: string;
-          price: number;
-          rating: number;
-          reviews: number;
-        };
-      }) => ({
-        ...item.course,
-        id: item.course.id.toString(),
-        instructorId: item.course.instructorId.toString(),
-        enrolledAt: item.enrolledAt,
-        progress: item.progress,
-        enrollmentStatus: item.status,
-        isEnrolled: true,
-      }),
+    const data: IStudentEnrollment[] = result[0].data.map((item: any) =>
+      EnrollmentMapper.toStudentEnrollment(item),
     );
     const totalCount = result[0].totalCount[0]?.count || 0;
 
