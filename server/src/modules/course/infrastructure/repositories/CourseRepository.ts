@@ -2,33 +2,18 @@ import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
 import { Course } from '../../domain/entities/Course';
 import { CourseModel, ICourseDoc } from '../models/CourseModel';
+import { CourseMapper } from '../../application/mappers/CourseMapper';
+import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
 export class CourseRepository
   extends BaseRepository<Course, ICourseDoc>
-  implements ICourseRepository
-{
+  implements ICourseRepository {
   constructor() {
     super(CourseModel);
   }
 
   toEntity(doc: ICourseDoc): Course {
-    return new Course(
-      doc.instructorId.toString(),
-      doc.thumbnailUrl,
-      doc.title,
-      doc.subText,
-      doc.category,
-      doc.courseLevel,
-      doc.language,
-      doc.price,
-      doc.features,
-      doc.description,
-      doc.duration,
-      doc.tags,
-      doc.status,
-      doc.isBlocked,
-      doc._id.toString(),
-    );
+    return CourseMapper.toEntity(doc);
   }
 
   async findPublishedCourses(filters: {
@@ -94,7 +79,7 @@ export class CourseRepository
 
   async updateStatus(
     courseId: string,
-    status: 'list' | 'unlist',
+    status: CourseStatus,
   ): Promise<void> {
     await this.model.findByIdAndUpdate(courseId, { status });
   }

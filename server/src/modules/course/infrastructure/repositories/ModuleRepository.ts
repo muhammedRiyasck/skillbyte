@@ -2,25 +2,17 @@ import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { Module } from '../../domain/entities/Module';
 import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
 import { ModuleModel, IModuleDoc } from '../models/ModuleModel';
+import { ModuleMapper } from '../../application/mappers/ModuleMapper';
 
 export class ModuleRepository
   extends BaseRepository<Module, IModuleDoc>
-  implements IModuleRepository
-{
+  implements IModuleRepository {
   constructor() {
     super(ModuleModel);
   }
 
   toEntity(doc: IModuleDoc): Module {
-    return new Module(
-      doc.courseId.toString(),
-      doc.title,
-      doc.description,
-      doc.order,
-      doc.createdAt,
-      doc.updatedAt,
-      doc._id.toString(),
-    );
+    return ModuleMapper.toEntity(doc);
   }
 
   async findModulesByCourseId(courseId: string): Promise<Module[]> {

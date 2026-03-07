@@ -1,5 +1,7 @@
 import { CreateLessonDto } from '../dtos/LessonDtos';
 import { Lesson } from '../../domain/entities/Lesson';
+import { ILessonDoc } from '../../infrastructure/models/LessonModel';
+import { ContentType } from '../../../../shared/enums/ContentType';
 
 export class LessonMapper {
   static toCreateEntity(dto: CreateLessonDto, instructorId: string) {
@@ -40,5 +42,24 @@ export class LessonMapper {
 
   static toUpdateEntity(dto: Record<string, unknown>) {
     return dto;
+  }
+
+  static toEntity(doc: ILessonDoc): Lesson {
+    return new Lesson(
+      doc.moduleId.toString(),
+      doc.title,
+      doc.description,
+      doc.contentType as any as ContentType,
+      doc.fileName,
+      doc.order,
+      doc.duration,
+      doc.resources,
+      doc.isFreePreview,
+      doc.isPublished,
+      doc.isBlocked,
+      doc._id.toString(),
+      doc.createdAt,
+      doc.updatedAt,
+    );
   }
 }

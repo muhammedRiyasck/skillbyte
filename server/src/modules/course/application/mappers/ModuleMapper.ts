@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { CreateModuleSchema } from '../dtos/ModuleDtos';
 import { LessonMapper } from './LessonMapper';
 import { Module } from '../../domain/entities/Module';
+import { IModuleDoc } from '../../infrastructure/models/ModuleModel';
 
 export class ModuleMapper {
   static toCreateEntity(dto: z.infer<typeof CreateModuleSchema>) {
@@ -32,5 +33,17 @@ export class ModuleMapper {
 
   static toUpdateEntity(dto: Record<string, unknown>) {
     return dto;
+  }
+
+  static toEntity(doc: IModuleDoc): Module {
+    return new Module(
+      doc.courseId.toString(),
+      doc.title,
+      doc.description,
+      doc.order,
+      doc.createdAt,
+      doc.updatedAt,
+      doc._id.toString(),
+    );
   }
 }

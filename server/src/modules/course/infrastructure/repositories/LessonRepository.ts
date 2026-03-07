@@ -2,32 +2,17 @@ import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
 import { Lesson } from '../../domain/entities/Lesson';
 import { LessonModel, ILessonDoc } from '../models/LessonModel';
+import { LessonMapper } from '../../application/mappers/LessonMapper';
 
 export class LessonRepository
   extends BaseRepository<Lesson, ILessonDoc>
-  implements ILessonRepository
-{
+  implements ILessonRepository {
   constructor() {
     super(LessonModel);
   }
 
   toEntity(doc: ILessonDoc): Lesson {
-    return new Lesson(
-      doc.moduleId.toString(),
-      doc.title,
-      doc.description,
-      doc.contentType,
-      doc.fileName,
-      doc.order,
-      doc.duration,
-      doc.resources,
-      doc.isFreePreview,
-      doc.isPublished,
-      doc.isBlocked,
-      doc._id.toString(),
-      doc.createdAt,
-      doc.updatedAt,
-    );
+    return LessonMapper.toEntity(doc);
   }
 
   async findByModuleId(moduleIds: string[]): Promise<Lesson[]> {
