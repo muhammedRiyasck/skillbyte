@@ -7,16 +7,17 @@ import {
 } from '../models/ConversationModel';
 import { UserRole } from '../../../../shared/enums/UserRole';
 
+import { ChatMapper } from '../../application/mappers/ChatMapper';
+
 export class ConversationReadRepository
   extends BaseRepository<IConversation, IConversationDocument>
-  implements IConversationReadRepository
-{
+  implements IConversationReadRepository {
   constructor() {
     super(ConversationModel);
   }
 
   toEntity(doc: IConversationDocument): IConversation {
-    return doc.toJSON() as IConversation;
+    return ChatMapper.toConversationEntity(doc);
   }
 
   async findByParticipants(

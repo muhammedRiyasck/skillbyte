@@ -3,16 +3,17 @@ import { IMessage } from '../../domain/entities/Message';
 import { IMessageReadRepository } from '../../domain/IRepositories/IMessageRepository';
 import { MessageModel, IMessageDocument } from '../models/MessageModel';
 
+import { ChatMapper } from '../../application/mappers/ChatMapper';
+
 export class MessageReadRepository
   extends BaseRepository<IMessage, IMessageDocument>
-  implements IMessageReadRepository
-{
+  implements IMessageReadRepository {
   constructor() {
     super(MessageModel);
   }
 
   toEntity(doc: IMessageDocument): IMessage {
-    return doc.toJSON() as IMessage;
+    return ChatMapper.toMessageEntity(doc);
   }
 
   async findByConversationId(

@@ -2,11 +2,13 @@ import { IMessageWriteRepository } from '../../domain/IRepositories/IMessageRepo
 import { IMessage } from '../../domain/entities/Message';
 import { MessageModel } from '../models/MessageModel';
 
+import { ChatMapper } from '../../application/mappers/ChatMapper';
+
 export class MessageWriteRepository implements IMessageWriteRepository {
   async save(message: IMessage): Promise<IMessage> {
     const doc = new MessageModel(message);
     const saved = await doc.save();
-    return saved.toJSON();
+    return ChatMapper.toMessageEntity(saved);
   }
 
   async markAsRead(messageId: string): Promise<void> {

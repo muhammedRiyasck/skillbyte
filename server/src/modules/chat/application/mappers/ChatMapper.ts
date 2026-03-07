@@ -1,5 +1,7 @@
 import { IConversation } from '../../domain/entities/Conversation';
 import { IMessage } from '../../domain/entities/Message';
+import { IConversationDocument } from '../../infrastructure/models/ConversationModel';
+import { IMessageDocument } from '../../infrastructure/models/MessageModel';
 
 export interface MessageResponseDto {
   id?: string;
@@ -85,5 +87,13 @@ export class ChatMapper {
       createdAt: conversation.createdAt,
       updatedAt: conversation.updatedAt,
     };
+  }
+
+  static toConversationEntity(doc: IConversationDocument): IConversation {
+    return doc.toJSON() as IConversation;
+  }
+
+  static toMessageEntity(doc: IMessageDocument): IMessage {
+    return doc.toJSON() as IMessage;
   }
 }
