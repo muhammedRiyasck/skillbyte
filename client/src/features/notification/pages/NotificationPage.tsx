@@ -3,17 +3,18 @@ import { useNotifications } from '../hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { ArrowLeft, Bell, Check, CheckCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { NotificationType } from '../../../shared/enums/NotificationType';
 
 const NotificationPage: React.FC = () => {
-    const { 
-        notifications, 
-        unreadCount, 
-        page, 
-        setPage, 
-        totalPages, 
-        isLoading, 
-        handleMarkAsRead, 
-        handleMarkAllAsRead 
+    const {
+        notifications,
+        unreadCount,
+        page,
+        setPage,
+        totalPages,
+        isLoading,
+        handleMarkAsRead,
+        handleMarkAllAsRead
     } = useNotifications();
 
     const navigate = useNavigate();
@@ -33,7 +34,7 @@ const NotificationPage: React.FC = () => {
     }, []);
 
 
-   return (
+    return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-12 pt-6">
 
             {/* Glass Sticky Header */}
@@ -111,22 +112,20 @@ const NotificationPage: React.FC = () => {
                             {notifications.map((notification) => (
                                 <div
                                     key={notification.id}
-                                    className={`p-6 transition-colors flex gap-4 hover:bg-gray-50 dark:hover:bg-gray-700/40 ${
-                                        !notification.isRead
+                                    className={`p-6 transition-colors flex gap-4 hover:bg-gray-50 dark:hover:bg-gray-700/40 ${!notification.isRead
                                             ? 'bg-indigo-50/40 dark:bg-indigo-900/10'
                                             : ''
-                                    }`}
+                                        }`}
                                 >
                                     <div
-                                        className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${
-                                            notification.type === 'success'
+                                        className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${notification.type === NotificationType.SUCCESS
                                                 ? 'bg-green-100 text-green-600'
-                                                : notification.type === 'error'
-                                                ? 'bg-red-100 text-red-600'
-                                                : notification.type === 'warning'
-                                                ? 'bg-yellow-100 text-yellow-600'
-                                                : 'bg-blue-100 text-blue-600'
-                                        }`}
+                                                : notification.type === NotificationType.ERROR
+                                                    ? 'bg-red-100 text-red-600'
+                                                    : notification.type === NotificationType.WARNING
+                                                        ? 'bg-yellow-100 text-yellow-600'
+                                                        : 'bg-blue-100 text-blue-600'
+                                            }`}
                                     >
                                         <Bell className="w-6 h-6" />
                                     </div>
@@ -134,11 +133,10 @@ const NotificationPage: React.FC = () => {
                                     <div className="flex-1">
                                         <div className="flex justify-between items-start mb-1">
                                             <h3
-                                                className={`font-semibold ${
-                                                    !notification.isRead
+                                                className={`font-semibold ${!notification.isRead
                                                         ? 'text-gray-900 dark:text-white'
                                                         : 'text-gray-600 dark:text-gray-400'
-                                                }`}
+                                                    }`}
                                             >
                                                 {notification.title}
                                             </h3>
