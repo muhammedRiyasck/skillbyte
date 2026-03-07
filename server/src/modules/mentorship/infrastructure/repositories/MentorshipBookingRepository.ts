@@ -11,38 +11,17 @@ import {
   findByInstructorIdQueryType,
   findByStudentIdQueryType,
 } from '../types/IQueryTypes';
+import { MentorshipMapper } from '../../application/mappers/MentorshipMapper';
 
 export class MentorshipBookingRepository
   extends BaseRepository<MentorshipBooking, IMentorshipBookingDoc>
-  implements IMentorshipBookingRepository
-{
+  implements IMentorshipBookingRepository {
   constructor() {
     super(MentorshipBookingModel);
   }
 
   toEntity(doc: IMentorshipBookingDoc): MentorshipBooking {
-    return new MentorshipBooking(
-      doc.slotId instanceof Types.ObjectId ? doc.slotId.toString() : doc.slotId,
-      doc.studentId instanceof Types.ObjectId
-        ? doc.studentId.toString()
-        : doc.studentId,
-      doc.instructorId instanceof Types.ObjectId
-        ? doc.instructorId.toString()
-        : doc.instructorId,
-      doc.paymentId ? doc.paymentId.toString() : null,
-      doc.amount,
-      doc.currency,
-      doc.status,
-      doc.videoRoomId,
-      doc.videoRoomUrl,
-      doc.scheduledAt,
-      doc.completedAt,
-      doc.cancelledAt,
-      doc.cancelledBy,
-      doc._id.toString(),
-      doc.createdAt,
-      doc.updatedAt,
-    );
+    return MentorshipMapper.toBookingEntity(doc);
   }
 
   async findByStudentId(

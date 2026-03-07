@@ -6,7 +6,7 @@ export interface IMentorshipSlotRepository
   findByInstructorId(
     instructorId: string,
     filters?: {
-      status?: 'available' | 'booked' | 'cancelled';
+      status?: SlotStatus;
       fromDate?: Date;
       toDate?: Date;
       page?: number;

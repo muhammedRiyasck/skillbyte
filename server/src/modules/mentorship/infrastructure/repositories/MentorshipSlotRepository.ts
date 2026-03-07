@@ -11,48 +11,17 @@ import {
   findAvailableSlotsType,
   findByInstructorIdQueryType,
 } from '../types/IQueryTypes';
+import { MentorshipMapper } from '../../application/mappers/MentorshipMapper';
 
 export class MentorshipSlotRepository
   extends BaseRepository<MentorshipSlot, IMentorshipSlotDoc>
-  implements IMentorshipSlotRepository
-{
+  implements IMentorshipSlotRepository {
   constructor() {
     super(MentorshipSlotModel);
   }
 
   toEntity(doc: IMentorshipSlotDoc): MentorshipSlot {
-    const entity = new MentorshipSlot(
-      doc.instructorId,
-      doc.title,
-      doc.description,
-      doc.duration,
-      doc.price,
-      doc.currency,
-      doc.scheduledAt,
-      doc.status,
-      doc.maxBookings,
-      doc.currentBookings,
-      doc.jobTitle,
-      doc.tags,
-      doc.timezone,
-      doc._id.toString(),
-    );
-    // populated instructor details
-    const ins = doc.instructorId as unknown as {
-      name: string;
-      profilePictureUrl: string;
-      jobTitle: string;
-    };
-    entity.instructorDetails = {
-      name: ins.name,
-      profilePictureUrl: ins.profilePictureUrl,
-      jobTitle: ins.jobTitle,
-    };
-
-    entity.createdAt = doc.createdAt;
-    entity.updatedAt = doc.updatedAt;
-
-    return entity;
+    return MentorshipMapper.toSlotEntity(doc);
   }
 
   async save(entity: MentorshipSlot): Promise<MentorshipSlot> {
@@ -92,7 +61,7 @@ export class MentorshipSlotRepository
   async findByInstructorId(
     instructorId: string,
     filters?: {
-      status?: 'available' | 'booked' | 'cancelled';
+      status?: SlotStatus;
       fromDate?: Date;
       toDate?: Date;
       page?: number;
@@ -143,7 +112,7 @@ export class MentorshipSlotRepository
 
     // 1. Base Match (Status and Date)
     const matchStage: findAvailableSlotsType = {
-      status: { $in: ['available', 'booked'] },
+      status: { $in: [SlotStatus.AVAILABLE, SlotStatus.BOOKED] },
       scheduledAt: { $gte: tomorrow },
     };
 
@@ -254,7 +223,7 @@ export class MentorshipSlotRepository
     );
 
     if (slot && slot.currentBookings >= slot.maxBookings) {
-      await this.updateStatus(slotId, 'booked');
+      await this.updateStatus(slotId, SlotStatus.BOOKED);
     }
   }
 
@@ -266,7 +235,7 @@ export class MentorshipSlotRepository
     );
 
     if (slot && slot.currentBookings < slot.maxBookings) {
-      await this.updateStatus(slotId, 'available');
+      await this.updateStatus(slotId, SlotStatus.AVAILABLE);
     }
   }
 
@@ -276,7 +245,7 @@ export class MentorshipSlotRepository
     tomorrow.setHours(0, 0, 0, 0);
 
     const tags = await this.model.distinct('tags', {
-      status: { $in: ['available', 'booked'] },
+      status: { $in: [SlotStatus.AVAILABLE, SlotStatus.BOOKED] },
       scheduledAt: { $gte: tomorrow },
     });
 
@@ -288,7 +257,7 @@ export class MentorshipSlotRepository
       .find({
         instructorId,
         scheduledAt: { $gt: new Date() },
-        status: { $in: ['available', 'booked'] },
+        status: { $in: [SlotStatus.AVAILABLE, SlotStatus.BOOKED] },
       })
       .sort({ scheduledAt: 1 });
     return docs.map((doc) => this.toEntity(doc));
