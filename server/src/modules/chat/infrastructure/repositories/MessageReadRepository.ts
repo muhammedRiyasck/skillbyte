@@ -7,7 +7,8 @@ import { ChatMapper } from '../../application/mappers/ChatMapper';
 
 export class MessageReadRepository
   extends BaseRepository<IMessage, IMessageDocument>
-  implements IMessageReadRepository {
+  implements IMessageReadRepository
+{
   constructor() {
     super(MessageModel);
   }

@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { INotification as INotificationEntity } from '../../domain/entities/Notification';
 import { INotificationDocument } from '../../infrastructure/models/NotificationModel';
 
@@ -27,7 +28,7 @@ export class NotificationMapper {
       isRead: doc.isRead,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
-      notificationId: (doc._id as any).toString(),
+      notificationId: (doc._id as Types.ObjectId).toString(),
     };
   }
 }

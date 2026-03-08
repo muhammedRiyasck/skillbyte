@@ -71,7 +71,7 @@ export class MentorshipMapper {
 
   static toSlotEntity(doc: IMentorshipSlotDoc): MentorshipSlot {
     const entity = new MentorshipSlot(
-      doc.instructorId as any,
+      doc.instructorId as string,
       doc.title,
       doc.description,
       doc.duration,
@@ -93,7 +93,11 @@ export class MentorshipMapper {
       typeof doc.instructorId === 'object' &&
       'name' in doc.instructorId
     ) {
-      const ins = doc.instructorId as any;
+      const ins = doc.instructorId as {
+        name: string;
+        profilePictureUrl: string;
+        jobTitle: string;
+      };
       entity.instructorDetails = {
         name: ins.name,
         profilePictureUrl: ins.profilePictureUrl,

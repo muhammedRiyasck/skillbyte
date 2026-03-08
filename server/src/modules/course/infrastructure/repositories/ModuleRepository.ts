@@ -6,7 +6,8 @@ import { ModuleMapper } from '../../application/mappers/ModuleMapper';
 
 export class ModuleRepository
   extends BaseRepository<Module, IModuleDoc>
-  implements IModuleRepository {
+  implements IModuleRepository
+{
   constructor() {
     super(ModuleModel);
   }

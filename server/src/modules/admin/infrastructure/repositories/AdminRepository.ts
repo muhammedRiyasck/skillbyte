@@ -6,7 +6,8 @@ import { AdminMapper } from '../../application/mappers/AdminMapper';
 
 export class AdminRepository
   extends BaseRepository<Admin, IAdmin>
-  implements IAdminRepository {
+  implements IAdminRepository
+{
   constructor() {
     super(AdminModel);
   }

@@ -15,7 +15,8 @@ import { MentorshipMapper } from '../../application/mappers/MentorshipMapper';
 
 export class MentorshipSlotRepository
   extends BaseRepository<MentorshipSlot, IMentorshipSlotDoc>
-  implements IMentorshipSlotRepository {
+  implements IMentorshipSlotRepository
+{
   constructor() {
     super(MentorshipSlotModel);
   }

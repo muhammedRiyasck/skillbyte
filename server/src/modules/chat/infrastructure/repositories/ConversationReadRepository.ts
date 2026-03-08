@@ -11,7 +11,8 @@ import { ChatMapper } from '../../application/mappers/ChatMapper';
 
 export class ConversationReadRepository
   extends BaseRepository<IConversation, IConversationDocument>
-  implements IConversationReadRepository {
+  implements IConversationReadRepository
+{
   constructor() {
     super(ConversationModel);
   }

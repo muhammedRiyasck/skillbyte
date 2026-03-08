@@ -7,7 +7,8 @@ import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
 export class CourseRepository
   extends BaseRepository<Course, ICourseDoc>
-  implements ICourseRepository {
+  implements ICourseRepository
+{
   constructor() {
     super(CourseModel);
   }
@@ -77,10 +78,7 @@ export class CourseRepository
     await this.model.findByIdAndUpdate(courseId, updatedFields, { new: true });
   }
 
-  async updateStatus(
-    courseId: string,
-    status: CourseStatus,
-  ): Promise<void> {
+  async updateStatus(courseId: string, status: CourseStatus): Promise<void> {
     await this.model.findByIdAndUpdate(courseId, { status });
   }
 

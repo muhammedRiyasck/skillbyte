@@ -14,7 +14,8 @@ import { EnrollmentMapper } from '../../application/mappers/EnrollmentMapper';
 
 export class EnrollmentReadRepository
   extends BaseRepository<IEnrollmentEntity, IEnrollmentDocument>
-  implements IEnrollmentReadRepository {
+  implements IEnrollmentReadRepository
+{
   constructor() {
     super(EnrollmentModel);
   }
@@ -122,8 +123,9 @@ export class EnrollmentReadRepository
     );
 
     const result = await this.model.aggregate(pipeline);
-    const data: IStudentEnrollment[] = result[0].data.map((item: any) =>
-      EnrollmentMapper.toStudentEnrollment(item),
+    const data: IStudentEnrollment[] = result[0].data.map(
+      (item: Parameters<typeof EnrollmentMapper.toStudentEnrollment>[0]) =>
+        EnrollmentMapper.toStudentEnrollment(item),
     );
     const totalCount = result[0].totalCount[0]?.count || 0;
 

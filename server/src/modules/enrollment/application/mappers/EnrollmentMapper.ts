@@ -81,7 +81,7 @@ export class EnrollmentMapper {
       instructorId: item.course.instructorId.toString(),
       enrolledAt: item.enrolledAt,
       progress: item.progress,
-      enrollmentStatus: item.status as any,
+      enrollmentStatus: item.status as EnrollmentStatus,
       isEnrolled: true,
     };
   }

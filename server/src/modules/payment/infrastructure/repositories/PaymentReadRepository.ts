@@ -8,7 +8,8 @@ import { PaymentMapper } from '../../application/mappers/PaymentMapper';
 
 export class PaymentReadRepository
   extends BaseRepository<IPayment, IPaymentDocument>
-  implements IPaymentReadRepository {
+  implements IPaymentReadRepository
+{
   constructor() {
     super(PaymentModel);
   }
@@ -45,15 +46,15 @@ export class PaymentReadRepository
         : []),
       ...(filters?.startDate || filters?.endDate
         ? [
-          {
-            $match: {
-              createdAt: {
-                ...(filters.startDate ? { $gte: filters.startDate } : {}),
-                ...(filters.endDate ? { $lte: filters.endDate } : {}),
+            {
+              $match: {
+                createdAt: {
+                  ...(filters.startDate ? { $gte: filters.startDate } : {}),
+                  ...(filters.endDate ? { $lte: filters.endDate } : {}),
+                },
               },
             },
-          },
-        ]
+          ]
         : []),
       { $sort: { createdAt: -1 } },
       {

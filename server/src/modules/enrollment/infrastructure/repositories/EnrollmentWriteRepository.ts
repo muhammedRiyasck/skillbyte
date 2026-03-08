@@ -10,7 +10,8 @@ import { EnrollmentMapper } from '../../application/mappers/EnrollmentMapper';
 
 export class EnrollmentWriteRepository
   extends BaseRepository<IEnrollmentEntity, IEnrollmentDocument>
-  implements IEnrollmentWriteRepository {
+  implements IEnrollmentWriteRepository
+{
   constructor() {
     super(EnrollmentModel);
   }

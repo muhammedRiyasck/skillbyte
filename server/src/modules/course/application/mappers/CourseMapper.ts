@@ -100,7 +100,7 @@ export class CourseMapper {
       doc.description,
       doc.duration,
       doc.tags,
-      doc.status as any as CourseStatus,
+      doc.status as CourseStatus,
       doc.isBlocked,
       doc._id.toString(),
     );

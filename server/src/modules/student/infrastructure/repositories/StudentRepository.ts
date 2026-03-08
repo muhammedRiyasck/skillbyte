@@ -8,7 +8,8 @@ import { StudentMapper } from '../../application/mappers/StudentMapper';
 
 export class StudentRepository
   extends BaseRepository<Student, IStudent>
-  implements IStudentRepository {
+  implements IStudentRepository
+{
   constructor() {
     super(StudentModel);
   }

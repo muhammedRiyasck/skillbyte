@@ -6,7 +6,8 @@ import { LessonMapper } from '../../application/mappers/LessonMapper';
 
 export class LessonRepository
   extends BaseRepository<Lesson, ILessonDoc>
-  implements ILessonRepository {
+  implements ILessonRepository
+{
   constructor() {
     super(LessonModel);
   }

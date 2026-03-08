@@ -49,7 +49,7 @@ export class LessonMapper {
       doc.moduleId.toString(),
       doc.title,
       doc.description,
-      doc.contentType as any as ContentType,
+      doc.contentType as ContentType,
       doc.fileName,
       doc.order,
       doc.duration,

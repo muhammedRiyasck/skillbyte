@@ -6,7 +6,6 @@ import {
 } from '../../domain/entities/MentorshipBooking';
 import { MentorshipBookingModel } from '../models/MentorshipBookingModel';
 import { IMentorshipBookingDoc } from '../types/IMentorshipBookingDoc';
-import { Types } from 'mongoose';
 import {
   findByInstructorIdQueryType,
   findByStudentIdQueryType,
@@ -15,7 +14,8 @@ import { MentorshipMapper } from '../../application/mappers/MentorshipMapper';
 
 export class MentorshipBookingRepository
   extends BaseRepository<MentorshipBooking, IMentorshipBookingDoc>
-  implements IMentorshipBookingRepository {
+  implements IMentorshipBookingRepository
+{
   constructor() {
     super(MentorshipBookingModel);
   }

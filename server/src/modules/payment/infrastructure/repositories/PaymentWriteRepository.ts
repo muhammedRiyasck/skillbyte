@@ -7,7 +7,8 @@ import { PaymentMapper } from '../../application/mappers/PaymentMapper';
 
 export class PaymentWriteRepository
   extends BaseRepository<IPayment, IPaymentDocument>
-  implements IPaymentWriteRepository {
+  implements IPaymentWriteRepository
+{
   constructor() {
     super(PaymentModel);
   }

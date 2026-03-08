@@ -6,7 +6,8 @@ import { UserRole } from '../../../../shared/enums/UserRole';
 import { ChatMapper } from '../../application/mappers/ChatMapper';
 
 export class ConversationWriteRepository
-  implements IConversationWriteRepository {
+  implements IConversationWriteRepository
+{
   async save(conversation: IConversation): Promise<IConversation> {
     const doc = new ConversationModel(conversation);
     const saved = await doc.save();

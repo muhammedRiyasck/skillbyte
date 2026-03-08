@@ -9,7 +9,8 @@ import { NotificationMapper } from '../../application/mappers/NotificationMapper
 
 export class NotificationRepository
   extends BaseRepository<INotification, INotificationDocument>
-  implements INotificationRepository {
+  implements INotificationRepository
+{
   constructor() {
     super(NotificationModel);
   }
