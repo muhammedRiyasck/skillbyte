@@ -19,7 +19,7 @@ export async function updateCors() {
         AllowedMethods: ['PUT', 'POST', 'GET', 'HEAD'],
         AllowedHeaders: ['*'],
         ExposeHeaders: ['ETag', 'x-amz-request-id'],
-        MaxAgeSeconds: 3600,
+        MaxAgeSeconds: Number(process.env.B2_S3_MAXAGESECONDS),
       },
     ],
   };
