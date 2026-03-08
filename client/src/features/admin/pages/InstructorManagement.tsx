@@ -10,6 +10,7 @@ import type { IReqestPlayload } from "../types/IReqestPlayload";
 import { DebouncedInput } from "@/shared/ui";
 import { AdminInstructorFilter } from "@shared/enums/AdminInstructorFilter";
 import { InstructorAccountStatus } from "@shared/enums/InstructorAccountStatus";
+import type { Instructor } from "../types/IInstructor";
 
 const INSTRUCTOR_OPTIONS = [
   AdminInstructorFilter.PENDING,
@@ -35,57 +36,77 @@ const InstructorManagement: React.FC = () => {
 
   const approveMutation = useMutation({
     mutationFn: (data: IReqestPlayload) => approveRequest(data),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success("Request Approved");
-      queryClient.invalidateQueries({ queryKey: ['instructors', dropDownValue, page] });
+      queryClient.setQueriesData({ queryKey: ['instructors', dropDownValue, page] }, (oldData: { data?: { data?: Instructor[] } } | undefined) => {
+        if (!oldData?.data?.data) return oldData;
+        return {
+          ...oldData,
+          data: { ...oldData.data, data: oldData.data.data.filter((inst: Instructor) => inst.id !== variables.id) }
+        };
+      });
     },
-    onError: () => {
-      // Global toast handles this
-    }
+    onError: () => { }
   });
 
   const declineMutation = useMutation({
     mutationFn: (data: IReqestPlayload) => declineRequest(data),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success("Request Declined!!");
-      queryClient.invalidateQueries({ queryKey: ['instructors', dropDownValue, page] });
+      queryClient.setQueriesData({ queryKey: ['instructors', dropDownValue, page] }, (oldData: { data?: { data?: Instructor[] } } | undefined) => {
+        if (!oldData?.data?.data) return oldData;
+        return {
+          ...oldData,
+          data: { ...oldData.data, data: oldData.data.data.filter((inst: Instructor) => inst.id !== variables.id) }
+        };
+      });
     },
-    onError: () => {
-      // Global toast handles this
-    }
+    onError: () => { }
   });
 
   const suspendMutation = useMutation({
     mutationFn: (data: IReqestPlayload) => changeInstructorStatusRequest(data),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success("Account Suspended!!");
-      queryClient.invalidateQueries({ queryKey: ['instructors', dropDownValue, page] });
+      queryClient.setQueriesData({ queryKey: ['instructors', dropDownValue, page] }, (oldData: { data?: { data?: Instructor[] } } | undefined) => {
+        if (!oldData?.data?.data) return oldData;
+        return {
+          ...oldData,
+          data: { ...oldData.data, data: oldData.data.data.filter((inst: Instructor) => inst.id !== variables.id) }
+        };
+      });
     },
-    onError: () => {
-      // Global toast handles this
-    }
+    onError: () => { }
   });
 
   const reOpenMutation = useMutation({
     mutationFn: (data: IReqestPlayload) => changeInstructorStatusRequest(data),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success("Account ReOpened!!");
-      queryClient.invalidateQueries({ queryKey: ['instructors', dropDownValue, page] });
+      queryClient.setQueriesData({ queryKey: ['instructors', dropDownValue, page] }, (oldData: { data?: { data?: Instructor[] } } | undefined) => {
+        if (!oldData?.data?.data) return oldData;
+        return {
+          ...oldData,
+          data: { ...oldData.data, data: oldData.data.data.filter((inst: Instructor) => inst.id !== variables.id) }
+        };
+      });
     },
-    onError: () => {
-      // Global toast handles this
-    }
+    onError: () => { }
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteInstructor(id),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success("Account Deleted!!");
-      queryClient.invalidateQueries({ queryKey: ['instructors', dropDownValue, page] });
+      queryClient.setQueriesData({ queryKey: ['instructors', dropDownValue, page] }, (oldData: { data?: { data?: Instructor[] } } | undefined) => {
+        if (!oldData?.data?.data) return oldData;
+        return {
+          ...oldData,
+          data: { ...oldData.data, data: oldData.data.data.filter((inst: Instructor) => inst.id !== variables) }
+        };
+      });
     },
-    onError: () => {
-      // Global toast handles this
-    }
+    onError: () => { }
   });
 
   const handleApprove = useCallback((id: string) => {

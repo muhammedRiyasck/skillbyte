@@ -44,9 +44,22 @@ const StudentTable: React.FC<StudentTableProps> = ({
     mutationFn: async ({ id, status }: { id: string; status: UserAccountStatus }) => {
       await changeStudentStatus({ id, status });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["students"] });
-      toast.success(`User ${modalAction === "unblock" ? "Unblocked" : "Blocked"} Successfully`);
+    onSuccess: (_, variables) => {
+      queryClient.setQueriesData({ queryKey: ["students"] }, (oldData: { students?: { data?: Student[]; meta?: unknown } } | undefined) => {
+        if (!oldData?.students?.data) return oldData;
+        return {
+          ...oldData,
+          students: {
+            ...oldData.students,
+            data: oldData.students.data.map((student: Student) =>
+              student.id === variables.id
+                ? { ...student, accountStatus: variables.status }
+                : student
+            ),
+          },
+        };
+      });
+      toast.success(`User ${variables.status === UserAccountStatus.ACTIVE ? "Unblocked" : "Blocked"} Successfully`);
     },
     onError: () => {
       // Global toast handles this
