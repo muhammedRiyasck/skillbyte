@@ -227,21 +227,6 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
       className: "hidden lg:table-cell",
     },
     {
-      header: "Status",
-      accessor: (row: Instructor) => (
-        <span
-          className={`inline-flex px-6 py-2 text-lg font-semibold rounded-full ${row.approved
-            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-            : row.accountStatus === InstructorAccountStatus.PENDING
-              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-              : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-            }`}
-        >
-          {row.accountStatus}
-        </span>
-      ),
-    },
-    {
       header: "Actions",
       accessor: (row: Instructor) => {
         console.log(row);

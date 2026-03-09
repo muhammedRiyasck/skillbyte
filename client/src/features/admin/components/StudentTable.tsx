@@ -117,22 +117,9 @@ const StudentTable: React.FC<StudentTableProps> = ({
       className: "hidden md:table-cell",
     },
     {
-      header: "Registration Method",
+      header: "Registration",
       accessor: (row: Student & { index: number }) => row.registeredVia,
       className: "hidden lg:table-cell",
-    },
-    {
-      header: "Status",
-      accessor: (row: Student & { index: number }) => (
-        <p
-          className={`inline-flex px-2 py-1 text-lg font-semibold rounded-full ${row.accountStatus === UserAccountStatus.BLOCKED
-            ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-            : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-            }`}
-        >
-          {row.accountStatus}
-        </p>
-      ),
     },
     {
       header: "Actions",
