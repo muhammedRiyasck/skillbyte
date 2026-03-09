@@ -6,15 +6,15 @@ import { Link } from 'react-router-dom';
 import { ROUTES } from '../../../core/router/paths';
 
 const NotificationDropdown = () => {
-    const { 
-        notifications, 
-        unreadCount, 
-        isLoading, 
-        handleMarkAsRead, 
+    const {
+        notifications,
+        unreadCount,
+        isLoading,
+        handleMarkAsRead,
         handleMarkAllAsRead,
         refreshNotifications
     } = useNotifications();
-    
+
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -39,8 +39,8 @@ const NotificationDropdown = () => {
     const toggleDropdown = () => setIsOpen(!isOpen);
 
     return (
-        <div className="relative" ref={dropdownRef}>
-            <button 
+        <div className="relative sm:static md:relative" ref={dropdownRef}>
+            <button
                 onClick={toggleDropdown}
                 className={`relative p-2 cursor-pointer text-gray-600 hover:bg-gray-100 rounded-full dark:text-gray-300 dark:hover:bg-gray-800 transition-colors ${unreadCount > 0 ? 'bg-indigo-50/50 dark:bg-indigo-900/20 animate-bounce' : ''}`}
                 type="button"
@@ -54,20 +54,24 @@ const NotificationDropdown = () => {
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-80 md:w-96 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden">
-                   <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800">
+                <div className="
+                    absolute right-[5vw] sm:right-0 mt-2 w-[90vw] max-w-[340px] sm:w-80 md:w-96 
+                    bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 
+                    rounded-lg shadow-xl z-[100] overflow-hidden origin-top-right
+                ">
+                    <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800">
                         <h3 className="font-semibold text-gray-800 dark:text-white">Notifications</h3>
                         {unreadCount > 0 && (
-                            <button 
+                            <button
                                 onClick={handleMarkAllAsRead}
                                 className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
                             >
                                 <CheckCheck size={14} /> Mark all read
                             </button>
                         )}
-                   </div>
+                    </div>
 
-                   <div className="max-h-[400px] overflow-y-auto">
+                    <div className="max-h-[400px] overflow-y-auto">
                         {isLoading ? (
                             <div className="p-4 text-center text-gray-500">Loading...</div>
                         ) : notifications.length === 0 ? (
@@ -77,8 +81,8 @@ const NotificationDropdown = () => {
                         ) : (
                             <ul className="divide-y divide-gray-100 dark:divide-gray-800">
                                 {notifications.map((notification) => (
-                                    <li 
-                                        key={notification.id} 
+                                    <li
+                                        key={notification.id}
                                         className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${!notification.isRead ? 'bg-indigo-50/50 dark:bg-indigo-900/20' : ''}`}
                                     >
                                         <div className="flex justify-between items-start gap-3">
@@ -94,7 +98,7 @@ const NotificationDropdown = () => {
                                                 </span>
                                             </div>
                                             {!notification.isRead && (
-                                                <button 
+                                                <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         handleMarkAsRead(notification.id);
@@ -110,14 +114,14 @@ const NotificationDropdown = () => {
                                 ))}
                             </ul>
                         )}
-                   </div>
-                   
-                   <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800 px-4">
-                        
+                    </div>
+
+                    <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800 px-4">
+
                         <Link to={ROUTES.notifications} onClick={() => setIsOpen(false)} className="text-sm ml-auto text-indigo-600 dark:text-indigo-400 hover:underline">
                             View all
                         </Link>
-                   </div>
+                    </div>
                 </div>
             )}
         </div>
