@@ -8,10 +8,10 @@ import { setUser } from "..";
 import { ROUTES } from "@core/router/paths";
 import { Home } from '@shared/shimmer'
 const OAuthSuccess = () => {
-    const navigate = useNavigate();
-    const dispatch = useDispatch()
- useEffect(() => {
-    axios.get("http://localhost:4000/api/auth/me",{withCredentials:true})
+  const navigate = useNavigate();
+  const dispatch = useDispatch()
+  useEffect(() => {
+    axios.get(`${import.meta.env.VITE_API_URL}/auth/me`, { withCredentials: true })
       .then(res => {
         console.log("User:", res.data);
         toast.success("Login successful!");
@@ -24,7 +24,7 @@ const OAuthSuccess = () => {
       });
   }, [navigate, dispatch]);
 
-  return <Home/>
+  return <Home />
 
   // (
   //   <div className="flex items-center justify-center h-screen dark:bg-gray-900 bg-white text-gray-800">
@@ -35,7 +35,7 @@ const OAuthSuccess = () => {
   //       </div>
   //     <Spiner />
   //   </div>)
-        
+
 }
 
 export default OAuthSuccess

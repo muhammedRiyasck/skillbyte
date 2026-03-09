@@ -39,7 +39,7 @@ app.use(passport.session());
 
 // Webhook must be before express.json() to capture raw body
 app.post(
-  '/api/payment/stripe-webhook',
+  '/api/v1/payment/stripe-webhook',
   express.raw({ type: 'application/json' }),
   async (req, res) => {
     await paymentController.handleStripeWebhook(req, res);
@@ -67,7 +67,7 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-app.use('/api', rootRouter);
+app.use('/api/v1', rootRouter);
 
 app.use(errorHandler);
 export default app;
