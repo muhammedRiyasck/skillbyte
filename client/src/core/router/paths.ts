@@ -42,6 +42,7 @@ export const ROUTES = {
     uploadCourseContent: '/instructor/upload-courseContent',
     myCourses: '/instructor/myCourses',
     earnings: '/instructor/earnings',
+    enrollments: '/instructor/enrollments',
     mentorship: {
       slots: '/instructor/mentorship/slots',
       bookings: '/instructor/mentorship/bookings'

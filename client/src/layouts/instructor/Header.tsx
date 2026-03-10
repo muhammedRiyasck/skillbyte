@@ -3,7 +3,7 @@ import logo from "../../assets/OrginalLogo.png";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "@core/router/paths";
-import { Menu, X, LayoutDashboard, User, BookOpen, Plus, Megaphone, Calendar, LogOut, DollarSign, MessageSquare } from "lucide-react";
+import { Menu, X, LayoutDashboard, User, BookOpen, Plus, Calendar, LogOut, DollarSign, MessageSquare } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@core/store/Index";
 import { logout } from "@features/auth/services/AuthService";
@@ -26,7 +26,7 @@ const Header = () => {
   };
   return (
     <header className="w-full sticky top-0 z-50">
-      <div className=" bg-gray-50 px-4 md:px-8 dark:dark:bg-gray-800 drop-shadow-xl border-b border-b-gray-300 dark:border-b dark:border-gray-700 dark:text-white">
+      <div className=" bg-gray-50 px-4 md:px-8 dark:dark:bg-gray-800 drop-shadow-md border-b border-b-gray-300 dark:border-b dark:border-gray-700 dark:text-white">
         <div className="container min-w-full flex justify-between items-center ">
           <div className="flex items-center ">
             <Link to={ROUTES.root} className="text-gray-600 dark:text-white text-lg font-bold">
@@ -62,6 +62,31 @@ const Header = () => {
                   <LayoutDashboard size={20} className="text-indigo-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Dashboard</span>
                 </Link>
+
+                <Link to={ROUTES.instructor.earnings} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
+                  <DollarSign size={20} className="text-yellow-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">Earnings</span>
+                </Link>
+                <Link to={ROUTES.instructor.createCourseBase} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
+                  <Plus size={20} className="text-purple-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">Create Course</span>
+                </Link>
+                <Link to={ROUTES.instructor.myCourses} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
+                  <BookOpen size={20} className="text-green-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">My Courses</span>
+                </Link>
+                <Link to={ROUTES.instructor.mentorship.slots} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
+                  <Calendar size={20} className="text-teal-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">Create Slots</span>
+                </Link>
+                <Link to={ROUTES.instructor.mentorship.bookings} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
+                  <BookOpen size={20} className="text-pink-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">Mentorship Bookings</span>
+                </Link>
+                <Link to={ROUTES.instructor.enrollments} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
+                  <User size={20} className="text-red-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">Enrollments</span>
+                </Link>
                 <Link to={ROUTES.chat} className="flex items-center justify-between px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
                   <div className="flex items-center gap-3">
                     <MessageSquare size={20} className="text-blue-600 group-hover:scale-110 transition-transform" />
@@ -73,34 +98,7 @@ const Header = () => {
                     </span>
                   )}
                 </Link>
-                <Link to={ROUTES.instructor.createCourseBase} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
-                  <Plus size={20} className="text-purple-600 group-hover:scale-110 transition-transform" />
-                  <span className="font-medium">Create Course</span>
-                </Link>
-                <Link to={ROUTES.instructor.myCourses} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
-                  <BookOpen size={20} className="text-green-600 group-hover:scale-110 transition-transform" />
-                  <span className="font-medium">My Courses</span>
-                </Link>
-                <Link to={ROUTES.instructor.dashboard} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
-                  <User size={20} className="text-red-600 group-hover:scale-110 transition-transform" />
-                  <span className="font-medium">Enrollments</span>
-                </Link>
-                <Link to={ROUTES.instructor.earnings} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
-                  <DollarSign size={20} className="text-yellow-600 group-hover:scale-110 transition-transform" />
-                  <span className="font-medium">Earnings</span>
-                </Link>
-                <Link to="#" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
-                  <Megaphone size={20} className="text-orange-600 group-hover:scale-110 transition-transform" />
-                  <span className="font-medium">Announcement</span>
-                </Link>
-                <Link to={ROUTES.instructor.mentorship.slots} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
-                  <Calendar size={20} className="text-teal-600 group-hover:scale-110 transition-transform" />
-                  <span className="font-medium">Mentorship Slots</span>
-                </Link>
-                <Link to={ROUTES.instructor.mentorship.bookings} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
-                  <BookOpen size={20} className="text-pink-600 group-hover:scale-110 transition-transform" />
-                  <span className="font-medium">Mentorship Bookings</span>
-                </Link>
+
                 <Link to={ROUTES.instructor.profile} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
                   <User size={20} className="text-blue-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">My Profile</span>

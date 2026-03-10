@@ -28,6 +28,7 @@ const StudentManagement = lazy(() => import("@features/admin/pages/StudentManage
 
 import InstructorLayout from "@layouts/instructor/InstructorLayout.tsx";
 const InstructorSignup = lazy(() => import("@features/auth/pages/InstructorSignUp.tsx"));
+const InstructorDashboard = lazy(() => import("@features/instructor/pages/InstructorDashboard.tsx"));
 const InstructorEnrollments = lazy(() => import("@/features/instructor/pages/Enrollments.tsx"));
 const EarningsHistory = lazy(() => import("@/features/instructor/pages/EarningsHistory.tsx"));
 const InstructorProfile = lazy(() => import("@features/instructor/pages/Profile.tsx"));
@@ -107,14 +108,14 @@ const router = createBrowserRouter([
           </PublicRoute>
         ),
       },
-       {
-        path: ROUTES.auth.reapply, 
+      {
+        path: ROUTES.auth.reapply,
         element: (
           <PublicRoute endPoint={ROUTES.root}>
             <Fallback>
               <InstructorSignup />
             </Fallback>
-         </PublicRoute>
+          </PublicRoute>
         ),
       }
     ],
@@ -163,16 +164,16 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
-   {
-        path: ROUTES.notifications,
-        element: (
-          <ProtectedRoute roles={["student","instructor"]}>
-            <Fallback>
-              <NotificationPage />
-            </Fallback>
-          </ProtectedRoute>
-        ),
-      },
+  {
+    path: ROUTES.notifications,
+    element: (
+      <ProtectedRoute roles={["student", "instructor"]}>
+        <Fallback>
+          <NotificationPage />
+        </Fallback>
+      </ProtectedRoute>
+    ),
+  },
   // student routes
   {
     path: ROUTES.root,
@@ -202,9 +203,9 @@ const router = createBrowserRouter([
         path: ROUTES.student.checkout,
         element: (
           <ProtectedRoute roles={["student"]}>
-             <Fallback>
-               <CheckoutPage />
-             </Fallback>
+            <Fallback>
+              <CheckoutPage />
+            </Fallback>
           </ProtectedRoute>
         ),
       },
@@ -212,9 +213,9 @@ const router = createBrowserRouter([
         path: "enrollment/success",
         element: (
           <ProtectedRoute roles={["student"]}>
-             <Fallback>
-               <SuccessPage />
-             </Fallback>
+            <Fallback>
+              <SuccessPage />
+            </Fallback>
           </ProtectedRoute>
         ),
       },
@@ -261,7 +262,7 @@ const router = createBrowserRouter([
     ],
   },
   // course detail page
-   {
+  {
     path: ROUTES.course.details,
     element: (
       <ProtectedRoute roles={["student", "admin"]}>
@@ -277,7 +278,17 @@ const router = createBrowserRouter([
     element: <InstructorLayout />,
     children: [
       {
-        path: ROUTES.instructor.dashboard  ,
+        index: true,
+        element: (
+          <ProtectedRoute roles={["instructor"]}>
+            <Fallback>
+              <InstructorDashboard />
+            </Fallback>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.instructor.enrollments,
         element: (
           <ProtectedRoute roles={["instructor"]}>
             <Fallback>
@@ -287,7 +298,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: ROUTES.instructor.profile, 
+        path: ROUTES.instructor.profile,
         element: (
           <ProtectedRoute roles={["instructor"]}>
             <Fallback>
@@ -297,7 +308,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: ROUTES.instructor.createCourseBase, 
+        path: ROUTES.instructor.createCourseBase,
         element: (
           <ProtectedRoute roles={["instructor"]}>
             <Fallback>
@@ -307,7 +318,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: ROUTES.instructor.uploadCourseContent, 
+        path: ROUTES.instructor.uploadCourseContent,
         element: (
           <ProtectedRoute roles={["instructor"]}>
             <Fallback>
@@ -317,7 +328,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: ROUTES.instructor.myCourses, 
+        path: ROUTES.instructor.myCourses,
         element: (
           <ProtectedRoute roles={["instructor"]}>
             <Fallback>
@@ -379,7 +390,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: ROUTES.admin.instructorManagement, 
+        path: ROUTES.admin.instructorManagement,
         element: (
           <ProtectedRoute roles={["admin"]}>
             <Fallback>
@@ -389,7 +400,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: ROUTES.admin.studentManagement, 
+        path: ROUTES.admin.studentManagement,
         element: (
           <ProtectedRoute roles={["admin"]}>
             <Fallback>
@@ -399,7 +410,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: ROUTES.admin.courseManagement, 
+        path: ROUTES.admin.courseManagement,
         element: (
           <ProtectedRoute roles={["admin"]}>
             <Fallback>
