@@ -1,4 +1,5 @@
 import mongoose, { Document, Types } from 'mongoose';
+import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
 
 export interface IInstructor extends Document {
   _id: Types.ObjectId;
@@ -15,7 +16,7 @@ export interface IInstructor extends Document {
   resumeUrl: string | null;
   profilePictureUrl: string | null;
   isEmailVerified: boolean;
-  accountStatus: 'pending' | 'active' | 'suspended' | 'rejected';
+  accountStatus: InstructorAccountStatus;
   approved: boolean;
   suspendNote: string | null;
   rejected: boolean;
@@ -24,7 +25,11 @@ export interface IInstructor extends Document {
   doneAt: Date | null;
   averageRating: number;
   totalReviews: number;
+  totalEarnings: number;
+  withdrawnAmount: number;
   stripeAccountId: string | null;
+  isStripeVerified: boolean;
+  paypalEmail: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -55,9 +60,13 @@ const InstructorSchema = new mongoose.Schema(
     rejectedNote: { type: String, default: null },
     doneBy: { type: String, default: null }, // ID of the admin who approved
     doneAt: { type: Date, default: null }, // Timestamp of approval
-    averageRating: { type: Number, default: 0 }, // Average rating from students
-    totalReviews: { type: Number, default: 0 }, // Total number of reviews received
-    stripeAccountId: { type: String, default: null }, // Connected Stripe Account ID
+    averageRating: { type: Number, default: 0 },
+    totalReviews: { type: Number, default: 0 },
+    totalEarnings: { type: Number, default: 0 },
+    withdrawnAmount: { type: Number, default: 0 },
+    stripeAccountId: { type: String, default: null },
+    isStripeVerified: { type: Boolean, default: false },
+    paypalEmail: { type: String, default: null }, // Instructor's PayPal Email
   },
   { timestamps: true },
 );

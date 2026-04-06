@@ -1,5 +1,7 @@
-import { Instructor } from '../domain/entities/Instructor';
-import { IInstructor } from '../infrastructure/models/InstructorModel';
+// Role: Maps between Domain Entities and Database Models (Mongoose)
+
+import { Instructor } from '../../domain/entities/Instructor';
+import { IInstructor } from '../models/InstructorModel';
 
 export class InstructorMapper {
   static toEntity(doc: IInstructor): Instructor {
@@ -24,8 +26,13 @@ export class InstructorMapper {
       doc.rejectedNote || null,
       doc.doneBy || null,
       doc.doneAt || null,
-      doc.averageRating,
-      doc.totalReviews,
+      doc.averageRating || 0,
+      doc.totalReviews || 0,
+      doc.totalEarnings || 0,
+      doc.withdrawnAmount || 0,
+      doc.stripeAccountId || null,
+      doc.isStripeVerified,
+      doc.paypalEmail || null,
       doc._id.toString(),
     );
   }
@@ -55,6 +62,11 @@ export class InstructorMapper {
       doneAt: entity.doneAt,
       averageRating: entity.averageRating,
       totalReviews: entity.totalReviews,
+      totalEarnings: entity.totalEarnings,
+      withdrawnAmount: entity.withdrawnAmount,
+      stripeAccountId: entity.stripeAccountId,
+      isStripeVerified: entity.isStripeVerified,
+      paypalEmail: entity.paypalEmail,
     };
   }
 }

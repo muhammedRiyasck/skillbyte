@@ -2,7 +2,7 @@ import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { InstructorModel, IInstructor } from '../models/InstructorModel';
 import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRepository';
 import { Instructor } from '../../domain/entities/Instructor';
-import { InstructorMapper } from '../../mappers/InstructorMapper';
+import { InstructorMapper } from '../mappers/InstructorMapper';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
@@ -26,12 +26,20 @@ export class InstructorRepository
     return this.toEntity(doc);
   }
 
+  async findByStripeAccountId(
+    stripeAccountId: string,
+  ): Promise<Instructor | null> {
+    const doc = await this.model.findOne({ stripeAccountId });
+    if (!doc) return null;
+    return this.toEntity(doc);
+  }
+
   // Override to restrict fields as in original implementation
   async findById(id: string): Promise<Instructor | null> {
     const doc = await this.model
       .findById(id)
       .select(
-        'name email bio profilePictureUrl experience socialProfile subject jobTitle averageRating totalReviews',
+        'name email bio profilePictureUrl experience socialProfile subject jobTitle averageRating totalReviews totalEarnings withdrawnAmount stripeAccountId isStripeVerified paypalEmail',
       );
     if (!doc) return null;
     return this.toEntity(doc);
@@ -123,5 +131,18 @@ export class InstructorRepository
 
   async updateById(id: string, updates: Partial<Instructor>): Promise<void> {
     await this.model.findByIdAndUpdate(id, updates);
+  }
+
+  async decrementWithdrawnAmount(id: string, amount: number): Promise<void> {
+    await this.model.findByIdAndUpdate(id, {
+      $inc: { withdrawnAmount: -amount },
+    });
+  }
+
+  async updateStripeVerificationStatus(
+    id: string,
+    isVerified: boolean,
+  ): Promise<void> {
+    await this.model.findByIdAndUpdate(id, { isStripeVerified: isVerified });
   }
 }

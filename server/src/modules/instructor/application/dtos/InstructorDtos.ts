@@ -93,10 +93,15 @@ export interface InstructorResponseDto {
   phoneNumber: string | null;
   resumeUrl: string | null;
   profilePicture: string | null;
+  isStripeVerified: boolean;
+  stripeAccountId: string | null;
+  paypalEmail: string | null;
   isEmailVerified: boolean;
   accountStatus: string;
   averageRating: number;
   totalReviews: number;
+  totalEarnings: number;
+  withdrawnAmount: number;
   approved: boolean;
   rejected: boolean;
 }

@@ -24,6 +24,11 @@ export class Instructor {
     public doneAt: Date | null,
     public averageRating: number,
     public totalReviews: number,
+    public totalEarnings: number,
+    public withdrawnAmount: number,
+    public stripeAccountId: string | null,
+    public isStripeVerified: boolean,
+    public paypalEmail: string | null,
     public instructorId?: string,
   ) {}
 }

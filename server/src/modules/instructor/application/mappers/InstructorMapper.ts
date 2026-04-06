@@ -1,3 +1,5 @@
+// Role: Maps between DTOs (Data Transfer Objects) and Domain Entities.
+
 import {
   InstructorRegistrationDto,
   InstructorVerifyOtpDto,
@@ -70,10 +72,15 @@ export class InstructorMapper {
       phoneNumber: instructor.phoneNumber,
       resumeUrl: instructor.resumeUrl,
       profilePicture: instructor.profilePictureUrl,
+      isStripeVerified: instructor.isStripeVerified,
+      stripeAccountId: instructor.stripeAccountId,
+      paypalEmail: instructor.paypalEmail,
       isEmailVerified: instructor.isEmailVerified,
       accountStatus: instructor.accountStatus,
       averageRating: instructor.averageRating,
       totalReviews: instructor.totalReviews,
+      totalEarnings: instructor.totalEarnings || 0,
+      withdrawnAmount: instructor.withdrawnAmount || 0,
       approved: instructor.approved,
       rejected: instructor.rejected,
     };

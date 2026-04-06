@@ -3,6 +3,7 @@ import { Instructor } from '../entities/Instructor';
 
 export interface IInstructorRepository extends IBaseRepository<Instructor> {
   findByEmail(email: string): Promise<Instructor | null>;
+  findByStripeAccountId(stripeAccountId: string): Promise<Instructor | null>;
   findByIdAndUpdatePassword(
     id: string,
     password: string,
@@ -16,4 +17,9 @@ export interface IInstructorRepository extends IBaseRepository<Instructor> {
     note?: string,
   ): Promise<void>;
   updateById(id: string, updates: Partial<Instructor>): Promise<void>;
+  decrementWithdrawnAmount(id: string, amount: number): Promise<void>;
+  updateStripeVerificationStatus(
+    id: string,
+    isVerified: boolean,
+  ): Promise<void>;
 }
