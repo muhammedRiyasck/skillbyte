@@ -54,6 +54,7 @@ export const ROUTES = {
     instructorManagement: '/admin/instructor-management',
     studentManagement: '/admin/student-management',
     courseManagement: '/admin/course-management',
+    withdrawalManagement: '/admin/withdrawals',
   },
 } as const;
 
