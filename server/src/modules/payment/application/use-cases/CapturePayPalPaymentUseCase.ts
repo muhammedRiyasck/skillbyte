@@ -64,6 +64,8 @@ export class CapturePayPalPaymentUseCase implements ICapturePayPalPayment {
         mentorshipBookingId: payment.mentorshipBookingId,
         amount: payment.amount,
         currency: payment.currency,
+        instructorId: payment.instructorId,
+        instructorAmount: payment.instructorAmount,
         metadata: payment.metadata,
       };
 

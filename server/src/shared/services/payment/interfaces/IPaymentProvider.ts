@@ -11,4 +11,23 @@ export interface IPaymentProvider {
   ): Promise<PaymentInitiationResponse>;
 
   refund(paymentId: string): Promise<boolean>;
+
+  payout(
+    amount: number,
+    currency: string,
+    destination: string, // Stripe Account ID or PayPal Email
+  ): Promise<string>;
+
+  validateDestination(
+    destination: string,
+  ): Promise<{ isValid: boolean; reason?: string }>;
+
+  validateBalance(
+    amount: number,
+    currency: string,
+  ): Promise<{
+    isAvailable: boolean;
+    reason?: string;
+    availableAmount?: number;
+  }>;
 }

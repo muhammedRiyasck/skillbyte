@@ -7,11 +7,13 @@ import { InitiatePaymentRequest } from '../dtos/InitiatePaymentDto';
 import { IInitiatePayment } from '../interfaces/IInitiatePayment';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
 
 export class InitiatePaymentUseCase implements IInitiatePayment {
   constructor(
     private paymentRepo: IPaymentWriteRepository,
     private paymentProviderFactory: PaymentProviderFactory,
+    private instructorRepo: IInstructorRepository,
   ) {}
 
   async execute(request: InitiatePaymentRequest): Promise<{
@@ -58,8 +60,20 @@ export class InitiatePaymentUseCase implements IInitiatePayment {
 
     // 3. Initiate payment with provider
     const metadata: Record<string, string> = { userId };
-    if (courseId) metadata.courseId = courseId;
-    if (mentorshipBookingId) metadata.mentorshipBookingId = mentorshipBookingId;
+    if (courseId) {
+      metadata.courseId = courseId;
+      metadata.returnUrl = `${process.env.FRONTEND_URL}/course/purchase-success`;
+      metadata.cancelUrl = `${process.env.FRONTEND_URL}/course-details/${courseId}`;
+    }
+    if (mentorshipBookingId) {
+      metadata.mentorshipBookingId = mentorshipBookingId;
+      metadata.returnUrl = `${process.env.FRONTEND_URL}/mentorship/bookings`;
+      metadata.cancelUrl = `${process.env.FRONTEND_URL}/mentorship/bookings`;
+    }
+
+    // We are now using a manual payout system via the Withdrawal module.
+    // The platform collects 100% of the funds upfront during checkout.
+    const adminFee = amount * 0.2; // 20% platform fee
 
     const providerResponse = await provider.initiate(
       amountToCharge,
@@ -67,8 +81,7 @@ export class InitiatePaymentUseCase implements IInitiatePayment {
       metadata,
     );
 
-    // 4. Calculate fees
-    const adminFee = amount * 0.2; // 20% platform fee
+    // 4. Calculate fees (already calculated adminFee)
     const instructorAmount = amount - adminFee;
 
     // 5. Create local payment record (Pending)
@@ -78,7 +91,7 @@ export class InitiatePaymentUseCase implements IInitiatePayment {
       mentorshipBookingId,
       instructorId,
       amount,
-      currency: 'INR', // Base currency is INR
+      currency, // Use the request currency (INR or USD)
       status: PaymentStatus.PENDING,
       adminFee,
       instructorAmount,

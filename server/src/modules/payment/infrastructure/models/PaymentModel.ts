@@ -19,7 +19,7 @@ const PaymentSchema = new Schema(
       ref: 'MentorshipBooking',
     },
     amount: { type: Number, required: true },
-    currency: { type: String, default: 'inr' },
+    currency: { type: String, default: 'usd' },
     stripePaymentIntentId: { type: String },
     paypalOrderId: {
       type: String,

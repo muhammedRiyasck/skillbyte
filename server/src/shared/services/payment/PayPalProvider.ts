@@ -65,8 +65,17 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
   async initiate(
     amount: number,
     currency: string,
+    metadata: Record<string, string>,
   ): Promise<PaymentInitiationResponse> {
-    const order = await this.createOrder(amount, currency);
+    const returnUrl = metadata.returnUrl;
+    const cancelUrl = metadata.cancelUrl;
+
+    const order = await this.createOrder(
+      amount,
+      currency,
+      returnUrl,
+      cancelUrl,
+    );
     const approveLink = order.links.find((link) => link.rel === 'approve');
 
     return {
@@ -78,8 +87,17 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
   async createOrder(
     amount: number,
     currency: string = 'USD',
+    returnUrl?: string,
+    cancelUrl?: string,
   ): Promise<PayPalOrderResponse> {
     const accessToken = await this.getAccessToken();
+    const purchaseUnit: Record<string, unknown> = {
+      amount: {
+        currency_code: currency,
+        value: amount.toFixed(2),
+      },
+    };
+
     const response = await fetch(`${this.baseUrl}/v2/checkout/orders`, {
       method: 'POST',
       headers: {
@@ -88,17 +106,12 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
       },
       body: JSON.stringify({
         intent: 'CAPTURE',
-        purchase_units: [
-          {
-            amount: {
-              currency_code: currency,
-              value: amount.toFixed(2),
-            },
-          },
-        ],
+        purchase_units: [purchaseUnit],
         application_context: {
-          return_url: `${process.env.FRONTEND_URL}/mentorship/bookings`,
-          cancel_url: `${process.env.FRONTEND_URL}/mentorship/bookings`,
+          return_url:
+            returnUrl || `${process.env.FRONTEND_URL}/mentorship/bookings`,
+          cancel_url:
+            cancelUrl || `${process.env.FRONTEND_URL}/mentorship/bookings`,
         },
       }),
     });
@@ -138,8 +151,7 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data = (await response.json()) as any;
+    const data = await response.json();
 
     // Extract actual capture ID if nested
     const captureId =
@@ -175,5 +187,40 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
       logger.error('PayPal Refund Exception:', error);
       return false;
     }
+  }
+
+  async payout(
+    _amount: number,
+    _currency: string,
+    _destination: string,
+  ): Promise<string> {
+    throw new HttpError(
+      'PayPal payouts are no longer supported. Please use Stripe.',
+      HttpStatusCode.BAD_REQUEST,
+    );
+  }
+
+  async validateDestination(
+    _destination: string,
+  ): Promise<{ isValid: boolean; reason?: string }> {
+    return {
+      isValid: false,
+      reason: 'PayPal payouts are no longer supported.',
+    };
+  }
+
+  async validateBalance(
+    _amount: number,
+    _currency: string,
+  ): Promise<{
+    isAvailable: boolean;
+    reason?: string;
+    availableAmount?: number;
+  }> {
+    return {
+      isAvailable: false,
+      reason: 'PayPal payouts are no longer supported.',
+      availableAmount: 0,
+    };
   }
 }
