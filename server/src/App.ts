@@ -11,6 +11,7 @@ import { config } from 'dotenv';
 config();
 
 import errorHandler from './shared/middlewares/GlobalErrorMiddleware';
+import logger from './shared/utils/Logger';
 
 import rootRouter from './routes';
 
@@ -42,6 +43,7 @@ app.post(
   '/api/v1/payment/stripe-webhook',
   express.raw({ type: 'application/json' }),
   async (req, res) => {
+    logger.info('RAW WEBHOOK REACHED: /api/v1/payment/stripe-webhook');
     await paymentController.handleStripeWebhook(req, res);
   },
 );
