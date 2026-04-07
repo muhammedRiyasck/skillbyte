@@ -18,6 +18,10 @@ import {
   CourseUnlistedEvent,
   EnrollmentCreatedEvent,
 } from './CourseEvents';
+import {
+  WITHDRAWAL_EVENTS,
+  WithdrawalProcessedEvent,
+} from './WithdrawalEvents';
 
 // Centralized type mapping for all application events
 export interface AppEvents {
@@ -32,6 +36,12 @@ export interface AppEvents {
   [COURSE_EVENTS.COURSE_PUBLISHED]: CoursePublishedEvent;
   [COURSE_EVENTS.COURSE_UNLISTED]: CourseUnlistedEvent;
   [COURSE_EVENTS.ENROLLMENT_CREATED]: EnrollmentCreatedEvent;
+  [WITHDRAWAL_EVENTS.WITHDRAWAL_COMPLETED]: WithdrawalProcessedEvent;
+  [WITHDRAWAL_EVENTS.WITHDRAWAL_REJECTED]: WithdrawalProcessedEvent;
+  [WITHDRAWAL_EVENTS.WITHDRAWAL_PROCESSING]: WithdrawalProcessedEvent;
+  [WITHDRAWAL_EVENTS.WITHDRAWAL_FAILED]: WithdrawalProcessedEvent;
+  [WITHDRAWAL_EVENTS.WITHDRAWAL_REVERSED]: WithdrawalProcessedEvent;
+  [WITHDRAWAL_EVENTS.INSTRUCTOR_STRIPE_VERIFIED]: { instructorId: string };
 }
 
 export class EventBus {

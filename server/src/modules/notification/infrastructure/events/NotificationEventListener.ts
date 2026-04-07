@@ -18,6 +18,10 @@ import {
   CourseUnlistedEvent,
   EnrollmentCreatedEvent,
 } from '../../../../shared/services/event-bus/CourseEvents';
+import {
+  WITHDRAWAL_EVENTS,
+  WithdrawalProcessedEvent,
+} from '../../../../shared/services/event-bus/WithdrawalEvents';
 import { ICreateNotificationUseCase } from '../../application/interfaces/ICreateNotificationUseCase';
 import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentReadRepository';
 import logger from '../../../../shared/utils/Logger';
@@ -73,6 +77,37 @@ export class NotificationEventListener {
     eventBus.on(
       COURSE_EVENTS.ENROLLMENT_CREATED,
       this.onEnrollmentCreated.bind(this),
+    );
+
+    eventBus.on(
+      COURSE_EVENTS.ENROLLMENT_CREATED,
+      this.onEnrollmentCreated.bind(this),
+    );
+
+    // Withdrawal events
+    eventBus.on(
+      WITHDRAWAL_EVENTS.WITHDRAWAL_COMPLETED,
+      this.onWithdrawalCompleted.bind(this),
+    );
+    eventBus.on(
+      WITHDRAWAL_EVENTS.WITHDRAWAL_REJECTED,
+      this.onWithdrawalRejected.bind(this),
+    );
+    eventBus.on(
+      WITHDRAWAL_EVENTS.WITHDRAWAL_PROCESSING,
+      this.onWithdrawalProcessing.bind(this),
+    );
+    eventBus.on(
+      WITHDRAWAL_EVENTS.WITHDRAWAL_FAILED,
+      this.onWithdrawalFailed.bind(this),
+    );
+    eventBus.on(
+      WITHDRAWAL_EVENTS.WITHDRAWAL_REVERSED,
+      this.onWithdrawalReversed.bind(this),
+    );
+    eventBus.on(
+      WITHDRAWAL_EVENTS.INSTRUCTOR_STRIPE_VERIFIED,
+      this.onInstructorStripeVerified.bind(this),
     );
 
     logger.info('NotificationEventListener registered all listeners');
@@ -290,6 +325,111 @@ export class NotificationEventListener {
     } catch (error) {
       logger.error(
         'NotificationEventListener: onEnrollmentCreated failed',
+        error,
+      );
+    }
+  }
+
+  // ─── Withdrawal Handlers ──────────────────────────────────────────
+
+  private async onWithdrawalCompleted(payload: unknown) {
+    const event = payload as WithdrawalProcessedEvent;
+    try {
+      await this.createNotificationUseCase.execute({
+        userId: event.instructorId,
+        title: 'Withdrawal Completed',
+        message: `Your withdrawal of ${event.amount} ${event.currency} has been processed successfully. Transction ID: ${event.transactionId}`,
+        type: NotificationType.SUCCESS,
+      });
+    } catch (error) {
+      logger.error(
+        'NotificationEventListener: onWithdrawalCompleted failed',
+        error,
+      );
+    }
+  }
+
+  private async onWithdrawalRejected(payload: unknown) {
+    const event = payload as WithdrawalProcessedEvent;
+    try {
+      await this.createNotificationUseCase.execute({
+        userId: event.instructorId,
+        title: 'Withdrawal Rejected',
+        message: `Your withdrawal of ${event.amount} ${event.currency} was rejected. Reason: ${event.adminNotes || 'N/A'}. Funds have been returned to your balance.`,
+        type: NotificationType.ERROR,
+      });
+    } catch (error) {
+      logger.error(
+        'NotificationEventListener: onWithdrawalRejected failed',
+        error,
+      );
+    }
+  }
+
+  private async onWithdrawalProcessing(payload: unknown) {
+    const event = payload as WithdrawalProcessedEvent;
+    try {
+      await this.createNotificationUseCase.execute({
+        userId: event.instructorId,
+        title: 'Withdrawal Processing',
+        message: `Your withdrawal of ${event.amount} ${event.currency} is now being processed by the admin.`,
+        type: NotificationType.INFO,
+      });
+    } catch (error) {
+      logger.error(
+        'NotificationEventListener: onWithdrawalProcessing failed',
+        error,
+      );
+    }
+  }
+
+  private async onWithdrawalFailed(payload: unknown) {
+    const event = payload as WithdrawalProcessedEvent;
+    try {
+      await this.createNotificationUseCase.execute({
+        userId: event.instructorId,
+        title: 'Withdrawal Failed',
+        message: `Your withdrawal of ${event.amount} ${event.currency} could not be completed. Reason: ${event.adminNotes || 'Payout failed at the bank level.'}. Funds have been returned to your balance.`,
+        type: NotificationType.ERROR,
+      });
+    } catch (error) {
+      logger.error(
+        'NotificationEventListener: onWithdrawalFailed failed',
+        error,
+      );
+    }
+  }
+
+  private async onWithdrawalReversed(payload: unknown) {
+    const event = payload as WithdrawalProcessedEvent;
+    try {
+      await this.createNotificationUseCase.execute({
+        userId: event.instructorId,
+        title: 'Withdrawal Reversed',
+        message: `A previous withdrawal of ${event.amount} ${event.currency} was reversed at Stripe. We have adjusted your platform balance accordingly.`,
+        type: NotificationType.WARNING,
+      });
+    } catch (error) {
+      logger.error(
+        'NotificationEventListener: onWithdrawalReversed failed',
+        error,
+      );
+    }
+  }
+
+  private async onInstructorStripeVerified(payload: unknown) {
+    const event = payload as { instructorId: string };
+    try {
+      await this.createNotificationUseCase.execute({
+        userId: event.instructorId,
+        title: 'Stripe Identity Verified',
+        message:
+          'Your identity is fully verified! You can now request payouts from your earnings dashboard.',
+        type: NotificationType.INFO,
+      });
+    } catch (error) {
+      logger.error(
+        'NotificationEventListener: onInstructorStripeVerified failed',
         error,
       );
     }

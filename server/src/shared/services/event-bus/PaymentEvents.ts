@@ -5,6 +5,8 @@ export interface PaymentSucceededEvent {
   mentorshipBookingId?: string;
   amount: number;
   currency: string;
+  instructorId: string;
+  instructorAmount: number;
   metadata?: Record<string, unknown>;
 }
 
