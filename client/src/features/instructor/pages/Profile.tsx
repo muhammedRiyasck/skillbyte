@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@shared/utils/AxiosInstance";
+import { getInstructorProfile } from "../services/InstructorDashboardService";
 import { toast } from "sonner";
 import CropImageModal from "@shared/ui/CropImageModal";
 import Modal from "@shared/ui/Modal";
@@ -33,7 +34,7 @@ const Profile: React.FC = () => {
   const queryClient = useQueryClient();
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["instructor-profile"],
-    queryFn: () => api.get("/instructor/profile").then((r) => r.data?.data?.instructor),
+    queryFn: getInstructorProfile,
   });
 
   const updateMutation = useMutation({
