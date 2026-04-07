@@ -37,4 +37,18 @@ router.delete(
   asyncHandler(instructorProfileController.removeProfileImage),
 );
 
+router.post(
+  '/stripe-onboarding',
+  authenticate,
+  requireRole('instructor'),
+  asyncHandler(instructorProfileController.createStripeOnboardingLink),
+);
+
+router.post(
+  '/sync-stripe-status',
+  authenticate,
+  requireRole('instructor'),
+  asyncHandler(instructorProfileController.syncStripeStatus),
+);
+
 export default router;

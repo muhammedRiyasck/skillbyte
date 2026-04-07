@@ -1,6 +1,8 @@
 import { Response, Request } from 'express';
 import { IGetInstructorProfileUseCase } from '../../application/interfaces/IGetInstructorProfileUseCase';
 import { IUpdateInstructorProfileUseCase } from '../../application/interfaces/IUpdateInstructorProfileUseCase';
+import { CreateStripeOnboardingLinkUseCase } from '../../application/use-cases/CreateStripeOnboardingLinkUseCase';
+import { ISyncStripeAccountStatusUseCase } from '../../application/interfaces/ISyncStripeAccountStatusUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
@@ -24,6 +26,8 @@ export class InstructorProfileController {
   constructor(
     private readonly _getInstructorProfileUseCase: IGetInstructorProfileUseCase,
     private readonly _updateInstructorProfileUseCase: IUpdateInstructorProfileUseCase,
+    private readonly _createStripeOnboardingLinkUseCase: CreateStripeOnboardingLinkUseCase,
+    private readonly _syncStripeStatusUseCase: ISyncStripeAccountStatusUseCase,
     private readonly _storageService: IStorageService,
   ) {}
 
@@ -33,8 +37,8 @@ export class InstructorProfileController {
    * @param res - Express response object.
    */
   getProfile = async (req: Request, res: Response): Promise<void> => {
-    const AuthenticatedRequest = req as AuthenticatedRequest;
-    const instructorId = AuthenticatedRequest.user.id;
+    const authenticatedRequest = req as AuthenticatedRequest;
+    const instructorId = authenticatedRequest.user.id;
     const instructor =
       await this._getInstructorProfileUseCase.execute(instructorId);
     if (!instructor) {
@@ -56,11 +60,11 @@ export class InstructorProfileController {
    * @param res - Express response object.
    */
   updateProfile = async (req: Request, res: Response): Promise<void> => {
-    const AuthenticatedRequest = req as AuthenticatedRequest;
-    const instructorId = AuthenticatedRequest.user.id;
+    const authenticatedRequest = req as AuthenticatedRequest;
+    const instructorId = authenticatedRequest.user.id;
 
     const validatedData = InstructorProfileUpdateSchema.parse(
-      AuthenticatedRequest.body,
+      authenticatedRequest.body,
     );
     const updates = InstructorMapper.toUpdateProfileEntity(validatedData);
 
@@ -74,9 +78,9 @@ export class InstructorProfileController {
    * @param res - Express response object.
    */
   uploadProfileImage = async (req: Request, res: Response): Promise<void> => {
-    const AuthenticatedRequest = req as AuthenticatedRequest;
-    const instructorId = AuthenticatedRequest.user.id;
-    const file = AuthenticatedRequest.file;
+    const authenticatedRequest = req as AuthenticatedRequest;
+    const instructorId = authenticatedRequest.user.id;
+    const file = authenticatedRequest.file;
     if (!file) {
       throw new HttpError(
         ERROR_MESSAGES.NO_FILE_UPLOADED,
@@ -117,8 +121,8 @@ export class InstructorProfileController {
    * @param res - Express response object.
    */
   removeProfileImage = async (req: Request, res: Response): Promise<void> => {
-    const AuthenticatedRequest = req as AuthenticatedRequest;
-    const instructorId = AuthenticatedRequest.user.id;
+    const authenticatedRequest = req as AuthenticatedRequest;
+    const instructorId = authenticatedRequest.user.id;
     const instructor =
       await this._getInstructorProfileUseCase.execute(instructorId);
     if (!instructor) {
@@ -143,5 +147,36 @@ export class InstructorProfileController {
       });
     }
     ApiResponseHelper.success(res, 'Profile image removed');
+  };
+
+  /**
+   * Creates a Stripe onboarding link for the authenticated instructor.
+   * @param req - Authenticated request object.
+   * @param res - Express response object.
+   */
+  createStripeOnboardingLink = async (
+    req: Request,
+    res: Response,
+  ): Promise<void> => {
+    const authenticatedRequest = req as AuthenticatedRequest;
+    const instructorId = authenticatedRequest.user.id;
+    const url =
+      await this._createStripeOnboardingLinkUseCase.execute(instructorId);
+    ApiResponseHelper.success(res, 'Onboarding link created successfully', {
+      url,
+    });
+  };
+
+  /**
+   * Manually synchronizes the Stripe verification status for the instructor.
+   */
+  syncStripeStatus = async (req: Request, res: Response): Promise<void> => {
+    const AuthenticatedRequest = req as AuthenticatedRequest;
+    const instructorId = AuthenticatedRequest.user.id;
+    const isVerified =
+      await this._syncStripeStatusUseCase.execute(instructorId);
+    ApiResponseHelper.success(res, 'Stripe status synchronized successfully', {
+      isVerified,
+    });
   };
 }
