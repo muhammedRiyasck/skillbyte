@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { UserRole } from '../enums/UserRole';
 
 /**
  * Zod schema for validating login data.
@@ -6,7 +7,7 @@ import { z } from 'zod';
 export const LoginSchema = z.object({
   email: z.string().email('Invalid email format'),
   password: z.string().min(1, 'Password is required'),
-  role: z.enum(['student', 'instructor'], {
+  role: z.enum([UserRole.STUDENT, UserRole.INSTRUCTOR], {
     message: 'Role must be student or instructor',
   }),
 });
@@ -23,7 +24,7 @@ export const ResendOtpSchema = z.object({
  */
 export const ForgotPasswordSchema = z.object({
   email: z.string().email('Invalid email format'),
-  role: z.enum(['student', 'instructor'], {
+  role: z.enum([UserRole.STUDENT, UserRole.INSTRUCTOR], {
     message: 'Role must be student or instructor',
   }),
 });
@@ -40,7 +41,7 @@ export const ResetPasswordSchema = z.object({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
       'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
     ),
-  role: z.enum(['student', 'instructor'], {
+  role: z.enum([UserRole.STUDENT, UserRole.INSTRUCTOR], {
     message: 'Role must be student or instructor',
   }),
 });

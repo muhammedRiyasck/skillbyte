@@ -20,6 +20,7 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { Student } from '../../../student/domain/entities/Student';
 import { Instructor } from '../../../instructor/domain/entities/Instructor';
 import { AuthMapper } from '../../application/mappers/AuthMapper';
+import { UserRole } from '../../../../shared/enums/UserRole';
 
 export class CommonAuthController {
   constructor(
@@ -39,7 +40,7 @@ export class CommonAuthController {
    */
   amILoggedIn = async (req: Request, res: Response): Promise<void> => {
     logger.info(`AmILoggedIn check from IP: ${req.ip}`);
-    const decodedUserData = req.user as { id: string; role: string };
+    const decodedUserData = req.user as { id: string; role: UserRole };
     const user = await this._amILoggedInUseCase.execute(
       decodedUserData.id,
       decodedUserData.role,

@@ -14,6 +14,7 @@ import { IPaymentProvider } from '../../../../shared/services/payment/interfaces
 import { IPayPalProvider } from '../../../../shared/services/payment/interfaces/IPayPalProvider';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import logger from '../../../../shared/utils/Logger';
 
 export class CancelBookingUseCase implements ICancelBookingUseCase {
   constructor(
@@ -68,12 +69,22 @@ export class CancelBookingUseCase implements ICancelBookingUseCase {
           let refundSuccess = false;
 
           if (payment.stripePaymentIntentId) {
+            logger.info(
+              `Initiating Stripe refund for payment ${payment.paymentId}`,
+            );
             refundSuccess = await this.stripeProvider.refund(
               payment.stripePaymentIntentId,
             );
           } else if (payment.paypalCaptureId) {
+            logger.info(
+              `Initiating PayPal refund for payment ${payment.paymentId}`,
+            );
             refundSuccess = await this.paypalProvider.refund(
               payment.paypalCaptureId,
+            );
+          } else {
+            logger.warn(
+              `No provider transaction ID found for refund on payment ${payment.paymentId}`,
             );
           }
 
@@ -82,6 +93,7 @@ export class CancelBookingUseCase implements ICancelBookingUseCase {
               payment.paymentId!,
               PaymentStatus.REFUNDED,
             );
+            logger.info(`Refund successful for payment ${payment.paymentId}`);
           } else {
             throw new HttpError('Refund failed', HttpStatusCode.BAD_REQUEST);
           }
