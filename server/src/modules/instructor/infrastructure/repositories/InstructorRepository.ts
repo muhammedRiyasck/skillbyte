@@ -39,7 +39,7 @@ export class InstructorRepository
     const doc = await this.model
       .findById(id)
       .select(
-        'name email bio profilePictureUrl experience socialProfile subject jobTitle averageRating totalReviews totalEarnings withdrawnAmount stripeAccountId isStripeVerified paypalEmail',
+        'name email bio profilePictureUrl experience socialProfile subject jobTitle averageRating totalReviews totalEarnings withdrawnAmount stripeAccountId isStripeVerified',
       );
     if (!doc) return null;
     return this.toEntity(doc);
@@ -108,14 +108,6 @@ export class InstructorRepository
       doneBy: adminId,
       doneAt: new Date(),
     });
-  }
-
-  async findAllApproved(): Promise<Instructor[] | null> {
-    const docs = await this.model
-      .find({ approved: true })
-      .select('-passwordHash');
-    if (!docs) return null;
-    return docs.map((doc) => this.toEntity(doc));
   }
 
   async changeInstructorStatus(

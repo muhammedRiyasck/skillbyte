@@ -29,7 +29,6 @@ export interface IInstructor extends Document {
   withdrawnAmount: number;
   stripeAccountId: string | null;
   isStripeVerified: boolean;
-  paypalEmail: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -66,7 +65,6 @@ const InstructorSchema = new mongoose.Schema(
     withdrawnAmount: { type: Number, default: 0 },
     stripeAccountId: { type: String, default: null },
     isStripeVerified: { type: Boolean, default: false },
-    paypalEmail: { type: String, default: null }, // Instructor's PayPal Email
   },
   { timestamps: true },
 );

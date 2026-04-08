@@ -28,7 +28,6 @@ export class Instructor {
     public withdrawnAmount: number,
     public stripeAccountId: string | null,
     public isStripeVerified: boolean,
-    public paypalEmail: string | null,
     public instructorId?: string,
   ) {}
 }

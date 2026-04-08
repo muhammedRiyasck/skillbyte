@@ -32,7 +32,6 @@ export class InstructorMapper {
       doc.withdrawnAmount || 0,
       doc.stripeAccountId || null,
       doc.isStripeVerified,
-      doc.paypalEmail || null,
       doc._id.toString(),
     );
   }
@@ -66,7 +65,6 @@ export class InstructorMapper {
       withdrawnAmount: entity.withdrawnAmount,
       stripeAccountId: entity.stripeAccountId,
       isStripeVerified: entity.isStripeVerified,
-      paypalEmail: entity.paypalEmail,
     };
   }
 }
