@@ -95,7 +95,6 @@ export interface InstructorResponseDto {
   profilePicture: string | null;
   isStripeVerified: boolean;
   stripeAccountId: string | null;
-  paypalEmail: string | null;
   isEmailVerified: boolean;
   accountStatus: string;
   averageRating: number;

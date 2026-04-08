@@ -74,7 +74,6 @@ export class InstructorMapper {
       profilePicture: instructor.profilePictureUrl,
       isStripeVerified: instructor.isStripeVerified,
       stripeAccountId: instructor.stripeAccountId,
-      paypalEmail: instructor.paypalEmail,
       isEmailVerified: instructor.isEmailVerified,
       accountStatus: instructor.accountStatus,
       averageRating: instructor.averageRating,

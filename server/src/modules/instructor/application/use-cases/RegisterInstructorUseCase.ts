@@ -14,6 +14,7 @@ import {
 } from '../../../../shared/services/job-queue/JobTypes';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { TempInstructorData } from '../../../../shared/services/otp/interfaces/ITempInstructorData ';
+import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
 
 /**
  * Use case for registering a new instructor.
@@ -62,14 +63,6 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
         HttpStatusCode.BAD_REQUEST,
       );
     }
-    const responseLength = Object.entries(dto).length;
-    if (responseLength !== 11) {
-      throw new HttpError(
-        "Some data's are missing",
-        HttpStatusCode.BAD_REQUEST,
-      );
-    }
-
     // Validate the registration data using Zod schema
     const validationResult = InstructorRegistrationSchema.safeParse(dto);
     if (!validationResult.success) {
@@ -97,15 +90,19 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
       null, // resumeUrl - will be set asynchronously
       validationResult.data.profilePictureUrl || null,
       true, // isEmailVerified
-      'pending', // accountStatus
+      InstructorAccountStatus.PENDING, // accountStatus
       false, // not approved
       null, // approvalNotes
       false, // not rejected
       null, // rejectedNote
-      null, // approvedBy
-      null, // approvedAt
+      null, // doneBy
+      null, // doneAt
       0, // avg rating
       0, // total reviews
+      0, // total earnings
+      0, // withdrawn amount
+      null, // stripeAccountId
+      false, // isStripeVerified
     );
 
     const savedInstructor = await this._instructorRepo.save(instructor);
