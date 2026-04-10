@@ -1,11 +1,15 @@
 import { ROUTES } from "@/core/router/paths";
 import { BookOpen, Calendar, TrendingUp, Users } from "lucide-react";
 
- export function getStats(totalProfit: number, totalStudents: number, courses:[], bookings:[]) {
+export function getStats(totalProfitUSD: number, totalStudents: number, courses: [], bookings: []) {
+    const USD_TO_INR = 83;
+    const totalProfitINR = Math.round(totalProfitUSD * USD_TO_INR);
+    
     return [
         {
             label: 'Net Profit',
-            value: `₹${totalProfit.toLocaleString()}`,
+            value: `$${totalProfitUSD.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+            subValue: `₹${totalProfitINR.toLocaleString()}`,
             icon: TrendingUp,
             color: 'text-green-600',
             bgColor: 'bg-green-100 dark:bg-green-900/30',

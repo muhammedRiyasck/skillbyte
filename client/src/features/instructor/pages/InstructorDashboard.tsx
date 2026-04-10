@@ -27,13 +27,15 @@ import { toast } from 'sonner';
 import Spiner from '@shared/ui/Spiner';
 import { getStats } from '../constants/instructorDashboard';
 import { useSocket } from '../../../context/SocketContext';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 interface DashboardEarnings {
     id: string;
     studentName: string;
     productName: string;
     instructorAmount: number;
+    currency: string;
+    convertedAmount?: number;
     createdAt: string;
 }
 
@@ -57,9 +59,12 @@ const InstructorDashboard: React.FC = () => {
     const queryClient = useQueryClient();
     const { socket } = useSocket();
 
-    const { data: earningsData, isLoading: earningsLoading } = useQuery({
+    const [withdrawalPage, setWithdrawalPage] = useState(1);
+    const withdrawalLimit = 5;
+
+    const { data: earningsData } = useQuery<any>({
         queryKey: ['instructor-dashboard-earnings'],
-        queryFn: getDashboardEarnings
+        queryFn: () => getDashboardEarnings()
     });
 
     const { data: enrollmentData, isLoading: enrollmentLoading } = useQuery({
@@ -77,10 +82,7 @@ const InstructorDashboard: React.FC = () => {
         queryFn: getInstructorProfile
     });
 
-    const [withdrawalPage, setWithdrawalPage] = useState(1);
-    const withdrawalLimit = 5;
-
-    const { data: withdrawalsData, isFetching: withdrawalsFetching ,refetch } = useQuery({
+    const { data: withdrawalsData, isFetching: withdrawalsFetching, refetch } = useQuery<any>({
         queryKey: ['instructor-withdrawals', withdrawalPage],
         queryFn: () => getMyWithdrawals(withdrawalPage, withdrawalLimit),
         placeholderData: keepPreviousData
@@ -90,13 +92,11 @@ const InstructorDashboard: React.FC = () => {
         if (!socket) return;
 
         const handleNotification = (notification: { title?: string }) => {
-            // Refresh data on withdrawal or identity verification notifications
             const shouldRefresh = 
                 (notification.title && notification.title.includes('Withdrawal')) ||
                 (notification.title && notification.title.includes('Verified'));
 
             if (shouldRefresh) {
-                console.log('Real-time update: Notification received, refreshing dashboard...');
                 queryClient.invalidateQueries({ queryKey: ['instructor-profile'] });
                 queryClient.invalidateQueries({ queryKey: ['instructor-withdrawals'] });
                 queryClient.invalidateQueries({ queryKey: ['instructor-dashboard-earnings'] });
@@ -136,6 +136,7 @@ const InstructorDashboard: React.FC = () => {
             setIsWithdrawing(true);
             await requestWithdrawal(amount);
             toast.success('Withdrawal request submitted! It will be processed soon.');
+            refetch();
         } catch (error: unknown) {
             const err = error as { response?: { data?: { message?: string } } };
             toast.error(err.response?.data?.message || 'Failed to request withdrawal');
@@ -186,8 +187,26 @@ const InstructorDashboard: React.FC = () => {
 
     const instructor = profileData;
     const availableBalance = (instructor?.totalEarnings || 0) - (instructor?.withdrawnAmount || 0);
+    const USD_TO_INR = 83;
+    const availableBalanceINR = Math.round(availableBalance * USD_TO_INR);
 
     const stats = getStats(totalProfit, totalStudents, courses, bookings);
+
+    const chartData = useMemo(() => {
+        if (!earnings || earnings.length === 0) return [];
+        const grouped = earnings.reduce((acc: any, curr: DashboardEarnings) => {
+            const date = new Date(curr.createdAt).toLocaleDateString();
+            const amountInUSD = curr.currency === 'INR' 
+                ? (curr.convertedAmount || curr.instructorAmount / USD_TO_INR)
+                : curr.instructorAmount;
+            acc[date] = (acc[date] || 0) + amountInUSD;
+            return acc;
+        }, {});
+        return Object.entries(grouped)
+            .map(([date, amount]) => ({ date, amount: amount as number }))
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+            .slice(-7);
+    }, [earnings]);
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-800 p-6">
@@ -269,14 +288,6 @@ const InstructorDashboard: React.FC = () => {
                     </div>
                 )}
 
-                {/* Failed Banner if returned from Stripe */}
-                {window.location.search.includes('stripe=failed') && (
-                    <div className="mb-8 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-4 flex items-center gap-4 text-red-700 dark:text-red-300">
-                        <AlertCircle className="w-6 h-6" />
-                        <p className="font-bold">Payout method verification failed. Please try again.</p>
-                    </div>
-                )}
-
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                     {stats.map((stat) => (
@@ -293,7 +304,12 @@ const InstructorDashboard: React.FC = () => {
                             </div>
                             <div>
                                 <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">{stat.label}</p>
-                                <p className="text-3xl font-black text-gray-900 dark:text-gray-100">{stat.value}</p>
+                                <div className="flex items-baseline gap-2">
+                                    <p className="text-3xl font-black text-gray-900 dark:text-gray-100">{stat.value}</p>
+                                    {(stat as any).subValue && (
+                                        <p className="text-sm font-bold text-gray-400">{(stat as any).subValue}</p>
+                                    )}
+                                </div>
                             </div>
                         </Link>
                     ))}
@@ -324,7 +340,21 @@ const InstructorDashboard: React.FC = () => {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-right">
-                                                    <p className="font-black text-green-600 dark:text-green-400">${item.instructorAmount}</p>
+                                                    {item.currency === 'INR' ? (
+                                                        <>
+                                                            <p className="font-black text-green-600 dark:text-green-400">₹{item.instructorAmount.toLocaleString()}</p>
+                                                            <p className="text-[10px] text-gray-400 font-bold">
+                                                                ≈ ${item.convertedAmount ? item.convertedAmount.toLocaleString() : (item.instructorAmount / USD_TO_INR).toFixed(2)}
+                                                            </p>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <p className="font-black text-green-600 dark:text-green-400">${item.instructorAmount.toLocaleString()}</p>
+                                                            <p className="text-[10px] text-gray-400 font-bold">
+                                                                ≈ ₹{Math.round(item.instructorAmount * USD_TO_INR).toLocaleString()}
+                                                            </p>
+                                                        </>
+                                                    )}
                                                     <p className="text-[10px] text-gray-400 font-bold">{new Date(item.createdAt).toLocaleDateString()}</p>
                                                 </td>
                                             </tr>
@@ -343,6 +373,7 @@ const InstructorDashboard: React.FC = () => {
                             <div className="relative z-10">
                                 <p className="text-teal-100 font-bold uppercase tracking-wider text-sm mb-2">Available to Withdraw (in USD)</p>
                                 <h2 className="text-5xl font-black mb-1">${availableBalance.toLocaleString()}</h2>
+                                <p className="text-teal-100 text-sm font-bold opacity-80 mb-6">≈ ₹{availableBalanceINR.toLocaleString()}</p>
                                 <p className="text-teal-200 text-[10px] font-bold uppercase mb-6 opacity-80">All international earnings are automatically converted to USD for withdrawal.</p>
                                 <button
                                     onClick={() => handleRequestWithdrawal(availableBalance)}
@@ -357,12 +388,6 @@ const InstructorDashboard: React.FC = () => {
                                         Minimum withdrawal amount is $10
                                     </p>
                                 )}
-                                {instructor?.stripeAccountId && !instructor?.isStripeVerified && (
-                                    <p className="mt-4 text-red-100 text-xs font-bold flex items-center gap-2">
-                                        <AlertCircle className="w-4 h-4" />
-                                        Payouts disabled: Identity verification required
-                                    </p>
-                                )}
                             </div>
                             <div className="absolute -bottom-12 -right-12 w-48 h-48 bg-white/10 rounded-full blur-2xl"></div>
                         </div>
@@ -370,7 +395,6 @@ const InstructorDashboard: React.FC = () => {
                         <div className="bg-white dark:bg-gray-700 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-600 overflow-hidden">
                             <div className="p-8 border-b border-gray-100 dark:border-gray-600 flex justify-between items-center">
                                 <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Recent Withdrawals</h2>
-                                {/*  refresh button */}
                                 <button
                                     onClick={() => refetch()}
                                     className="bg-white text-teal-600 px-8 py-3 cursor-pointer rounded-2xl font-black hover:bg-teal-50 transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:scale-100 disabled:cursor-not-allowed"
@@ -393,10 +417,11 @@ const InstructorDashboard: React.FC = () => {
                                             <div className="overflow-x-auto">
                                                 <table className="w-full text-left">
                                                     <tbody className="divide-y divide-gray-100 dark:divide-gray-600">
-                                                        {withdrawals.map((w: { _id: string; amount: number; status: string; createdAt: string; adminNotes?: string; payoutMethod: string; payoutDetails: string }) => (
+                                                        {withdrawals.map((w: any) => (
                                                             <tr key={w._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                                                                 <td className="px-6 py-4">
                                                                     <p className="font-bold text-sm text-gray-900 dark:text-gray-100">${w.amount.toLocaleString()}</p>
+                                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">≈ ₹{Math.round(w.amount * USD_TO_INR).toLocaleString()}</p>
                                                                     <div className="flex items-center gap-2 mt-1">
                                                                         <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
                                                                             w.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
@@ -410,11 +435,6 @@ const InstructorDashboard: React.FC = () => {
                                                                         </span>
                                                                         <span className="text-[10px] text-gray-400 font-bold">{new Date(w.createdAt).toLocaleDateString()}</span>
                                                                     </div>
-                                                                    {w.adminNotes && (
-                                                                        <p className="text-[10px] text-gray-500 italic mt-1 line-clamp-1" title={w.adminNotes}>
-                                                                            Note: {w.adminNotes}
-                                                                        </p>
-                                                                    )}
                                                                 </td>
                                                                 <td className="px-6 py-4 text-right">
                                                                     <p className="text-[10px] font-bold text-gray-400 uppercase">{w.payoutMethod}</p>
