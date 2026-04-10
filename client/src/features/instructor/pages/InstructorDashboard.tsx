@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
     BookOpen,
@@ -80,9 +80,10 @@ const InstructorDashboard: React.FC = () => {
     const [withdrawalPage, setWithdrawalPage] = useState(1);
     const withdrawalLimit = 5;
 
-    const { data: withdrawalsData, isLoading: withdrawalsLoading ,refetch } = useQuery({
+    const { data: withdrawalsData, isFetching: withdrawalsFetching ,refetch } = useQuery({
         queryKey: ['instructor-withdrawals', withdrawalPage],
-        queryFn: () => getMyWithdrawals(withdrawalPage, withdrawalLimit)
+        queryFn: () => getMyWithdrawals(withdrawalPage, withdrawalLimit),
+        placeholderData: keepPreviousData
     });
 
     useEffect(() => {
@@ -163,7 +164,8 @@ const InstructorDashboard: React.FC = () => {
         }
     };
 
-    const isLoading = earningsLoading || enrollmentLoading || bookingsLoading || profileLoading || withdrawalsLoading;
+    const isInitialLoading = profileLoading || enrollmentLoading || bookingsLoading;
+    const isLoading = isInitialLoading && !profileData;
 
     if (isLoading) {
         return (
@@ -376,70 +378,80 @@ const InstructorDashboard: React.FC = () => {
                                     <RefreshCw className="w-4 h-4" />
                                 </button>
                             </div>
-                            <div className="p-2">
-                                {withdrawals.length > 0 ? (
-                                    <>
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full text-left">
-                                                <tbody className="divide-y divide-gray-100 dark:divide-gray-600">
-                                                    {withdrawals.map((w: { _id: string; amount: number; status: string; createdAt: string; adminNotes?: string; payoutMethod: string; payoutDetails: string }) => (
-                                                        <tr key={w._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
-                                                            <td className="px-6 py-4">
-                                                                <p className="font-bold text-sm text-gray-900 dark:text-gray-100">${w.amount.toLocaleString()}</p>
-                                                                <div className="flex items-center gap-2 mt-1">
-                                                                    <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                                                                        w.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
-                                                                        w.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                                                                        w.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
-                                                                        w.status === 'PROCESSING' ? 'bg-blue-100 text-blue-700' :
-                                                                        w.status === 'FAILED' ? 'bg-red-100 text-red-800' :
-                                                                        'bg-gray-100 text-gray-600'
-                                                                    }`}>
-                                                                        {w.status}
-                                                                    </span>
-                                                                    <span className="text-[10px] text-gray-400 font-bold">{new Date(w.createdAt).toLocaleDateString()}</span>
-                                                                </div>
-                                                                {w.adminNotes && (
-                                                                    <p className="text-[10px] text-gray-500 italic mt-1 line-clamp-1" title={w.adminNotes}>
-                                                                        Note: {w.adminNotes}
-                                                                    </p>
-                                                                )}
-                                                            </td>
-                                                            <td className="px-6 py-4 text-right">
-                                                                <p className="text-[10px] font-bold text-gray-400 uppercase">{w.payoutMethod}</p>
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
+                            <div className="relative min-h-[400px]">
+                                {/* Local Loading Overlay */}
+                                {withdrawalsFetching && (
+                                    <div className="absolute inset-0 z-10 bg-white/40 dark:bg-slate-800/40 backdrop-blur-[1px] flex items-center justify-center">
+                                        <div className="bg-white dark:bg-slate-700 p-3 rounded-2xl shadow-xl border border-slate-100 dark:border-slate-600">
+                                            <RefreshCw className="w-6 h-6 text-indigo-600 animate-spin" />
                                         </div>
-                                        {totalWithdrawals > withdrawalLimit && (
-                                            <div className="p-4 border-t border-gray-100 dark:border-gray-600 flex items-center justify-between">
-                                                <p className="text-[10px] text-gray-400 font-bold uppercase">
-                                                    Showing {withdrawalPage*withdrawalLimit-(withdrawalLimit-withdrawals.length)} of {totalWithdrawals}
-                                                </p>
-                                                <div className="flex gap-2">
-                                                    <button
-                                                        onClick={() => setWithdrawalPage(p => Math.max(1, p - 1))}
-                                                        disabled={withdrawalPage === 1}
-                                                        className="p-1.5 rounded-lg border border-gray-100 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-30 cursor-pointer"
-                                                    >
-                                                        <ChevronLeft className="w-4 h-4 text-gray-500" />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setWithdrawalPage(p => Math.min(totalWithdrawalPages, p + 1))}
-                                                        disabled={withdrawalPage === totalWithdrawalPages}
-                                                        className="p-1.5 rounded-lg border border-gray-100 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-30 cursor-pointer"
-                                                    >
-                                                        <ChevronRight className="w-4 h-4 text-gray-500" />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </>
-                                ) : (
-                                    <div className="py-12 text-center text-gray-400 font-bold text-sm">No withdrawals yet</div>
+                                    </div>
                                 )}
+                                <div className="p-2">
+                                    {withdrawals.length > 0 ? (
+                                        <>
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-left">
+                                                    <tbody className="divide-y divide-gray-100 dark:divide-gray-600">
+                                                        {withdrawals.map((w: { _id: string; amount: number; status: string; createdAt: string; adminNotes?: string; payoutMethod: string; payoutDetails: string }) => (
+                                                            <tr key={w._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                                                                <td className="px-6 py-4">
+                                                                    <p className="font-bold text-sm text-gray-900 dark:text-gray-100">${w.amount.toLocaleString()}</p>
+                                                                    <div className="flex items-center gap-2 mt-1">
+                                                                        <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                                                                            w.status === 'COMPLETED' ? 'bg-green-100 text-green-700' :
+                                                                            w.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                                                                            w.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' :
+                                                                            w.status === 'PROCESSING' ? 'bg-blue-100 text-blue-700' :
+                                                                            w.status === 'FAILED' ? 'bg-red-100 text-red-800' :
+                                                                            'bg-gray-100 text-gray-600'
+                                                                        }`}>
+                                                                            {w.status}
+                                                                        </span>
+                                                                        <span className="text-[10px] text-gray-400 font-bold">{new Date(w.createdAt).toLocaleDateString()}</span>
+                                                                    </div>
+                                                                    {w.adminNotes && (
+                                                                        <p className="text-[10px] text-gray-500 italic mt-1 line-clamp-1" title={w.adminNotes}>
+                                                                            Note: {w.adminNotes}
+                                                                        </p>
+                                                                    )}
+                                                                </td>
+                                                                <td className="px-6 py-4 text-right">
+                                                                    <p className="text-[10px] font-bold text-gray-400 uppercase">{w.payoutMethod}</p>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            {totalWithdrawals > withdrawalLimit && (
+                                                <div className="p-4 border-t border-gray-100 dark:border-gray-600 flex items-center justify-between">
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase">
+                                                        Showing {withdrawalPage*withdrawalLimit-(withdrawalLimit-withdrawals.length)} of {totalWithdrawals}
+                                                    </p>
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => setWithdrawalPage(p => Math.max(1, p - 1))}
+                                                            disabled={withdrawalPage === 1}
+                                                            className="p-1.5 rounded-lg border border-gray-100 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-30 cursor-pointer"
+                                                        >
+                                                            <ChevronLeft className="w-4 h-4 text-gray-500" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setWithdrawalPage(p => Math.min(totalWithdrawalPages, p + 1))}
+                                                            disabled={withdrawalPage === totalWithdrawalPages}
+                                                            className="p-1.5 rounded-lg border border-gray-100 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-30 cursor-pointer"
+                                                        >
+                                                            <ChevronRight className="w-4 h-4 text-gray-500" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <div className="py-12 text-center text-gray-400 font-bold text-sm">No withdrawals yet</div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
