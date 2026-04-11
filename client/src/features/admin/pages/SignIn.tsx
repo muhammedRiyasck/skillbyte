@@ -41,7 +41,7 @@ const Login: React.FC = () => {
           const response = await login({email,password})
           console.log(response)
           dispatch(setUser(response?.data))
-          navigate(ROUTES.admin.studentManagement)
+          navigate(ROUTES.admin.dashboard)
           toast.success(response.message)
       }
 
