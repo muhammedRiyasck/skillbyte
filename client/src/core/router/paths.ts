@@ -51,6 +51,7 @@ export const ROUTES = {
 
   admin: {
     signIn: '/admin',
+    dashboard: '/admin/dashboard',
     instructorManagement: '/admin/instructor-management',
     studentManagement: '/admin/student-management',
     courseManagement: '/admin/course-management',

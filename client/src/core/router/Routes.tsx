@@ -22,6 +22,7 @@ const VideoCallPage = lazy(() => import("@features/video-call/pages/VideoCallPag
 
 import AdminLayout from "@layouts/admin/AdminLayout.tsx";
 const AdminSignIn = lazy(() => import("@features/admin/pages/SignIn.tsx"));
+const AdminDashboard = lazy(() => import("@features/admin/pages/Dashboard.tsx"));
 const AdminCourses = lazy(() => import("@features/course/pages/AdminCourses.tsx"));
 const InstructorManagement = lazy(() => import("@features/admin/pages/InstructorManagement.tsx"));
 const StudentManagement = lazy(() => import("@features/admin/pages/StudentManagement.tsx"));
@@ -383,11 +384,21 @@ const router = createBrowserRouter([
       {
         index: true,
         element: (
-          <PublicRoute endPoint={ROUTES.admin.courseManagement}>
+          <PublicRoute endPoint={ROUTES.admin.dashboard}>
             <Fallback>
               <AdminSignIn />
             </Fallback>
           </PublicRoute>
+        ),
+      },
+      {
+        path: ROUTES.admin.dashboard,
+        element: (
+          <ProtectedRoute roles={["admin"]}>
+            <Fallback>
+              <AdminDashboard />
+            </Fallback>
+          </ProtectedRoute>
         ),
       },
       {

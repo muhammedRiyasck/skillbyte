@@ -57,7 +57,7 @@ const Header = () => {
               <nav className="space-y-2">
 
                 <Link
-                  to={ROUTES.root}
+                  to={ROUTES.admin.dashboard}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm"
                   onClick={() => setIsOpen(false)}
                 >
