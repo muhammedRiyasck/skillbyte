@@ -152,9 +152,6 @@ const InstructorDashboard: React.FC = () => {
             await requestWithdrawal(amount);
             toast.success('Withdrawal request submitted! It will be processed soon.');
             refetch();
-        } catch (error: unknown) {
-            const err = error as { response?: { data?: { message?: string } } };
-            toast.error(err.response?.data?.message || 'Failed to request withdrawal');
         } finally {
             setIsWithdrawing(false);
         }
