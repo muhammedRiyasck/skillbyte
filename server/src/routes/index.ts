@@ -1,6 +1,7 @@
 import express from 'express';
 import AuthRoutes from '../modules/auth/entry-point/routes/Auth.routes';
 import AdminAuthRoutes from '../modules/admin/entry-points/routes/Auth.routes';
+import AdminDashboardRoutes from '../modules/admin/entry-points/routes/Dashboard.routes';
 import StudentauthRoutes from '../modules/student/entry-points/routes/Auth.routes';
 import AdminStudentRoutes from '../modules/student/entry-points/routes/AdminStudent.routes';
 import InstructorauthRoutes from '../modules/instructor/entry-point/routes/Auth.routes';
@@ -25,6 +26,7 @@ router.use('/course', CourseRoutes);
 router.use('/enrollment', EnrollmentRoutes);
 router.use('/payment', PaymentRoutes);
 router.use('/admin', AdminAuthRoutes);
+router.use('/admin/dashboard', AdminDashboardRoutes);
 router.use('/notifications', notificationRouter);
 router.use('/chat', ChatRoutes);
 router.use('/mentorship', MentorshipRoutes);

@@ -73,7 +73,8 @@ export class InitiatePaymentUseCase implements IInitiatePayment {
 
     // We are now using a manual payout system via the Withdrawal module.
     // The platform collects 100% of the funds upfront during checkout.
-    const adminFee = currency === 'INR' ? Math.round(amount * 0.2) : amount * 0.2; // Round for INR to prevent fractional drift
+    const adminFee =
+      currency === 'INR' ? Math.round(amount * 0.2) : amount * 0.2; // Round for INR to prevent fractional drift
 
     const providerResponse = await provider.initiate(
       amountToCharge,
