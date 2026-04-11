@@ -70,6 +70,23 @@ interface DashboardBooking {
     scheduledAt: string;
 }
 
+interface WithdrawalItem {
+    _id: string;
+    amount: number;
+    status: string;
+    createdAt: string;
+}
+
+interface DashboardStat {
+    label: string;
+    value: string | number;
+    icon: React.ElementType;
+    color: string;
+    bgColor: string;
+    link: string;
+    subValue?: string;
+}
+
 const InstructorDashboard: React.FC = () => {
     const queryClient = useQueryClient();
     const { socket } = useSocket();
@@ -77,7 +94,7 @@ const InstructorDashboard: React.FC = () => {
     const [withdrawalPage, setWithdrawalPage] = useState(1);
     const ITEMS_PER_PAGE = 5;
 
-    const { data: earningsData } = useQuery<any>({
+    const { data: earningsData } = useQuery<{ data: { earnings: DashboardEarnings[]; statistics: { totalProfit: number } } }>({
         queryKey: ['instructor-dashboard-earnings'],
         queryFn: () => getDashboardEarnings()
     });
@@ -97,7 +114,7 @@ const InstructorDashboard: React.FC = () => {
         queryFn: getInstructorProfile
     });
 
-    const { data: withdrawalsData, isFetching: withdrawalsFetching, refetch } = useQuery<any>({
+    const { data: withdrawalsData, isFetching: withdrawalsFetching, refetch } = useQuery<{ data: WithdrawalItem[] }>({
         queryKey: ['instructor-withdrawals', withdrawalPage],
         queryFn: () => getMyWithdrawals(withdrawalPage, ITEMS_PER_PAGE),
         placeholderData: keepPreviousData
@@ -180,7 +197,7 @@ const InstructorDashboard: React.FC = () => {
     const isInitialLoading = profileLoading || enrollmentLoading || bookingsLoading;
     const isLoading = isInitialLoading && !profileData; // Only show global spinner if core data is missing
 
-    const earnings = earningsData?.data?.earnings || [];
+    const earnings = useMemo(() => earningsData?.data?.earnings || [], [earningsData]);
     const totalProfit = earningsData?.data?.statistics?.totalProfit || 0;
     const totalStudents = enrollmentData?.data?.totalCount || 0;
     const courses = enrollmentData?.data?.data || [];
@@ -196,7 +213,7 @@ const InstructorDashboard: React.FC = () => {
 
     const chartData = useMemo(() => {
         if (!earnings || earnings.length === 0) return [];
-        const grouped = earnings.reduce((acc: any, curr: DashboardEarnings) => {
+        const grouped = earnings.reduce((acc: Record<string, number>, curr: DashboardEarnings) => {
             const date = new Date(curr.createdAt).toLocaleDateString();
             const amountInUSD = curr.currency === 'INR' 
                 ? (curr.convertedAmount || curr.instructorAmount / USD_TO_INR)
@@ -368,8 +385,8 @@ const InstructorDashboard: React.FC = () => {
                                     <p className="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">{stat.label}</p>
                                     <div className="flex items-baseline gap-2">
                                         <p className="text-3xl font-black text-slate-900 dark:text-white">{stat.value}</p>
-                                        {(stat as any).subValue && (
-                                            <p className="text-sm font-bold text-slate-400">{ (stat as any).subValue }</p>
+                                        {(stat as DashboardStat).subValue && (
+                                            <p className="text-sm font-bold text-slate-400">{ (stat as DashboardStat).subValue }</p>
                                         )}
                                     </div>
                                 </div>
@@ -605,7 +622,7 @@ const InstructorDashboard: React.FC = () => {
                             
                             <div className="p-4 space-y-3">
                                 {withdrawals.length > 0 ? (
-                                    withdrawals.slice(0, 5).map((w: any) => (
+                                    withdrawals.slice(0, 5).map((w: WithdrawalItem) => (
                                         <div key={w._id} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 font-black border border-slate-200 dark:border-slate-600">
