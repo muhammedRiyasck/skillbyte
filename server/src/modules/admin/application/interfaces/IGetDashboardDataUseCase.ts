@@ -1,4 +1,3 @@
-
 export interface IAdminDashboardData {
   stats: {
     totalRevenue: number;

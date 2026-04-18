@@ -9,7 +9,10 @@ import { CourseModel } from '../../../course/infrastructure/models/CourseModel';
 import { EnrollmentModel } from '../../../enrollment/infrastructure/models/EnrollmentModel';
 import { MentorshipBookingModel } from '../../../mentorship/infrastructure/models/MentorshipBookingModel';
 import { BookingStatus } from '../../../mentorship/domain/entities/MentorshipBooking';
-import { IAdminDashboardData, IGetDashboardDataUseCase } from '../interfaces/IGetDashboardDataUseCase';
+import {
+  IAdminDashboardData,
+  IGetDashboardDataUseCase,
+} from '../interfaces/IGetDashboardDataUseCase';
 
 export class GetDashboardDataUseCase implements IGetDashboardDataUseCase {
   async execute(): Promise<IAdminDashboardData> {
