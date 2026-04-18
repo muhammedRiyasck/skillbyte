@@ -48,4 +48,6 @@ export interface IMentorshipBookingRepository
   ): Promise<MentorshipBooking[]>;
 
   countPendingByStudentId(studentId: string): Promise<number>;
+
+  findConfirmedPastSessions(timeThreshold: Date): Promise<MentorshipBooking[]>;
 }

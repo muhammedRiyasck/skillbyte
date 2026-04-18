@@ -15,6 +15,7 @@ import { GetStudentBookingsUseCase } from '../../application/use-cases/GetStuden
 import { GetInstructorBookingsUseCase } from '../../application/use-cases/GetInstructorBookingsUseCase';
 import { GenerateVideoRoomUseCase } from '../../application/use-cases/GenerateVideoRoomUseCase';
 import { ValidateVideoRoomAccessUseCase } from '../../application/use-cases/ValidateVideoRoomAccessUseCase';
+import { AutoCompleteBookingsUseCase } from '../../application/use-cases/AutoCompleteBookingsUseCase';
 import { initiatePaymentUc } from '../../../payment/entry-point/PaymentContainer';
 
 import { MentorshipFulfillmentService } from '../../application/services/MentorshipFulfillmentService';
@@ -73,6 +74,9 @@ export const getInstructorBookingsUC = new GetInstructorBookingsUseCase(
 );
 const generateVideoRoomUC = new GenerateVideoRoomUseCase(bookingRepository);
 const validateVideoRoomAccessUC = new ValidateVideoRoomAccessUseCase(
+  bookingRepository,
+);
+export const autoCompleteBookingsUC = new AutoCompleteBookingsUseCase(
   bookingRepository,
 );
 export { bookingRepository, slotRepository };

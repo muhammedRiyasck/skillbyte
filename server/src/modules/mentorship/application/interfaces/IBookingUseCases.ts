@@ -48,3 +48,7 @@ export interface IValidateVideoRoomAccessUseCase {
     userRole: 'student' | 'instructor',
   ): Promise<{ bookingId: string; isValid: boolean }>;
 }
+
+export interface IAutoCompleteBookingsUseCase {
+  execute(): Promise<void>;
+}

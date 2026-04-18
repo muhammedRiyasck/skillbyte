@@ -17,6 +17,7 @@ export const JOB_NAMES = {
   SEND_EMAIL: 'send-email',
   DELETE_DECLINED_INSTRUCTOR: 'delete-declined-instructor',
   MENTORSHIP_CLEANUP: 'mentorship-cleanup',
+  MENTORSHIP_AUTO_COMPLETE: 'mentorship-auto-complete',
 } as const;
 
 export const QUEUE_NAMES = {

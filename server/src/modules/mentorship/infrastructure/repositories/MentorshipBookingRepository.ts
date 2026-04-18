@@ -153,4 +153,19 @@ export class MentorshipBookingRepository
       status: 'pending',
     });
   }
+
+  async findConfirmedPastSessions(
+    timeThreshold: Date,
+  ): Promise<MentorshipBooking[]> {
+    const docs = await this.model
+      .find({
+        status: 'confirmed',
+        scheduledAt: { $lt: timeThreshold },
+      })
+      .populate('slotId')
+      .populate('studentId', 'name email profileImageUrl')
+      .populate('instructorId', 'name profileImageUrl jobTitle');
+
+    return docs.map((doc) => this.toEntity(doc));
+  }
 }

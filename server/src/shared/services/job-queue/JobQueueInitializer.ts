@@ -6,11 +6,14 @@ import logger from '../../utils/Logger';
 import { DeleteDeclinedInstructorProcessor } from './processors/DeleteDeclinedInstructorProcessor';
 import { S3StorageService } from '../file-upload/services/S3StorageService';
 import { MentorshipCleanupProcessor } from './processors/MentorshipCleanupProcessor';
+import { MentorshipAutoCompleteProcessor } from './processors/MentorshipAutoCompleteProcessor';
 import {
   bookingRepository,
   cancelBookingUC,
+  autoCompleteBookingsUC,
 } from '../../../modules/mentorship/entry-point/dependencyInjection/MentorshipContainer';
 import { NodeMailerService } from '../mail/NodeMailerService';
+import { JOB_NAMES, QUEUE_NAMES } from './JobTypes';
 
 /**
  * Initializes job queue processors and services
@@ -33,6 +36,18 @@ export class JobQueueInitializer {
       new EmailProcessor(nodeMailer);
       new DeleteDeclinedInstructorProcessor(instructorRepo, s3StorageService);
       new MentorshipCleanupProcessor(bookingRepository, cancelBookingUC);
+      new MentorshipAutoCompleteProcessor(autoCompleteBookingsUC);
+
+      // Schedule repeatable job for auto-completion (every 30 minutes)
+      jobQueueService.addJob(
+        QUEUE_NAMES.MENTORSHIP,
+        JOB_NAMES.MENTORSHIP_AUTO_COMPLETE,
+        {},
+        {
+          repeat: { cron: '*/30 * * * *' },
+          jobId: 'mentorship-auto-complete-singleton', // Ensure only one instance exists
+        },
+      );
 
       logger.info('Job queue processors initialized successfully');
       this._initialized = true;
