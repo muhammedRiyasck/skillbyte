@@ -8,6 +8,7 @@ import {
 import { COURSE_EVENTS } from '../../../../shared/services/event-bus/CourseEvents';
 import { ICourseRepository } from '../../../course/domain/IRepositories/ICourseRepository';
 import logger from '../../../../shared/utils/Logger';
+import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
 
 export class EnrollmentFulfillmentService {
   constructor(
@@ -53,7 +54,7 @@ export class EnrollmentFulfillmentService {
         userId: event.userId,
         courseId: event.courseId,
         paymentId: event.paymentId,
-        status: 'active',
+        status: EnrollmentStatus.ACTIVE,
         enrolledAt: new Date(),
         progress: 0,
         lessonProgress: [],

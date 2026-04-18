@@ -1,6 +1,7 @@
 import { IStudentEnrollment } from '../../types/IStudentEnrollment';
 import { IGetStudentEnrollmentsUseCase } from '../interfaces/IGetStudentEnrollments';
 import { IEnrollmentReadRepository } from '../../domain/IRepositories/IEnrollmentReadRepository';
+import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
 
 export class GetStudentEnrollmentsUseCase
   implements IGetStudentEnrollmentsUseCase
@@ -13,7 +14,7 @@ export class GetStudentEnrollmentsUseCase
     limit: number,
     filters?: {
       search?: string;
-      status?: 'active' | 'completed';
+      status?: EnrollmentStatus;
     },
   ): Promise<{ data: IStudentEnrollment[]; totalCount: number }> {
     return (await this.enrollmentRepository.findEnrollmentsByUser(

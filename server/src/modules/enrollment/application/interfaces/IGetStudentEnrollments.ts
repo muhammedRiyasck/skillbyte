@@ -1,4 +1,5 @@
 import { IStudentEnrollment } from '../../types/IStudentEnrollment';
+import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
 
 export interface IGetStudentEnrollmentsUseCase {
   execute(
@@ -7,7 +8,7 @@ export interface IGetStudentEnrollmentsUseCase {
     limit: number,
     filters?: {
       search?: string;
-      status?: 'active' | 'completed';
+      status?: EnrollmentStatus;
     },
   ): Promise<{ data: IStudentEnrollment[]; totalCount: number }>;
 }

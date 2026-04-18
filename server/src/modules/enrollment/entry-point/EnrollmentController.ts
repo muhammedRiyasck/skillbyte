@@ -7,6 +7,7 @@ import { IGetStudentEnrollmentsUseCase } from '../application/interfaces/IGetStu
 import { IInitiateEnrollmentPayment } from '../application/interfaces/IInitiateEnrollmentPayment';
 
 import { ApiResponseHelper } from '../../../shared/utils/ApiResponseHelper';
+import { EnrollmentStatus } from '../../../shared/enums/EnrollmentStatus';
 
 export class EnrollmentController {
   constructor(
@@ -105,7 +106,7 @@ export class EnrollmentController {
 
       const filters = {
         search: req.query.search as string,
-        status: req.query.status as 'active' | 'completed',
+        status: req.query.status as EnrollmentStatus,
       };
 
       const result = await this._getStudentEnrollmentsUc.execute(
