@@ -1,4 +1,5 @@
 import { Course } from '../../domain/entities/Course';
+import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
 export interface ICreateCourseData {
   instructorId: string;
@@ -13,7 +14,7 @@ export interface ICreateCourseData {
   description: string;
   duration: string;
   tags: string[];
-  status: 'draft';
+  status: CourseStatus;
 }
 
 export interface ICreateBaseUseCase {

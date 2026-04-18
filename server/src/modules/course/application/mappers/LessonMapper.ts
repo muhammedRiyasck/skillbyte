@@ -10,7 +10,7 @@ export class LessonMapper {
       instructorId,
       title: dto.title,
       description: dto.description || '',
-      contentType: dto.contentType as 'video' | 'pdf',
+      contentType: dto.contentType as ContentType,
       fileName: dto.fileName,
       order: dto.order,
       duration: dto.duration || 0,

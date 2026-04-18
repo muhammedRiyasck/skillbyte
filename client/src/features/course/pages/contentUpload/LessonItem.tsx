@@ -13,6 +13,7 @@ import { getVideoDuration } from "../../utility/GetVideoDuration";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import Modal from "@shared/ui/Modal";
+import { ContentType } from "@shared/enums/ContentType";
 
 interface Props {
   lesson: LessonType;
@@ -113,7 +114,7 @@ export default function LessonItem({ lesson, id, moduleId, order, setModules }: 
           description: lesson.description,
           fileName: videoFile.name,
           duration,
-          contentType: "video",
+          contentType: ContentType.VIDEO,
           resources: watchedResources,
           order,
         });

@@ -5,6 +5,7 @@ import { IDeleteLessonUseCase } from '../../application/interfaces/IDeleteLesson
 import { IBlockLessonUseCase } from '../../application/interfaces/IBlockLessonUseCase';
 import { IGetLessonPlayUrlUseCase } from '../../application/interfaces/IGetLessonPlayUrlUseCase';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
+import { UserRole } from '../../../../shared/enums/UserRole';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import {
   CreateLessonSchema,
@@ -170,7 +171,7 @@ export class LessonController {
 
     const lessonId = authenticatedReq.params.id;
     const userId = authenticatedReq.user.id;
-    const role = authenticatedReq.user.role;
+    const role = authenticatedReq.user.role as UserRole;
 
     const { signedUrl } = await this._getLessonPlayUrlUseCase.execute(
       userId,
