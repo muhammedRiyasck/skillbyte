@@ -3,6 +3,7 @@ import { IReapplyInstructorUseCase } from '../interfaces/IReapplyInstructorUseCa
 import { Instructor } from '../../domain/entities/Instructor';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
 import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
@@ -32,7 +33,7 @@ export class ReapplyInstructorUseCase implements IReapplyInstructorUseCase {
       );
     }
 
-    if (instructor.accountStatus !== 'rejected') {
+    if (instructor.accountStatus !== InstructorAccountStatus.REJECTED) {
       throw new HttpError(
         'Only rejected applications can be re-submitted',
         HttpStatusCode.BAD_REQUEST,
@@ -41,7 +42,7 @@ export class ReapplyInstructorUseCase implements IReapplyInstructorUseCase {
 
     const updatedData: Partial<Instructor> = {
       ...updates,
-      accountStatus: 'pending',
+      accountStatus: InstructorAccountStatus.PENDING,
       // rejected: false,
       rejectedNote: null,
       suspendNote: null,
