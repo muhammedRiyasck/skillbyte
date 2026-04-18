@@ -16,8 +16,8 @@ export interface Ibase {
     tags: string;
     features: string[];
     status: CourseStatus;
-    rating: number;
-    reviews: number;
+    averageRating?: number;
+    totalReviews?: number;
     isEnrolled?: boolean;
     isBlocked?: boolean;
 }
