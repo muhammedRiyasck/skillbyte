@@ -10,6 +10,7 @@ import {
   MentorshipBookingConfirmedEvent,
 } from '../../../../shared/services/event-bus/MentorshipEvents';
 import logger from '../../../../shared/utils/Logger';
+import { BookingStatus } from '../../domain/entities/MentorshipBooking';
 
 export class MentorshipFulfillmentService {
   constructor(private bookingRepo: IMentorshipBookingRepository) {
@@ -40,7 +41,7 @@ export class MentorshipFulfillmentService {
       // 1. Update Booking Status to 'confirmed'
       await this.bookingRepo.updateStatus(
         event.mentorshipBookingId,
-        'confirmed',
+        BookingStatus.CONFIRMED,
       );
 
       // 2. Retrieve booking to get details for event (studentId, instructorId, slotId)
