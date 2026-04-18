@@ -1,6 +1,9 @@
 import { IMentorshipSlotRepository } from '../../domain/IRepositories/IMentorshipSlotRepository';
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
-import { MentorshipSlot } from '../../domain/entities/MentorshipSlot';
+import {
+  MentorshipSlot,
+  SlotStatus,
+} from '../../domain/entities/MentorshipSlot';
 import { CreateSlotDto } from '../dtos/SlotDto';
 import { ICreateSlotUseCase } from '../interfaces/ISlotUseCases';
 import { HttpError } from '../../../../shared/types/HttpError';
@@ -50,7 +53,7 @@ export class CreateSlotUseCase implements ICreateSlotUseCase {
       dto.price,
       dto.currency,
       new Date(dto.scheduledAt),
-      'available',
+      SlotStatus.AVAILABLE,
       1, // maxBookings
       0, // currentBookings
       jobTitle,

@@ -1,6 +1,10 @@
 import { IBookSlotUseCase } from '../interfaces/IBookingUseCases';
 import { BookSlotDto } from '../dtos/BookingDto';
-import { MentorshipBooking } from '../../domain/entities/MentorshipBooking';
+import {
+  MentorshipBooking,
+  BookingStatus,
+} from '../../domain/entities/MentorshipBooking';
+import { SlotStatus } from '../../domain/entities/MentorshipSlot';
 import { PaymentInitiationResponse } from '../../../../shared/services/payment/interfaces/IPaymentProvider';
 import { IMentorshipSlotRepository } from '../../domain/IRepositories/IMentorshipSlotRepository';
 import { IMentorshipBookingRepository } from '../../domain/IRepositories/IMentorshipBookingRepository';
@@ -44,7 +48,7 @@ export class BookSlotUseCase implements IBookSlotUseCase {
     if (!slot) {
       throw new HttpError('Slot not found', HttpStatusCode.NOT_FOUND);
     }
-    if (slot.status !== 'available') {
+    if (slot.status !== SlotStatus.AVAILABLE) {
       throw new HttpError(
         'Slot is not available for booking',
         HttpStatusCode.BAD_REQUEST,
@@ -55,7 +59,7 @@ export class BookSlotUseCase implements IBookSlotUseCase {
 
     // 1.1 Lock the slot
     if (slot.slotId) {
-      await this.slotRepo.updateStatus(slot.slotId, 'booked');
+      await this.slotRepo.updateStatus(slot.slotId, SlotStatus.BOOKED);
       await this.slotRepo.incrementBookings(slot.slotId);
     }
 
@@ -67,7 +71,9 @@ export class BookSlotUseCase implements IBookSlotUseCase {
 
     // 3. Create Booking
     const isFree = slot.price === 0;
-    const initialStatus = isFree ? 'confirmed' : 'pending';
+    const initialStatus = isFree
+      ? BookingStatus.CONFIRMED
+      : BookingStatus.PENDING;
 
     const newBooking = new MentorshipBooking(
       slotId,

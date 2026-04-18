@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { MentorshipMapper } from '../../application/mappers/MentorshipMapper';
+import { SlotStatus } from '../../domain/entities/MentorshipSlot';
 import { ICreateSlotUseCase } from '../../application/interfaces/ISlotUseCases';
 import { IGetInstructorSlotsUseCase } from '../../application/interfaces/ISlotUseCases';
 import { IUpdateSlotUseCase } from '../../application/interfaces/ISlotUseCases';
@@ -67,7 +68,7 @@ export class MentorshipController {
     const { status, fromDate, toDate, page, limit } = req.query;
 
     const filters = {
-      status: status as 'available' | 'booked' | 'cancelled' | undefined,
+      status: status as SlotStatus | undefined,
       fromDate: fromDate ? new Date(fromDate as string) : undefined,
       toDate: toDate ? new Date(toDate as string) : undefined,
       page: page ? Number(page) : 1,

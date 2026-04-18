@@ -1,4 +1,7 @@
-import { MentorshipSlot } from '../../domain/entities/MentorshipSlot';
+import {
+  MentorshipSlot,
+  SlotStatus,
+} from '../../domain/entities/MentorshipSlot';
 import { CreateSlotDto, UpdateSlotDto, SlotFiltersDto } from '../dtos/SlotDto';
 
 export interface ICreateSlotUseCase {
@@ -9,7 +12,7 @@ export interface IGetInstructorSlotsUseCase {
   execute(
     instructorId: string,
     filters?: {
-      status?: 'available' | 'booked' | 'cancelled';
+      status?: SlotStatus;
       fromDate?: Date;
       toDate?: Date;
       page?: number;
