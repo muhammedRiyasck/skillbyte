@@ -9,6 +9,7 @@ import { IMessage } from '../../domain/entities/Message';
 import { SocketService } from '../../../../shared/services/socket-service.ts/SocketService';
 import { ICreateNotificationUseCase } from '../../../notification/application/interfaces/ICreateNotificationUseCase';
 import logger from '../../../../shared/utils/Logger';
+import { NotificationType } from '../../../../shared/enums/NotificationType';
 
 export class SendMessageUseCase implements ISendMessageUseCase {
   constructor(
@@ -106,7 +107,7 @@ export class SendMessageUseCase implements ISendMessageUseCase {
             userId: recipientId,
             title: 'New Message',
             message: preview,
-            type: 'info',
+            type: NotificationType.INFO,
           })
           .catch((err) => {
             logger.error('Failed to create notification', err);
