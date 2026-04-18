@@ -5,12 +5,13 @@ import {
   ICreateNotificationUseCase,
   ICreateNotificationData,
 } from '../interfaces/ICreateNotificationUseCase';
+import { NotificationType } from '../../../../shared/enums/NotificationType';
 
 export class CreateNotificationUseCase implements ICreateNotificationUseCase {
   constructor(private notificationRepository: INotificationWriteRepository) {}
 
   async execute(data: ICreateNotificationData): Promise<INotification> {
-    const { userId, title, message, type = 'info' } = data;
+    const { userId, title, message, type = NotificationType.INFO } = data;
     const notification: INotification = {
       userId,
       title,
