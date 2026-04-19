@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { toast } from "sonner";
 import { getStudentBookings, cancelBooking, generateVideoRoom } from "../services/BookingServices";
+import { getMySessionRatings } from "../../review/services/ReviewService";
 import type { IMentorshipBooking, StudentBookingFilters } from "../types/mentorshipTypes";
 import { BookingCard } from "../components/BookingCard";
 import { Calendar, RefreshCw, Filter } from "lucide-react";
@@ -9,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import Modal from "@shared/ui/Modal";
 import { BookingStatus } from "../../../shared/enums/BookingStatus";
 import { UserRole } from "../../../shared/enums/UserRole";
+import ReviewForm from "@features/review/components/ReviewForm";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -20,6 +22,17 @@ const StudentBookingsPage = () => {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [statusFilter, setStatusFilter] = useState<string>('all');
+    
+    // Load persisted ratings from localStorage
+    const [userRatings, setUserRatings] = useState<Record<string, number>>(() => {
+        try {
+            const saved = localStorage.getItem('student_session_ratings');
+            return saved ? JSON.parse(saved) : {};
+        } catch {
+            return {};
+        }
+    });
+    
     const observer = useRef<IntersectionObserver | null>(null);
 
     // Confirmation Modal State
@@ -27,6 +40,10 @@ const StudentBookingsPage = () => {
     const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
     const [isCancelling, setIsCancelling] = useState(false);
     const [cantRefund, setCantRefund] = useState(false)
+
+    // Review Modal State
+    const [isReviewOpen, setIsReviewOpen] = useState(false);
+    const [bookingToReview, setBookingToReview] = useState<string | null>(null);
 
     const lastBookingElementRef = useCallback((node: HTMLDivElement | null) => {
         if (loading) return;
@@ -105,6 +122,23 @@ const StudentBookingsPage = () => {
             console.error(error);
         }
     }, [refreshBookings]);
+    
+    // Fetch ratings from server on mount
+    useEffect(() => {
+        const fetchRatings = async () => {
+            try {
+                const ratings = await getMySessionRatings();
+                setUserRatings(prev => {
+                    const next = { ...prev, ...ratings };
+                    localStorage.setItem('student_session_ratings', JSON.stringify(next));
+                    return next;
+                });
+            } catch (error) {
+                console.error("Failed to fetch session ratings:", error);
+            }
+        };
+        fetchRatings();
+    }, []);
 
     useEffect(() => {
         fetchBookings(page, page === 1, statusFilter);
@@ -186,6 +220,11 @@ const StudentBookingsPage = () => {
             toast.error("Failed to join video call");
             console.error(error);
         }
+    };
+
+    const handleRateClick = (bookingId: string) => {
+        setBookingToReview(bookingId);
+        setIsReviewOpen(true);
     };
 
     const selectedBooking = bookings.find(b => b.bookingId === bookingToCancel);
@@ -273,7 +312,9 @@ const StudentBookingsPage = () => {
                                                 booking={booking}
                                                 onCancel={handleCancelClick}
                                                 onJoinSession={handleJoinSession}
+                                                onRate={handleRateClick}
                                                 userRole={UserRole.STUDENT}
+                                                existingRating={userRatings[booking.bookingId]}
                                             />
                                         </div>
                                     );
@@ -284,7 +325,9 @@ const StudentBookingsPage = () => {
                                             booking={booking}
                                             onCancel={handleCancelClick}
                                             onJoinSession={handleJoinSession}
+                                            onRate={handleRateClick}
                                             userRole={UserRole.STUDENT}
+                                            existingRating={userRatings[booking.bookingId]}
                                         />
                                     );
                                 }
@@ -351,6 +394,31 @@ const StudentBookingsPage = () => {
                     </div>
                 </div>
 
+            </Modal>
+
+            {/* Review Model */}
+            <Modal
+                isOpen={isReviewOpen}
+                onClose={() => setIsReviewOpen(false)}
+                title="Rate Mentorship Session"
+            >
+                <div className="pt-2">
+                    {bookingToReview && (
+                        <ReviewForm
+                            targetType="session"
+                            targetId={bookingToReview}
+                            onSuccess={(rating) => {
+                                setUserRatings(prev => {
+                                    const next = { ...prev, [bookingToReview]: rating };
+                                    localStorage.setItem('student_session_ratings', JSON.stringify(next));
+                                    return next;
+                                });
+                                setIsReviewOpen(false);
+                            }}
+                            onCancel={() => setIsReviewOpen(false)}
+                        />
+                    )}
+                </div>
             </Modal>
         </div>
     );

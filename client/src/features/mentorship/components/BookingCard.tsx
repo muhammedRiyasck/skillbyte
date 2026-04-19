@@ -1,21 +1,26 @@
 import type { IMentorshipBooking } from "../types/mentorshipTypes";
 import { format } from "date-fns";
-import { Calendar, Clock, Video, User, Timer, Wallet } from "lucide-react";
+import { Calendar, Clock, Video, User, Timer, Wallet, Star, CheckCircle } from "lucide-react";
 import { BookingStatus } from "@shared/enums/BookingStatus";
 import { UserRole } from "@shared/enums/UserRole";
+import StarRating from "@features/review/components/StarRating";
 
 interface BookingCardProps {
   booking: IMentorshipBooking;
   onJoinSession?: (bookingId: string) => void;
   onCancel?: (bookingId: string) => void;
+  onRate?: (bookingId: string) => void;
   userRole: UserRole.INSTRUCTOR | UserRole.STUDENT;
+  existingRating?: number;
 }
 
 export const BookingCard = ({
   booking,
   onJoinSession,
   onCancel,
+  onRate,
   userRole,
+  existingRating,
 }: BookingCardProps) => {
   const isConfirmed = booking.status === BookingStatus.CONFIRMED;
   const isPending = booking.status === BookingStatus.PENDING;
@@ -172,12 +177,27 @@ export const BookingCard = ({
         )}
 
         {isCompleted && (
-          <button
-            disabled
-            className="w-full  py-2 bg-gray-100 dark:bg-gray-700 text-gray-500 rounded-lg text-sm cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            Completed
-          </button>
+          <div className="w-full gap-2 pt-4">
+            {userRole === UserRole.STUDENT && (
+              existingRating ? (
+                <div className="flex flex-col items-center gap-1 py-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <div className="flex items-center gap-1.5 text-green-700 dark:text-green-400">
+                    <CheckCircle size={14} />
+                    <span className="text-xs font-medium">You rated this session</span>
+                  </div>
+                  <StarRating rating={existingRating} readonly size="sm" />
+                </div>
+              ) : onRate && (
+                <button
+                  onClick={() => onRate(booking.bookingId)}
+                  className="flex-1 flex gap-2 w-full justify-center py-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 dark:bg-indigo-900 dark:text-white dark:hover:bg-indigo-900/50 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                >
+                  <Star size={20} className="text-indigo-500 dark:text-white"/>
+                  Rate Session
+                </button>
+              )
+            )}
+          </div>
         )}
 
         {booking.status === BookingStatus.REFUNDED && (

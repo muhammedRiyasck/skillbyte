@@ -13,6 +13,7 @@ import {
   Tag,
   ChevronLeft,
   ChevronRight,
+  Star,
 } from "lucide-react";
 
 import { SlotStatus } from "@shared/enums/SlotStatus";
@@ -216,7 +217,13 @@ const MentorshipBrowsePage = () => {
     {} as Record<
       string,
       {
-        instructor: { name: string; jobTitle: string; profilePicture?: string };
+        instructor: { 
+          name: string; 
+          jobTitle: string; 
+          profilePicture?: string;
+          averageRating?: number;
+          totalReviews?: number;
+        };
         slots: IMentorshipSlot[];
       }
     >,
@@ -483,6 +490,17 @@ const MentorshipBrowsePage = () => {
                               clipRule="evenodd"
                             />
                           </svg>
+                          {data.instructor.averageRating !== undefined && (
+                            <div className="flex items-center gap-1 ml-2 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-0.5 rounded-full border border-yellow-200 dark:border-yellow-800/50">
+                              <Star size={12} className="fill-yellow-400 text-yellow-400" />
+                              <span className="text-xs font-bold text-yellow-700 dark:text-yellow-500">
+                                {data.instructor.averageRating.toFixed(1)}
+                              </span>
+                              <span className="text-[10px] text-yellow-600/70 dark:text-yellow-500/50">
+                                ({data.instructor.totalReviews || 0})
+                              </span>
+                            </div>
+                          )}
                         </div>
                         <p className="text-indigo-600 dark:text-indigo-400 font-medium">
                           {jobTitle}

@@ -15,6 +15,8 @@ export interface IMentorshipSlot {
     name: string;
     profilePicture?: string;
     jobTitle: string;
+    averageRating?: number;
+    totalReviews?: number;
   };
   tags?: string[];
 }
