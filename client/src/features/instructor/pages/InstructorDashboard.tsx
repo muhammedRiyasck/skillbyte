@@ -15,7 +15,8 @@ import {
     Users,
     Calendar,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Star
 } from 'lucide-react';
 import { ROUTES } from '@core/router/paths';
 import {
@@ -486,7 +487,16 @@ const InstructorDashboard: React.FC = () => {
                                     </div>
                                     <div>
                                         <p className="text-indigo-200 text-[10px] font-black uppercase tracking-widest">Instructor Account</p>
-                                        <h4 className="text-xl font-black">{instructor?.name}</h4>
+                                        <div className="flex items-center gap-2">
+                                          <h4 className="text-xl font-black">{instructor?.name}</h4>
+                                          {instructor?.averageRating !== undefined && instructor.totalReviews !== undefined && (
+                                              <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/20 mt-0.5">
+                                                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                                                  <span className="text-xs font-bold text-white">{instructor.averageRating.toFixed(1)}</span>
+                                                  <span className="text-[10px] text-white/70">({instructor.totalReviews})</span>
+                                              </div>
+                                          )}
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="flex justify-between items-center gap-2">
