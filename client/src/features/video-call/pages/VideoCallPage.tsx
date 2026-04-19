@@ -9,8 +9,12 @@ import { useMediaStream } from '../hooks/useMediaStream';
 import { useWebRTC } from '../hooks/useWebRTC';
 import { validateVideoRoomAccess } from '../services/videoCallServices';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Star } from 'lucide-react';
 import { Lobby } from '../components/Lobby';
+import Modal from '@shared/ui/Modal';
+import ReviewForm from '@features/review/components/ReviewForm';
+import { UserRole } from '@shared/enums/UserRole';
+import { BookingStatus } from '@shared/enums/BookingStatus';
 
 export const VideoCallPage = () => {
   const { roomId } = useParams<{ roomId: string }>();
@@ -18,8 +22,11 @@ export const VideoCallPage = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const [isValidating, setIsValidating] = useState(true);
   const [bookingId, setBookingId] = useState<string | null>(null);
+  const [bookingStatus, setBookingStatus] = useState<BookingStatus | null>(null);
   const [isJoining, setIsJoining] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [showNotCompletedModal, setShowNotCompletedModal] = useState(false);
 
   const {
     mediaState,
@@ -56,6 +63,7 @@ export const VideoCallPage = () => {
       try {
         const result = await validateVideoRoomAccess(roomId);
         setBookingId(result.bookingId);
+        setBookingStatus(result.status);
         setIsValidating(false);
       } catch (error) {
         console.error('Access validation failed:', error);
@@ -173,7 +181,16 @@ export const VideoCallPage = () => {
     }
     // stopMediaStream(); // Handled by cleanup effect
     toast.success('Call ended');
-    navigate(-1);
+    // Show rating modal for students after call ends if completed
+    if (user?.role === UserRole.STUDENT && bookingId) {
+      if (bookingStatus === BookingStatus.COMPLETED) {
+        setShowRatingModal(true);
+      } else {
+        setShowNotCompletedModal(true);
+      }
+    } else {
+      navigate(-1);
+    }
   };
 
   const handleToggleAudio = () => {
@@ -294,8 +311,79 @@ export const VideoCallPage = () => {
           {mediaState.error}
         </div>
       )}
+
+      {/* Post-Call Rating Modal */}
+      <Modal
+        isOpen={showRatingModal}
+        onClose={() => {
+          setShowRatingModal(false);
+          navigate(-1);
+        }}
+        title=""
+      >
+        <div className="space-y-4">
+          <div className="text-center pb-2">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">How was your session?</h2>
+              <Star className="w-6 h-6 text-yellow-400 fill-yellow-400" />
+            </div>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Your feedback helps instructors improve. It only takes a second!
+            </p>
+          </div>
+          {bookingId && (
+            <ReviewForm
+              targetType="session"
+              targetId={bookingId}
+              onSuccess={(rating) => {
+                try {
+                  const saved = localStorage.getItem('student_session_ratings');
+                  const ratings = saved ? JSON.parse(saved) : {};
+                  ratings[bookingId] = rating;
+                  localStorage.setItem('student_session_ratings', JSON.stringify(ratings));
+                } catch {
+                  // ignore
+                }
+                setShowRatingModal(false);
+                navigate(-1);
+              }}
+              onCancel={() => {
+                setShowRatingModal(false);
+                navigate(-1);
+              }}
+            />
+          )}
+        </div>
+      </Modal>
+
+      {/* Post-Call Not Completed Modal */}
+      <Modal
+        isOpen={showNotCompletedModal}
+        onClose={() => {
+          setShowNotCompletedModal(false);
+          navigate(-1);
+        }}
+        title=""
+      >
+        <div className="space-y-4 p-4">
+          <div className="text-center pb-2">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Session Ended</h2>
+            <p className="text-md text-gray-600 dark:text-gray-300">
+              Your session time hasn't officially concluded yet. 
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              Once the scheduled time finishes, the session will be marked as completed automatically. You'll then be able to review and rate this session from your <strong> Bookings</strong> page.
+            </p>
+          </div>
+          <div className="flex justify-center mt-6">
+        
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
 
 export default VideoCallPage;
+
