@@ -1,5 +1,8 @@
 import { IMentorshipSlotRepository } from '../../domain/IRepositories/IMentorshipSlotRepository';
-import { MentorshipSlot } from '../../domain/entities/MentorshipSlot';
+import {
+  MentorshipSlot,
+  SlotStatus,
+} from '../../domain/entities/MentorshipSlot';
 import { IGetInstructorSlotsUseCase } from '../interfaces/ISlotUseCases';
 
 /**
@@ -11,7 +14,7 @@ export class GetInstructorSlotsUseCase implements IGetInstructorSlotsUseCase {
   async execute(
     instructorId: string,
     filters?: {
-      status?: 'available' | 'booked' | 'cancelled';
+      status?: SlotStatus;
       fromDate?: Date;
       toDate?: Date;
       page?: number;

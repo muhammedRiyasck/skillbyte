@@ -95,13 +95,17 @@ export class MentorshipMapper {
     ) {
       const ins = doc.instructorId as {
         name: string;
-        profilePictureUrl: string;
+        profilePictureUrl?: string;
         jobTitle: string;
+        averageRating?: number;
+        totalReviews?: number;
       };
       entity.instructorDetails = {
         name: ins.name,
         profilePictureUrl: ins.profilePictureUrl,
         jobTitle: ins.jobTitle,
+        averageRating: ins.averageRating,
+        totalReviews: ins.totalReviews,
       };
     }
 

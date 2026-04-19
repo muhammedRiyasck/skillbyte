@@ -25,6 +25,8 @@ export class MentorshipSlot {
       name: string;
       profilePictureUrl?: string;
       jobTitle: string;
+      averageRating?: number;
+      totalReviews?: number;
     },
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),

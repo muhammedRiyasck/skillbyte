@@ -27,7 +27,7 @@ export class ValidateVideoRoomAccessUseCase
     roomId: string,
     userId: string,
     userRole: UserRole.STUDENT | UserRole.INSTRUCTOR,
-  ): Promise<{ bookingId: string; isValid: boolean }> {
+  ): Promise<{ bookingId: string; isValid: boolean; status: BookingStatus }> {
     logger.info(
       `Validating video room access: roomId=${roomId}, userId=${userId}, role=${userRole}`,
     );
@@ -100,7 +100,11 @@ export class ValidateVideoRoomAccessUseCase
     }
 
     logger.info(`Video room access validated for user ${userId}`);
-    return { bookingId, isValid: true };
+    return {
+      bookingId,
+      isValid: true,
+      status: booking.status as BookingStatus,
+    };
   }
 
   private extractBookingIdFromRoomId(roomId: string): string | null {
