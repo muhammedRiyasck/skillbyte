@@ -25,6 +25,8 @@ export interface ICourseDoc extends Document {
   stripePriceId: string;
   createdAt: Date;
   updatedAt: Date;
+  averageRating: number;
+  totalReviews: number;
 }
 
 const CourseSchema = new mongoose.Schema(
@@ -63,6 +65,8 @@ const CourseSchema = new mongoose.Schema(
     },
     isBlocked: { type: Boolean, default: false },
     stripePriceId: { type: String, default: '' },
+    averageRating: { type: Number, default: 0 },
+    totalReviews: { type: Number, default: 0 },
   },
   { timestamps: true },
 );

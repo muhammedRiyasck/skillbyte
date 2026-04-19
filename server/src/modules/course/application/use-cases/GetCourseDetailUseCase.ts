@@ -125,6 +125,8 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
           title: instructor.jobTitle,
           avatar: instructor.profilePictureUrl,
           bio: instructor.bio,
+          averageRating: instructor.averageRating,
+          totalReviews: instructor.totalReviews,
         };
       }
     }

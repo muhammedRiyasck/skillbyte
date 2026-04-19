@@ -8,8 +8,8 @@ export interface IStudentEnrollment {
   courseLevel: string;
   language: string;
   price: number;
-  rating: number;
-  reviews: number;
+  averageRating: number;
+  totalReviews: number;
   enrolledAt: Date;
   progress: number;
   enrollmentStatus: string;

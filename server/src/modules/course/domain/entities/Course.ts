@@ -21,5 +21,7 @@ export class Course {
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
     public modules?: Module[],
+    public averageRating: number = 0,
+    public totalReviews: number = 0,
   ) {}
 }

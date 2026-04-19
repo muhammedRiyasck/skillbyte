@@ -71,8 +71,8 @@ export class EnrollmentMapper {
       courseLevel: string;
       language: string;
       price: number;
-      rating: number;
-      reviews: number;
+      averageRating: number;
+      totalReviews: number;
     };
   }): IStudentEnrollment {
     return {

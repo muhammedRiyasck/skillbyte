@@ -79,4 +79,6 @@ export interface CourseResponseDto {
   createdAt: Date;
   updatedAt: Date;
   isEnrolled?: boolean;
+  averageRating?: number;
+  totalReviews?: number;
 }

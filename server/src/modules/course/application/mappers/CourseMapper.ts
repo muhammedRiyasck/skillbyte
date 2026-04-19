@@ -65,6 +65,8 @@ export class CourseMapper {
       isBlocked: course.isBlocked,
       createdAt: course.createdAt,
       updatedAt: course.updatedAt,
+      averageRating: course.averageRating,
+      totalReviews: course.totalReviews,
     };
   }
 
@@ -103,6 +105,11 @@ export class CourseMapper {
       doc.status as CourseStatus,
       doc.isBlocked,
       doc._id.toString(),
+      doc.createdAt,
+      doc.updatedAt,
+      undefined,
+      doc.averageRating || 0,
+      doc.totalReviews || 0,
     );
   }
 }
