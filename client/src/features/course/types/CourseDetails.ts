@@ -24,6 +24,8 @@ export interface CourseDetails {
   duration: string;
   tags: string[];
   status: CourseStatus;
+  averageRating?: number;
+  totalReviews?: number;
   createdAt: string;
   updatedAt: string;
   modules?: ModuleType[];
@@ -34,6 +36,8 @@ interface InstructorInfo {
   title: string;
   avatar: string;
   bio: string;
+  averageRating?: number;
+  totalReviews?: number;
 }
 
 // export interface Review {

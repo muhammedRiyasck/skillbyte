@@ -250,13 +250,13 @@ const CourseCard = memo<CourseCardProps>(({
               /> : null}
           </h2>
 
-          <div className="flex items-center gap-3 mb-4 text-sm flex-wrap">
-            <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-              PREMIUM
+          <div className="flex items-center justify-between gap-3 mb-4 text-sm flex-wrap">
+            <span className="text-gray-600 dark:text-gray-300 flex items-center gap-1 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-0.5 rounded-full border border-yellow-200 dark:border-yellow-800/50">
+              ⭐ <span className="font-bold text-yellow-700 dark:text-yellow-500">{(course.averageRating ?? 0).toFixed(1)}</span> 
+              <span className="text-xs text-yellow-600/70 dark:text-yellow-500/50">({course.totalReviews ?? 0} Reviews)</span>
             </span>
-            <span className="text-gray-600 dark:text-gray-300">{course.language}</span>
-            <span className="text-gray-600 dark:text-gray-300 flex items-center gap-1">
-              ⭐ {course.rating} ({course.reviews} Reviews)
+            <span className="bg-gradient-to-r from-yellow-400 to-orange-500 text-gray-900 text-sm font-bold px-3 py-1 rounded-full shadow-sm">
+              ₹ {course.price}
             </span>
           </div>
 

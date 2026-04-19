@@ -17,13 +17,17 @@ import {
   Home,
   BookOpen,
   Check,
-  RefreshCw
+  RefreshCw,
+  Pencil
 } from 'lucide-react';
 import { ROUTES } from '@/core/router/paths';
 import { getCourseDetails } from '../services/CourseDetails';
 import { blockLesson } from '../services/CourseLesson';
 import { checkEnrollmentStatus } from '@features/enrollment/services/EnrollmentService';
 import LessonPlayer from '../components/LessonPlayer';
+import RatingSummary from '@features/review/components/RatingSummary';
+import ReviewList from '@features/review/components/ReviewList';
+import ReviewForm from '@features/review/components/ReviewForm';
 
 import ErrorPage from '@shared/ui/ErrorPage';
 import type { ModuleType } from '../types/IModule';
@@ -40,6 +44,7 @@ const CourseDetails: React.FC = () => {
   const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
   const [blockedLessons, setBlockedLessons] = useState<Set<string>>(new Set());
   const [currentLessonId, setCurrentLessonId] = useState<string | null>(null);
+  const [showReviewForm, setShowReviewForm] = useState(false);
 
   const role = useSelector((state: RootState) => state.auth.user?.role);
   const userId = useSelector((state: RootState) => state.auth.user?.id);
@@ -255,8 +260,8 @@ const CourseDetails: React.FC = () => {
                 <div className="flex items-center gap-6 mb-6">
                   <div className="flex items-center gap-2">
                     <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    <span className="font-semibold">4.8</span>
-                    <span className="text-indigo-200">(1250 reviews)</span>
+                    <span className="font-semibold">{course.averageRating ? course.averageRating.toFixed(1) : '0.0'}</span>
+                    <span className="text-indigo-200">({course.totalReviews || 0} reviews)</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="w-5 h-5" />
@@ -513,9 +518,22 @@ const CourseDetails: React.FC = () => {
                   className="w-16 h-16 rounded-full"
                 />
                 <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                    {course.instructor?.name}
-                  </h3>
+                  <div className="flex items-center gap-3 mb-2">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                      {course.instructor?.name}
+                    </h3>
+                    {course.instructor?.averageRating !== undefined && course.instructor.averageRating > 0 && (
+                      <div className="flex items-center gap-1 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-0.5 rounded-full border border-yellow-200 dark:border-yellow-800/50">
+                        <Star size={14} className="fill-yellow-400 text-yellow-400" />
+                        <span className="text-sm font-bold text-yellow-700 dark:text-yellow-500">
+                          {course.instructor.averageRating.toFixed(1)}
+                        </span>
+                        <span className="text-xs text-yellow-600/70 dark:text-yellow-500/50">
+                          ({course.instructor.totalReviews || 0})
+                        </span>
+                      </div>
+                    )}
+                  </div>
                   <p className="text-gray-600 dark:text-gray-400 mb-4">
                     {course.instructor?.title}
                   </p>
@@ -524,6 +542,54 @@ const CourseDetails: React.FC = () => {
                   </p>
                 </div>
               </div>
+            </div>
+
+            {/* Ratings & Reviews */}
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Student Feedback
+                </h2>
+                {role === UserRole.STUDENT && isEnrolled && !showReviewForm && (
+                  <button
+                    onClick={() => setShowReviewForm(true)}
+                    className="text-sm flex  bg-indigo-50 cursor-pointer text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 px-4 py-2 rounded-lg transition-colors font-medium"
+                  >
+                  <Pencil className="w-4 h-4 mr-2"/> Add a Review
+                  </button>
+                )}
+              </div>
+
+              {showReviewForm && (
+                <div className="mb-8">
+                  <h3 className="text-lg font-semibold mb-3">Rate this Course</h3>
+                  <ReviewForm
+                    targetType="course"
+                    targetId={id!}
+                    onSuccess={() => {
+                      setShowReviewForm(false);
+                      refetch(); // to update averageRating in hero
+                    }}
+                    onCancel={() => setShowReviewForm(false)}
+                  />
+                </div>
+              )}
+
+              <div className="mb-8">
+                <RatingSummary 
+                  targetType="course" 
+                  targetId={id!} 
+                />
+              </div>
+
+              <ReviewList 
+                targetType="course" 
+                targetId={id!} 
+                currentUserId={userId}
+                onReviewSubmitted={() => {
+                  refetch(); // Only refetch course hero data, list and summary are handled by cache/invalidation
+                }}
+              />
             </div>
 
           </div>
