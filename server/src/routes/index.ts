@@ -13,6 +13,7 @@ import PaymentRoutes from '../modules/payment/entry-point/payment.routes';
 import { notificationRouter } from '../modules/notification/entry-point/NotificationRoutes';
 import ChatRoutes from '../modules/chat/entry-point/routes/Chat.routes';
 import MentorshipRoutes from '../modules/mentorship/entry-point/routes/Mentorship.Routes';
+import ReviewRoutes from '../modules/review/entry-point/routes/Review.routes';
 
 const router = express.Router();
 
@@ -30,5 +31,6 @@ router.use('/admin/dashboard', AdminDashboardRoutes);
 router.use('/notifications', notificationRouter);
 router.use('/chat', ChatRoutes);
 router.use('/mentorship', MentorshipRoutes);
+router.use('/reviews', ReviewRoutes);
 
 export default router;
