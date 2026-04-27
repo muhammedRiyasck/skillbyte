@@ -14,6 +14,7 @@ import { notificationRouter } from '../modules/notification/entry-point/Notifica
 import ChatRoutes from '../modules/chat/entry-point/routes/Chat.routes';
 import MentorshipRoutes from '../modules/mentorship/entry-point/routes/Mentorship.Routes';
 import ReviewRoutes from '../modules/review/entry-point/routes/Review.routes';
+import ReportRoutes from '../modules/report/entry-point/routes/Report.routes';
 
 const router = express.Router();
 
@@ -32,5 +33,6 @@ router.use('/notifications', notificationRouter);
 router.use('/chat', ChatRoutes);
 router.use('/mentorship', MentorshipRoutes);
 router.use('/reviews', ReviewRoutes);
+router.use('/reports', ReportRoutes);
 
 export default router;
