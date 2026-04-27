@@ -54,8 +54,18 @@ export const toggleHelpful = async (
   return response.data.data;
 };
 
-export const reportReview = async (reviewId: string): Promise<void> => {
-  await api.post(`/reviews/${reviewId}/report`);
+export const submitReport = async (
+  targetType: 'review' | 'course' | 'lesson',
+  targetId: string,
+  reason: string,
+  description?: string
+): Promise<void> => {
+  await api.post(`/reports`, {
+    targetType,
+    targetId,
+    reason,
+    description
+  });
 };
 
 export const getMySessionRatings = async (): Promise<Record<string, number>> => {
