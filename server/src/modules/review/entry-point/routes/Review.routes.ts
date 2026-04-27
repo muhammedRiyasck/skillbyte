@@ -48,12 +48,6 @@ router.get(
   asyncHandler(reviewController.getRatingSummary),
 );
 
-router.post(
-  '/:reviewId/report',
-  authenticate,
-  asyncHandler(reviewController.reportReview),
-);
-
 router.get(
   '/my-session-ratings',
   authenticate,
