@@ -3,9 +3,10 @@ import type { IReview, ReviewResponse } from '../types/reviewTypes';
 import StarRating from './StarRating';
 import { formatDistanceToNow } from 'date-fns';
 import { ThumbsUp, MoreVertical, Flag, Trash2, Edit } from 'lucide-react';
-import { toggleHelpful, reportReview, deleteReview } from '../services/ReviewService';
+import { toggleHelpful, submitReport, deleteReview } from '../services/ReviewService';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
+import ReportModal from '@/shared/components/ReportModal';
 
 interface ReviewCardProps {
   review: IReview;
@@ -18,6 +19,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
   const queryClient = useQueryClient();
   const [isHelpfulLoading, setIsHelpfulLoading] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   // Optimistic local state for helpful
   const [isUpvoted, setIsUpvoted] = useState(review.isUpvotedByCurrentUser);
@@ -50,13 +52,13 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
     }
   };
 
-  const handleReport = async () => {
+  const handleReportSubmit = async (reason: string, description: string) => {
     try {
-      await reportReview(review.reviewId);
+      await submitReport('review', review.reviewId, reason, description);
       toast.success('Review reported to administrators');
-      setShowMenu(false);
     } catch {
       toast.error('Failed to report review');
+      throw new Error('Failed to report');
     }
   };
 
@@ -146,7 +148,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
                     </>
                 ) : (
                     <button 
-                        onClick={handleReport}
+                        onClick={() => { setShowMenu(false); setIsReportModalOpen(true); }}
                         className="w-full text-left cursor-pointer px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
                     >
                     <Flag className="w-4 h-4" /> Report
@@ -178,6 +180,14 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
           Helpful {helpfulCount > 0 && `(${helpfulCount})`}
         </button>
       </div>
+
+      <ReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        onSubmit={handleReportSubmit}
+        targetName={review.comment}
+        targetType="review"
+      />
     </div>
   );
 };
