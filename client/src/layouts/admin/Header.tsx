@@ -3,7 +3,7 @@ import logo from "../../assets/OrginalLogo.png";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ROUTES } from "@core/router/paths";
-import { Menu, X, LayoutDashboard, Users, UserCheck, BookOpen, MessageSquare, FileText, LogOut, DollarSign } from "lucide-react";
+import { Menu, X, LayoutDashboard, Users, UserCheck, BookOpen, MessageSquare, LogOut, DollarSign, Shield } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@core/store/Index";
 import { logout } from "@features/auth/services/AuthService";
@@ -108,12 +108,12 @@ const Header = () => {
                   <span className="font-medium">Mentor Feedback</span>
                 </Link>
                 <Link
-                  to="#"
+                  to={ROUTES.admin.reportedContent}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm"
                   onClick={() => setIsOpen(false)}
                 >
-                  <FileText size={20} className="text-teal-600 group-hover:scale-110 transition-transform" />
-                  <span className="font-medium">Reports</span>
+                  <Shield size={20} className="text-red-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">Moderation Reports</span>
                 </Link>
                 {user && (
                   <button
