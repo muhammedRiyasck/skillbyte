@@ -18,7 +18,8 @@ import {
   BookOpen,
   Check,
   RefreshCw,
-  Pencil
+  Pencil,
+  Flag
 } from 'lucide-react';
 import { ROUTES } from '@/core/router/paths';
 import { getCourseDetails } from '../services/CourseDetails';
@@ -28,6 +29,8 @@ import LessonPlayer from '../components/LessonPlayer';
 import RatingSummary from '@features/review/components/RatingSummary';
 import ReviewList from '@features/review/components/ReviewList';
 import ReviewForm from '@features/review/components/ReviewForm';
+import ReportModal from '@/shared/components/ReportModal';
+import { submitReport } from '@features/review/services/ReviewService';
 
 import ErrorPage from '@shared/ui/ErrorPage';
 import type { ModuleType } from '../types/IModule';
@@ -45,6 +48,7 @@ const CourseDetails: React.FC = () => {
   const [blockedLessons, setBlockedLessons] = useState<Set<string>>(new Set());
   const [currentLessonId, setCurrentLessonId] = useState<string | null>(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const role = useSelector((state: RootState) => state.auth.user?.role);
   const userId = useSelector((state: RootState) => state.auth.user?.id);
@@ -117,6 +121,16 @@ const CourseDetails: React.FC = () => {
     } catch (error) {
       console.error('Failed to block/unblock lesson:', error);
       // You might want to show a toast notification here
+    }
+  };
+
+  const handleReportCourse = async (reason: string, description: string) => {
+    try {
+      await submitReport('course', id!, reason, description);
+      toast.success('Course reported to administrators');
+    } catch {
+      toast.error('Failed to report course');
+      throw new Error('Failed to report');
     }
   };
 
@@ -643,10 +657,30 @@ const CourseDetails: React.FC = () => {
                   ))}
                 </div>
               </div>
+
+              {role === UserRole.STUDENT && isEnrolled && (
+                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-center">
+                  <button
+                    onClick={() => setIsReportModalOpen(true)}
+                    className="flex items-center gap-2 text-sm text-gray-500 hover:text-red-500 transition-colors cursor-pointer"
+                  >
+                    <Flag className="w-4 h-4" />
+                    Report this Course
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      <ReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        onSubmit={handleReportCourse}
+        targetName={course.title}
+        targetType="course"
+      />
     </div>
   );
 };
