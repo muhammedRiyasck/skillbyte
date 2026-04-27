@@ -2,9 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getLessonPlayUrl } from "@/features/course/services/PlayUrlService";
 import { updateLessonProgress } from "@/features/course/services/LessonProgress";
-import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Loader2, X, WifiOff } from "lucide-react";
+import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Loader2, X, WifiOff, Flag } from "lucide-react";
 import ErrorPage from "@shared/ui/ErrorPage";
 import { toast } from "sonner";
+import ReportModal from '@/shared/components/ReportModal';
+import { submitReport } from '@features/review/services/ReviewService';
+import { useSelector } from 'react-redux';
+import type { RootState } from '@/core/store/Index';
+import { UserRole } from '@shared/enums/UserRole';
 
 interface LessonPlayerProps {
   id: string;
@@ -29,6 +34,9 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
   const [buffering, setBuffering] = useState(false);
   const [isSlowConnection, setIsSlowConnection] = useState(false);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+
+  const role = useSelector((state: RootState) => state.auth.user?.role);
 
   const lastSavedTime = useRef(0);
 
@@ -263,6 +271,24 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
+  const handleReportLesson = async (reason: string, description: string) => {
+    try {
+      await submitReport('lesson', id, reason, description);
+      toast.success('Lesson reported to administrators');
+    } catch {
+      toast.error('Failed to report lesson');
+      throw new Error('Failed to report');
+    }
+  };
+
+  const openReportModal = () => {
+    if (isPlaying && videoRef.current) {
+      videoRef.current.pause();
+      setIsPlaying(false);
+    }
+    setIsReportModalOpen(true);
+  };
+
   if (isLoading) {
     return (
       <div className="w-full h-96 bg-gray-900 flex items-center justify-center rounded-xl">
@@ -293,13 +319,24 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
       {/* Header bar (optional) */}
       <div className="bg-gray-800 px-4 py-2 flex items-center justify-between">
         <h3 className="text-white font-medium truncate">{title || "Playing Lesson"}</h3>
-        <button
-          onClick={onClose}
-          className="text-gray-400 hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
-        >
-          <X className="w-5 h-5" />
-          <span className="text-sm">Close Player</span>
-        </button>
+        <div className="flex items-center gap-4">
+          {role === UserRole.STUDENT && (
+            <button
+              onClick={openReportModal}
+              className="text-gray-400 hover:text-red-400 transition-colors flex items-center gap-1 cursor-pointer"
+              title="Report this lesson"
+            >
+              <Flag className="w-4 h-4" />
+            </button>
+          )}
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+            <span className="text-sm">Close Player</span>
+          </button>
+        </div>
       </div>
 
       <div
@@ -406,6 +443,14 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
           </div>
         </div>
       </div>
+
+      <ReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        onSubmit={handleReportLesson}
+        targetName={title}
+        targetType="lesson"
+      />
     </div>
   );
 };
