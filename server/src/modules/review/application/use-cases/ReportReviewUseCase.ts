@@ -12,6 +12,6 @@ export class ReportReviewUseCase implements IReportReviewUseCase {
       throw new HttpError('Review not found.', HttpStatusCode.NOT_FOUND);
     }
 
-    await this.reviewRepository.reportReview(reviewId);
+    await this.reviewRepository.hideReview(reviewId);
   }
 }

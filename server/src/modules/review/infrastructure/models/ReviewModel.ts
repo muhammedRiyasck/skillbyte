@@ -10,7 +10,7 @@ export interface IReviewDoc extends Document {
   comment: string;
   helpfulCount: number;
   upvotedBy: Types.ObjectId[];
-  isReported: boolean;
+  isHidden: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -57,7 +57,7 @@ const ReviewSchema = new mongoose.Schema(
         ref: 'Student',
       },
     ],
-    isReported: {
+    isHidden: {
       type: Boolean,
       default: false,
     },

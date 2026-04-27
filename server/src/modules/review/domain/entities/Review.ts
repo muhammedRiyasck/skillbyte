@@ -7,7 +7,7 @@ export class Review {
     public rating: number,
     public comment: string,
     public helpfulCount: number = 0,
-    public isReported: boolean = false,
+    public isHidden: boolean = false,
     public reviewId?: string,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),

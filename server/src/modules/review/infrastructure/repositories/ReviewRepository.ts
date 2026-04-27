@@ -31,7 +31,7 @@ export class ReviewRepository
         : { createdAt: -1 };
 
     const docs = await this.model
-      .find({ targetType, targetId })
+      .find({ targetType, targetId, isHidden: { $ne: true } })
       .populate('studentId', 'name profilePictureUrl')
       .sort(sortObj as unknown as Record<string, 1 | -1>)
       .skip(skip)
@@ -41,7 +41,11 @@ export class ReviewRepository
   }
 
   async countByTarget(targetType: string, targetId: string): Promise<number> {
-    return this.model.countDocuments({ targetType, targetId });
+    return this.model.countDocuments({
+      targetType,
+      targetId,
+      isHidden: { $ne: true },
+    });
   }
 
   async findByStudentAndTarget(
@@ -60,6 +64,7 @@ export class ReviewRepository
       .find({
         studentId: new mongoose.Types.ObjectId(studentId),
         targetType: 'session',
+        isHidden: { $ne: true },
       })
       .select('targetId rating');
 
@@ -79,7 +84,7 @@ export class ReviewRepository
     distribution: Record<number, number>;
   }> {
     const result = await this.model.aggregate([
-      { $match: { targetType, targetId: targetId } },
+      { $match: { targetType, targetId: targetId, isHidden: { $ne: true } } },
       {
         $group: {
           _id: null,
@@ -124,7 +129,7 @@ export class ReviewRepository
   ): Promise<{ average: number; count: number }> {
     const objId = new mongoose.Types.ObjectId(instructorId);
     const result = await this.model.aggregate([
-      { $match: { instructorId: objId } },
+      { $match: { instructorId: objId, isHidden: { $ne: true } } },
       {
         $group: {
           _id: null,
@@ -158,8 +163,8 @@ export class ReviewRepository
     });
   }
 
-  async reportReview(reviewId: string): Promise<void> {
-    await this.model.findByIdAndUpdate(reviewId, { isReported: true });
+  async hideReview(reviewId: string): Promise<void> {
+    await this.model.findByIdAndUpdate(reviewId, { isHidden: true });
   }
 
   async hasUserUpvoted(reviewId: string, userId: string): Promise<boolean> {

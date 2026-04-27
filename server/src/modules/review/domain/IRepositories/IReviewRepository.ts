@@ -29,7 +29,7 @@ export interface IReviewRepository extends IBaseRepository<Review> {
   updateReview(reviewId: string, data: Partial<Review>): Promise<void>;
   deleteReview(reviewId: string): Promise<void>;
   incrementHelpful(reviewId: string, incrementBy: number): Promise<void>;
-  reportReview(reviewId: string): Promise<void>;
+  hideReview(reviewId: string): Promise<void>;
   countByTarget(targetType: string, targetId: string): Promise<number>;
   hasUserUpvoted(reviewId: string, userId: string): Promise<boolean>;
   addUserUpvote(reviewId: string, userId: string): Promise<void>;
