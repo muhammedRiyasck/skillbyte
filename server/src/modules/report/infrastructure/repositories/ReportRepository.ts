@@ -1,5 +1,8 @@
 import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
-import { IReportRepository } from '../../domain/IRepositories/IReportRepository';
+import {
+  IReportRepository,
+  ReportFilterOptions,
+} from '../../domain/IRepositories/IReportRepository';
 import { Report } from '../../domain/entities/Report';
 import { ReportModel, IReportDoc } from '../models/ReportModel';
 import { ReportMapper } from '../../application/mappers/ReportMapper';
@@ -17,26 +20,8 @@ export class ReportRepository
     return ReportMapper.toEntity(doc);
   }
 
-  async findByStatus(
-    status: 'pending' | 'dismissed' | 'actioned',
-    page: number,
-    limit: number,
-  ): Promise<{ reports: Report[]; total: number }> {
-    const skip = (page - 1) * limit;
-
-    const [docs, total] = await Promise.all([
-      this.model
-        .find({ status })
-        .populate('reportedBy', 'name profilePictureUrl')
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
-      this.model.countDocuments({ status }),
-    ]);
-
-    // For each doc, map the populated student info
-    const reports = docs.map((document) => {
+  private mapDocs(docs: IReportDoc[]): Report[] {
+    return docs.map((document) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const doc = document as any;
       const isPopulated = doc.reportedBy && typeof doc.reportedBy === 'object';
@@ -48,7 +33,6 @@ export class ReportRepository
           }
         : undefined;
 
-      // Ensure we convert _id back to expected types to avoid map errors
       const reportedById = isPopulated
         ? doc.reportedBy._id
         : doc.reportedBy || new mongoose.Types.ObjectId();
@@ -60,8 +44,66 @@ export class ReportRepository
 
       return ReportMapper.toEntity(safeDoc, studentInfo);
     });
+  }
 
-    return { reports, total };
+  /** Convenience wrapper kept for backwards compat */
+  async findByStatus(
+    status: 'pending' | 'dismissed' | 'actioned',
+    page: number,
+    limit: number,
+  ): Promise<{ reports: Report[]; total: number }> {
+    return this.findWithFilters({ status, page, limit });
+  }
+
+  async findWithFilters(
+    filters: ReportFilterOptions,
+  ): Promise<{ reports: Report[]; total: number }> {
+    const {
+      status,
+      targetType,
+      reason,
+      dateFrom,
+      dateTo,
+      sortBy = 'createdAt',
+      sortOrder = 'desc',
+      page,
+      limit,
+    } = filters;
+
+    const skip = (page - 1) * limit;
+
+    // Build dynamic filter query
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const query: Record<string, any> = {};
+
+    if (status) query.status = status;
+    if (targetType) query.targetType = targetType;
+    if (reason) query.reason = { $regex: reason, $options: 'i' };
+
+    if (dateFrom || dateTo) {
+      query.createdAt = {};
+      if (dateFrom) query.createdAt.$gte = new Date(dateFrom);
+      if (dateTo) {
+        const toDate = new Date(dateTo);
+        toDate.setHours(23, 59, 59, 999);
+        query.createdAt.$lte = toDate;
+      }
+    }
+
+    const sortValue = sortOrder === 'asc' ? 1 : -1;
+
+    const [docs, total] = await Promise.all([
+      this.model
+        .find(query)
+        .populate('reportedBy', 'name profilePictureUrl')
+        .sort({ [sortBy]: sortValue })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      this.model.countDocuments(query),
+    ]);
+
+    return { reports: this.mapDocs(docs as IReportDoc[]), total };
   }
 
   async hasUserReportedTarget(

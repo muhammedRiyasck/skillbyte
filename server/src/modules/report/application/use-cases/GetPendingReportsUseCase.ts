@@ -1,4 +1,7 @@
-import { IReportRepository } from '../../domain/IRepositories/IReportRepository';
+import {
+  IReportRepository,
+  ReportFilterOptions,
+} from '../../domain/IRepositories/IReportRepository';
 import { IGetPendingReportsUseCase } from '../interfaces/IGetPendingReportsUseCase';
 import { ICourseRepository } from '../../../course/domain/IRepositories/ICourseRepository';
 import { ILessonRepository } from '../../../course/domain/IRepositories/ILessonRepository';
@@ -14,14 +17,10 @@ export class GetPendingReportsUseCase implements IGetPendingReportsUseCase {
   ) {}
 
   async execute(
-    page: number,
-    limit: number,
+    filters: ReportFilterOptions,
   ): Promise<{ reports: Report[]; total: number }> {
-    const { reports, total } = await this.reportRepository.findByStatus(
-      'pending',
-      page,
-      limit,
-    );
+    const { reports, total } =
+      await this.reportRepository.findWithFilters(filters);
 
     const enrichedReports = await Promise.all(
       reports.map(async (report) => {

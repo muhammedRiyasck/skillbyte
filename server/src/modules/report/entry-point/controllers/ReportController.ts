@@ -41,15 +41,39 @@ export class ReportController {
 
   getPendingReports = async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
+    const limit = parseInt(req.query.limit as string) || 12;
 
-    const data = await this.getPendingReportsUseCase.execute(page, limit);
+    const status = req.query.status as
+      | 'pending'
+      | 'dismissed'
+      | 'actioned'
+      | undefined;
+    const targetType = req.query.targetType as
+      | 'review'
+      | 'course'
+      | 'lesson'
+      | undefined;
+    const reason = req.query.reason as string | undefined;
+    const dateFrom = req.query.dateFrom as string | undefined;
+    const dateTo = req.query.dateTo as string | undefined;
+    const sortBy =
+      (req.query.sortBy as 'createdAt' | 'reason' | 'targetType') ||
+      'createdAt';
+    const sortOrder = (req.query.sortOrder as 'asc' | 'desc') || 'desc';
 
-    ApiResponseHelper.success(
-      res,
-      'Pending reports retrieved successfully',
-      data,
-    );
+    const data = await this.getPendingReportsUseCase.execute({
+      status,
+      targetType,
+      reason,
+      dateFrom,
+      dateTo,
+      sortBy,
+      sortOrder,
+      page,
+      limit,
+    });
+
+    ApiResponseHelper.success(res, 'Reports retrieved successfully', data);
   };
 
   dismissReport = async (req: Request, res: Response) => {

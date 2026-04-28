@@ -1,8 +1,8 @@
 import { Report } from '../../domain/entities/Report';
+import { ReportFilterOptions } from '../../domain/IRepositories/IReportRepository';
 
 export interface IGetPendingReportsUseCase {
   execute(
-    page: number,
-    limit: number,
+    filters: ReportFilterOptions,
   ): Promise<{ reports: Report[]; total: number }>;
 }
