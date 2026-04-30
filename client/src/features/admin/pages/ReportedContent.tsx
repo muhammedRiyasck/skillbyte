@@ -20,7 +20,7 @@ import {
   SortDesc,
   Eye
 } from 'lucide-react';
-import { Pagination } from '@/shared/ui';
+import { AdminConfirmModal, Pagination } from '@/shared/ui';
 import type { IReport } from '../types/IReport';
 
 const ReportedContent: React.FC = () => {
@@ -437,14 +437,25 @@ const ReportedContent: React.FC = () => {
 
                 <div className="flex items-center justify-between pt-2 border-t border-gray-50 dark:border-gray-700">
                   <div className="flex items-center gap-3">
-                    <div className="relative">
+                    <div className="relative w-10 h-10">
                       {report.studentInfo?.profilePictureUrl ? (
-                        <img src={report.studentInfo.profilePictureUrl} alt="" className="w-10 h-10 rounded-xl object-cover ring-2 ring-white dark:ring-gray-800" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-black shadow-lg">
-                          {report.studentInfo?.name?.charAt(0) || 'U'}
-                        </div>
-                      )}
+                        <img 
+                          src={report.studentInfo.profilePictureUrl} 
+                          alt="" 
+                          className="w-10 h-10 rounded-xl object-cover ring-2 ring-white dark:ring-gray-800"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                            const fallback = (e.target as HTMLImageElement).nextElementSibling as HTMLElement;
+                            if (fallback) fallback.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      <div 
+                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-black shadow-lg"
+                        style={{ display: report.studentInfo?.profilePictureUrl ? 'none' : 'flex' }}
+                      >
+                        {report.studentInfo?.name?.charAt(0) || 'U'}
+                      </div>
                       <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full" />
                     </div>
                     <div>
@@ -501,64 +512,23 @@ const ReportedContent: React.FC = () => {
         />
       )}
 
-      {/* Glassmorphism Confirmation Modal */}
-      {selectedReport && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-[6px] animate-in fade-in duration-300">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-8 border border-white/20 dark:border-gray-700 transform animate-in zoom-in-95 duration-300 relative overflow-hidden">
-            {/* Decorative background element */}
-            <div className={`absolute top-0 right-0 w-32 h-32 opacity-10 blur-3xl rounded-full -mr-16 -mt-16 ${actionType === 'dismiss' ? 'bg-indigo-600' : 'bg-red-600'}`} />
-            
-            <div className={`w-16 h-16 rounded-lg flex items-center justify-center mb-6 shadow-lg ${
-              actionType === 'dismiss' 
-                ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600' 
-                : 'bg-red-100 dark:bg-red-900/50 text-red-600'
-            }`}>
-              {actionType === 'dismiss' ? <CheckCircle size={32} /> : <Trash2 size={32} />}
-            </div>
-
-            <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">
-              {actionType === 'dismiss' ? 'Dismiss Report?' : 'Process Action?'}
-            </h3>
-            
-            <div className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-4 mb-6 border border-gray-100 dark:border-gray-700">
-              <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
-                {actionType === 'dismiss' 
-                  ? "Are you sure you want to dismiss this report? The content will remain active on the platform and this report will be moved to archives."
-                  : `Are you sure you want to take action? This will ${selectedReport.targetType === 'review' ? 'permanently delete the review' : `block the ${selectedReport.targetType}`}. This action is irreversible.`
-                }
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={handleConfirm}
-                disabled={dismissMutation.isPending || actionMutation.isPending}
-                className={`w-full py-4 rounded-2xl font-black text-white shadow-xl transition-all flex items-center justify-center gap-3 cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
-                  actionType === 'dismiss' 
-                    ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/30' 
-                    : 'bg-red-500 hover:bg-red-600 shadow-red-500/30'
-                }`}
-              >
-                {(dismissMutation.isPending || actionMutation.isPending) ? (
-                  <RefreshCw className="w-5 h-5 animate-spin" />
-                ) : (
-                  <>
-                    {actionType === 'dismiss' ? 'Yes, Dismiss Report' : 'Confirm Action'}
-                  </>
-                )}
-              </button>
-              
-              <button
-                onClick={() => { setSelectedReport(null); setActionType(null); }}
-                className="w-full py-4 rounded-2xl text-gray-500 dark:text-gray-400 font-bold hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
-                disabled={dismissMutation.isPending || actionMutation.isPending}
-              >
-                Cancel and Review Again
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Reusable Confirmation Modal */}
+      <AdminConfirmModal
+        isOpen={!!selectedReport}
+        onClose={() => { setSelectedReport(null); setActionType(null); }}
+        onConfirm={handleConfirm}
+        title={actionType === 'dismiss' ? 'Dismiss Report?' : 'Process Action?'}
+        description={
+          actionType === 'dismiss' 
+            ? "Are you sure you want to dismiss this report? The content will remain active on the platform and this report will be moved to archives."
+            : `Are you sure you want to take action? This will ${selectedReport?.targetType === 'review' ? 'permanently delete the review' : `block the ${selectedReport?.targetType}`}. This action is irreversible.`
+        }
+        confirmText={actionType === 'dismiss' ? 'Yes, Dismiss Report' : 'Confirm Action'}
+        cancelText="Cancel and Review Again"
+        variant={actionType === 'dismiss' ? 'primary' : 'danger'}
+        isLoading={dismissMutation.isPending || actionMutation.isPending}
+        icon={actionType === 'dismiss' ? <CheckCircle size={32} /> : <Trash2 size={32} />}
+      />
     </div>
   );
 };
