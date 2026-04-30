@@ -1,6 +1,16 @@
 import { IBaseRepository } from '../../../../shared/repositories/IBaseRepository';
 import { Review } from '../entities/Review';
 
+export interface AdminReviewFilters {
+  targetType?: 'course' | 'session';
+  isHidden?: boolean;
+  minRating?: number;
+  maxRating?: number;
+  search?: string;
+  sortBy?: 'createdAt' | 'rating' | 'helpfulCount';
+  sortOrder?: 'asc' | 'desc';
+}
+
 export interface IReviewRepository extends IBaseRepository<Review> {
   findByTarget(
     targetType: string,
@@ -34,4 +44,12 @@ export interface IReviewRepository extends IBaseRepository<Review> {
   hasUserUpvoted(reviewId: string, userId: string): Promise<boolean>;
   addUserUpvote(reviewId: string, userId: string): Promise<void>;
   removeUserUpvote(reviewId: string, userId: string): Promise<void>;
+  findAllForAdmin(
+    filters: AdminReviewFilters,
+    page: number,
+    limit: number,
+  ): Promise<Review[]>;
+  countAllForAdmin(filters: AdminReviewFilters): Promise<number>;
+  unhideReview(reviewId: string): Promise<void>;
+  adminDeleteReview(reviewId: string): Promise<void>;
 }

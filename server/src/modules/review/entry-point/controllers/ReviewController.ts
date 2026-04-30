@@ -11,6 +11,9 @@ import { IToggleHelpfulReviewUseCase } from '../../application/interfaces/IToggl
 import { IGetCourseRatingSummaryUseCase } from '../../application/interfaces/IGetCourseRatingSummaryUseCase';
 import { IReportReviewUseCase } from '../../application/interfaces/IReportReviewUseCase';
 import { IGetMySessionRatingsUseCase } from '../../application/interfaces/IGetMySessionRatingsUseCase';
+import { IGetAllReviewsAdminUseCase } from '../../application/interfaces/IGetAllReviewsAdminUseCase';
+import { IAdminToggleHideReviewUseCase } from '../../application/use-cases/AdminToggleHideReviewUseCase';
+import { IAdminDeleteReviewUseCase } from '../../application/use-cases/AdminDeleteReviewUseCase';
 
 const SubmitReviewSchema = z.object({
   targetType: z.enum(['course', 'session']),
@@ -34,6 +37,9 @@ export class ReviewController {
     private toggleHelpfulReviewUseCase: IToggleHelpfulReviewUseCase,
     private reportReviewUseCase: IReportReviewUseCase,
     private getMySessionRatingsUseCase: IGetMySessionRatingsUseCase,
+    private getAllReviewsAdminUseCase: IGetAllReviewsAdminUseCase,
+    private adminToggleHideReviewUseCase: IAdminToggleHideReviewUseCase,
+    private adminDeleteReviewUseCase: IAdminDeleteReviewUseCase,
   ) {}
 
   submitReview = async (req: Request, res: Response) => {
@@ -147,5 +153,42 @@ export class ReviewController {
     ApiResponseHelper.success(res, 'Ratings retrieved successfully', {
       ratings,
     });
+  };
+
+  // ── Admin-only handlers ────────────────────────────────────────────────────
+
+  getAllReviewsAdmin = async (req: Request, res: Response) => {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 15;
+    const { targetType, isHidden, minRating, maxRating, search, sortBy, sortOrder } = req.query;
+
+    const filters = {
+      targetType: (targetType as 'course' | 'session') || undefined,
+      isHidden: isHidden === 'true' ? true : isHidden === 'false' ? false : undefined,
+      minRating: minRating ? parseInt(minRating as string) : undefined,
+      maxRating: maxRating ? parseInt(maxRating as string) : undefined,
+      search: (search as string) || undefined,
+      sortBy: (sortBy as 'createdAt' | 'rating' | 'helpfulCount') || 'createdAt',
+      sortOrder: (sortOrder as 'asc' | 'desc') || 'desc',
+    };
+
+    const result = await this.getAllReviewsAdminUseCase.execute(filters, page, limit);
+
+    ApiResponseHelper.success(res, 'Reviews retrieved successfully', result);
+  };
+
+  adminToggleHideReview = async (req: Request, res: Response) => {
+    const { reviewId } = req.params;
+    const { hide } = req.body as { hide: boolean };
+
+    await this.adminToggleHideReviewUseCase.execute(reviewId, hide);
+
+    ApiResponseHelper.success(res, `Review ${hide ? 'hidden' : 'unhidden'} successfully`);
+  };
+
+  adminDeleteReview = async (req: Request, res: Response) => {
+    const { reviewId } = req.params;
+    await this.adminDeleteReviewUseCase.execute(reviewId);
+    ApiResponseHelper.success(res, 'Review permanently deleted');
   };
 }

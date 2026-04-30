@@ -6,7 +6,29 @@ import asyncHandler from '../../../../shared/utils/AsyncHandler';
 
 const router = Router();
 
-// Routes for student to submit, edit, delete reviews
+// ── Admin-only routes (static paths MUST come before dynamic :reviewId routes) ──
+router.get(
+  '/admin',
+  authenticate,
+  requireRole('admin'),
+  asyncHandler(reviewController.getAllReviewsAdmin),
+);
+
+router.patch(
+  '/admin/:reviewId/toggle-hide',
+  authenticate,
+  requireRole('admin'),
+  asyncHandler(reviewController.adminToggleHideReview),
+);
+
+router.delete(
+  '/admin/:reviewId',
+  authenticate,
+  requireRole('admin'),
+  asyncHandler(reviewController.adminDeleteReview),
+);
+
+// ── Student routes ────────────────────────────────────────────────────────────
 router.post(
   '/',
   authenticate,
@@ -35,11 +57,12 @@ router.post(
   asyncHandler(reviewController.toggleHelpful),
 );
 
-// Public/Authenticated routes for retrieving reviews
+// ── Shared authenticated routes ───────────────────────────────────────────────
 router.get(
-  '/:targetType/:targetId',
+  '/my-session-ratings',
   authenticate,
-  asyncHandler(reviewController.getReviews),
+  requireRole('student'),
+  asyncHandler(reviewController.getMySessionRatings),
 );
 
 router.get(
@@ -49,10 +72,9 @@ router.get(
 );
 
 router.get(
-  '/my-session-ratings',
+  '/:targetType/:targetId',
   authenticate,
-  requireRole('student'),
-  asyncHandler(reviewController.getMySessionRatings),
+  asyncHandler(reviewController.getReviews),
 );
 
 export default router;

@@ -7,6 +7,9 @@ import { GetCourseRatingSummaryUseCase } from '../../application/use-cases/GetCo
 import { ToggleHelpfulReviewUseCase } from '../../application/use-cases/ToggleHelpfulReviewUseCase';
 import { ReportReviewUseCase } from '../../application/use-cases/ReportReviewUseCase';
 import { GetMySessionRatingsUseCase } from '../../application/use-cases/GetMySessionRatingsUseCase';
+import { GetAllReviewsAdminUseCase } from '../../application/use-cases/GetAllReviewsAdminUseCase';
+import { AdminToggleHideReviewUseCase } from '../../application/use-cases/AdminToggleHideReviewUseCase';
+import { AdminDeleteReviewUseCase } from '../../application/use-cases/AdminDeleteReviewUseCase';
 import { ReviewRepository } from '../../infrastructure/repositories/ReviewRepository';
 import { CourseRepository } from '../../../course/infrastructure/repositories/CourseRepository';
 import { EnrollmentReadRepository } from '../../../enrollment/infrastructure/repositories/EnrollmentReadRepository';
@@ -51,6 +54,10 @@ const reportReviewUC = new ReportReviewUseCase(reviewRepository);
 
 const getMySessionRatingsUC = new GetMySessionRatingsUseCase(reviewRepository);
 
+const getAllReviewsAdminUC = new GetAllReviewsAdminUseCase(reviewRepository);
+const adminToggleHideUC = new AdminToggleHideReviewUseCase(reviewRepository);
+const adminDeleteUC = new AdminDeleteReviewUseCase(reviewRepository);
+
 export const reviewController = new ReviewController(
   submitReviewUC,
   updateReviewUC,
@@ -60,4 +67,7 @@ export const reviewController = new ReviewController(
   toggleHelpfulReviewUC,
   reportReviewUC,
   getMySessionRatingsUC,
+  getAllReviewsAdminUC,
+  adminToggleHideUC,
+  adminDeleteUC,
 );

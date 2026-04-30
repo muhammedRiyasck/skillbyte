@@ -1,5 +1,5 @@
 import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
-import { IReviewRepository } from '../../domain/IRepositories/IReviewRepository';
+import { IReviewRepository, AdminReviewFilters } from '../../domain/IRepositories/IReviewRepository';
 import { Review } from '../../domain/entities/Review';
 import { ReviewModel, IReviewDoc } from '../models/ReviewModel';
 import { ReviewMapper } from '../../application/mappers/ReviewMapper';
@@ -185,5 +185,56 @@ export class ReviewRepository
     await this.model.findByIdAndUpdate(reviewId, {
       $pull: { upvotedBy: userId },
     });
+  }
+
+  async findAllForAdmin(
+    filters: AdminReviewFilters,
+    page: number,
+    limit: number,
+  ): Promise<Review[]> {
+    const query = this._buildAdminQuery(filters);
+    const skip = (page - 1) * limit;
+    const sortField = filters.sortBy ?? 'createdAt';
+    const sortDir = filters.sortOrder === 'asc' ? 1 : -1;
+
+    const docs = await this.model
+      .find(query)
+      .populate('studentId', 'name profilePictureUrl')
+      .sort({ [sortField]: sortDir } as Record<string, 1 | -1>)
+      .skip(skip)
+      .limit(limit);
+
+    return docs.map((doc) => this.toEntity(doc));
+  }
+
+  async countAllForAdmin(filters: AdminReviewFilters): Promise<number> {
+    return this.model.countDocuments(this._buildAdminQuery(filters));
+  }
+
+  async unhideReview(reviewId: string): Promise<void> {
+    await this.model.findByIdAndUpdate(reviewId, { isHidden: false });
+  }
+
+  async adminDeleteReview(reviewId: string): Promise<void> {
+    await this.model.findByIdAndDelete(reviewId);
+  }
+
+  private _buildAdminQuery(filters: AdminReviewFilters): Record<string, unknown> {
+    const query: Record<string, unknown> = {};
+    if (filters.targetType) query.targetType = filters.targetType;
+    if (typeof filters.isHidden === 'boolean') {
+      query.isHidden = filters.isHidden ? true : { $ne: true };
+    }
+    if (filters.minRating !== undefined || filters.maxRating !== undefined) {
+      query.rating = {};
+      if (filters.minRating !== undefined)
+        (query.rating as Record<string, number>)['$gte'] = filters.minRating;
+      if (filters.maxRating !== undefined)
+        (query.rating as Record<string, number>)['$lte'] = filters.maxRating;
+    }
+    if (filters.search?.trim()) {
+      query.comment = { $regex: filters.search.trim(), $options: 'i' };
+    }
+    return query;
   }
 }
