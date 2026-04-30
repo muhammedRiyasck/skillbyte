@@ -28,6 +28,7 @@ const InstructorManagement = lazy(() => import("@features/admin/pages/Instructor
 const StudentManagement = lazy(() => import("@features/admin/pages/StudentManagement.tsx"));
 const AdminWithdrawals = lazy(() => import("@features/admin/pages/AdminWithdrawals.tsx"));
 const ReportedContent = lazy(() => import("@features/admin/pages/ReportedContent.tsx"));
+const ReviewManagement = lazy(() => import("@features/admin/pages/ReviewManagement.tsx"));
 
 import InstructorLayout from "@layouts/instructor/InstructorLayout.tsx";
 const InstructorSignup = lazy(() => import("@features/auth/pages/InstructorSignUp.tsx"));
@@ -448,6 +449,16 @@ const router = createBrowserRouter([
           <ProtectedRoute roles={["admin"]}>
             <Fallback>
               <ReportedContent />
+            </Fallback>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.admin.reviewManagement,
+        element: (
+          <ProtectedRoute roles={["admin"]}>
+            <Fallback>
+              <ReviewManagement />
             </Fallback>
           </ProtectedRoute>
         ),

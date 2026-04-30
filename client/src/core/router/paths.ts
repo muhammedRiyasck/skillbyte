@@ -57,6 +57,7 @@ export const ROUTES = {
     courseManagement: '/admin/course-management',
     withdrawalManagement: '/admin/withdrawals',
     reportedContent: '/admin/reports',
+    reviewManagement: '/admin/reviews',
   },
 } as const;
 

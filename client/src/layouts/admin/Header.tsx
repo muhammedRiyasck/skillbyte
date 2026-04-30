@@ -100,12 +100,12 @@ const Header = () => {
                 </Link>
 
                 <Link
-                  to="#"
+                  to={ROUTES.admin.reviewManagement}
                   className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm"
                   onClick={() => setIsOpen(false)}
                 >
                   <MessageSquare size={20} className="text-orange-600 group-hover:scale-110 transition-transform" />
-                  <span className="font-medium">Mentor Feedback</span>
+                  <span className="font-medium">Review Management</span>
                 </Link>
                 <Link
                   to={ROUTES.admin.reportedContent}
