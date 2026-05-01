@@ -3,7 +3,10 @@ import {
   AdminReviewDto,
   AdminReviewListResult,
 } from '../interfaces/IGetAllReviewsAdminUseCase';
-import { IReviewRepository, AdminReviewFilters } from '../../domain/IRepositories/IReviewRepository';
+import {
+  IReviewRepository,
+  AdminReviewFilters,
+} from '../../domain/IRepositories/IReviewRepository';
 
 export class GetAllReviewsAdminUseCase implements IGetAllReviewsAdminUseCase {
   constructor(private reviewRepository: IReviewRepository) {}

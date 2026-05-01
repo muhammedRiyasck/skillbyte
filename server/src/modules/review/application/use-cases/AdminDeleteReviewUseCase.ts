@@ -11,7 +11,8 @@ export class AdminDeleteReviewUseCase implements IAdminDeleteReviewUseCase {
 
   async execute(reviewId: string): Promise<void> {
     const review = await this.reviewRepository.findById(reviewId);
-    if (!review) throw new HttpError('Review not found', HttpStatusCode.NOT_FOUND);
+    if (!review)
+      throw new HttpError('Review not found', HttpStatusCode.NOT_FOUND);
     await this.reviewRepository.adminDeleteReview(reviewId);
   }
 }

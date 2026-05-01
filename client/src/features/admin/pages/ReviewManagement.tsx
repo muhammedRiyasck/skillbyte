@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAdminReviews, toggleHideReview, deleteReview, type AdminReviewFilters } from '../services/AdminReviewService';
+import type { ReviewResponse } from '@features/review/types/reviewTypes';
 import { toast } from 'sonner';
 import { 
   MessageSquare, 
@@ -60,11 +61,11 @@ const ReviewManagement: React.FC = () => {
     mutationFn: ({ reviewId, hide }: { reviewId: string, hide: boolean }) => toggleHideReview(reviewId, hide),
     onSuccess: (_, variables) => {
       toast.success(`Review ${variables.hide ? 'hidden' : 'unhidden'} successfully`);
-      queryClient.setQueryData(['adminReviews', filters], (oldData: any) => {
+      queryClient.setQueryData<ReviewResponse>(['adminReviews', filters], (oldData) => {
         if (!oldData) return oldData;
         return {
           ...oldData,
-          reviews: oldData.reviews.map((r: any) => 
+          reviews: oldData.reviews.map((r) => 
             r.reviewId === variables.reviewId ? { ...r, isHidden: variables.hide } : r
           )
         };
@@ -77,12 +78,12 @@ const ReviewManagement: React.FC = () => {
     mutationFn: deleteReview,
     onSuccess: (_, reviewId) => {
       toast.success('Review deleted permanently');
-      queryClient.setQueryData(['adminReviews', filters], (oldData: any) => {
+      queryClient.setQueryData<ReviewResponse>(['adminReviews', filters], (oldData) => {
         if (!oldData) return oldData;
         return {
           ...oldData,
           total: oldData.total - 1,
-          reviews: oldData.reviews.filter((r: any) => r.reviewId !== reviewId)
+          reviews: oldData.reviews.filter((r) => r.reviewId !== reviewId)
         };
       });
       setDeleteId(null);
@@ -90,7 +91,7 @@ const ReviewManagement: React.FC = () => {
     onError: () => toast.error('Failed to delete review')
   });
 
-  const handleFilterChange = (key: keyof AdminReviewFilters, value: any) => {
+  const handleFilterChange = <K extends keyof AdminReviewFilters>(key: K, value: AdminReviewFilters[K]) => {
     setFilters(prev => ({ 
       ...prev, 
       [key]: value, 
