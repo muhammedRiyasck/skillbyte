@@ -4,6 +4,7 @@ import { Calendar, Clock, Video, User, Timer, Wallet, Star, CheckCircle } from "
 import { BookingStatus } from "@shared/enums/BookingStatus";
 import { UserRole } from "@shared/enums/UserRole";
 import StarRating from "@features/review/components/StarRating";
+import type { ISessionReview } from "@features/review/services/ReviewService";
 
 interface BookingCardProps {
   booking: IMentorshipBooking;
@@ -11,7 +12,7 @@ interface BookingCardProps {
   onCancel?: (bookingId: string) => void;
   onRate?: (bookingId: string) => void;
   userRole: UserRole.INSTRUCTOR | UserRole.STUDENT;
-  existingRating?: number;
+  existingRating?: number | ISessionReview;
 }
 
 export const BookingCard = ({
@@ -180,12 +181,28 @@ export const BookingCard = ({
           <div className="w-full gap-2 pt-4">
             {userRole === UserRole.STUDENT && (
               existingRating ? (
-                <div className="flex flex-col items-center gap-1 py-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                  <div className="flex items-center gap-1.5 text-green-700 dark:text-green-400">
-                    <CheckCircle size={14} />
-                    <span className="text-xs font-medium">You rated this session</span>
+                <div className="space-y-3 w-full">
+                  <div className="flex flex-col items-center gap-1 py-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <div className="flex items-center gap-1.5 text-green-700 dark:text-green-400">
+                      <CheckCircle size={14} />
+                      <span className="text-xs font-medium">You rated this session</span>
+                    </div>
+                    <StarRating rating={typeof existingRating === 'object' ? existingRating.rating : existingRating} readonly size="sm" />
                   </div>
-                  <StarRating rating={existingRating} readonly size="sm" />
+                  
+                  {typeof existingRating === 'object' && existingRating.comment && (
+                    <div className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
+                      <p className="text-xs text-gray-500 mb-1">Your Comment:</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300 italic line-clamp-2">"{existingRating.comment}"</p>
+                    </div>
+                  )}
+
+                  {typeof existingRating === 'object' && existingRating.instructorReply && (
+                    <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-lg">
+                      <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-tighter mb-1">Instructor Reply:</p>
+                      <p className="text-sm text-gray-700 dark:text-gray-300">{existingRating.instructorReply}</p>
+                    </div>
+                  )}
                 </div>
               ) : onRate && (
                 <button

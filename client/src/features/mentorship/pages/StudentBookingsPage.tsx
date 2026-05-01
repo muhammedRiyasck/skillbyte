@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { toast } from "sonner";
 import { getStudentBookings, cancelBooking, generateVideoRoom } from "../services/BookingServices";
-import { getMySessionRatings } from "../../review/services/ReviewService";
+import { getMySessionRatings, type ISessionReview } from "../../review/services/ReviewService";
 import type { IMentorshipBooking, StudentBookingFilters } from "../types/mentorshipTypes";
 import { BookingCard } from "../components/BookingCard";
 import { Calendar, RefreshCw, Filter } from "lucide-react";
@@ -24,7 +24,7 @@ const StudentBookingsPage = () => {
     const [statusFilter, setStatusFilter] = useState<string>('all');
     
     // Load persisted ratings from localStorage
-    const [userRatings, setUserRatings] = useState<Record<string, number>>(() => {
+    const [userRatings, setUserRatings] = useState<Record<string, number | ISessionReview>>(() => {
         try {
             const saved = localStorage.getItem('student_session_ratings');
             return saved ? JSON.parse(saved) : {};
@@ -408,11 +408,14 @@ const StudentBookingsPage = () => {
                             targetType="session"
                             targetId={bookingToReview}
                             onSuccess={(rating) => {
+                                // Refresh to get full review object if needed, or just update rating
                                 setUserRatings(prev => {
-                                    const next = { ...prev, [bookingToReview]: rating };
+                                    const next = { ...prev, [bookingToReview]: { rating } };
                                     localStorage.setItem('student_session_ratings', JSON.stringify(next));
                                     return next;
                                 });
+                                // Invalidate bookings if we want to be sure
+                                refreshBookings();
                                 setIsReviewOpen(false);
                             }}
                             onCancel={() => setIsReviewOpen(false)}
