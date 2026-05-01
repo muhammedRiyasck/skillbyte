@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInView } from 'react-intersection-observer';
 import { getReviews } from '../services/ReviewService';
 import type { IReview } from '../types/reviewTypes';
 import ReviewCard from './ReviewCard';
 import ReviewForm from './ReviewForm';
+import { useEffect, useState } from 'react';
 
 interface ReviewListProps {
   targetType: 'course' | 'session';
@@ -13,18 +14,38 @@ interface ReviewListProps {
 }
 
 const ReviewList: React.FC<ReviewListProps> = ({ targetType, targetId, currentUserId, onReviewSubmitted }) => {
-  const [page, setPage] = useState(1);
+  const { ref, inView } = useInView({
+    threshold: 0,
+    triggerOnce: false,
+  });
   const [sort, setSort] = useState<'recent' | 'helpful'>('recent');
   const [editingReview, setEditingReview] = useState<IReview | null>(null);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['reviews', targetType, targetId, sort, page],
-    queryFn: () => getReviews(targetType, targetId, sort, page, 5),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ['reviews', targetType, targetId, sort],
+    queryFn: ({ pageParam = 1 }) => getReviews(targetType, targetId, sort, pageParam, 2),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      const totalLoaded = allPages.reduce((acc, page) => acc + page.reviews.length, 0);
+      return totalLoaded < lastPage.total ? allPages.length + 1 : undefined;
+    },
+    staleTime: 1000 * 60 * 5,
   });
 
-  const reviews = data?.reviews || [];
-  const total = data?.total || 0;
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, fetchNextPage]);
+
+  const reviews = data?.pages.flatMap((page) => page.reviews) || [];
+  const total = data?.pages[0]?.total || 0;
 
   const handleUpdate = () => {
     // This will be handled by mutation manual cache updates or invalidation
@@ -43,8 +64,6 @@ const ReviewList: React.FC<ReviewListProps> = ({ targetType, targetId, currentUs
     setEditingReview(null);
     if (onReviewSubmitted) onReviewSubmitted();
   }
-
-  const totalPages = Math.ceil(total / 5);
 
   return (
     <div className="space-y-6">
@@ -72,7 +91,6 @@ const ReviewList: React.FC<ReviewListProps> = ({ targetType, targetId, currentUs
               value={sort}
               onChange={(e) => {
                   setSort(e.target.value as 'recent' | 'helpful');
-                  setPage(1);
               }}
               className="bg-white border text-sm border-gray-300 dark:bg-gray-800 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-md py-1 px-3 focus:outline-none focus:ring-1 focus:ring-indigo-500"
             >
@@ -101,28 +119,16 @@ const ReviewList: React.FC<ReviewListProps> = ({ targetType, targetId, currentUs
               onEditRequest={handleEditRequest}
             />
           ))}
-        </div>
-      )}
 
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 mt-6">
-            <button 
-                disabled={page === 1}
-                onClick={() => setPage(page - 1)}
-                className="px-3 py-1 border rounded text-sm disabled:opacity-50 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-                Prev
-            </button>
-            <span className="text-sm text-gray-600">
-                Page {page} of {totalPages}
-            </span>
-            <button 
-                disabled={page === totalPages}
-                onClick={() => setPage(page + 1)}
-                className="px-3 py-1 border rounded text-sm disabled:opacity-50 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-                Next
-            </button>
+          {/* Loading sentinel */}
+          <div ref={ref} className="py-4 flex justify-center">
+             {isFetchingNextPage && (
+               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+             )}
+             {!hasNextPage && reviews.length > 0 && (
+               <p className="text-xs text-gray-400 font-medium italic">You've reached the end of reviews</p>
+             )}
+          </div>
         </div>
       )}
     </div>
