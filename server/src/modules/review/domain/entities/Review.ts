@@ -12,5 +12,8 @@ export class Review {
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
     public studentInfo?: { name: string; profileImageUrl?: string },
+    public instructorReply?: string,
+    public repliedAt?: Date,
+    public targetName?: string,
   ) {}
 }

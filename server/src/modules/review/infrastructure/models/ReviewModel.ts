@@ -11,6 +11,8 @@ export interface IReviewDoc extends Document {
   helpfulCount: number;
   upvotedBy: Types.ObjectId[];
   isHidden: boolean;
+  instructorReply?: string;
+  repliedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -60,6 +62,14 @@ const ReviewSchema = new mongoose.Schema(
     isHidden: {
       type: Boolean,
       default: false,
+    },
+    instructorReply: {
+      type: String,
+      trim: true,
+      maxlength: 1000,
+    },
+    repliedAt: {
+      type: Date,
     },
   },
   { timestamps: true },

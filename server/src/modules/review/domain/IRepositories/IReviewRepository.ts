@@ -11,6 +11,14 @@ export interface AdminReviewFilters {
   sortOrder?: 'asc' | 'desc';
 }
 
+export interface InstructorReviewFilters {
+  targetType?: string;
+  rating?: number;
+  hasReply?: boolean;
+  sortBy?: 'createdAt' | 'rating';
+  sortOrder?: 'asc' | 'desc';
+}
+
 export interface IReviewRepository extends IBaseRepository<Review> {
   findByTarget(
     targetType: string,
@@ -24,7 +32,27 @@ export interface IReviewRepository extends IBaseRepository<Review> {
     targetType: string,
     targetId: string,
   ): Promise<Review | null>;
-  findStudentSessionRatings(studentId: string): Promise<Record<string, number>>;
+  findInstructorReviews(
+    instructorId: string,
+    filters: InstructorReviewFilters,
+    page: number,
+    limit: number,
+  ): Promise<Review[]>;
+  countInstructorReviews(
+    instructorId: string,
+    filters: InstructorReviewFilters,
+  ): Promise<number>;
+  findStudentSessionRatings(studentId: string): Promise<
+    Record<
+      string,
+      {
+        rating: number;
+        comment: string;
+        instructorReply?: string;
+        repliedAt?: Date;
+      }
+    >
+  >;
   getAverageRating(
     targetType: string,
     targetId: string,

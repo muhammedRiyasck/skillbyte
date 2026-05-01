@@ -1,9 +1,15 @@
 import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
-import { IReviewRepository, AdminReviewFilters } from '../../domain/IRepositories/IReviewRepository';
+import {
+  IReviewRepository,
+  AdminReviewFilters,
+  InstructorReviewFilters,
+} from '../../domain/IRepositories/IReviewRepository';
 import { Review } from '../../domain/entities/Review';
 import { ReviewModel, IReviewDoc } from '../models/ReviewModel';
 import { ReviewMapper } from '../../application/mappers/ReviewMapper';
 import mongoose from 'mongoose';
+import { CourseModel } from '../../../course/infrastructure/models/CourseModel';
+import { MentorshipBookingModel } from '../../../mentorship/infrastructure/models/MentorshipBookingModel';
 
 export class ReviewRepository
   extends BaseRepository<Review, IReviewDoc>
@@ -57,20 +63,110 @@ export class ReviewRepository
     return doc ? this.toEntity(doc) : null;
   }
 
-  async findStudentSessionRatings(
-    studentId: string,
-  ): Promise<Record<string, number>> {
+  async findInstructorReviews(
+    instructorId: string,
+    filters: InstructorReviewFilters,
+    page: number,
+    limit: number,
+  ): Promise<Review[]> {
+    const skip = (page - 1) * limit;
+    const query = this._buildInstructorQuery(instructorId, filters);
+    const sort = this._buildInstructorSort(filters);
+
+    const docs = await this.model
+      .find(query)
+      .populate('studentId', 'name profilePictureUrl')
+      .sort(sort as { [key: string]: mongoose.SortOrder })
+      .skip(skip)
+      .limit(limit);
+
+    await this._populateTargetNames(docs);
+
+    return docs.map((doc) => this.toEntity(doc));
+  }
+
+  async countInstructorReviews(
+    instructorId: string,
+    filters: InstructorReviewFilters,
+  ): Promise<number> {
+    const query = this._buildInstructorQuery(instructorId, filters);
+    return this.model.countDocuments(query);
+  }
+
+  private _buildInstructorQuery(
+    instructorId: string,
+    filters: InstructorReviewFilters,
+  ): mongoose.FilterQuery<IReviewDoc> {
+    const query: mongoose.FilterQuery<IReviewDoc> = {
+      instructorId: new mongoose.Types.ObjectId(instructorId),
+      isHidden: { $ne: true },
+    };
+
+    if (filters.targetType) {
+      query.targetType = filters.targetType;
+    }
+
+    if (filters.rating) {
+      query.rating = filters.rating;
+    }
+
+    if (filters.hasReply !== undefined) {
+      if (filters.hasReply) {
+        query.instructorReply = { $exists: true, $ne: '' };
+      } else {
+        query.$or = [
+          { instructorReply: { $exists: false } },
+          { instructorReply: '' },
+        ];
+      }
+    }
+
+    return query;
+  }
+
+  private _buildInstructorSort(
+    filters: InstructorReviewFilters,
+  ): Record<string, 1 | -1> {
+    const sortBy = filters.sortBy || 'createdAt';
+    const sortOrder = filters.sortOrder === 'asc' ? 1 : -1;
+    return { [sortBy]: sortOrder };
+  }
+
+  async findStudentSessionRatings(studentId: string): Promise<
+    Record<
+      string,
+      {
+        rating: number;
+        comment: string;
+        instructorReply?: string;
+        repliedAt?: Date;
+      }
+    >
+  > {
     const docs = await this.model
       .find({
         studentId: new mongoose.Types.ObjectId(studentId),
         targetType: 'session',
         isHidden: { $ne: true },
       })
-      .select('targetId rating');
+      .select('targetId rating comment instructorReply repliedAt');
 
-    const ratings: Record<string, number> = {};
+    const ratings: Record<
+      string,
+      {
+        rating: number;
+        comment: string;
+        instructorReply?: string;
+        repliedAt?: Date;
+      }
+    > = {};
     docs.forEach((doc) => {
-      ratings[doc.targetId.toString()] = doc.rating;
+      ratings[doc.targetId.toString()] = {
+        rating: doc.rating,
+        comment: doc.comment,
+        instructorReply: doc.instructorReply,
+        repliedAt: doc.repliedAt,
+      };
     });
     return ratings;
   }
@@ -204,6 +300,8 @@ export class ReviewRepository
       .skip(skip)
       .limit(limit);
 
+    await this._populateTargetNames(docs);
+
     return docs.map((doc) => this.toEntity(doc));
   }
 
@@ -219,7 +317,9 @@ export class ReviewRepository
     await this.model.findByIdAndDelete(reviewId);
   }
 
-  private _buildAdminQuery(filters: AdminReviewFilters): Record<string, unknown> {
+  private _buildAdminQuery(
+    filters: AdminReviewFilters,
+  ): Record<string, unknown> {
     const query: Record<string, unknown> = {};
     if (filters.targetType) query.targetType = filters.targetType;
     if (typeof filters.isHidden === 'boolean') {
@@ -236,5 +336,56 @@ export class ReviewRepository
       query.comment = { $regex: filters.search.trim(), $options: 'i' };
     }
     return query;
+  }
+
+  private async _populateTargetNames(
+    docs: IReviewDoc[],
+  ): Promise<IReviewDoc[]> {
+    if (docs.length === 0) return docs;
+
+    const courseIds = docs
+      .filter((d) => d.targetType === 'course')
+      .map((d) => d.targetId);
+    const bookingIds = docs
+      .filter((d) => d.targetType === 'session')
+      .map((d) => d.targetId);
+
+    const [courses, bookings] = await Promise.all([
+      courseIds.length > 0
+        ? CourseModel.find({ _id: { $in: courseIds } }).select('title')
+        : Promise.resolve([]),
+      bookingIds.length > 0
+        ? MentorshipBookingModel.find({ _id: { $in: bookingIds } }).select(
+            'scheduledAt',
+          )
+        : Promise.resolve([]),
+    ]);
+
+    const courseMap = new Map<string, string>(
+      (courses as Array<{ _id: mongoose.Types.ObjectId; title: string }>).map(
+        (c) => [c._id.toString(), c.title],
+      ),
+    );
+    const bookingMap = new Map<string, string>(
+      (
+        bookings as Array<{ _id: mongoose.Types.ObjectId; scheduledAt: Date }>
+      ).map((b) => [
+        b._id.toString(),
+        `Session on ${b.scheduledAt.toLocaleDateString()}`,
+      ]),
+    );
+
+    docs.forEach((doc) => {
+      const targetIdStr = doc.targetId.toString();
+      if (doc.targetType === 'course') {
+        (doc as IReviewDoc & { targetName?: string }).targetName =
+          courseMap.get(targetIdStr);
+      } else if (doc.targetType === 'session') {
+        (doc as IReviewDoc & { targetName?: string }).targetName =
+          bookingMap.get(targetIdStr);
+      }
+    });
+
+    return docs;
   }
 }
