@@ -38,6 +38,9 @@ export class ReviewMapper {
       doc.createdAt,
       doc.updatedAt,
       studentInfo,
+      doc.instructorReply,
+      doc.repliedAt,
+      (doc as IReviewDoc & { targetName?: string }).targetName,
     );
   }
 
@@ -57,8 +60,11 @@ export class ReviewMapper {
       comment: review.comment,
       helpfulCount: review.helpfulCount,
       isUpvotedByCurrentUser,
+      instructorReply: review.instructorReply,
+      repliedAt: review.repliedAt,
       createdAt: review.createdAt,
       updatedAt: review.updatedAt,
+      targetName: review.targetName,
     };
   }
 }

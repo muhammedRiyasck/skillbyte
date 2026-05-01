@@ -12,6 +12,8 @@ export interface IReviewResponseDto {
   comment: string;
   helpfulCount: number;
   isUpvotedByCurrentUser: boolean;
+  instructorReply?: string;
+  repliedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
