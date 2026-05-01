@@ -13,8 +13,11 @@ export interface IReview {
   comment: string;
   helpfulCount: number;
   isUpvotedByCurrentUser: boolean;
+  instructorReply?: string;
+  repliedAt?: string;
   createdAt: string;
   updatedAt: string;
+  targetName?: string;
 }
 
 export interface ReviewResponse {

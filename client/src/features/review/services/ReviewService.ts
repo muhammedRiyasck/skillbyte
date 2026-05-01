@@ -47,6 +47,28 @@ export const getRatingSummary = async (
   return response.data.data;
 };
 
+export const getInstructorReviews = async (params: {
+  targetType?: string;
+  rating?: number | undefined;
+  status?: string | undefined;
+  sortBy?: string | undefined;
+  sortOrder?: string | undefined;
+  page?: number | undefined;
+  limit?: number | undefined;
+}): Promise<ReviewResponse> => {
+  const response = await api.get('/reviews/instructor/my-reviews', {
+    params,
+  });
+  return response.data.data;
+};
+
+export const replyToReview = async (
+  reviewId: string,
+  reply: string,
+): Promise<void> => {
+  await api.post(`/reviews/instructor/${reviewId}/reply`, { reply });
+};
+
 export const toggleHelpful = async (
   reviewId: string,
 ): Promise<{ isHelpful: boolean }> => {
@@ -68,7 +90,14 @@ export const submitReport = async (
   });
 };
 
-export const getMySessionRatings = async (): Promise<Record<string, number>> => {
+export interface ISessionReview {
+  rating: number;
+  comment?: string;
+  instructorReply?: string;
+  repliedAt?: string;
+}
+
+export const getMySessionRatings = async (): Promise<Record<string, number | ISessionReview>> => {
   const response = await api.get('/reviews/my-session-ratings');
   return response.data.data.ratings;
 };
