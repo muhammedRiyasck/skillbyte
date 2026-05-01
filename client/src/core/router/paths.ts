@@ -46,7 +46,8 @@ export const ROUTES = {
     mentorship: {
       slots: '/instructor/mentorship/slots',
       bookings: '/instructor/mentorship/bookings'
-    }
+    },
+    reviews: '/instructor/reviews',
   },
 
   admin: {

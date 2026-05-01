@@ -87,6 +87,10 @@ const Header = () => {
                   <User size={20} className="text-red-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Enrollments</span>
                 </Link>
+                <Link to={ROUTES.instructor.reviews} className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
+                  <MessageSquare size={20} className="text-orange-600 group-hover:scale-110 transition-transform" />
+                  <span className="font-medium">Reviews & Feedback</span>
+                </Link>
                 <Link to={ROUTES.chat} className="flex items-center justify-between px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm" onClick={() => setIsOpen(false)}>
                   <div className="flex items-center gap-3">
                     <MessageSquare size={20} className="text-blue-600 group-hover:scale-110 transition-transform" />
