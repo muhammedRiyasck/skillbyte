@@ -4,7 +4,17 @@ import { IGetMySessionRatingsUseCase } from '../interfaces/IGetMySessionRatingsU
 export class GetMySessionRatingsUseCase implements IGetMySessionRatingsUseCase {
   constructor(private reviewRepo: IReviewRepository) {}
 
-  async execute(studentId: string): Promise<Record<string, number>> {
+  async execute(studentId: string): Promise<
+    Record<
+      string,
+      {
+        rating: number;
+        comment: string;
+        instructorReply?: string;
+        repliedAt?: Date;
+      }
+    >
+  > {
     return this.reviewRepo.findStudentSessionRatings(studentId);
   }
 }
