@@ -57,6 +57,21 @@ router.post(
   asyncHandler(reviewController.toggleHelpful),
 );
 
+// ── Instructor routes ─────────────────────────────────────────────────────────
+router.get(
+  '/instructor/my-reviews',
+  authenticate,
+  requireRole('instructor'),
+  asyncHandler(reviewController.getInstructorReviews),
+);
+
+router.post(
+  '/instructor/:reviewId/reply',
+  authenticate,
+  requireRole('instructor'),
+  asyncHandler(reviewController.replyToReview),
+);
+
 // ── Shared authenticated routes ───────────────────────────────────────────────
 router.get(
   '/my-session-ratings',

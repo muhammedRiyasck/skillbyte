@@ -10,6 +10,8 @@ import { GetMySessionRatingsUseCase } from '../../application/use-cases/GetMySes
 import { GetAllReviewsAdminUseCase } from '../../application/use-cases/GetAllReviewsAdminUseCase';
 import { AdminToggleHideReviewUseCase } from '../../application/use-cases/AdminToggleHideReviewUseCase';
 import { AdminDeleteReviewUseCase } from '../../application/use-cases/AdminDeleteReviewUseCase';
+import { ReplyToReviewUseCase } from '../../application/use-cases/ReplyToReviewUseCase';
+import { GetInstructorReviewsUseCase } from '../../application/use-cases/GetInstructorReviewsUseCase';
 import { ReviewRepository } from '../../infrastructure/repositories/ReviewRepository';
 import { CourseRepository } from '../../../course/infrastructure/repositories/CourseRepository';
 import { EnrollmentReadRepository } from '../../../enrollment/infrastructure/repositories/EnrollmentReadRepository';
@@ -55,8 +57,14 @@ const reportReviewUC = new ReportReviewUseCase(reviewRepository);
 const getMySessionRatingsUC = new GetMySessionRatingsUseCase(reviewRepository);
 
 const getAllReviewsAdminUC = new GetAllReviewsAdminUseCase(reviewRepository);
-const adminToggleHideUC = new AdminToggleHideReviewUseCase(reviewRepository);
-const adminDeleteUC = new AdminDeleteReviewUseCase(reviewRepository);
+const adminToggleHideReviewUseCase = new AdminToggleHideReviewUseCase(
+  reviewRepository,
+);
+const adminDeleteReviewUseCase = new AdminDeleteReviewUseCase(reviewRepository);
+const replyToReviewUseCase = new ReplyToReviewUseCase(reviewRepository);
+const getInstructorReviewsUseCase = new GetInstructorReviewsUseCase(
+  reviewRepository,
+);
 
 export const reviewController = new ReviewController(
   submitReviewUC,
@@ -68,6 +76,10 @@ export const reviewController = new ReviewController(
   reportReviewUC,
   getMySessionRatingsUC,
   getAllReviewsAdminUC,
-  adminToggleHideUC,
-  adminDeleteUC,
+  adminToggleHideReviewUseCase,
+  adminDeleteReviewUseCase,
+  replyToReviewUseCase,
+  getInstructorReviewsUseCase,
 );
+
+export { reviewRepository };
