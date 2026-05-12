@@ -159,7 +159,11 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
   };
 
   return (
-    <div className={`bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm relative ${isOwner ? 'border-indigo-500' : ''}`}>
+    <div className={`relative p-6 rounded-xl border shadow-sm transition-all ${
+      isOwner
+        ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-300 dark:border-indigo-700 ring-1 ring-indigo-300 dark:ring-indigo-700'
+        : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700'
+    }`}>
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center overflow-hidden">
@@ -177,8 +181,13 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
             )}
           </div>
           <div>
-            <h4 className="font-medium text-gray-900 dark:text-white">
-              {review.student?.name || 'Anonymous User'} {isOwner && '(You)'}
+            <h4 className="font-medium text-gray-900 dark:text-white flex items-center gap-2">
+              {review.student?.name || 'Anonymous User'}
+              {isOwner && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-indigo-600 text-white">
+                  ★ Your Review
+                </span>
+              )}
             </h4>
             <div className="flex items-center gap-2 mt-0.5">
               <StarRating rating={review.rating} readonly size="sm" />

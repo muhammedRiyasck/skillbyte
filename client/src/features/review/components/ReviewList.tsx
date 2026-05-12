@@ -11,9 +11,10 @@ interface ReviewListProps {
   targetId: string;
   currentUserId?: string | undefined;
   onReviewSubmitted?: () => void;
+  onHasReview?: (hasReview: boolean) => void;
 }
 
-const ReviewList: React.FC<ReviewListProps> = ({ targetType, targetId, currentUserId, onReviewSubmitted }) => {
+const ReviewList: React.FC<ReviewListProps> = ({ targetType, targetId, currentUserId, onReviewSubmitted, onHasReview }) => {
   const { ref, inView } = useInView({
     threshold: 0,
     triggerOnce: false,
@@ -46,6 +47,23 @@ const ReviewList: React.FC<ReviewListProps> = ({ targetType, targetId, currentUs
 
   const reviews = data?.pages.flatMap((page) => page.reviews) || [];
   const total = data?.pages[0]?.total || 0;
+
+  // Detect if current user has already submitted a review
+  const currentUserReview = currentUserId
+    ? reviews.find(r => r.studentId === currentUserId)
+    : null;
+
+  // Notify parent when user's review status is known
+  useEffect(() => {
+    if (!isLoading && onHasReview) {
+      onHasReview(!!currentUserReview);
+    }
+  }, [currentUserReview, isLoading, onHasReview]);
+
+  // Sort: put current user's review at the top
+  const sortedReviews = currentUserReview
+    ? [currentUserReview, ...reviews.filter(r => r.reviewId !== currentUserReview.reviewId)]
+    : reviews;
 
   const handleUpdate = () => {
     // This will be handled by mutation manual cache updates or invalidation
@@ -110,7 +128,7 @@ const ReviewList: React.FC<ReviewListProps> = ({ targetType, targetId, currentUs
         </div>
       ) : (
         <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
-          {reviews.map((review) => (
+          {sortedReviews.map((review) => (
             <ReviewCard
               key={review.reviewId}
               review={review}

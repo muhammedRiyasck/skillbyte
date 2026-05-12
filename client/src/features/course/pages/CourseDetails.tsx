@@ -48,6 +48,7 @@ const CourseDetails: React.FC = () => {
   const [blockedLessons, setBlockedLessons] = useState<Set<string>>(new Set());
   const [currentLessonId, setCurrentLessonId] = useState<string | null>(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [hasAlreadyReviewed, setHasAlreadyReviewed] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const role = useSelector((state: RootState) => state.auth.user?.role);
@@ -565,12 +566,19 @@ const CourseDetails: React.FC = () => {
                   Student Feedback
                 </h2>
                 {role === UserRole.STUDENT && isEnrolled && !showReviewForm && (
-                  <button
-                    onClick={() => setShowReviewForm(true)}
-                    className="text-sm flex  bg-indigo-50 cursor-pointer text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 px-4 py-2 rounded-lg transition-colors font-medium"
-                  >
-                  <Pencil className="w-4 h-4 mr-2"/> Add a Review
-                  </button>
+                  hasAlreadyReviewed ? (
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700">
+                      <span className="text-indigo-600 dark:text-indigo-400 text-sm font-semibold">★ You've reviewed this course</span>
+                      <span className="text-indigo-400 dark:text-indigo-500 text-xs">(scroll down to edit)</span>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setShowReviewForm(true)}
+                      className="text-sm flex bg-indigo-50 cursor-pointer text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 px-4 py-2 rounded-lg transition-colors font-medium"
+                    >
+                      <Pencil className="w-4 h-4 mr-2"/> Add a Review
+                    </button>
+                  )
                 )}
               </div>
 
@@ -600,6 +608,7 @@ const CourseDetails: React.FC = () => {
                 targetType="course" 
                 targetId={id!} 
                 currentUserId={userId}
+                onHasReview={(has) => setHasAlreadyReviewed(has)}
                 onReviewSubmitted={() => {
                   refetch(); // Only refetch course hero data, list and summary are handled by cache/invalidation
                 }}
