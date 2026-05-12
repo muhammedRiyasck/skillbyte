@@ -109,7 +109,7 @@ const ReviewList: React.FC<ReviewListProps> = ({ targetType, targetId, currentUs
             No reviews yet. Be the first to share your thoughts!
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
           {reviews.map((review) => (
             <ReviewCard
               key={review.reviewId}

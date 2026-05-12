@@ -82,14 +82,17 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
       toast.success('Review deleted');
 
       // Manual Cache Update for all pages of reviews for this target
-      queryClient.setQueriesData<ReviewResponse>(
+      queryClient.setQueriesData<InfiniteData<ReviewResponse>>(
         { queryKey: ['reviews', review.targetType, review.targetId] },
         (oldData) => {
           if (!oldData) return oldData;
           return {
             ...oldData,
-            total: oldData.total - 1,
-            reviews: oldData.reviews.filter(r => r.reviewId !== review.reviewId)
+            pages: oldData.pages.map(page => ({
+              ...page,
+              total: page.total - 1,
+              reviews: page.reviews.filter(r => r.reviewId !== review.reviewId)
+            }))
           };
         }
       );
