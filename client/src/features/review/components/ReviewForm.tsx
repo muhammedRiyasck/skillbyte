@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import StarRating from './StarRating';
 import { submitReview, updateReview } from '../services/ReviewService';
 import { toast } from 'sonner';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import type { IReview, ReviewResponse } from '../types/reviewTypes';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/core/store/Index';
@@ -58,7 +58,7 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
       }
 
       // Manual Cache Update for reviews list
-      queryClient.setQueriesData<ReviewResponse>(
+      queryClient.setQueriesData<InfiniteData<ReviewResponse>>(
         { queryKey: ['reviews', targetType, targetId] },
         (oldData) => {
             if (!oldData) return oldData;
@@ -67,15 +67,25 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
             if (reviewId) {
                 return {
                     ...oldData,
-                    reviews: oldData.reviews.map(r => r.reviewId === reviewId ? reviewWithStudent : r)
+                    pages: oldData.pages.map(page => ({
+                        ...page,
+                        reviews: page.reviews.map(r => r.reviewId === reviewId ? reviewWithStudent : r)
+                    }))
                 };
             }
             
             // If adding new, prepend to page 1 recent 
+            const newPages = [...oldData.pages];
+            if (newPages.length > 0) {
+                newPages[0] = {
+                    ...newPages[0],
+                    total: newPages[0].total + 1,
+                    reviews: [reviewWithStudent, ...newPages[0].reviews]
+                };
+            }
             return {
                 ...oldData,
-                total: oldData.total + 1,
-                reviews: [reviewWithStudent, ...oldData.reviews].slice(0, 5) // Limit to page size (5)
+                pages: newPages
             };
         }
       );
