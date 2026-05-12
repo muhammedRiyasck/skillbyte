@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAdminReviews, toggleHideReview, deleteReview, type AdminReviewFilters } from '../services/AdminReviewService';
-import type { ReviewResponse } from '@features/review/types/reviewTypes';
+import type { AdminReviewListResult, IAdminReview } from '../types/IAdminReview';
 import { toast } from 'sonner';
 import { 
   MessageSquare, 
@@ -9,7 +9,7 @@ import {
   Filter, 
   ChevronDown, 
   X, 
-  RefreshCw, 
+  RotateCw, 
   Eye, 
   EyeOff, 
   Trash2, 
@@ -17,9 +17,9 @@ import {
   Calendar, 
   BookOpen, 
   User,
-  SortAsc,
-  SortDesc,
-  AlertCircle
+  ArrowUpAz,
+  ArrowDownAz,
+  CircleAlert
 } from 'lucide-react';
 import { Pagination, AdminConfirmModal } from '@/shared/ui';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -28,7 +28,7 @@ const ReviewManagement: React.FC = () => {
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<AdminReviewFilters>({
     page: 1,
-    limit: 12,
+    limit: 10,
     targetType: 'all',
     isHidden: 'all',
     sortBy: 'createdAt',
@@ -61,12 +61,12 @@ const ReviewManagement: React.FC = () => {
     mutationFn: ({ reviewId, hide }: { reviewId: string, hide: boolean }) => toggleHideReview(reviewId, hide),
     onSuccess: (_, variables) => {
       toast.success(`Review ${variables.hide ? 'hidden' : 'unhidden'} successfully`);
-      queryClient.setQueryData<ReviewResponse>(['adminReviews', filters], (oldData) => {
+      queryClient.setQueryData<AdminReviewListResult>(['adminReviews', filters], (oldData) => {
         if (!oldData) return oldData;
         return {
           ...oldData,
           reviews: oldData.reviews.map((r) => 
-            r.reviewId === variables.reviewId ? { ...r, isHidden: variables.hide } : r
+            r.reviewId === variables.reviewId ? { ...r, isHidden: variables.hide } : (r as IAdminReview)
           )
         };
       });
@@ -78,7 +78,7 @@ const ReviewManagement: React.FC = () => {
     mutationFn: deleteReview,
     onSuccess: (_, reviewId) => {
       toast.success('Review deleted permanently');
-      queryClient.setQueryData<ReviewResponse>(['adminReviews', filters], (oldData) => {
+      queryClient.setQueryData<AdminReviewListResult>(['adminReviews', filters], (oldData) => {
         if (!oldData) return oldData;
         return {
           ...oldData,
@@ -95,7 +95,7 @@ const ReviewManagement: React.FC = () => {
     setFilters(prev => ({ 
       ...prev, 
       [key]: value, 
-      page: key === 'page' ? value : 1 
+      page: key === 'page' ? (value as number) : 1 
     }));
   };
 
@@ -153,7 +153,7 @@ const ReviewManagement: React.FC = () => {
             className="p-2.5 bg-white cursor-pointer dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-700 transition-all active:scale-95"
             title="Refresh"
           >
-            <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
+            <RotateCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
@@ -186,7 +186,7 @@ const ReviewManagement: React.FC = () => {
                 <select 
                   className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
                   value={filters.targetType}
-                  onChange={(e) => handleFilterChange('targetType', e.target.value)}
+                  onChange={(e) => handleFilterChange('targetType', e.target.value as 'course' | 'session' | 'all')}
                 >
                   <option value="all">All Content</option>
                   <option value="course">Courses</option>
@@ -216,7 +216,7 @@ const ReviewManagement: React.FC = () => {
                   <select 
                     className="flex-grow bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
                     value={filters.sortBy}
-                    onChange={(e) => handleFilterChange('sortBy', e.target.value)}
+                    onChange={(e) => handleFilterChange('sortBy', e.target.value as 'createdAt' | 'rating' | 'helpfulCount')}
                   >
                     <option value="createdAt">Date</option>
                     <option value="rating">Rating</option>
@@ -226,7 +226,7 @@ const ReviewManagement: React.FC = () => {
                     onClick={() => handleFilterChange('sortOrder', filters.sortOrder === 'asc' ? 'desc' : 'asc')}
                     className="p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all dark:text-white"
                   >
-                    {filters.sortOrder === 'asc' ? <SortAsc size={18} /> : <SortDesc size={18} />}
+                    {filters.sortOrder === 'asc' ? <ArrowUpAz size={18} /> : <ArrowDownAz size={18} />}
                   </button>
                 </div>
               </div>
@@ -237,7 +237,7 @@ const ReviewManagement: React.FC = () => {
                 onClick={clearFilters}
                 className="text-sm font-bold text-red-500 hover:text-red-600 flex items-center gap-2 transition-colors cursor-pointer"
               >
-                <RefreshCw size={14} /> Reset Filters
+                <RotateCw size={14} /> Reset Filters
               </button>
             </div>
           </motion.div>
@@ -272,7 +272,7 @@ const ReviewManagement: React.FC = () => {
                   <td colSpan={6} className="px-6 py-20 text-center">
                     <div className="flex flex-col items-center gap-4">
                       <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
-                        <AlertCircle className="w-12 h-12 text-slate-400" />
+                        <CircleAlert className="w-12 h-12 text-slate-400" />
                       </div>
                       <div>
                         <h3 className="text-xl font-bold text-slate-900 dark:text-white">No reviews found</h3>
@@ -286,29 +286,26 @@ const ReviewManagement: React.FC = () => {
                   <tr key={review.reviewId} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 relative">
+                        <div className="w-10 h-10 relative bg-indigo-100 dark:bg-indigo-900/50 rounded-xl flex items-center justify-center overflow-hidden">
                           {review.studentProfilePic ? (
                             <img 
                               src={review.studentProfilePic} 
-                              className="w-10 h-10 rounded-xl object-cover" 
+                              className="w-full h-full object-cover" 
                               alt={review.studentName}
                               onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = 'none';
-                                const fallback = (e.target as HTMLImageElement).nextElementSibling as HTMLElement;
-                                if (fallback) fallback.style.display = 'flex';
+                                (e.target as HTMLImageElement).src = ''; // Clear src on error to trigger fallback text
                               }}
                             />
                           ) : null}
-                          <div 
-                            className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-bold"
-                            style={{ display: review.studentProfilePic ? 'none' : 'flex' }}
-                          >
-                            {review.studentName.charAt(0)}
-                          </div>
+                          {!review.studentProfilePic && (
+                            <span className="text-indigo-600 dark:text-indigo-400 font-bold uppercase">
+                              {(review.studentName || 'U').charAt(0)}
+                            </span>
+                          )}
                         </div>
                         <div>
-                          <p className="font-bold text-slate-900 dark:text-white">{review.studentName}</p>
-                          <p className="text-[10px] text-slate-500 font-medium">ID: ...{review.studentId.slice(-6)}</p>
+                          <p className="font-bold text-slate-900 dark:text-white">{review.studentName || 'Deleted Student'}</p>
+                          <p className="text-[10px] text-slate-500 font-medium">ID: ...{(review.studentId || '').slice(-6)}</p>
                         </div>
                       </div>
                     </td>
@@ -319,9 +316,9 @@ const ReviewManagement: React.FC = () => {
                         ) : (
                           <User size={14} className="text-purple-500" />
                         )}
-                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300 capitalize">{review.targetType}</span>
+                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300 capitalize">{review.targetType || 'Unknown'}</span>
                       </div>
-                      <p className="text-[10px] text-slate-500 mt-1 font-medium">ID: ...{review.targetId.slice(-6)}</p>
+                      <p className="text-[10px] text-slate-500 mt-1 font-medium">ID: ...{(review.targetId || '').slice(-6)}</p>
                     </td>
                     <td className="px-6 py-4 max-w-xs">
                       <div className="flex items-center gap-1 text-orange-400 mb-1">
