@@ -5,95 +5,38 @@ import {
     BookOpen, 
     DollarSign, 
     TrendingUp, 
-    ArrowUpRight, 
     Calendar,
     Clock,
     UserPlus,
     PieChart as PieChartIcon,
-    Activity,
-    ChevronRight,
-    Search
+    ChevronRight
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-    AreaChart,
-    Area,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
     ResponsiveContainer,
     PieChart,
     Pie,
-    Cell
+    Cell,
+    Tooltip
 } from 'recharts';
 import { ROUTES } from '@/core/router/paths';
 import { getAdminDashboardData } from '../services/DashboardService';
 import Spiner from '@shared/ui/Spiner';
+import type { AdminDashboardData } from '../types/IDashboard';
+import DashboardStatCard from '../components/dashboard/DashboardStatCard';
+import RevenueTrendChart from '../components/dashboard/RevenueTrendChart';
+import PlatformHealthMetrics from '../components/dashboard/PlatformHealthMetrics';
+import TopInstructorsList from '../components/dashboard/TopInstructorsList';
+import RecentPaymentsList from '../components/dashboard/RecentPaymentsList';
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
-
-interface AdminDashboardData {
-    stats: {
-        totalRevenue: number;
-        adminCommission: number;
-        totalStudents: number;
-        activeStudents: number;
-        blockedStudents: number;
-        totalInstructors: number;
-        activeInstructors: number;
-        pendingInstructors: number;
-        suspendedInstructors: number;
-        totalCourses: number;
-        publishedCourses: number;
-        draftCourses: number;
-        blockedCourses: number;
-        pendingWithdrawals: number;
-        pendingWithdrawalAmount: number;
-    };
-    revenueTrend: Array<{ date: string; revenue: number; commission: number }>;
-    recentPayments: Array<{
-        _id: string;
-        amount: number;
-        currency: string;
-        adminFee: number;
-        productName: string;
-        studentName: string;
-    }>;
-    topInstructors: Array<{
-        _id: string;
-        name: string;
-        profilePictureUrl?: string;
-        totalEarnings: number;
-        averageRating: number;
-        totalReviews: number;
-    }>;
-    pendingActions: {
-        instructorApplications: number;
-        pendingWithdrawals: number;
-        coursesAwaitingReview: number;
-    };
-    categoryDistribution: Array<{ category: string; count: number }>;
-    platformHealth: {
-        avgCompletionRate: number;
-        avgInstructorRating: number;
-        mentorshipCompletionRate: number;
-    };
-}
 
 const AdminDashboard: React.FC = () => {
     const { data: dashboardResponse, isLoading } = useQuery<{ data: AdminDashboardData }>({
         queryKey: ['admin-dashboard-data'],
         queryFn: getAdminDashboardData
     });
-
-    const Pulse = () => (
-        <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-        </span>
-    );
 
     const data = dashboardResponse?.data;
 
@@ -203,125 +146,14 @@ const AdminDashboard: React.FC = () => {
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                 {statsCards.map((stat) => (
-                    <motion.div
-                        key={stat.label}
-                        variants={itemVariants}
-                        whileHover={{ y: -5, scale: 1.02 }}
-                        className="bg-white dark:bg-slate-800 p-5 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700/50 relative overflow-hidden group transition-all"
-                    >
-                        <div className="relative z-10">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className={`${stat.bgColor} ${stat.color} p-3 rounded-2xl`}>
-                                    <stat.icon className="w-5 h-5" />
-                                </div>
-                                <Pulse />
-                            </div>
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.label}</p>
-                            <h3 className="text-xl font-black text-slate-900 dark:text-white mb-1">{stat.value}</h3>
-                            <p className="text-[10px] text-slate-500 font-bold">{stat.description}</p>
-                        </div>
-                        <Link to={stat.link} className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <ArrowUpRight className="w-4 h-4 text-slate-400 hover:text-indigo-600" />
-                        </Link>
-                        <div className={`absolute -bottom-6 -right-6 w-20 h-20 ${stat.bgColor} opacity-10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500`}></div>
-                    </motion.div>
+                    <DashboardStatCard key={stat.label} stat={stat} itemVariants={itemVariants} />
                 ))}
             </div>
 
             {/* Main Charts & Actions Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Revenue Trend - 2/3 Width */}
-                <motion.div 
-                    variants={itemVariants}
-                    className="lg:col-span-2 bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700/50"
-                >
-                    <div className="flex items-center justify-between mb-8">
-                        <div>
-                            <h3 className="text-xl font-black text-slate-900 dark:text-white">Revenue Analysis</h3>
-                            <p className="text-sm text-slate-500 font-medium">Platform growth and commission trend</p>
-                        </div>
-                        <div className="flex gap-2">
-                             <div className="bg-indigo-50 dark:bg-indigo-500/10 px-4 py-2 rounded-xl text-indigo-600 dark:text-indigo-400 font-bold text-xs uppercase tracking-wider flex items-center gap-2">
-                                <Activity className="w-4 h-4" />
-                                Live Status
-                             </div>
-                        </div>
-                    </div>
-                    <div className="h-[350px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={data?.revenueTrend || []}>
-                                <defs>
-                                    <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.1}/>
-                                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
-                                    </linearGradient>
-                                    <linearGradient id="colorComm" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.1}/>
-                                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" opacity={0.5} />
-                                <XAxis 
-                                    dataKey="date" 
-                                    axisLine={false} 
-                                    tickLine={false} 
-                                    tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
-                                    dy={10}
-                                />
-                                <YAxis 
-                                    axisLine={false} 
-                                    tickLine={false} 
-                                    tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 700 }}
-                                    tickFormatter={(v) => `$${v}`}
-                                />
-                                <Tooltip 
-                                    content={({ active, payload }) => {
-                                        if (active && payload && payload.length) {
-                                            return (
-                                                <div className="bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700">
-                                                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 border-b pb-2 dark:border-slate-700">{payload[0].payload.date}</p>
-                                                    <div className="space-y-2">
-                                                        <div className="flex items-center justify-between gap-8">
-                                                            <div className="flex items-center gap-2">
-                                                                <div className="w-2 h-2 rounded-full bg-indigo-600"></div>
-                                                                <span className="text-xs font-bold text-slate-500">Revenue</span>
-                                                            </div>
-                                                            <span className="text-sm font-black text-slate-900 dark:text-white">${payload[0].value}</span>
-                                                        </div>
-                                                        <div className="flex items-center justify-between gap-8">
-                                                            <div className="flex items-center gap-2">
-                                                                <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                                                                <span className="text-xs font-bold text-slate-500">Commission</span>
-                                                            </div>
-                                                            <span className="text-sm font-black text-emerald-600">${payload[1].value}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            );
-                                        }
-                                        return null;
-                                    }}
-                                />
-                                <Area 
-                                    type="monotone" 
-                                    dataKey="revenue" 
-                                    stroke="#6366f1" 
-                                    strokeWidth={4} 
-                                    fillOpacity={1} 
-                                    fill="url(#colorRev)" 
-                                />
-                                <Area 
-                                    type="monotone" 
-                                    dataKey="commission" 
-                                    stroke="#10b981" 
-                                    strokeWidth={4} 
-                                    fillOpacity={1} 
-                                    fill="url(#colorComm)" 
-                                />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    </div>
-                </motion.div>
+                <RevenueTrendChart data={data?.revenueTrend} itemVariants={itemVariants} />
 
                 {/* Pending Actions - 1/3 Width */}
                 <motion.div 
@@ -428,150 +260,16 @@ const AdminDashboard: React.FC = () => {
                 </motion.div>
 
                 {/* Platform Health Metrics */}
-                <motion.div 
-                    variants={itemVariants}
-                    className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700/50"
-                >
-                    <div className="flex items-center justify-between mb-8">
-                        <div>
-                            <h3 className="text-xl font-black text-slate-900 dark:text-white">Platform Health</h3>
-                            <p className="text-sm text-slate-500 font-medium">Quality and performance indices</p>
-                        </div>
-                        <Activity className="w-6 h-6 text-emerald-500" />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="p-6 rounded-3xl bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/30 text-center">
-                            <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">Avg Progress</p>
-                            <h4 className="text-3xl font-black text-indigo-600 mb-2">{Math.round(data?.platformHealth?.avgCompletionRate || 0)}%</h4>
-                            <div className="w-full bg-indigo-200 dark:bg-indigo-800 rounded-full h-1.5">
-                                <div className="bg-indigo-600 h-1.5 rounded-full" style={{ width: `${data?.platformHealth?.avgCompletionRate || 0}%` }}></div>
-                            </div>
-                        </div>
-
-                        <div className="p-6 rounded-3xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/30 text-center">
-                            <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2">Instructor Rating</p>
-                            <h4 className="text-3xl font-black text-emerald-600 mb-2">{data?.platformHealth?.avgInstructorRating?.toFixed(1) || '0.0'}</h4>
-                            <div className="flex justify-center items-center gap-1 text-amber-400">
-                                {[...Array(5)].map((_, i) => (
-                                    <svg key={i} className={`w-3 h-3 ${i < Math.round(data?.platformHealth?.avgInstructorRating || 0) ? 'fill-current' : 'text-slate-200 dark:text-slate-700'}`} viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/></svg>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="p-6 rounded-3xl bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 text-center">
-                            <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-2">Mentorship Yield</p>
-                            <h4 className="text-3xl font-black text-blue-600 mb-2">{Math.round(data?.platformHealth?.mentorshipCompletionRate || 0)}%</h4>
-                            <p className="text-[10px] font-bold text-slate-500">Scheduled vs Completed</p>
-                        </div>
-                    </div>
-
-                    <div className="mt-8 p-6 rounded-[2rem] bg-slate-50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-700/50">
-                        <div className="flex items-center justify-between mb-4">
-                            <h4 className="text-sm font-black text-slate-900 dark:text-slate-200">Growth Projection</h4>
-                            <span className="text-[10px] font-black text-emerald-500 flex items-center gap-1"><TrendingUp className="w-3 h-3" /> +12% MoM</span>
-                        </div>
-                        <p className="text-xs text-slate-500 leading-relaxed font-medium">Platform engagement is tracking above quarterly targets. High mentorship completion rates suggest strong user retention potential.</p>
-                    </div>
-                </motion.div>
+                <PlatformHealthMetrics health={data?.platformHealth} itemVariants={itemVariants} />
             </div>
 
             {/* Bottom Row Tables */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Top Instructors */}
-                <motion.div 
-                    variants={itemVariants}
-                    className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700/50 overflow-hidden"
-                >
-                    <div className="p-8 border-b border-slate-50 dark:border-slate-700/50 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
-                        <div>
-                            <h2 className="text-xl font-black text-slate-900 dark:text-white">Top Instructors</h2>
-                            <p className="text-xs text-slate-500 font-medium">Leading revenue generation</p>
-                        </div>
-                        <Link to={ROUTES.admin.instructorManagement} className="p-2 bg-white dark:bg-slate-700 rounded-xl border border-slate-100 dark:border-slate-600 shadow-sm hover:shadow-md transition-all group">
-                            <Search className="w-5 h-5 text-indigo-600 group-hover:scale-110 transition-transform" />
-                        </Link>
-                    </div>
-                    <div className="p-4 space-y-3">
-                        {data?.topInstructors && data.topInstructors.length > 0 ? (
-                            data.topInstructors.map((inst) => (
-                                <div key={inst._id} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all border border-transparent hover:border-slate-100 dark:hover:border-slate-700 group">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-lg border border-indigo-100 dark:border-indigo-500/20 overflow-hidden">
-                                            {inst.profilePictureUrl ? <img src={inst.profilePictureUrl} alt="" className="w-full h-full object-cover" /> : inst.name.charAt(0)}
-                                        </div>
-                                        <div>
-                                            <p className="font-black text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">{inst.name}</p>
-                                            <div className="flex items-center gap-1 text-amber-400">
-                                                <TrendingUp className="w-3 h-3" />
-                                                <span className="text-[10px] font-bold text-slate-500 ">{inst.averageRating?.toFixed(1) || '0.0'} rating</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="font-black text-emerald-600 dark:text-emerald-400 text-lg">${inst.totalEarnings?.toLocaleString() || 0}</p>
-                                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Total Earnings</p>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="py-12 text-center text-slate-500">No leading instructors identified yet.</div>
-                        )}
-                    </div>
-                </motion.div>
+                <TopInstructorsList instructors={data?.topInstructors} itemVariants={itemVariants} />
 
                 {/* Recent Payments */}
-                <motion.div 
-                    variants={itemVariants}
-                    className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700/50 overflow-hidden"
-                >
-                    <div className="p-8 border-b border-slate-50 dark:border-slate-700/50 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
-                        <div className="flex items-center gap-3">
-                            <Pulse />
-                            <div>
-                                <h2 className="text-xl font-black text-slate-900 dark:text-white">Recent Payments</h2>
-                                <p className="text-xs text-slate-500 font-medium">Latest incoming transactions</p>
-                            </div>
-                        </div>
-                        <div className="p-2 bg-white dark:bg-slate-700 rounded-xl border border-slate-100 dark:border-slate-600 shadow-sm">
-                            <Activity className="w-5 h-5 text-indigo-600" />
-                        </div>
-                    </div>
-                    <div className="p-4 space-y-3">
-                        {data?.recentPayments && data.recentPayments.length > 0 ? (
-                            data.recentPayments.map((p) => (
-                                <div key={p._id} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50/30 dark:bg-slate-900/20 border border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/10 flex items-center justify-center text-emerald-600 border border-emerald-100 dark:border-emerald-500/20">
-                                            <DollarSign className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-black text-slate-900 dark:text-slate-100">{p.productName}</p>
-                                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{p.studentName}</p>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="font-black text-slate-900 dark:text-white text-base">
-                                            {p.currency?.toUpperCase() === 'INR' ? '₹' : '$'}{p.amount.toLocaleString()}
-                                        </p>
-                                        {p.currency?.toUpperCase() === 'INR' && (
-                                            <p className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">
-                                                ≈ ${(p.amount / 83).toFixed(2)} USD
-                                            </p>
-                                        )}
-                                        <p className="text-[10px] text-emerald-600 font-black uppercase">
-                                            Fee: {p.currency?.toUpperCase() === 'INR' ? '₹' : '$'}{p.adminFee.toLocaleString()}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="py-12 text-center text-slate-500 font-bold flex flex-col items-center">
-                                <DollarSign className="w-12 h-12 mb-2 opacity-10" />
-                                No payments recorded yet
-                            </div>
-                        )}
-                    </div>
-                </motion.div>
+                <RecentPaymentsList payments={data?.recentPayments} itemVariants={itemVariants} />
             </div>
         </motion.div>
     );
