@@ -10,12 +10,15 @@ interface PopulatedStudent {
 
 export class ReviewMapper {
   static toEntity(doc: IReviewDoc): Review {
-    // studentId might be populated (an object) or unpopulated (an ObjectId)
+    // studentId might be populated (an object), unpopulated (an ObjectId), or null (if student deleted)
     const isPopulated =
-      typeof doc.studentId === 'object' && '_id' in doc.studentId;
-    const studentId = isPopulated
-      ? (doc.studentId as unknown as PopulatedStudent)._id.toString()
-      : doc.studentId.toString();
+      doc.studentId && typeof doc.studentId === 'object' && '_id' in doc.studentId;
+    
+    const studentId = doc.studentId 
+      ? (isPopulated
+          ? (doc.studentId as unknown as PopulatedStudent)._id.toString()
+          : doc.studentId.toString())
+      : 'deleted-user';
 
     const studentInfo = isPopulated
       ? {

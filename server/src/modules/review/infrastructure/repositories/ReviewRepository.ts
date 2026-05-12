@@ -36,8 +36,13 @@ export class ReviewRepository
         ? { helpfulCount: -1, createdAt: -1 }
         : { createdAt: -1 };
 
+    // Handle potential ObjectId casting for Mixed type field
+    const queryTargetId = mongoose.Types.ObjectId.isValid(targetId)
+      ? { $in: [targetId, new mongoose.Types.ObjectId(targetId)] }
+      : targetId;
+
     const docs = await this.model
-      .find({ targetType, targetId, isHidden: { $ne: true } })
+      .find({ targetType, targetId: queryTargetId, isHidden: { $ne: true } })
       .populate('studentId', 'name profilePictureUrl')
       .sort(sortObj as unknown as Record<string, 1 | -1>)
       .skip(skip)
@@ -47,9 +52,13 @@ export class ReviewRepository
   }
 
   async countByTarget(targetType: string, targetId: string): Promise<number> {
+    const queryTargetId = mongoose.Types.ObjectId.isValid(targetId)
+      ? { $in: [targetId, new mongoose.Types.ObjectId(targetId)] }
+      : targetId;
+
     return this.model.countDocuments({
       targetType,
-      targetId,
+      targetId: queryTargetId,
       isHidden: { $ne: true },
     });
   }
@@ -179,8 +188,12 @@ export class ReviewRepository
     count: number;
     distribution: Record<number, number>;
   }> {
+    const queryTargetId = mongoose.Types.ObjectId.isValid(targetId)
+      ? { $in: [targetId, new mongoose.Types.ObjectId(targetId)] }
+      : targetId;
+
     const result = await this.model.aggregate([
-      { $match: { targetType, targetId: targetId, isHidden: { $ne: true } } },
+      { $match: { targetType, targetId: queryTargetId, isHidden: { $ne: true } } },
       {
         $group: {
           _id: null,
