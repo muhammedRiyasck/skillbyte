@@ -47,14 +47,14 @@ export class AdminAuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 15 * 60 * 1000,
+      maxAge: Number(process.env.ACCESS_TOKEN_MAX_AGE),
     });
 
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
     });
 
     logger.info(`Admin login successful for email: ${email}`);
