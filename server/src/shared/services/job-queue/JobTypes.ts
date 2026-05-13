@@ -18,6 +18,7 @@ export const JOB_NAMES = {
   DELETE_DECLINED_INSTRUCTOR: 'delete-declined-instructor',
   MENTORSHIP_CLEANUP: 'mentorship-cleanup',
   MENTORSHIP_AUTO_COMPLETE: 'mentorship-auto-complete',
+  REFRESH_TOP_INSTRUCTORS: 'refresh-top-instructors',
 } as const;
 
 export const QUEUE_NAMES = {

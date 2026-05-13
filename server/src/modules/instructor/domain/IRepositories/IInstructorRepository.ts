@@ -21,4 +21,5 @@ export interface IInstructorRepository extends IBaseRepository<Instructor> {
     id: string,
     isVerified: boolean,
   ): Promise<void>;
+  getTopEarningInstructors(limit: number): Promise<Instructor[]>;
 }

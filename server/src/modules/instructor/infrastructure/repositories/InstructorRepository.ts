@@ -137,4 +137,14 @@ export class InstructorRepository
   ): Promise<void> {
     await this.model.findByIdAndUpdate(id, { isStripeVerified: isVerified });
   }
+
+  async getTopEarningInstructors(limit: number): Promise<Instructor[]> {
+    const rawData = await this.model
+      .find({ approved: true })
+      .sort({ totalEarnings: -1 })
+      .limit(limit)
+      .select('name profilePictureUrl totalEarnings averageRating totalReviews')
+      .lean();
+    return rawData.map((doc) => this.toEntity(doc as unknown as IInstructor));
+  }
 }

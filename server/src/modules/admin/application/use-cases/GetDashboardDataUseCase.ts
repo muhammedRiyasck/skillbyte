@@ -13,8 +13,10 @@ import {
   IAdminDashboardData,
   IGetDashboardDataUseCase,
 } from '../interfaces/IGetDashboardDataUseCase';
+import { ITopInstructorRepository } from '../../domain/IRepositories/ITopInstructorRepository';
 
 export class GetDashboardDataUseCase implements IGetDashboardDataUseCase {
+  constructor(private topInstructorRepository: ITopInstructorRepository) {}
   async execute(): Promise<IAdminDashboardData> {
     const today = new Date();
     const sixMonthsAgo = new Date();
@@ -224,11 +226,7 @@ export class GetDashboardDataUseCase implements IGetDashboardDataUseCase {
   }
 
   private async getTopInstructors() {
-    return InstructorModel.find({ approved: true })
-      .sort({ totalEarnings: -1 })
-      .limit(5)
-      .select('name profilePictureUrl totalEarnings averageRating totalReviews')
-      .lean();
+    return this.topInstructorRepository.getTopInstructors();
   }
 
   private async getCategoryDistribution() {

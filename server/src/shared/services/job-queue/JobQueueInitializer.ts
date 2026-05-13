@@ -14,6 +14,9 @@ import {
 } from '../../../modules/mentorship/entry-point/dependencyInjection/MentorshipContainer';
 import { NodeMailerService } from '../mail/NodeMailerService';
 import { JOB_NAMES, QUEUE_NAMES } from './JobTypes';
+import { TopInstructorProcessor } from './processors/TopInstructorProcessor';
+import { TopInstructorUseCase } from '../../../modules/admin/application/use-cases/TopInstructorService';
+import { TopInstructorRepository } from '../../../modules/admin/infrastructure/repositories/TopInstructorRepository';
 
 /**
  * Initializes job queue processors and services
@@ -48,6 +51,29 @@ export class JobQueueInitializer {
           jobId: 'mentorship-auto-complete-singleton', // Ensure only one instance exists
         },
       );
+
+      const topInstructorRepository = new TopInstructorRepository();
+      const topInstructorUseCase = new TopInstructorUseCase(
+        instructorRepo,
+        topInstructorRepository,
+      );
+      new TopInstructorProcessor(topInstructorUseCase);
+
+      // Schedule repeatable job to refresh top instructors (every 1 hour)
+      jobQueueService.addJob(
+        QUEUE_NAMES.CLEANUP,
+        JOB_NAMES.REFRESH_TOP_INSTRUCTORS,
+        {},
+        {
+          repeat: { cron: '0 * * * *' }, // Run at minute 0 of every hour
+          jobId: 'refresh-top-instructors-singleton',
+        },
+      );
+
+      // Execute immediately on startup to seed the capped collection
+      topInstructorUseCase.refreshTopInstructors().catch((err) => {
+        logger.error('Failed to seed top instructors on startup:', err);
+      });
 
       logger.info('Job queue processors initialized successfully');
       this._initialized = true;

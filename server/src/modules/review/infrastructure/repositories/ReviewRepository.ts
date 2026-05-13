@@ -193,7 +193,13 @@ export class ReviewRepository
       : targetId;
 
     const result = await this.model.aggregate([
-      { $match: { targetType, targetId: queryTargetId, isHidden: { $ne: true } } },
+      {
+        $match: {
+          targetType,
+          targetId: queryTargetId,
+          isHidden: { $ne: true },
+        },
+      },
       {
         $group: {
           _id: null,
