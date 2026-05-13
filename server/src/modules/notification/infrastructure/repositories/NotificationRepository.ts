@@ -5,7 +5,7 @@ import {
   INotificationDocument,
   NotificationModel,
 } from '../models/NotificationModel';
-import { NotificationMapper } from '../../application/mappers/NotificationMapper';
+import { NotificationMapper } from '../mappers/NotificationMapper';
 
 export class NotificationRepository
   extends BaseRepository<INotification, INotificationDocument>
