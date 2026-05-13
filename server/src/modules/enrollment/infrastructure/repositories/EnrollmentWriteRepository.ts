@@ -6,7 +6,7 @@ import {
   IEnrollment as IEnrollmentDocument,
 } from '../models/EnrollmentModel';
 
-import { EnrollmentMapper } from '../../application/mappers/EnrollmentMapper';
+import { EnrollmentMapper } from '../mappers/EnrollmentMapper';
 
 export class EnrollmentWriteRepository
   extends BaseRepository<IEnrollmentEntity, IEnrollmentDocument>

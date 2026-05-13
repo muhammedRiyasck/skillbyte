@@ -5,7 +5,7 @@ import {
 } from '../../domain/IRepositories/IReportRepository';
 import { Report } from '../../domain/entities/Report';
 import { ReportModel, IReportDoc } from '../models/ReportModel';
-import { ReportMapper } from '../../application/mappers/ReportMapper';
+import { ReportMapper } from '../mappers/ReportMapper';
 import mongoose from 'mongoose';
 
 export class ReportRepository

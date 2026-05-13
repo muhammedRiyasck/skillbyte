@@ -10,7 +10,7 @@ import {
 } from '../models/EnrollmentModel';
 import { IStudentEnrollment } from '../../types/IStudentEnrollment';
 import { IEnrollmentFilters } from '../../types/IInstructorEnrollment';
-import { EnrollmentMapper } from '../../application/mappers/EnrollmentMapper';
+import { EnrollmentMapper } from '../mappers/EnrollmentMapper';
 
 export class EnrollmentReadRepository
   extends BaseRepository<IEnrollmentEntity, IEnrollmentDocument>

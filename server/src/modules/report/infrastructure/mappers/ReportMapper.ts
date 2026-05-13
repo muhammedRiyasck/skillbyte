@@ -1,5 +1,5 @@
 import { Report } from '../../domain/entities/Report';
-import { IReportDoc } from '../../infrastructure/models/ReportModel';
+import { IReportDoc } from '../models/ReportModel';
 
 export class ReportMapper {
   static toEntity(
