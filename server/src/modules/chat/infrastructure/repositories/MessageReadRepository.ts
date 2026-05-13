@@ -3,7 +3,7 @@ import { IMessage } from '../../domain/entities/Message';
 import { IMessageReadRepository } from '../../domain/IRepositories/IMessageRepository';
 import { MessageModel, IMessageDocument } from '../models/MessageModel';
 
-import { ChatMapper } from '../../application/mappers/ChatMapper';
+import { ChatMapper } from '../mappers/ChatMapper';
 
 export class MessageReadRepository
   extends BaseRepository<IMessage, IMessageDocument>

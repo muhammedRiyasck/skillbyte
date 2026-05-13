@@ -7,7 +7,7 @@ import {
 } from '../models/ConversationModel';
 import { UserRole } from '../../../../shared/enums/UserRole';
 
-import { ChatMapper } from '../../application/mappers/ChatMapper';
+import { ChatMapper } from '../mappers/ChatMapper';
 
 export class ConversationReadRepository
   extends BaseRepository<IConversation, IConversationDocument>

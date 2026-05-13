@@ -2,7 +2,7 @@ import { IMessageWriteRepository } from '../../domain/IRepositories/IMessageRepo
 import { IMessage } from '../../domain/entities/Message';
 import { MessageModel } from '../models/MessageModel';
 
-import { ChatMapper } from '../../application/mappers/ChatMapper';
+import { ChatMapper } from '../mappers/ChatMapper';
 
 export class MessageWriteRepository implements IMessageWriteRepository {
   async save(message: IMessage): Promise<IMessage> {
