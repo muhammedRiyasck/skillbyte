@@ -2,7 +2,7 @@ import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
 import { Lesson } from '../../domain/entities/Lesson';
 import { LessonModel, ILessonDoc } from '../models/LessonModel';
-import { LessonMapper } from '../../application/mappers/LessonMapper';
+import { LessonMapper } from '../mappers/LessonMapper';
 
 export class LessonRepository
   extends BaseRepository<Lesson, ILessonDoc>

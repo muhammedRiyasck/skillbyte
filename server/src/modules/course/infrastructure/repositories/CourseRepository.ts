@@ -2,7 +2,7 @@ import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
 import { Course } from '../../domain/entities/Course';
 import { CourseModel, ICourseDoc } from '../models/CourseModel';
-import { CourseMapper } from '../../application/mappers/CourseMapper';
+import { CourseMapper } from '../mappers/CourseMapper';
 import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
 export class CourseRepository

@@ -2,7 +2,7 @@ import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { Module } from '../../domain/entities/Module';
 import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
 import { ModuleModel, IModuleDoc } from '../models/ModuleModel';
-import { ModuleMapper } from '../../application/mappers/ModuleMapper';
+import { ModuleMapper } from '../mappers/ModuleMapper';
 
 export class ModuleRepository
   extends BaseRepository<Module, IModuleDoc>
