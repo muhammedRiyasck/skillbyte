@@ -134,7 +134,9 @@ export class DashboardRepository implements IDashboardRepository {
     };
   }
 
-  async getRevenueTrend(since: Date): Promise<IAdminDashboardData['revenueTrend']> {
+  async getRevenueTrend(
+    since: Date,
+  ): Promise<IAdminDashboardData['revenueTrend']> {
     return PaymentModel.aggregate([
       { $match: { status: 'succeeded', createdAt: { $gte: since } } },
       {
@@ -177,8 +179,8 @@ export class DashboardRepository implements IDashboardRepository {
       .sort({ createdAt: -1 })
       .limit(5)
       .lean();
-    
-    return payments.map(p => ({
+
+    return payments.map((p) => ({
       amount: p.amount,
       currency: p.currency,
       adminFee: p.adminFee,
@@ -187,7 +189,9 @@ export class DashboardRepository implements IDashboardRepository {
     }));
   }
 
-  async getCategoryDistribution(): Promise<IAdminDashboardData['categoryDistribution']> {
+  async getCategoryDistribution(): Promise<
+    IAdminDashboardData['categoryDistribution']
+  > {
     return CourseModel.aggregate([
       {
         $group: {

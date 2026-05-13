@@ -5,7 +5,9 @@ import logger from '../../../utils/Logger';
 import Queue from 'bull';
 
 export class TopInstructorProcessor {
-  constructor(private refreshTopInstructorsUseCase: IRefreshTopInstructorsUseCase) {
+  constructor(
+    private refreshTopInstructorsUseCase: IRefreshTopInstructorsUseCase,
+  ) {
     this.initializeProcessor();
   }
 
