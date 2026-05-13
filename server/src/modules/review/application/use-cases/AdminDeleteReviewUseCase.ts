@@ -2,9 +2,7 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { IReviewRepository } from '../../domain/IRepositories/IReviewRepository';
 
-export interface IAdminDeleteReviewUseCase {
-  execute(reviewId: string): Promise<void>;
-}
+import { IAdminDeleteReviewUseCase } from '../interfaces/IAdminDeleteReviewUseCase';
 
 export class AdminDeleteReviewUseCase implements IAdminDeleteReviewUseCase {
   constructor(private reviewRepository: IReviewRepository) {}

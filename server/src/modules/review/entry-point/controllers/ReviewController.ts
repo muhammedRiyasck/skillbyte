@@ -12,8 +12,8 @@ import { IGetCourseRatingSummaryUseCase } from '../../application/interfaces/IGe
 import { IReportReviewUseCase } from '../../application/interfaces/IReportReviewUseCase';
 import { IGetMySessionRatingsUseCase } from '../../application/interfaces/IGetMySessionRatingsUseCase';
 import { IGetAllReviewsAdminUseCase } from '../../application/interfaces/IGetAllReviewsAdminUseCase';
-import { IAdminToggleHideReviewUseCase } from '../../application/use-cases/AdminToggleHideReviewUseCase';
-import { IAdminDeleteReviewUseCase } from '../../application/use-cases/AdminDeleteReviewUseCase';
+import { IAdminToggleHideReviewUseCase } from '../../application/interfaces/IAdminToggleHideReviewUseCase';
+import { IAdminDeleteReviewUseCase } from '../../application/interfaces/IAdminDeleteReviewUseCase';
 import { IReplyToReviewUseCase } from '../../application/interfaces/IReplyToReviewUseCase';
 import { IGetInstructorReviewsUseCase } from '../../application/interfaces/IGetInstructorReviewsUseCase';
 import { ReviewMapper } from '../../application/mappers/ReviewMapper';

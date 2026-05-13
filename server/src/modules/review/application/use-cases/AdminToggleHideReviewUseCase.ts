@@ -2,9 +2,7 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { IReviewRepository } from '../../domain/IRepositories/IReviewRepository';
 
-export interface IAdminToggleHideReviewUseCase {
-  execute(reviewId: string, hide: boolean): Promise<void>;
-}
+import { IAdminToggleHideReviewUseCase } from '../interfaces/IAdminToggleHideReviewUseCase';
 
 export class AdminToggleHideReviewUseCase
   implements IAdminToggleHideReviewUseCase
