@@ -6,7 +6,7 @@ import {
 } from '../../domain/IRepositories/IReviewRepository';
 import { Review } from '../../domain/entities/Review';
 import { ReviewModel, IReviewDoc } from '../models/ReviewModel';
-import { ReviewMapper } from '../../application/mappers/ReviewMapper';
+import { ReviewMapper } from '../mappers/ReviewMapper';
 import mongoose from 'mongoose';
 import { CourseModel } from '../../../course/infrastructure/models/CourseModel';
 import { MentorshipBookingModel } from '../../../mentorship/infrastructure/models/MentorshipBookingModel';
