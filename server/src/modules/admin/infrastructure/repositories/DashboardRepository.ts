@@ -10,7 +10,7 @@ import { EnrollmentModel } from '../../../enrollment/infrastructure/models/Enrol
 import { MentorshipBookingModel } from '../../../mentorship/infrastructure/models/MentorshipBookingModel';
 import { BookingStatus } from '../../../mentorship/domain/entities/MentorshipBooking';
 import { IDashboardRepository } from '../../domain/IRepositories/IDashboardRepository';
-import { IAdminDashboardData } from '../../application/interfaces/IGetDashboardDataUseCase';
+import { IAdminDashboardData } from '../../domain/interfaces/IDashboardData';
 
 export class DashboardRepository implements IDashboardRepository {
   private readonly exchangeRate = 83;
