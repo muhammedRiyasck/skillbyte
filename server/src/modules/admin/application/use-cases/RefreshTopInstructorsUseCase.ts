@@ -1,12 +1,12 @@
 import logger from '../../../../shared/utils/Logger';
-import { ITopInstructorUseCase } from '../interfaces/ITopInstructorUseCase';
+import { IRefreshTopInstructorsUseCase } from '../interfaces/IRefreshTopInstructorsUseCase';
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
 import {
   ITopInstructorRepository,
   ITopInstructorData,
 } from '../../domain/IRepositories/ITopInstructorRepository';
 
-export class TopInstructorUseCase implements ITopInstructorUseCase {
+export class RefreshTopInstructorsUseCase implements IRefreshTopInstructorsUseCase {
   constructor(
     private instructorRepository: IInstructorRepository,
     private topInstructorRepository: ITopInstructorRepository,
@@ -16,7 +16,7 @@ export class TopInstructorUseCase implements ITopInstructorUseCase {
    * Refreshes the top instructors capped collection by fetching the latest top 5
    * and inserting them. The capped collection will automatically drop the oldest 5.
    */
-  public async refreshTopInstructors(): Promise<void> {
+  public async execute(): Promise<void> {
     try {
       const topInstructors =
         await this.instructorRepository.getTopEarningInstructors(5);

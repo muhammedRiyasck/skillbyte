@@ -15,7 +15,7 @@ import {
 import { NodeMailerService } from '../mail/NodeMailerService';
 import { JOB_NAMES, QUEUE_NAMES } from './JobTypes';
 import { TopInstructorProcessor } from './processors/TopInstructorProcessor';
-import { TopInstructorUseCase } from '../../../modules/admin/application/use-cases/TopInstructorService';
+import { RefreshTopInstructorsUseCase } from '../../../modules/admin/application/use-cases/RefreshTopInstructorsUseCase';
 import { TopInstructorRepository } from '../../../modules/admin/infrastructure/repositories/TopInstructorRepository';
 
 /**
@@ -53,11 +53,11 @@ export class JobQueueInitializer {
       );
 
       const topInstructorRepository = new TopInstructorRepository();
-      const topInstructorUseCase = new TopInstructorUseCase(
+      const refreshTopInstructorsUseCase = new RefreshTopInstructorsUseCase(
         instructorRepo,
         topInstructorRepository,
       );
-      new TopInstructorProcessor(topInstructorUseCase);
+      new TopInstructorProcessor(refreshTopInstructorsUseCase);
 
       // Schedule repeatable job to refresh top instructors (every 1 hour)
       jobQueueService.addJob(
@@ -71,7 +71,7 @@ export class JobQueueInitializer {
       );
 
       // Execute immediately on startup to seed the capped collection
-      topInstructorUseCase.refreshTopInstructors().catch((err) => {
+      refreshTopInstructorsUseCase.execute().catch((err) => {
         logger.error('Failed to seed top instructors on startup:', err);
       });
 
