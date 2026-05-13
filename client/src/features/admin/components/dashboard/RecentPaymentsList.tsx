@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import { Activity, DollarSign } from 'lucide-react';
 import Pulse from '@/shared/ui/Pulse';
 
@@ -14,13 +15,13 @@ interface RecentPayment {
 
 interface Props {
     payments: RecentPayment[] | undefined;
-    itemVariants?: any;
+    itemVariants?: Variants;
 }
 
 const RecentPaymentsList: React.FC<Props> = ({ payments, itemVariants }) => {
     return (
         <motion.div 
-            variants={itemVariants}
+            {...(itemVariants && { variants: itemVariants })}
             className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700/50 overflow-hidden"
         >
             <div className="p-8 border-b border-slate-50 dark:border-slate-700/50 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">

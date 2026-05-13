@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import Pulse from '@/shared/ui/Pulse';
@@ -16,13 +17,13 @@ export interface StatCardProps {
 
 interface Props {
     stat: StatCardProps;
-    itemVariants?: any;
+    itemVariants?: Variants;
 }
 
 const DashboardStatCard: React.FC<Props> = ({ stat, itemVariants }) => {
     return (
         <motion.div
-            variants={itemVariants}
+            {...(itemVariants && { variants: itemVariants })}
             whileHover={{ y: -5, scale: 1.02 }}
             className="bg-white dark:bg-slate-800 p-5 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700/50 relative overflow-hidden group transition-all"
         >

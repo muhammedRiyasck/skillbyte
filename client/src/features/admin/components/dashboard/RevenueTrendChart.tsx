@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 import { Activity } from 'lucide-react';
 import {
     AreaChart,
@@ -13,13 +14,13 @@ import {
 
 interface Props {
     data: Array<{ date: string; revenue: number; commission: number }> | undefined;
-    itemVariants?: any;
+    itemVariants?: Variants;
 }
 
 const RevenueTrendChart: React.FC<Props> = ({ data, itemVariants }) => {
     return (
         <motion.div 
-            variants={itemVariants}
+            {...(itemVariants && { variants: itemVariants })}
             className="lg:col-span-2 bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700/50"
         >
             <div className="flex items-center justify-between mb-8">
