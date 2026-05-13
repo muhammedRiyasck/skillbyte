@@ -2,7 +2,7 @@ import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { IAdminRepository } from '../../domain/IRepositories/IAdminRepository';
 import { Admin } from '../../domain/entities/Admin';
 import { AdminModel, IAdmin } from '../models/AdminModel';
-import { AdminMapper } from '../../application/mappers/AdminMapper';
+import { AdminMapper } from '../mappers/AdminMapper';
 
 export class AdminRepository
   extends BaseRepository<Admin, IAdmin>

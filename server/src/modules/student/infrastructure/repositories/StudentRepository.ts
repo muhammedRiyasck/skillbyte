@@ -4,7 +4,7 @@ import { Student } from '../../domain/entities/Student';
 import { StudentModel, IStudent } from '../models/StudentModel';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
-import { StudentMapper } from '../../application/mappers/StudentMapper';
+import { StudentMapper } from '../mappers/StudentMapper';
 
 export class StudentRepository
   extends BaseRepository<Student, IStudent>
