@@ -49,4 +49,3 @@ export class GetDashboardDataUseCase implements IGetDashboardDataUseCase {
     };
   }
 }
-

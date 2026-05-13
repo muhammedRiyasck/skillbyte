@@ -6,7 +6,9 @@ import {
   ITopInstructorData,
 } from '../../domain/IRepositories/ITopInstructorRepository';
 
-export class RefreshTopInstructorsUseCase implements IRefreshTopInstructorsUseCase {
+export class RefreshTopInstructorsUseCase
+  implements IRefreshTopInstructorsUseCase
+{
   constructor(
     private instructorRepository: IInstructorRepository,
     private topInstructorRepository: ITopInstructorRepository,
