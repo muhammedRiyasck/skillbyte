@@ -10,7 +10,7 @@ import {
   findByInstructorIdQueryType,
   findByStudentIdQueryType,
 } from '../types/IQueryTypes';
-import { MentorshipMapper } from '../../application/mappers/MentorshipMapper';
+import { MentorshipMapper } from '../mappers/MentorshipMapper';
 
 export class MentorshipBookingRepository
   extends BaseRepository<MentorshipBooking, IMentorshipBookingDoc>
