@@ -4,7 +4,7 @@ import { IPayment } from '../../domain/entities/Payment';
 import { IPaymentReadRepository } from '../../domain/IRepositories/IPaymentReadRepository';
 import { PaymentModel } from '../models/PaymentModel';
 import { IPaymentDocument } from '../types/IPaymentDocument';
-import { PaymentMapper } from '../../application/mappers/PaymentMapper';
+import { PaymentMapper } from '../mappers/PaymentMapper';
 
 export class PaymentReadRepository
   extends BaseRepository<IPayment, IPaymentDocument>
