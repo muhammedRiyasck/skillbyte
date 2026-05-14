@@ -15,6 +15,7 @@ import ChatRoutes from '../modules/chat/entry-point/routes/Chat.routes';
 import MentorshipRoutes from '../modules/mentorship/entry-point/routes/Mentorship.Routes';
 import ReviewRoutes from '../modules/review/entry-point/routes/Review.routes';
 import ReportRoutes from '../modules/report/entry-point/routes/Report.routes';
+import QuizRoutes from '../modules/quiz/entry-point/routes/Quiz.routes';
 
 const router = express.Router();
 
@@ -34,5 +35,6 @@ router.use('/chat', ChatRoutes);
 router.use('/mentorship', MentorshipRoutes);
 router.use('/reviews', ReviewRoutes);
 router.use('/reports', ReportRoutes);
+router.use('/quiz', QuizRoutes);
 
 export default router;
