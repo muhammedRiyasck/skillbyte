@@ -48,6 +48,13 @@ export class EnrollmentWriteRepository
 
     let doc;
     if (enrollment) {
+      // Prevent downgrading completion status
+      const existingProgress = enrollment.lessonProgress.find(
+        (lp) => lp.lessonId.toString() === lessonId,
+      );
+      const isCompleted =
+        existingProgress?.isCompleted || progressData.isCompleted;
+
       doc = await this.model.findOneAndUpdate(
         { _id: enrollmentId, 'lessonProgress.lessonId': lessonId },
         {
@@ -55,7 +62,7 @@ export class EnrollmentWriteRepository
             'lessonProgress.$.lastWatchedSecond':
               progressData.lastWatchedSecond,
             'lessonProgress.$.totalDuration': progressData.totalDuration,
-            'lessonProgress.$.isCompleted': progressData.isCompleted,
+            'lessonProgress.$.isCompleted': isCompleted,
             'lessonProgress.$.lastUpdated': new Date(),
           },
         },

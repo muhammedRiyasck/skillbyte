@@ -10,7 +10,7 @@ export class EnrollmentMapper {
       status: enrollment.status,
       enrolledAt: enrollment.enrolledAt,
       completedAt: enrollment.completedAt,
-      progress: enrollment.progress,
+      progress: Math.min(100, enrollment.progress),
       lessonProgress: enrollment.lessonProgress,
       createdAt: enrollment.createdAt,
       updatedAt: enrollment.updatedAt,

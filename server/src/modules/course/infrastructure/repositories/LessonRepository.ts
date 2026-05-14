@@ -3,6 +3,7 @@ import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository'
 import { Lesson } from '../../domain/entities/Lesson';
 import { LessonModel, ILessonDoc } from '../models/LessonModel';
 import { LessonMapper } from '../mappers/LessonMapper';
+import { ModuleModel } from '../models/ModuleModel';
 
 export class LessonRepository
   extends BaseRepository<Lesson, ILessonDoc>
@@ -57,16 +58,17 @@ export class LessonRepository
   }
 
   async countByCourseId(courseId: string): Promise<number> {
-    const count = await this.model.countDocuments({
-      moduleId: {
-        $in: await this.model.db
-          .collection('modules')
-          .find({ courseId })
-          .project({ _id: 1 })
-          .toArray()
-          .then((modules) => modules.map((m) => m._id)),
-      },
-    });
-    return count;
+    const modules = await ModuleModel.find({ courseId }).select('_id');
+    const moduleIds = modules.map((m) => m._id);
+    return await this.model.countDocuments({ moduleId: { $in: moduleIds } });
+  }
+
+  async findLessonIdsByCourseId(courseId: string): Promise<string[]> {
+    const modules = await ModuleModel.find({ courseId }).select('_id');
+    const moduleIds = modules.map((m) => m._id);
+    const lessons = await this.model
+      .find({ moduleId: { $in: moduleIds } })
+      .select('_id');
+    return lessons.map((l) => l._id.toString());
   }
 }

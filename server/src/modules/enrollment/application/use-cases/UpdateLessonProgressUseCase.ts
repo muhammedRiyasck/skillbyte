@@ -42,28 +42,33 @@ export class UpdateLessonProgressUseCase implements IUpdateLessonProgress {
       return null;
     }
 
-    // 2. Get total lessons in the course
-    const totalLessonsInCourse = await this.lessonRepo.countByCourseId(
+    // 2. Get active lessons in the course
+    const activeLessonIds = await this.lessonRepo.findLessonIdsByCourseId(
       updatedEnrollment.courseId,
     );
+    const totalLessonsInCourse = activeLessonIds.length;
 
-    // 3. Calculate progress based on total course lessons
+    // 3. Calculate progress based on total course lessons (only counting existing lessons)
     const completedLessons = updatedEnrollment.lessonProgress.filter(
-      (lp) => lp.isCompleted,
+      (lp) => lp.isCompleted && activeLessonIds.includes(lp.lessonId),
     ).length;
+
     const progressPercentage =
       totalLessonsInCourse > 0
-        ? Math.round((completedLessons / totalLessonsInCourse) * 100)
+        ? Math.min(
+            100,
+            Math.round((completedLessons / totalLessonsInCourse) * 100),
+          )
         : 0;
 
     // 4. Update overall progress
     const status =
-      progressPercentage === 100 &&
+      progressPercentage >= 100 &&
       updatedEnrollment.status !== EnrollmentStatus.COMPLETED
         ? EnrollmentStatus.COMPLETED
         : undefined;
     const completedAt =
-      progressPercentage === 100 && !updatedEnrollment.completedAt
+      progressPercentage >= 100 && !updatedEnrollment.completedAt
         ? new Date()
         : undefined;
 
