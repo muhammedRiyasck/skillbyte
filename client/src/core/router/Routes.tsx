@@ -42,6 +42,8 @@ const InstructorCourses = lazy(() => import("@features/course/pages/InstructorCo
 const InstructorSlotsPage = lazy(() => import("@features/mentorship/pages/InstructorSlotsPage.tsx"));
 const InstructorBookingsPage = lazy(() => import("@features/mentorship/pages/InstructorBookingsPage.tsx"));
 const InstructorReviews = lazy(() => import("@features/instructor/pages/InstructorReviews.tsx"));
+const QuizConfig = lazy(() => import("@features/quiz/pages/instructor/QuizConfig.tsx"));
+const QuizAnalytics = lazy(() => import("@features/quiz/pages/instructor/QuizAnalytics.tsx"));
 
 import StudentLayout from "@layouts/student/StudentLayout.tsx";
 const SignIn = lazy(() => import("@features/auth/pages/SignIn.tsx"));
@@ -55,6 +57,9 @@ const SuccessPage = lazy(() => import("@features/enrollment").then(module => ({ 
 const PurchaseHistory = lazy(() => import("@features/student/pages/PurchaseHistory.tsx"));
 const MentorshipBrowsePage = lazy(() => import("@features/mentorship/pages/MentorshipBrowsePage.tsx"));
 const StudentBookingsPage = lazy(() => import("@features/mentorship/pages/StudentBookingsPage.tsx"));
+const QuizLanding = lazy(() => import("@features/quiz/pages/student/QuizLanding.tsx"));
+const QuizSession = lazy(() => import("@features/quiz/pages/student/QuizSession.tsx"));
+const QuizResult = lazy(() => import("@features/quiz/pages/student/QuizResult.tsx"));
 
 const router = createBrowserRouter([
   // auth routes
@@ -264,6 +269,36 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: ROUTES.student.quiz.landing,
+        element: (
+          <ProtectedRoute roles={["student"]}>
+            <Fallback>
+              <QuizLanding />
+            </Fallback>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.student.quiz.session,
+        element: (
+          <ProtectedRoute roles={["student"]}>
+            <Fallback>
+              <QuizSession />
+            </Fallback>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.student.quiz.result,
+        element: (
+          <ProtectedRoute roles={["student"]}>
+            <Fallback>
+              <QuizResult />
+            </Fallback>
+          </ProtectedRoute>
+        ),
+      },
     ],
   },
   // course detail page
@@ -378,6 +413,26 @@ const router = createBrowserRouter([
           <ProtectedRoute roles={["instructor"]}>
             <Fallback>
               <InstructorReviews />
+            </Fallback>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.instructor.quiz.config,
+        element: (
+          <ProtectedRoute roles={["instructor"]}>
+            <Fallback>
+              <QuizConfig />
+            </Fallback>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.instructor.quiz.analytics,
+        element: (
+          <ProtectedRoute roles={["instructor"]}>
+            <Fallback>
+              <QuizAnalytics />
             </Fallback>
           </ProtectedRoute>
         ),

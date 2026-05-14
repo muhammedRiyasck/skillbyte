@@ -29,6 +29,11 @@ export const ROUTES = {
       browse: '/mentorship/browse',
       bookings: '/mentorship/bookings',
     },
+    quiz: {
+      landing: '/course/:courseId/quiz',
+      session: '/course/:courseId/quiz/session/:attemptId',
+      result: '/course/:courseId/quiz/result',
+    }
   },
 
   course: {
@@ -48,6 +53,10 @@ export const ROUTES = {
       bookings: '/instructor/mentorship/bookings'
     },
     reviews: '/instructor/reviews',
+    quiz: {
+      config: '/instructor/quiz-config/:courseId',
+      analytics: '/instructor/quiz-analytics/:courseId',
+    }
   },
 
   admin: {
