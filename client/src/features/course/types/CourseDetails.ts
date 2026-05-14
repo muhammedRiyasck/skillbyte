@@ -29,6 +29,7 @@ export interface CourseDetails {
   createdAt: string;
   updatedAt: string;
   modules?: ModuleType[];
+  isQuizEnabled?: boolean;
 }
 
 interface InstructorInfo {

@@ -20,4 +20,6 @@ export interface Ibase {
     totalReviews?: number;
     isEnrolled?: boolean;
     isBlocked?: boolean;
+    progress?: number;
+    isQuizEnabled?: boolean;
 }

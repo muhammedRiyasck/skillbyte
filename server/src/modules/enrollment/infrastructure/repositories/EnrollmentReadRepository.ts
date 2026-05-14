@@ -92,6 +92,14 @@ export class EnrollmentReadRepository
     }
 
     pipeline.push(
+      {
+        $lookup: {
+          from: 'quizconfigs',
+          localField: 'courseId',
+          foreignField: 'courseId',
+          as: 'quizConfig',
+        },
+      },
       { $sort: { enrolledAt: -1 } },
       {
         $project: {
@@ -99,6 +107,7 @@ export class EnrollmentReadRepository
           enrolledAt: 1,
           progress: 1,
           status: 1,
+          isQuizEnabled: { $arrayElemAt: ['$quizConfig.isEnabled', 0] },
           course: {
             id: '$course._id',
             instructorId: '$course.instructorId',

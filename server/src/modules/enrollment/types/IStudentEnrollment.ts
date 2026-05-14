@@ -14,4 +14,5 @@ export interface IStudentEnrollment {
   progress: number;
   enrollmentStatus: string;
   isEnrolled: boolean;
+  isQuizEnabled?: boolean;
 }
