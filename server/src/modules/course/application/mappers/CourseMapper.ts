@@ -66,6 +66,7 @@ export class CourseMapper {
       updatedAt: course.updatedAt,
       averageRating: course.averageRating,
       totalReviews: course.totalReviews,
+      isQuizEnabled: course.isQuizEnabled,
     };
   }
 

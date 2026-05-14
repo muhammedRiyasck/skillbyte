@@ -2,6 +2,7 @@ import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository'
 import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
 import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
+import { IQuizConfigRepository } from '../../../quiz/domain/IRepositories/IQuizConfigRepository';
 
 import { Course } from '../../domain/entities/Course';
 import { IGetCourseUseCase } from '../interfaces/IGetCourseDetailsUseCase';
@@ -28,6 +29,7 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
     private _moduleRepo: IModuleRepository,
     private _lessonRepo: ILessonRepository,
     private _instructorRepo: IInstructorRepository,
+    private _quizConfigRepo: IQuizConfigRepository,
   ) {}
 
   /**
@@ -130,6 +132,10 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
         };
       }
     }
+
+    // Include quiz status
+    const quizConfig = await this._quizConfigRepo.findByCourseId(courseId);
+    course.isQuizEnabled = quizConfig?.isEnabled || false;
 
     return course;
   }

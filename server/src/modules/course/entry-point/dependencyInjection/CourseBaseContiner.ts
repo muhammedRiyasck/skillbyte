@@ -14,6 +14,7 @@ import { GetPaginatedCoursesUseCase } from '../../application/use-cases/GetPagin
 import { GetCategories } from '../../application/use-cases/GetCategoriesUseCase';
 import { BlockCourseUseCase } from '../../application/use-cases/BlockCourseUseCase';
 import { CloudinaryStorageService } from '../../../../shared/services/file-upload/services/CloudinaryStorageService';
+import { quizConfigRepository } from '../../../quiz/entry-point/dependencyInjection/QuizDI';
 
 const courseRepository = new CourseRepository();
 const moduleRepository = new ModuleRepository();
@@ -29,6 +30,7 @@ const getCourseDetailsUC = new GetCourseDetailUseCase(
   moduleRepository,
   lessonRepository,
   instructorRepository,
+  quizConfigRepository,
 );
 
 const updateBaseUC = new UpdateBaseUseCase(courseRepository);

@@ -81,4 +81,5 @@ export interface CourseResponseDto {
   isEnrolled?: boolean;
   averageRating?: number;
   totalReviews?: number;
+  isQuizEnabled?: boolean;
 }

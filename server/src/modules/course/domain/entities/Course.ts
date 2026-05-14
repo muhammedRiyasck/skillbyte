@@ -23,5 +23,6 @@ export class Course {
     public modules?: Module[],
     public averageRating: number = 0,
     public totalReviews: number = 0,
+    public isQuizEnabled: boolean = false,
   ) {}
 }
