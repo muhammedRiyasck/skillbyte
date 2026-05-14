@@ -6,11 +6,6 @@ import { cn } from "@shared/utils/cn";
 import ToggleSwitch from "@/shared/ui/ToggleSwitch";
 import Modal from "@/shared/ui/Modal";
 import { updateCourseStatus, blockCourse } from "../services/CourseStatus";
-import { ChatService } from "@/features/chat/services/ChatService";
-import { useSelector } from "react-redux";
-import { MessageSquare, Loader2 } from "lucide-react";
-import type { RootState } from "@core/store/Index";
-
 import type { Ibase } from "../types/IBase";
 import { CourseStatus } from "@shared/enums/CourseStatus";
 import { UserRole } from "@shared/enums/UserRole";
@@ -41,30 +36,6 @@ const CourseCard = memo<CourseCardProps>(({
     action: "status"
   });
 
-  const user = useSelector((state: RootState) => state.auth.user);
-  const [isCreatingChat, setIsCreatingChat] = useState<string | null>(null);
-
-  const handleMessageInstructor = async (id: string, instructorId: string | undefined) => {
-    if (!user || !instructorId) return;
-
-    setIsCreatingChat(id);
-    try {
-      await ChatService.createConversation({
-        studentId: user.id,
-        instructorId,
-        id
-      });
-
-      // Invalidate conversations query to ensure the new conversation appears in the list
-      queryClient.invalidateQueries({ queryKey: ['conversations', user.id] });
-
-      navigate(ROUTES.chat);
-    } catch (error) {
-      console.error("Failed to start conversation:", error);
-    } finally {
-      setIsCreatingChat(null);
-    }
-  };
 
   const handleToggleChange = useCallback((course: Ibase) => {
     if (role === UserRole.ADMIN) {
@@ -140,9 +111,27 @@ const CourseCard = memo<CourseCardProps>(({
   const getActionButton = (course: Ibase) => {
     if (role === UserRole.STUDENT) {
       // Action Button for Students
+      const buttonText = !course.isEnrolled 
+        ? 'Enroll Now' 
+        : (course.progress === 0 ? 'Start Learning' : 'Continue Learning');
+
       return (
         <>
-          <button
+          {course.isEnrolled && course.progress !== undefined && (
+            <div className="mt-4 space-y-2">
+              <div className="flex justify-between text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
+                <span>Progress</span>
+                <span>{Math.min(100, Math.round(course.progress))}%</span>
+              </div>
+              <div className="w-full bg-gray-100 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
+                <div 
+                  className="bg-indigo-600 h-full transition-all duration-500" 
+                  style={{ width: `${Math.min(100, course.progress)}%` }} 
+                />
+              </div>
+            </div>
+          )}
+           <button
             onClick={() => navigate(ROUTES.course.details.replace(':id', course.id), { state: { page } })}
             className={cn(
               "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 cursor-pointer",
@@ -151,39 +140,32 @@ const CourseCard = memo<CourseCardProps>(({
                 : "bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500"
             )}
           >
-            {course.isEnrolled ? 'Continue Learning' : 'Enroll Now'}
+            {buttonText}
           </button>
-          {course.isEnrolled && (
-            <button
-              onClick={() => { handleMessageInstructor(course.id, course.instructorId) }}
-              disabled={isCreatingChat === course.id}
-              className="mt-2 w-full text-indigo-600 border border-indigo-600 hover:bg-indigo-50 font-medium py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 cursor-pointer flex items-center justify-center gap-2"
-            >
-              {isCreatingChat === course.id ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <MessageSquare className="w-4 h-4" />
-              )}
-              Message Instructor
-            </button>
-          )}
         </>
       );
     } else if (role === UserRole.INSTRUCTOR) {
 
       // Action Button for Instructors
       return (
-        <button
-          onClick={() => {
-            navigate(ROUTES.instructor.uploadCourseContent, {
-              state: { id: course.id, page }
-            })
-          }}
-          className={
-            "mt-4 w-full text-white font-medium py-2 rounded-lg transition-colors focus:outline-none cursor-pointer bg-indigo-500 hover:bg-indigo-600"}
-        >
-          Continue Upload
-        </button>
+        <div className="flex gap-2 w-full mt-4">
+          <button
+            onClick={() => {
+              navigate(ROUTES.instructor.uploadCourseContent, {
+                state: { id: course.id, page }
+              })
+            }}
+            className="flex-1 text-white font-medium py-2 rounded-lg transition-colors focus:outline-none cursor-pointer bg-indigo-500 hover:bg-indigo-600 text-sm"
+          >
+            Content
+          </button>
+          <button
+            onClick={() => navigate(ROUTES.instructor.quiz.config.replace(':courseId', course.id))}
+            className="flex-1 text-indigo-600 border border-indigo-600 hover:bg-indigo-50 font-medium py-2 rounded-lg transition-colors focus:outline-none cursor-pointer text-sm"
+          >
+            Quiz Settings
+          </button>
+        </div>
       );
     } else if (role === UserRole.ADMIN) {
       return (

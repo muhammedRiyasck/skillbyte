@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getLessonPlayUrl } from "@/features/course/services/PlayUrlService";
 import { updateLessonProgress } from "@/features/course/services/LessonProgress";
 import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Loader2, X, WifiOff, Flag } from "lucide-react";
@@ -38,6 +38,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
 
   const role = useSelector((state: RootState) => state.auth.user?.role);
 
+  const queryClient = useQueryClient();
   const lastSavedTime = useRef(0);
 
   const saveProgress = async (time: number, total: number, completed: boolean) => {
@@ -50,6 +51,8 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
         totalDuration: total,
         isCompleted: completed,
       });
+      // Invalidate the enrollment query to trigger a refetch of progress
+      queryClient.invalidateQueries({ queryKey: ["enrollment"] });
     } catch (err) {
       console.error("Failed to save progress", err);
     }

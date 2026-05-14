@@ -13,7 +13,9 @@ import {
   Award,
   CheckCircle,
   Globe,
+  MessageSquare,
   Loader2,
+  BrainCircuit,
   Home,
   BookOpen,
   Check,
@@ -31,6 +33,7 @@ import ReviewList from '@features/review/components/ReviewList';
 import ReviewForm from '@features/review/components/ReviewForm';
 import ReportModal from '@/shared/components/ReportModal';
 import { submitReport } from '@features/review/services/ReviewService';
+import { ChatService } from '@/features/chat/services/ChatService';
 
 import ErrorPage from '@shared/ui/ErrorPage';
 import type { ModuleType } from '../types/IModule';
@@ -55,7 +58,31 @@ const CourseDetails: React.FC = () => {
   const userId = useSelector((state: RootState) => state.auth.user?.id);
   const navigate = useNavigate();
   const location = useLocation();
+  const [isCreatingChat, setIsCreatingChat] = useState<string | null>(null);
   const queryClient = useQueryClient();
+
+  const handleMessageInstructor = async () => {
+    if (!userId || !course?.instructorId) return;
+
+    setIsCreatingChat(course.id);
+    try {
+      await ChatService.createConversation({
+        studentId: userId,
+        instructorId: course.instructorId,
+        id: course.id
+      });
+
+      // Invalidate conversations query
+      queryClient.invalidateQueries({ queryKey: ['conversations', userId] });
+
+      navigate(ROUTES.chat);
+    } catch (error) {
+      console.error("Failed to start conversation:", error);
+      toast.error("Failed to start conversation with instructor");
+    } finally {
+      setIsCreatingChat(null);
+    }
+  };
 
 
   const { data: courseData, isLoading, isError, error, refetch } = useQuery({
@@ -332,11 +359,61 @@ const CourseDetails: React.FC = () => {
                           ₹{Math.round(course.price * 1.5)}
                         </div>
                       </div>
-                      {role === UserRole.STUDENT && <div>
-                        {role === UserRole.STUDENT && isEnrolled ? (
-                          <div className="w-full py-3 px-6 rounded-lg font-semibold bg-green-100 text-green-800 flex items-center justify-center gap-2">
-                            <Check className="w-5 h-5" />
-                            Already Enrolled
+                      <div>
+                        {(isEnrolled || role === UserRole.INSTRUCTOR || role === UserRole.ADMIN) ? (
+                          <div className="space-y-4">
+                            <div className="w-full py-3 px-6 rounded-lg font-semibold bg-green-50 dark:bg-green-900/90 text-green-800 dark:text-green-400 flex items-center justify-center gap-2 border border-green-100 dark:border-green-800/50">
+                              <Check className="w-5 h-5" />
+                              Already Enrolled
+                            </div>
+                            
+                            {course.isQuizEnabled && (function () {
+                              const progress = enrollmentData?.data?.enrollment?.progress ?? 0;
+                              const isUnlocked = progress >= 99;
+
+                              if (isUnlocked) {
+                                return (
+                                  <button
+                                    onClick={() => navigate(ROUTES.student.quiz.landing.replace(':courseId', course.id))}
+                                    className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black rounded-xl transition-all shadow-xl shadow-indigo-600/20 hover:shadow-indigo-600/40 hover:-translate-y-1 active:translate-y-0 cursor-pointer flex items-center justify-center gap-2 group"
+                                  >
+                                    <BrainCircuit className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                                    Take AI Final Quiz
+                                  </button>
+                                );
+                              } else {
+                                return (
+                                  <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
+                                    <div className="flex items-center gap-3 mb-2 text-gray-500 dark:text-gray-400">
+                                      <BrainCircuit className="w-5 h-5 opacity-40" />
+                                      <span className="font-bold text-sm uppercase tracking-wider">AI Final Quiz</span>
+                                      <span className="ml-auto text-[10px] bg-gray-300 dark:bg-gray-700 px-2 py-0.5 rounded-full font-bold">LOCKED</span>
+                                    </div>
+                                    <p className="text-xs text-black dark:text-gray-400 mb-3">
+                                      Reach 100% progress to unlock. You're at {Math.round(progress)}%.
+                                    </p>
+                                    <div className="w-full bg-gray-200 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
+                                      <div
+                                        className="bg-gray-400 dark:bg-gray-500 h-full transition-all duration-700"
+                                        style={{ width: `${progress}%` }}
+                                      />
+                                    </div>
+                                  </div>
+                                );
+                              }
+                            })()}
+                            <button
+                              onClick={handleMessageInstructor}
+                              disabled={isCreatingChat === course.id}
+                              className="w-full py-3 border-2 border-indigo-600 text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                            >
+                              {isCreatingChat === course.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <MessageSquare className="w-4 h-4" />
+                              )}
+                              Message Instructor
+                            </button>
                           </div>
                         ) : (
                           <button
@@ -350,7 +427,7 @@ const CourseDetails: React.FC = () => {
                         <div className="mt-4 text-center text-sm text-gray-600">
                           {course.duration}
                         </div>
-                      </div>}
+                      </div>
                     </div>
                   </div>
 
@@ -484,7 +561,7 @@ const CourseDetails: React.FC = () => {
                                     <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5">
                                       <div
                                         className={`bg-indigo-600 h-1.5 rounded-full transition-all duration-300 ${prog?.isCompleted ? 'bg-green-500' : ''}`}
-                                        style={{ width: `${prog?.isCompleted ? 100 : pct}%` }}
+                                        style={{ width: `${pct}%` }}
                                       />
                                     </div>
                                     {prog?.isCompleted && <p className="text-xs text-green-600 mt-1 flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Completed</p>}
@@ -555,6 +632,20 @@ const CourseDetails: React.FC = () => {
                   <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                     {course.instructor?.bio}
                   </p>
+                  {role === UserRole.STUDENT && isEnrolled && (
+                    <button
+                      onClick={handleMessageInstructor}
+                      disabled={isCreatingChat === course.id}
+                      className="mt-4 inline-flex items-center gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 px-4 py-2 rounded-lg transition-colors font-medium cursor-pointer disabled:opacity-50"
+                    >
+                      {isCreatingChat === course.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <MessageSquare className="w-4 h-4" />
+                      )}
+                      Message Instructor
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
