@@ -1,22 +1,20 @@
-import { 
-  STEM_ONLY_PATTERNS, 
-  MIN_QUESTION_TEXT_LENGTH, 
-  MIN_EXPLANATION_LENGTH 
+import {
+  STEM_ONLY_PATTERNS,
+  MIN_QUESTION_TEXT_LENGTH,
+  MIN_EXPLANATION_LENGTH,
 } from '../../constants/QuizConstants';
 
 /** Removes characters and patterns that could be used to hijack the AI prompt. */
 export function sanitizeForPrompt(value: string, maxLength = 100): string {
-  return (
-    value
-      .replace(/[\n\r`<>]/g, ' ')
-      .replace(
-        /\b(ignore|forget|disregard|override|bypass|system|prompt|instruction|jailbreak|act as|pretend|roleplay)\b/gi,
-        '[REDACTED]',
-      )
-      .replace(/\s+/g, ' ')
-      .trim()
-      .slice(0, maxLength)
-  );
+  return value
+    .replace(/[\n\r`<>]/g, ' ')
+    .replace(
+      /\b(ignore|forget|disregard|override|bypass|system|prompt|instruction|jailbreak|act as|pretend|roleplay)\b/gi,
+      '[REDACTED]',
+    )
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, maxLength);
 }
 
 export function sanitizeTopics(topics: string[]): string[] {
