@@ -216,7 +216,7 @@ const ReviewManagement: React.FC = () => {
                   <select 
                     className="flex-grow bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
                     value={filters.sortBy}
-                    onChange={(e) => handleFilterChange('sortBy', e.target.value as 'createdAt' | 'rating' | 'helpfulCount')}
+                    onChange={(e) => handleFilterChange('sortBy', e.target.value as AdminReviewFilters['sortBy'])}
                   >
                     <option value="createdAt">Date</option>
                     <option value="rating">Rating</option>
