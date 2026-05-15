@@ -15,6 +15,7 @@ import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositor
 import { IEnrollmentWriteRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentWriteRepository';
 import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
 import { IAIQuizService } from '../../../../shared/services/ai/IAIQuizService';
+import { QuizGrader } from '../../domain/utils/QuizGrader';
 
 export class SubmitQuizAttemptUseCase implements ISubmitQuizAttemptUseCase {
   constructor(
@@ -71,7 +72,7 @@ export class SubmitQuizAttemptUseCase implements ISubmitQuizAttemptUseCase {
 
       let isCorrect = false;
       if (studentAnswer) {
-        isCorrect = this.gradeAnswer(question, studentAnswer);
+        isCorrect = QuizGrader.gradeAnswer(question, studentAnswer);
       }
 
       if (isCorrect) {
@@ -132,28 +133,5 @@ export class SubmitQuizAttemptUseCase implements ISubmitQuizAttemptUseCase {
     }
 
     return updatedAttempt!;
-  }
-
-  private gradeAnswer(question: QuizQuestion, answer: StudentAnswer): boolean {
-    if (question.type !== answer.type) return false;
-
-    switch (question.type) {
-      case 'mcq':
-        if (answer.type === 'mcq') {
-          return question.correctOptionIndex === answer.selectedOptionIndex;
-        }
-        return false;
-      case 'true_false':
-        if (answer.type === 'true_false') {
-          return question.correctAnswer === answer.selectedAnswer;
-        }
-        return false;
-      case 'short_answer':
-      case 'essay':
-        // Phase 2 implementation
-        return false;
-      default:
-        return false;
-    }
   }
 }

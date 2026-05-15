@@ -29,9 +29,6 @@ export class GetQuizConfigUseCase implements IGetQuizConfigUseCase {
       );
     }
 
-    // If student, we could potentially check enrollment here,
-    // but the landing page already handles the basic "is enabled" check.
-    // For now, allowing all students to see the config (topics, count etc) is fine.
 
     return config;
   }

@@ -17,7 +17,6 @@ export class GetQuizResultUseCase implements IGetQuizResultUseCase {
       return null;
     }
 
-    // Check if the instructor has hidden the quiz? Could add checks if needed.
 
     return attempt;
   }
