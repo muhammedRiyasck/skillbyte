@@ -9,7 +9,7 @@ import { ICertificateRepository } from '../../domain/IRepositories/ICertificateR
 import { CertificateDto } from '../dtos/CertificateDto';
 import { ICertificateCodeGenerator } from '../interfaces/ICertificateCodeGenerator';
 import { IIssueCertificateUseCase } from '../interfaces/IIssueCertificateUseCase';
-import { CertificateMapper } from './CertificateMapper';
+import { CertificateMapper } from '../mappers/CertificateMapper';
 
 export class IssueCertificateUseCase implements IIssueCertificateUseCase {
   constructor(

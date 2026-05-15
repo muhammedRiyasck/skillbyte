@@ -7,7 +7,7 @@ import { IStudentRepository } from '../../../student/domain/IRepositories/IStude
 import { ICertificateRepository } from '../../domain/IRepositories/ICertificateRepository';
 import { CertificateDto } from '../dtos/CertificateDto';
 import { IGetCertificateUseCase } from '../interfaces/IGetCertificateUseCase';
-import { CertificateMapper } from './CertificateMapper';
+import { CertificateMapper } from '../mappers/CertificateMapper';
 
 export class GetCertificateUseCase implements IGetCertificateUseCase {
   constructor(
