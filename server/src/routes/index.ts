@@ -16,6 +16,7 @@ import MentorshipRoutes from '../modules/mentorship/entry-point/routes/Mentorshi
 import ReviewRoutes from '../modules/review/entry-point/routes/Review.routes';
 import ReportRoutes from '../modules/report/entry-point/routes/Report.routes';
 import QuizRoutes from '../modules/quiz/entry-point/routes/Quiz.routes';
+import CertificateRoutes from '../modules/certificate/entry-point/routes/Certificate.routes';
 
 const router = express.Router();
 
@@ -36,5 +37,6 @@ router.use('/mentorship', MentorshipRoutes);
 router.use('/reviews', ReviewRoutes);
 router.use('/reports', ReportRoutes);
 router.use('/quiz', QuizRoutes);
+router.use('/certificate', CertificateRoutes);
 
 export default router;
