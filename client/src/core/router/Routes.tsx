@@ -60,6 +60,8 @@ const StudentBookingsPage = lazy(() => import("@features/mentorship/pages/Studen
 const QuizLanding = lazy(() => import("@features/quiz/pages/student/QuizLanding.tsx"));
 const QuizSession = lazy(() => import("@features/quiz/pages/student/QuizSession.tsx"));
 const QuizResult = lazy(() => import("@features/quiz/pages/student/QuizResult.tsx"));
+const CertificatePage = lazy(() => import("@features/certificate/pages/CertificatePage.tsx"));
+const VerifyCertificatePage = lazy(() => import("@features/certificate/pages/VerifyCertificatePage.tsx"));
 
 const router = createBrowserRouter([
   // auth routes
@@ -247,6 +249,24 @@ const router = createBrowserRouter([
               <EnrolledCourses />
             </Fallback>
           </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.student.certificate,
+        element: (
+          <ProtectedRoute roles={["student"]}>
+            <Fallback>
+              <CertificatePage />
+            </Fallback>
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.student.verifyCertificate,
+        element: (
+          <Fallback>
+            <VerifyCertificatePage />
+          </Fallback>
         ),
       },
       {

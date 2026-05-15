@@ -25,6 +25,8 @@ export const ROUTES = {
     paymentSuccess: '/enrollment/success',
     purchases: '/purchases',
     enrolledCourses: '/my-courses',
+    certificate: '/certificate/:certificateId',
+    verifyCertificate: '/certificate/verify/:verificationCode',
     mentorship: {
       browse: '/mentorship/browse',
       bookings: '/mentorship/bookings',
