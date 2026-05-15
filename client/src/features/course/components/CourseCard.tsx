@@ -1,11 +1,14 @@
 import { memo, useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { Award } from "lucide-react";
+import { toast } from "sonner";
 import { ROUTES } from "@core/router/paths";
 import { cn } from "@shared/utils/cn";
 import ToggleSwitch from "@/shared/ui/ToggleSwitch";
 import Modal from "@/shared/ui/Modal";
 import { updateCourseStatus, blockCourse } from "../services/CourseStatus";
+import { issueCertificate } from "@/features/certificate/services/CertificateService";
 import type { Ibase } from "../types/IBase";
 import { CourseStatus } from "@shared/enums/CourseStatus";
 import { UserRole } from "@shared/enums/UserRole";
@@ -23,6 +26,7 @@ const CourseCard = memo<CourseCardProps>(({
 }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [claimingCertificateId, setClaimingCertificateId] = useState<string | null>(null);
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     id: string;
@@ -79,6 +83,20 @@ const CourseCard = memo<CourseCardProps>(({
     setConfirmModal({ isOpen: false, id: "", newStatus: CourseStatus.LIST, action: "status" });
   }, []);
 
+  const handleClaimCertificate = useCallback(async (course: Ibase) => {
+    setClaimingCertificateId(course.id);
+    try {
+      const certificate = await issueCertificate(course.id);
+      toast.success("Certificate ready");
+      navigate(ROUTES.student.certificate.replace(":certificateId", certificate.certificateId));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to issue certificate";
+      toast.error(message);
+    } finally {
+      setClaimingCertificateId(null);
+    }
+  }, [navigate]);
+
   const getStatusBadge = (status: CourseStatus) => {
     const statusConfig = {
       [CourseStatus.DRAFT]: { label: 'Drafted', className: 'bg-orange-400' },
@@ -130,6 +148,16 @@ const CourseCard = memo<CourseCardProps>(({
                 />
               </div>
             </div>
+          )}
+          {course.isEnrolled && (course.progress ?? 0) >= 100 && (
+            <button
+              onClick={() => handleClaimCertificate(course)}
+              disabled={claimingCertificateId === course.id}
+              className="mt-4 w-full inline-flex items-center justify-center gap-2 border border-indigo-600 text-indigo-700 dark:text-indigo-300 dark:border-indigo-400 font-semibold py-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950 transition-colors cursor-pointer disabled:opacity-60"
+            >
+              <Award className="w-4 h-4" />
+              {claimingCertificateId === course.id ? "Preparing..." : "Get Certificate"}
+            </button>
           )}
            <button
             onClick={() => navigate(ROUTES.course.details.replace(':id', course.id), { state: { page } })}

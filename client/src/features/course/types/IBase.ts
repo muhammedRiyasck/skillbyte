@@ -22,4 +22,5 @@ export interface Ibase {
     isBlocked?: boolean;
     progress?: number;
     isQuizEnabled?: boolean;
+    enrollmentStatus?: string;
 }

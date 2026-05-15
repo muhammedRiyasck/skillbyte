@@ -27,6 +27,7 @@ import { ROUTES } from '@/core/router/paths';
 import { getCourseDetails } from '../services/CourseDetails';
 import { blockLesson } from '../services/CourseLesson';
 import { checkEnrollmentStatus } from '@features/enrollment/services/EnrollmentService';
+import { issueCertificate } from '@/features/certificate/services/CertificateService';
 import LessonPlayer from '../components/LessonPlayer';
 import RatingSummary from '@features/review/components/RatingSummary';
 import ReviewList from '@features/review/components/ReviewList';
@@ -59,6 +60,7 @@ const CourseDetails: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isCreatingChat, setIsCreatingChat] = useState<string | null>(null);
+  const [isClaimingCertificate, setIsClaimingCertificate] = useState(false);
   const queryClient = useQueryClient();
 
   const handleMessageInstructor = async () => {
@@ -131,6 +133,21 @@ const CourseDetails: React.FC = () => {
       return;
     }
     navigate(ROUTES.student.checkout.replace(':id', id!));
+  };
+
+  const handleClaimCertificate = async () => {
+    if (!course?.id) return;
+    setIsClaimingCertificate(true);
+    try {
+      const certificate = await issueCertificate(course.id);
+      toast.success('Certificate ready');
+      navigate(ROUTES.student.certificate.replace(':certificateId', certificate.certificateId));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to issue certificate';
+      toast.error(message);
+    } finally {
+      setIsClaimingCertificate(false);
+    }
   };
 
   const handleBlockLesson = async (lessonId: string) => {
@@ -402,6 +419,16 @@ const CourseDetails: React.FC = () => {
                                 );
                               }
                             })()}
+                            {(enrollmentData?.data?.enrollment?.progress ?? 0) >= 100 && (
+                              <button
+                                onClick={handleClaimCertificate}
+                                disabled={isClaimingCertificate}
+                                className="w-full py-3 border-2 border-indigo-600 text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                              >
+                                <Award className="w-4 h-4" />
+                                {isClaimingCertificate ? 'Preparing Certificate...' : 'Get Certificate'}
+                              </button>
+                            )}
                             <button
                               onClick={handleMessageInstructor}
                               disabled={isCreatingChat === course.id}
