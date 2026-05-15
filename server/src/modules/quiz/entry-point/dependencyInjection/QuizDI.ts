@@ -36,6 +36,7 @@ const startQuizAttemptUseCase = new StartQuizAttemptUseCase(
   quizConfigRepository,
   aiQuizService,
   enrollmentReadRepository,
+  courseRepository,
 );
 
 const submitQuizAttemptUseCase = new SubmitQuizAttemptUseCase(

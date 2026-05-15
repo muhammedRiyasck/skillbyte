@@ -7,6 +7,7 @@ import { QuizStatus } from '../../../../shared/enums/QuizStatus';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentReadRepository';
+import { ICourseRepository } from '../../../course/domain/IRepositories/ICourseRepository';
 import logger from '../../../../shared/utils/Logger';
 
 /** Fisher-Yates in-place shuffle — returns the same array shuffled. */
@@ -24,6 +25,7 @@ export class StartQuizAttemptUseCase implements IStartQuizAttemptUseCase {
     private quizConfigRepository: IQuizConfigRepository,
     private aiQuizService: IAIQuizService,
     private enrollmentReadRepo: IEnrollmentReadRepository,
+    private courseRepo: ICourseRepository,
   ) {}
 
   async execute(courseId: string, userId: string): Promise<IQuizAttempt> {
@@ -99,9 +101,13 @@ export class StartQuizAttemptUseCase implements IStartQuizAttemptUseCase {
     );
 
     if (!hasEnoughQuestions || hasCorruptedSlice) {
+      // Fetch course title for better AI context
+      const course = await this.courseRepo.findById(courseId);
+      const courseTitle = course?.title || `Course ${courseId}`;
+
       // If cache is insufficient or corrupted, generate fresh questions for this specific attempt
       questionsToUse = await this.aiQuizService.generateQuestions({
-        courseTitle: `Course ${courseId}`, // Note: Could be improved by fetching real title if needed
+        courseTitle,
         topics: config.topics,
         questionCount: config.questionCount,
         difficulty: config.difficulty,
