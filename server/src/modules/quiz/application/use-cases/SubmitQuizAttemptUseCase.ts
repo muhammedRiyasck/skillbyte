@@ -6,7 +6,6 @@ import {
   IPerQuestionResult,
 } from '../../domain/entities/QuizAttempt';
 import { StudentAnswer } from '../../domain/entities/StudentAnswer';
-import { QuizQuestion } from '../../domain/entities/QuizQuestion';
 import { QuizStatus } from '../../../../shared/enums/QuizStatus';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';

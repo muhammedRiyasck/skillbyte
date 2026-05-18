@@ -29,7 +29,6 @@ export class GetQuizConfigUseCase implements IGetQuizConfigUseCase {
       );
     }
 
-
     return config;
   }
 }

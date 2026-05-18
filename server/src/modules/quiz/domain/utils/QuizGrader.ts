@@ -4,7 +4,7 @@ import { StudentAnswer } from '../entities/StudentAnswer';
 export class QuizGrader {
   /**
    * Grades a single student answer against the corresponding quiz question.
-   * 
+   *
    * @param question The quiz question object containing correct answer details
    * @param answer The student's submitted answer
    * @returns true if the answer is correct, false otherwise

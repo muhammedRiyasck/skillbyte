@@ -17,7 +17,6 @@ export class GetQuizResultUseCase implements IGetQuizResultUseCase {
       return null;
     }
 
-
     return attempt;
   }
 }
