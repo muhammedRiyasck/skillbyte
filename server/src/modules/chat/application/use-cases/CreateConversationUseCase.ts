@@ -25,8 +25,13 @@ export class CreateConversationUseCase implements ICreateConversationUseCase {
       studentId,
       courseId,
     );
-
-    if (!enrollment || enrollment.status !== 'active') {
+    if (
+      !enrollment ||
+      enrollment.status == 'pending' ||
+      enrollment.status == 'failed' ||
+      enrollment.status == 'refunded' ||
+      enrollment.status == 'cancelled'
+    ) {
       throw new HttpError(
         'Student must be enrolled in the course to start a conversation',
         HttpStatusCode.BAD_REQUEST,
