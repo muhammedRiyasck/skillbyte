@@ -5,13 +5,14 @@ import {
   Award,
   CalendarDays,
   CheckCircle2,
+  Download,
   Loader2,
-  Printer,
   ShieldCheck,
 } from "lucide-react";
 import ErrorPage from "@shared/ui/ErrorPage";
 import skillbyteLogo from "@assets/OrginalLogo.png";
 import { getCertificate } from "../services/CertificateService";
+import { useCertificateDownload } from "../hooks/useCertificateDownload";
 
 const formatDate = (date?: string) => {
   if (!date) return "Not available";
@@ -30,6 +31,8 @@ const CertificatePage: React.FC = () => {
     queryFn: () => getCertificate(certificateId!),
     enabled: !!certificateId,
   });
+
+  const { isDownloading, downloadCertificate } = useCertificateDownload(data);
 
   if (isLoading) {
     return (
@@ -56,11 +59,21 @@ const CertificatePage: React.FC = () => {
       <div className="mx-auto max-w-5xl">
         <div className="mb-6 flex justify-end print:hidden">
           <button
-            onClick={() => window.print()}
-            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 font-semibold text-white shadow-sm hover:bg-indigo-700 cursor-pointer"
+            onClick={downloadCertificate}
+            disabled={isDownloading}
+            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:bg-indigo-400 cursor-pointer transition-all"
           >
-            <Printer className="w-4 h-4" />
-            Print / Save PDF
+            {isDownloading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Generating PDF...
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4" />
+                Download PDF
+              </>
+            )}
           </button>
         </div>
 
