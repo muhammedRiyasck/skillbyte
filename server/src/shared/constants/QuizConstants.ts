@@ -2,9 +2,10 @@
  * AI Model Configuration
  */
 export const GEMINI_FALLBACK_MODELS = [
+  'gemini-2.5-flash',
+  'gemini-flash-latest',
   'gemini-2.0-flash',
-  'gemini-2.0-flash-lite-preview-02-05',
-  'gemini-1.5-flash-latest',
+  'gemini-2.0-flash-lite',
 ];
 
 export const AI_MAX_OUTPUT_TOKENS = 8192;

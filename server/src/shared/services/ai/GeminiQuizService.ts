@@ -93,6 +93,7 @@ export class GeminiQuizService implements IAIQuizService {
       safeTypes,
     );
     const schema = this.getQuizSchema();
+    const errors: string[] = [];
 
     for (const modelName of this.fallbackModels) {
       try {
@@ -134,15 +135,14 @@ export class GeminiQuizService implements IAIQuizService {
           questionId: q.questionId || `q_${Date.now()}_${idx}`,
         }));
       } catch (error) {
-        logger.warn(
-          `Failed to generate with model ${modelName}:`,
-          (error as Error).message,
-        );
+        const errMsg = (error as Error).message;
+        logger.warn(`Failed to generate with model ${modelName}:`, errMsg);
+        errors.push(`[${modelName}: ${errMsg}]`);
       }
     }
 
     throw new Error(
-      'All Gemini models failed to generate questions. Check API keys and quotas.',
+      `All Gemini models failed to generate questions. Details: ${errors.join(' | ')}`,
     );
   }
 
