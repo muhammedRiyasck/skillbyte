@@ -59,6 +59,17 @@ export class SubmitQuizAttemptUseCase implements ISubmitQuizAttemptUseCase {
       );
     }
 
+    // Time-limit enforcement: grade the answers but mark as TIMED_OUT
+    // A 1-minute grace period handles network latency from the client auto-submit.
+    let timedOut = false;
+    if (config.timeLimit !== null) {
+      const elapsedMinutes =
+        (Date.now() - new Date(attempt.startedAt).getTime()) / 60_000;
+      if (elapsedMinutes > config.timeLimit + 1) {
+        timedOut = true;
+      }
+    }
+
     const perQuestionResult: IPerQuestionResult[] = [];
     let correctCount = 0;
     const strongAreas = new Set<string>();
@@ -91,11 +102,11 @@ export class SubmitQuizAttemptUseCase implements ISubmitQuizAttemptUseCase {
     const passed = score >= config.passPercentage;
 
     const updatedAttempt = await this.quizAttemptRepository.update(attemptId, {
-      status: QuizStatus.COMPLETED,
+      status: timedOut ? QuizStatus.TIMED_OUT : QuizStatus.COMPLETED,
       answers,
       perQuestionResult,
       score,
-      passed,
+      passed: timedOut ? false : passed, // timed-out attempts always fail
       submittedAt: new Date(),
     });
 

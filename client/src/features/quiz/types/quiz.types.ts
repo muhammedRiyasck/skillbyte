@@ -65,7 +65,7 @@ export interface IQuizAttempt {
   courseId: string;
   userId: string;
   attemptNumber: number;
-  status: 'in_progress' | 'completed' | 'failed';
+  status: 'in_progress' | 'completed' | 'timed_out' | 'failed';
   score: number;
   passed: boolean;
   questions: IQuizQuestion[];
