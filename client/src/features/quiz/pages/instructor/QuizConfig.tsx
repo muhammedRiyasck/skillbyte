@@ -109,10 +109,10 @@ const QuizConfig: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-12">
       <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
-        
+
         {/* Breadcrumbs / Back button */}
         <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-          <button 
+          <button
             onClick={() => navigate('/instructor/myCourses')}
             className="flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer"
           >
@@ -153,24 +153,23 @@ const QuizConfig: React.FC = () => {
 
         <div className="bg-white dark:bg-gray-700 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-600 overflow-hidden">
           <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-10">
-            
+
             {/* Enable/Disable Toggle */}
-            <div className={`flex items-center justify-between p-6 rounded-2xl border transition-all duration-500 ${
-              formData.isEnabled 
-                ? 'bg-indigo-50/50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-900/30' 
+            <div className={`flex items-center justify-between p-6 rounded-2xl border transition-all duration-500 ${formData.isEnabled
+                ? 'bg-indigo-50/50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-900/30'
                 : 'bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-700'
-            }`}>
+              }`}>
               <div className="max-w-[70%]">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">Enable Assessment</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  {formData.isEnabled 
-                    ? 'Students who complete 100% of the course content will be prompted to take this quiz.' 
+                  {formData.isEnabled
+                    ? 'Students who complete 100% of the course content will be prompted to take this quiz.'
                     : 'The quiz is currently hidden from students. You can still configure settings below.'}
                 </p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer scale-125">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   className="sr-only peer"
                   checked={formData.isEnabled || false}
                   onChange={(e) => setFormData({ ...formData, isEnabled: e.target.checked })}
@@ -180,7 +179,7 @@ const QuizConfig: React.FC = () => {
             </div>
 
             <div className="space-y-10">
-              
+
               {/* Topics Section */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
@@ -188,7 +187,7 @@ const QuizConfig: React.FC = () => {
                   <h3 className="text-lg font-bold text-gray-900 dark:text-white">Focus Areas & Topics</h3>
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Specify what the AI should quiz students on. Max 3 specific topics.</p>
-                
+
                 <div className="flex gap-2">
                   <input
                     type="text"
@@ -199,8 +198,8 @@ const QuizConfig: React.FC = () => {
                     className="flex-1 px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 outline-none text-gray-900 dark:text-white transition-all"
                     placeholder="e.g. React Hooks (max 50 chars)"
                   />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={handleAddTopic}
                     className="px-6 py-3 bg-gray-900 dark:bg-indigo-600 text-white rounded-xl hover:bg-gray-800 dark:hover:bg-indigo-700 transition-colors flex items-center gap-2 font-bold cursor-pointer"
                   >
@@ -228,8 +227,8 @@ const QuizConfig: React.FC = () => {
                 <div className="space-y-3">
                   <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">Question Volume (Max 15)</label>
                   <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-600 flex items-center gap-6">
-                    <input 
-                      type="range" 
+                    <input
+                      type="range"
                       min="5" max="15" step="1"
                       value={formData.questionCount || 10}
                       onChange={(e) => setFormData({ ...formData, questionCount: Number(e.target.value) })}
@@ -246,8 +245,8 @@ const QuizConfig: React.FC = () => {
                 <div className="space-y-3">
                   <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">Minimum Pass Score (%)</label>
                   <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-600 flex items-center gap-6">
-                    <input 
-                      type="range" 
+                    <input
+                      type="range"
                       min="40" max="100" step="5"
                       value={formData.passPercentage || 60}
                       onChange={(e) => setFormData({ ...formData, passPercentage: Number(e.target.value) })}
@@ -283,37 +282,52 @@ const QuizConfig: React.FC = () => {
                     onChange={(e) => setFormData({ ...formData, maxAttempts: Number(e.target.value) })}
                     className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white font-medium cursor-pointer"
                   >
-                    {[1,2].map(num => (
+                    {[1, 2].map(num => (
                       <option key={num} value={num}>{num} {num === 1 ? 'Attempt Only' : 'Total Attempts'}</option>
                     ))}
                   </select>
-               
+                </div>
+
+                {/* Time Limit */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">Time Limit</label>
+                  <select
+                    value={formData.timeLimit === null ? 'null' : formData.timeLimit}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setFormData({ ...formData, timeLimit: val === 'null' ? null : Number(val) });
+                    }}
+                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 text-gray-900 dark:text-white font-medium cursor-pointer"
+                  >
+                    <option value="null">Unlimited Time</option>
+                    {[5, 10, 15, 30, 60].map(time => (
+                      <option key={time} value={time}>{time} Minutes</option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Question Types */}
                 <div className="col-span-full space-y-4">
                   <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">Allowed Question Formats</label>
                   <div className="flex flex-wrap gap-4">
-                    <label className={`flex-1 min-w-[150px] p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-center gap-3 ${
-                      formData.questionTypes?.includes('mcq') 
-                        ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400' 
+                    <label className={`flex-1 min-w-[150px] p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-center gap-3 ${formData.questionTypes?.includes('mcq')
+                        ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
                         : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-                    }`}>
-                      <input 
-                        type="checkbox" 
+                      }`}>
+                      <input
+                        type="checkbox"
                         checked={formData.questionTypes?.includes('mcq')}
                         onChange={() => toggleQuestionType('mcq')}
                         className="sr-only"
                       />
                       <span className="font-bold">Multiple Choice</span>
                     </label>
-                    <label className={`flex-1 min-w-[150px] p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-center gap-3 ${
-                      formData.questionTypes?.includes('true_false') 
-                        ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400' 
+                    <label className={`flex-1 min-w-[150px] p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-center gap-3 ${formData.questionTypes?.includes('true_false')
+                        ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
                         : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-                    }`}>
-                      <input 
-                        type="checkbox" 
+                      }`}>
+                      <input
+                        type="checkbox"
                         checked={formData.questionTypes?.includes('true_false')}
                         onChange={() => toggleQuestionType('true_false')}
                         className="sr-only"
@@ -335,7 +349,7 @@ const QuizConfig: React.FC = () => {
                   </p>
                 </div>
               )}
-              
+
             </div>
 
             <div className="pt-8 border-t border-gray-100 dark:border-gray-600 flex justify-end">

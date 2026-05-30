@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { quizService } from '../../services/quizService';
 import { ROUTES } from '../../../../core/router/paths';
 import type { IQuizAttempt } from '../../types/quiz.types';
-import { CheckCircle, XCircle, Trophy, ArrowLeft, BrainCircuit, Sparkles, MessageSquare, RefreshCw, AlertCircle } from 'lucide-react';
+import { CheckCircle, XCircle, Trophy, ArrowLeft, BrainCircuit, Sparkles, MessageSquare, RefreshCw, AlertCircle, Timer } from 'lucide-react';
 import Spiner from '@shared/ui/Spiner';
 import QuestionRenderer from '../../components/student/QuestionRenderer';
 
@@ -28,7 +28,8 @@ const QuizResult: React.FC = () => {
       const data = query.state.data as IQuizAttempt[];
       if (!data || data.length === 0) return false;
       const latest = data[data.length - 1];
-      return (latest.status === 'completed' && !latest.aiFeedback) ? 2000 : false;
+      const isTerminal = latest.status === 'completed' || latest.status === 'timed_out';
+      return (isTerminal && !latest.aiFeedback) ? 2000 : false;
     }
   });
 
@@ -42,10 +43,12 @@ const QuizResult: React.FC = () => {
 
   useEffect(() => {
     if (allAttempts && allAttempts.length > 0) {
-      // Favor the latest completed attempt for initial view
-      const latestCompletedIdx = [...allAttempts].reverse().findIndex((a) => a.status === 'completed');
-      if (latestCompletedIdx !== -1) {
-        setSelectedAttemptIndex(allAttempts.length - 1 - latestCompletedIdx);
+      // Favor the latest terminal attempt (completed or timed_out) for initial view
+      const latestTerminalIdx = [...allAttempts].reverse().findIndex(
+        (a) => a.status === 'completed' || a.status === 'timed_out'
+      );
+      if (latestTerminalIdx !== -1) {
+        setSelectedAttemptIndex(allAttempts.length - 1 - latestTerminalIdx);
       } else {
         // Fallback to latest attempt (likely in-progress)
         setSelectedAttemptIndex(allAttempts.length - 1);
@@ -56,7 +59,7 @@ const QuizResult: React.FC = () => {
   const result = allAttempts ? allAttempts[selectedAttemptIndex] : null;
 
   useEffect(() => {
-    if (result && result.status !== 'completed') {
+    if (result && result.status !== 'completed' && result.status !== 'timed_out') {
       refetch();
     }
   }, [result, refetch]);
@@ -107,8 +110,8 @@ const QuizResult: React.FC = () => {
     );
   }
 
-  // If the selected attempt is not completed
-  if (result && result.status !== 'completed') {
+  // If the selected attempt is still in-progress (not yet a terminal state)
+  if (result && result.status === 'in_progress') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-800 flex-col gap-6 p-6">
         <div className="bg-white dark:bg-gray-700 p-10 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-600 text-center max-w-md">
@@ -132,7 +135,7 @@ const QuizResult: React.FC = () => {
             <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-600">
               <p className="text-xs text-gray-400 uppercase font-bold mb-4">Or view previous attempts</p>
               <div className="flex flex-wrap justify-center gap-2">
-                {allAttempts.map((a, idx) => a.status === 'completed' && (
+                {allAttempts.map((a, idx) => (a.status === 'completed' || a.status === 'timed_out') && (
                   <button 
                     key={idx}
                     onClick={() => setSelectedAttemptIndex(idx)}
@@ -168,6 +171,7 @@ const QuizResult: React.FC = () => {
   }
 
   const isPassed = result.passed;
+  const isTimedOut = result.status === 'timed_out';
   const correctCount = result.perQuestionResult?.filter((r) => r.isCorrect).length || 0;
   const totalQuestions = result.questions?.length || 0;
   const requiredToPass = config ? Math.ceil((config.passPercentage / 100) * totalQuestions) : 0;
@@ -208,28 +212,46 @@ const QuizResult: React.FC = () => {
 
         {/* Hero Result Card */}
         <div className={`relative bg-white dark:bg-gray-800 rounded-[2.5rem] shadow-2xl overflow-hidden border-b-[12px] ${
-          isPassed ? 'border-green-500' : 'border-red-500'
+          isTimedOut ? 'border-amber-500' : isPassed ? 'border-green-500' : 'border-red-500'
         }`}>
           {/* Animated background element */}
           <div className={`absolute -top-24 -right-24 w-64 h-64 rounded-full blur-3xl opacity-20 ${
-            isPassed ? 'bg-green-500' : 'bg-red-500'
+            isTimedOut ? 'bg-amber-500' : isPassed ? 'bg-green-500' : 'bg-red-500'
           }`} />
 
           <div className="p-8 md:p-12 text-center relative z-10">
             <div className={`w-24 h-24 mx-auto rounded-[2rem] flex items-center justify-center mb-8 transform rotate-6 shadow-xl ${
-              isPassed ? 'bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400'
+              isTimedOut
+                ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400'
+                : isPassed
+                ? 'bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400'
+                : 'bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400'
             }`}>
-              {isPassed ? <Trophy className="w-12 h-12" /> : <XCircle className="w-12 h-12" />}
+              {isTimedOut ? <Timer className="w-12 h-12" /> : isPassed ? <Trophy className="w-12 h-12" /> : <XCircle className="w-12 h-12" />}
             </div>
             
             <h1 className="text-3xl md:text-5xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
-              {isPassed ? 'MISSION ACCOMPLISHED!' : 'UNSUCCESSFUL ATTEMPT'}
+              {isTimedOut ? 'TIME EXPIRED' : isPassed ? 'MISSION ACCOMPLISHED!' : 'UNSUCCESSFUL ATTEMPT'}
             </h1>
+
+            {/* Time Expired Banner */}
+            {isTimedOut && (
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-full mb-4">
+                <Timer className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                <p className="text-sm font-black text-amber-700 dark:text-amber-400 uppercase tracking-wide">
+                  Quiz auto-submitted — time limit reached
+                </p>
+              </div>
+            )}
             
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-full border border-gray-100 dark:border-gray-600 mb-8">
               <Sparkles className="w-4 h-4 text-indigo-500" />
               <p className="text-sm font-bold text-gray-600 dark:text-gray-300">
-                {isPassed ? 'You have officially passed the assessment.' : 'Minimum pass score not reached.'}
+                {isTimedOut
+                  ? 'Score based on answers submitted before time ran out.'
+                  : isPassed
+                  ? 'You have officially passed the assessment.'
+                  : 'Minimum pass score not reached.'}
               </p>
             </div>
 
