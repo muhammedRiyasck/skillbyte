@@ -2,7 +2,7 @@ import { IConversation } from '../../domain/entities/Conversation';
 import { IMessage } from '../../domain/entities/Message';
 
 export interface MessageResponseDto {
-  id?: string;
+  messageId?: string;
   conversationId: string;
   senderId: string;
   senderRole: string;
@@ -19,7 +19,7 @@ export interface ConversationResponseDto {
   conversationId?: string;
   studentId: string;
   instructorId: string;
-  id: string;
+  courseId: string;
   lastMessage?: {
     content: string;
     senderId: string;
@@ -55,7 +55,7 @@ export interface ConversationResponseDto {
 export class ChatMapper {
   static toMessageResponseDto(message: IMessage): MessageResponseDto {
     return {
-      id: message.messageId,
+      messageId: message.messageId,
       conversationId: message.conversationId,
       senderId: message.senderId,
       senderRole: message.senderRole,
@@ -76,7 +76,7 @@ export class ChatMapper {
       conversationId: conversation.conversationId,
       studentId: conversation.studentId,
       instructorId: conversation.instructorId,
-      id: conversation.courseId,
+      courseId: conversation.courseId,
       lastMessage: conversation.lastMessage,
       unreadCount: conversation.unreadCount,
       student: conversation.student,
