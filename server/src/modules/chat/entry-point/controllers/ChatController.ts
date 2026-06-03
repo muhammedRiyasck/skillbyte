@@ -52,10 +52,10 @@ export class ChatController {
         return;
       }
 
-      const conversations = await this.getConversationsUseCase.execute(
+      const conversations = await this.getConversationsUseCase.execute({
         userId,
         role,
-      );
+      });
 
       const mappedConversations =
         conversations?.map((conv) =>
@@ -127,12 +127,12 @@ export class ChatController {
         return;
       }
 
-      const messages = await this.getMessagesUseCase.execute(
+      const messages = await this.getMessagesUseCase.execute({
         conversationId,
         userId,
         limit,
         offset,
-      );
+      });
       const mappedMessages =
         messages?.map((msg) => ChatMapper.toMessageResponseDto(msg)) || [];
 
@@ -158,11 +158,11 @@ export class ChatController {
         return;
       }
 
-      await this.markMessagesAsReadUseCase.execute(
+      await this.markMessagesAsReadUseCase.execute({
         conversationId,
         userId,
         role,
-      );
+      });
 
       ApiResponseHelper.success(res, 'Messages marked as read');
     } catch (error) {

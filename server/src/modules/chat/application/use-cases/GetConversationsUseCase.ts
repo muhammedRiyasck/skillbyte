@@ -1,4 +1,7 @@
-import { IGetConversationsUseCase } from '../interfaces/IGetConversationsUseCase';
+import {
+  IGetConversationsUseCase,
+  IGetConversationsData,
+} from '../interfaces/IGetConversationsUseCase';
 import { IConversationReadRepository } from '../../domain/IRepositories/IConversationReadRepository';
 import { IStudentRepository } from '../../../student/domain/IRepositories/IStudentRepository';
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
@@ -13,10 +16,8 @@ export class GetConversationsUseCase implements IGetConversationsUseCase {
     private courseRepository: ICourseRepository,
   ) {}
 
-  async execute(
-    userId: string,
-    role: 'student' | 'instructor',
-  ): Promise<IConversation[]> {
+  async execute(data: IGetConversationsData): Promise<IConversation[]> {
+    const { userId, role } = data;
     const conversations = await this.conversationReadRepository.findAllByUserId(
       userId,
       role,
