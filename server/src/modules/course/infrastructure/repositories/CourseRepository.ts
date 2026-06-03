@@ -39,6 +39,16 @@ export class CourseRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  async findByIds(ids: string[]): Promise<Course[]> {
+    if (!ids.length) return [];
+
+    const docs = await this.model
+      .find({ _id: { $in: ids } })
+      .select('instructorId title thumbnailUrl');
+
+    return docs.map((doc) => this.toEntity(doc));
+  }
+
   async findAllForAdmin(filters: {
     instructorId?: string;
     status?: string;

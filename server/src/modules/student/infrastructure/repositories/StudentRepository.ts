@@ -24,6 +24,18 @@ export class StudentRepository
     return this.toEntity(doc);
   }
 
+  async findByIds(ids: string[]): Promise<Student[]> {
+    if (!ids.length) return [];
+
+    const docs = await this.model
+      .find({ _id: { $in: ids } })
+      .select(
+        'name email profilePictureUrl isEmailVerified registeredVia accountStatus',
+      );
+
+    return docs.map((doc) => this.toEntity(doc));
+  }
+
   async findByIdAndUpdatePassword(
     id: string,
     passwordHash: string,

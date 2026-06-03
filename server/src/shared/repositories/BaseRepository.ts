@@ -1,4 +1,4 @@
-import { Model, Document } from 'mongoose';
+import { Model, Document, FilterQuery } from 'mongoose';
 import { IBaseRepository } from './IBaseRepository';
 
 export abstract class BaseRepository<T, D extends Document>
@@ -21,6 +21,16 @@ export abstract class BaseRepository<T, D extends Document>
     const doc = await this.model.findById(id);
     if (!doc) return null;
     return this.toEntity(doc);
+  }
+
+  async findByIds(ids: string[]): Promise<T[]> {
+    if (!ids.length) return [];
+
+    const docs = await this.model.find({
+      _id: { $in: ids },
+    } as FilterQuery<D>);
+
+    return docs.map((doc) => this.toEntity(doc));
   }
 
   async findAll(): Promise<T[] | null> {

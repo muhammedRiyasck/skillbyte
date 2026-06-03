@@ -45,6 +45,18 @@ export class InstructorRepository
     return this.toEntity(doc);
   }
 
+  async findByIds(ids: string[]): Promise<Instructor[]> {
+    if (!ids.length) return [];
+
+    const docs = await this.model
+      .find({ _id: { $in: ids } })
+      .select(
+        'name email bio profilePictureUrl experience socialProfile subject jobTitle averageRating totalReviews totalEarnings withdrawnAmount stripeAccountId isStripeVerified',
+      );
+
+    return docs.map((doc) => this.toEntity(doc));
+  }
+
   // Override to exclude passwordHash as in original implementation
   async paginatedList(
     filter: Record<string, unknown>,

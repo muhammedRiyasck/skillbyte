@@ -1,6 +1,7 @@
 export interface IBaseRepository<T> {
   save(data: unknown): Promise<T>;
   findById(id: string): Promise<T | null>;
+  findByIds(ids: string[]): Promise<T[]>;
   findAll(): Promise<T[] | null>;
   paginatedList(
     filter: Record<string, unknown>,
