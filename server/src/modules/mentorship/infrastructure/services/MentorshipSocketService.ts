@@ -1,5 +1,5 @@
 import { eventBus } from '../../../../shared/services/event-bus/EventBus';
-import { SocketService } from '../../../../shared/services/socket-service.ts/SocketService';
+import { SocketService } from '../../../../shared/services/socket/SocketService';
 import {
   MENTORSHIP_EVENTS,
   MentorshipBookingCreatedEvent,

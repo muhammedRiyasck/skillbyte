@@ -1,6 +1,6 @@
 import { INotificationWriteRepository } from '../../domain/IRepositories/INotificationRepository';
 import { INotification } from '../../domain/entities/Notification';
-import { SocketService } from '../../../../shared/services/socket-service.ts/SocketService';
+import { SocketService } from '../../../../shared/services/socket/SocketService';
 import {
   ICreateNotificationUseCase,
   ICreateNotificationData,

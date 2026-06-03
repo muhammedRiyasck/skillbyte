@@ -1,6 +1,6 @@
 import http from 'http';
 import app from './App';
-import { SocketService } from './shared/services/socket-service.ts/SocketService';
+import { SocketService } from './shared/services/socket/SocketService';
 import { VideoSignalingService } from './shared/services/video-signaling/VideoSignalingService';
 
 const server = http.createServer(app);
