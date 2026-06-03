@@ -3,7 +3,7 @@ import { IMessage } from '../../domain/entities/Message';
 import { IConversationDocument } from '../models/ConversationModel';
 import { IMessageDocument } from '../models/MessageModel';
 
-export class ChatMapper {
+export class ChatDocumentMapper {
   static toConversationEntity(doc: IConversationDocument): IConversation {
     return doc.toJSON() as IConversation;
   }

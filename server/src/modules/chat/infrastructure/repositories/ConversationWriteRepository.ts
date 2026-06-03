@@ -3,7 +3,7 @@ import { IConversation } from '../../domain/entities/Conversation';
 import { ConversationModel } from '../models/ConversationModel';
 import { UserRole } from '../../../../shared/enums/UserRole';
 
-import { ChatMapper } from '../mappers/ChatMapper';
+import { ChatDocumentMapper } from '../mappers/ChatDocumentMapper';
 
 export class ConversationWriteRepository
   implements IConversationWriteRepository
@@ -11,7 +11,7 @@ export class ConversationWriteRepository
   async save(conversation: IConversation): Promise<IConversation> {
     const doc = new ConversationModel(conversation);
     const saved = await doc.save();
-    return ChatMapper.toConversationEntity(saved);
+    return ChatDocumentMapper.toConversationEntity(saved);
   }
 
   async updateLastMessage(

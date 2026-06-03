@@ -3,7 +3,7 @@ import { IMessage } from '../../domain/entities/Message';
 import { IMessageReadRepository } from '../../domain/IRepositories/IMessageRepository';
 import { MessageModel, IMessageDocument } from '../models/MessageModel';
 
-import { ChatMapper } from '../mappers/ChatMapper';
+import { ChatDocumentMapper } from '../mappers/ChatDocumentMapper';
 
 export class MessageReadRepository
   extends BaseRepository<IMessage, IMessageDocument>
@@ -14,7 +14,7 @@ export class MessageReadRepository
   }
 
   toEntity(doc: IMessageDocument): IMessage {
-    return ChatMapper.toMessageEntity(doc);
+    return ChatDocumentMapper.toMessageEntity(doc);
   }
 
   async findByConversationId(
