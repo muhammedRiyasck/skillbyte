@@ -1,4 +1,4 @@
-import { IMessage } from '../../domain/entities/Message';
+import { MessageResponseDto } from '../dtos/MessageResponseDto';
 
 export interface ISendMessageData {
   conversationId: string;
@@ -11,5 +11,5 @@ export interface ISendMessageData {
 }
 
 export interface ISendMessageUseCase {
-  execute(data: ISendMessageData): Promise<IMessage>;
+  execute(data: ISendMessageData): Promise<MessageResponseDto>;
 }

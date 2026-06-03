@@ -9,6 +9,8 @@ import { IConversationReadRepository } from '../../domain/IRepositories/IConvers
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { IChatNotifier } from '../interfaces/IChatNotifier';
+import { ConversationResponseMapper } from '../mappers/ConversationResponseMapper';
+import { ConversationResponseDto } from '../dtos/ConversationResponseDto';
 
 export class CreateConversationUseCase implements ICreateConversationUseCase {
   constructor(
@@ -18,7 +20,9 @@ export class CreateConversationUseCase implements ICreateConversationUseCase {
     private chatNotifier: IChatNotifier,
   ) {}
 
-  async execute(data: ICreateConversationData): Promise<IConversation> {
+  async execute(
+    data: ICreateConversationData,
+  ): Promise<ConversationResponseDto> {
     const { studentId, instructorId, courseId } = data;
 
     // Verify student is enrolled in the course
@@ -47,7 +51,7 @@ export class CreateConversationUseCase implements ICreateConversationUseCase {
       );
 
     if (existingConversation) {
-      return existingConversation;
+      return ConversationResponseMapper.toDto(existingConversation);
     }
 
     // Create new conversation
@@ -75,6 +79,6 @@ export class CreateConversationUseCase implements ICreateConversationUseCase {
       saved.conversationId!,
     );
 
-    return saved;
+    return ConversationResponseMapper.toDto(saved);
   }
 }

@@ -10,6 +10,8 @@ import { ICreateNotificationUseCase } from '../../../notification/application/in
 import logger from '../../../../shared/utils/Logger';
 import { NotificationType } from '../../../../shared/enums/NotificationType';
 import { IChatNotifier } from '../interfaces/IChatNotifier';
+import { MessageResponseMapper } from '../mappers/MessageResponseMapper';
+import { MessageResponseDto } from '../dtos/MessageResponseDto';
 
 export class SendMessageUseCase implements ISendMessageUseCase {
   constructor(
@@ -20,7 +22,7 @@ export class SendMessageUseCase implements ISendMessageUseCase {
     private createNotificationUseCase?: ICreateNotificationUseCase,
   ) {}
 
-  async execute(data: ISendMessageData): Promise<IMessage> {
+  async execute(data: ISendMessageData): Promise<MessageResponseDto> {
     const {
       conversationId,
       senderId,
@@ -101,6 +103,6 @@ export class SendMessageUseCase implements ISendMessageUseCase {
       }
     }
 
-    return savedMessage;
+    return MessageResponseMapper.toDto(savedMessage);
   }
 }

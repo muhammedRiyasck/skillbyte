@@ -7,6 +7,8 @@ import { IStudentRepository } from '../../../student/domain/IRepositories/IStude
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
 import { ICourseRepository } from '../../../course/domain/IRepositories/ICourseRepository';
 import { IConversation } from '../../domain/entities/Conversation';
+import { ConversationResponseMapper } from '../mappers/ConversationResponseMapper';
+import { ConversationResponseDto } from '../dtos/ConversationResponseDto';
 
 export class GetConversationsUseCase implements IGetConversationsUseCase {
   constructor(
@@ -16,7 +18,9 @@ export class GetConversationsUseCase implements IGetConversationsUseCase {
     private courseRepository: ICourseRepository,
   ) {}
 
-  async execute(data: IGetConversationsData): Promise<IConversation[]> {
+  async execute(
+    data: IGetConversationsData,
+  ): Promise<ConversationResponseDto[]> {
     const { userId, role } = data;
     const conversations = await this.conversationReadRepository.findAllByUserId(
       userId,
@@ -64,6 +68,8 @@ export class GetConversationsUseCase implements IGetConversationsUseCase {
       }),
     );
 
-    return populatedConversations;
+    return populatedConversations.map((conv) =>
+      ConversationResponseMapper.toDto(conv),
+    );
   }
 }

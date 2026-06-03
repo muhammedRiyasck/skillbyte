@@ -1,4 +1,4 @@
-import { IConversation } from '../../domain/entities/Conversation';
+import { ConversationResponseDto } from '../dtos/ConversationResponseDto';
 
 export interface IGetConversationsData {
   userId: string;
@@ -6,5 +6,5 @@ export interface IGetConversationsData {
 }
 
 export interface IGetConversationsUseCase {
-  execute(data: IGetConversationsData): Promise<IConversation[]>;
+  execute(data: IGetConversationsData): Promise<ConversationResponseDto[]>;
 }

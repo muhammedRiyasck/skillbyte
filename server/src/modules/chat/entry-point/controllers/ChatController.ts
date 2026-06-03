@@ -6,7 +6,6 @@ import { IGetMessagesUseCase } from '../../application/interfaces/IGetMessagesUs
 import { IMarkMessagesAsReadUseCase } from '../../application/interfaces/IMarkMessagesAsReadUseCase';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
-import { ChatMapper } from '../../application/mappers/ChatMapper';
 
 export class ChatController {
   constructor(
@@ -27,11 +26,7 @@ export class ChatController {
         courseId: id,
       });
 
-      ApiResponseHelper.created(
-        res,
-        'Conversation created',
-        ChatMapper.toConversationResponseDto(conversation),
-      );
+      ApiResponseHelper.created(res, 'Conversation created', conversation);
     } catch (error) {
       ApiResponseHelper.badRequest(
         res,
@@ -57,16 +52,7 @@ export class ChatController {
         role,
       });
 
-      const mappedConversations =
-        conversations?.map((conv) =>
-          ChatMapper.toConversationResponseDto(conv),
-        ) || [];
-
-      ApiResponseHelper.success(
-        res,
-        'Conversations fetched',
-        mappedConversations,
-      );
+      ApiResponseHelper.success(res, 'Conversations fetched', conversations);
     } catch (error) {
       ApiResponseHelper.error(
         res,
@@ -100,11 +86,7 @@ export class ChatController {
         fileName,
       });
 
-      ApiResponseHelper.created(
-        res,
-        'Message sent',
-        ChatMapper.toMessageResponseDto(message),
-      );
+      ApiResponseHelper.created(res, 'Message sent', message);
     } catch (error) {
       ApiResponseHelper.badRequest(
         res,
@@ -133,10 +115,8 @@ export class ChatController {
         limit,
         offset,
       });
-      const mappedMessages =
-        messages?.map((msg) => ChatMapper.toMessageResponseDto(msg)) || [];
 
-      ApiResponseHelper.success(res, 'Messages fetched', mappedMessages);
+      ApiResponseHelper.success(res, 'Messages fetched', messages);
     } catch (error) {
       ApiResponseHelper.badRequest(
         res,

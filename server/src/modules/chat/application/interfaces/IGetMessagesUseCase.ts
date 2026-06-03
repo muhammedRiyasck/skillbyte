@@ -1,4 +1,4 @@
-import { IMessage } from '../../domain/entities/Message';
+import { MessageResponseDto } from '../dtos/MessageResponseDto';
 
 export interface IGetMessagesData {
   conversationId: string;
@@ -8,5 +8,5 @@ export interface IGetMessagesData {
 }
 
 export interface IGetMessagesUseCase {
-  execute(data: IGetMessagesData): Promise<IMessage[]>;
+  execute(data: IGetMessagesData): Promise<MessageResponseDto[]>;
 }

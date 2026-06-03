@@ -4,9 +4,10 @@ import {
 } from '../interfaces/IGetMessagesUseCase';
 import { IMessageReadRepository } from '../../domain/IRepositories/IMessageRepository';
 import { IConversationReadRepository } from '../../domain/IRepositories/IConversationReadRepository';
-import { IMessage } from '../../domain/entities/Message';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { MessageResponseMapper } from '../mappers/MessageResponseMapper';
+import { MessageResponseDto } from '../dtos/MessageResponseDto';
 
 export class GetMessagesUseCase implements IGetMessagesUseCase {
   constructor(
@@ -14,7 +15,7 @@ export class GetMessagesUseCase implements IGetMessagesUseCase {
     private conversationReadRepository: IConversationReadRepository,
   ) {}
 
-  async execute(data: IGetMessagesData): Promise<IMessage[]> {
+  async execute(data: IGetMessagesData): Promise<MessageResponseDto[]> {
     const { conversationId, userId, limit = 50, offset = 0 } = data;
     // Verify user has access to this conversation
     const conversation =
@@ -34,13 +35,13 @@ export class GetMessagesUseCase implements IGetMessagesUseCase {
       );
     }
 
-    // Fetch messages
+    // Fetch messages and map to DTOs
     const messages = await this.messageReadRepository.findByConversationId(
       conversationId,
       limit,
       offset,
     );
 
-    return messages;
+    return messages.map((msg) => MessageResponseMapper.toDto(msg));
   }
 }

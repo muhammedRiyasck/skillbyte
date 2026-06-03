@@ -1,4 +1,4 @@
-import { IConversation } from '../../domain/entities/Conversation';
+import { ConversationResponseDto } from '../dtos/ConversationResponseDto';
 
 export interface ICreateConversationData {
   studentId: string;
@@ -7,5 +7,5 @@ export interface ICreateConversationData {
 }
 
 export interface ICreateConversationUseCase {
-  execute(data: ICreateConversationData): Promise<IConversation>;
+  execute(data: ICreateConversationData): Promise<ConversationResponseDto>;
 }
