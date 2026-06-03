@@ -93,7 +93,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     if (!socket || !currentUser) return;
 
     const handleNewMessage = (message: IMessage) => {
-      const messageId = (message.id || message._id) as string;
+      const messageId = message.messageId as string;
 
       // Deduplicate events (server sends to both room and user)
       if (processedMessageIds.current.has(messageId)) {
@@ -172,7 +172,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
           // Prevent duplicate messages
           if (
             currentMessages.some(
-              (m: IMessage) => (m.id || m._id) === (message.id || message._id),
+              (m: IMessage) => m.messageId === message.messageId,
             )
           ) {
             return oldData;

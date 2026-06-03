@@ -97,7 +97,7 @@ const ChatWindow: React.FC<IChatWindowProps> = ({ currentUser, conversation, onB
           const newestPage = { ...pages[0] };
           const currentMessages = Array.isArray(newestPage.data) ? newestPage.data : [];
           
-          if (currentMessages.some((m: IMessage) => (m.id || m._id) === (newMessage.id || newMessage._id))) {
+          if (currentMessages.some((m: IMessage) => m.messageId === newMessage.messageId)) {
             return oldData;
           }
 
@@ -191,7 +191,7 @@ const ChatWindow: React.FC<IChatWindowProps> = ({ currentUser, conversation, onB
     if (messages.length > 0 && !markerSetRef.current) {
       const firstUnread = messages.find((m: IMessage) => !m.isRead && m.senderId !== currentUser.id);
       if (firstUnread) {
-        setUnreadMarkerId((firstUnread.id || firstUnread._id) as string);
+        setUnreadMarkerId(firstUnread.messageId);
       }
       markerSetRef.current = true;
     }
@@ -281,8 +281,8 @@ const ChatWindow: React.FC<IChatWindowProps> = ({ currentUser, conversation, onB
             ) : (
               <div>
                 {messages.map((message: IMessage) => (
-                  <React.Fragment key={(message.id ) as string}>
-                    {((message.id ) === unreadMarkerId) && (
+                  <React.Fragment key={message.messageId}>
+                    {(message.messageId === unreadMarkerId) && (
                       <div className="w-full flex justify-center my-4">
                         <span className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-300 text-xs px-3 py-1 rounded-full font-medium shadow-sm">
                           Unread Messages
@@ -291,7 +291,7 @@ const ChatWindow: React.FC<IChatWindowProps> = ({ currentUser, conversation, onB
                     )}
                     <MessageBubble
                       message={{
-                          id: (message.id || message._id) as string,
+                          messageId: message.messageId,
                           content: message.content,
                           senderRole: message.senderRole,
                           type: message.type,

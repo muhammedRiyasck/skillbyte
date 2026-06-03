@@ -1,6 +1,6 @@
 export interface MessageBubbleProps {
   message: {
-    id: string;
+    messageId: string;
     content: string;
     senderRole: 'student' | 'instructor';
     type: 'text' | 'image' | 'document';

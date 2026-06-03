@@ -1,6 +1,5 @@
 export interface IMessage {
-    id: string;
-    _id?: string;
+    messageId: string;
     conversationId: string;
     senderId: string;
     senderRole: 'student' | 'instructor';
