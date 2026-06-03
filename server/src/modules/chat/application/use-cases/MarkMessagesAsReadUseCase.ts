@@ -1,19 +1,21 @@
-import { IMarkMessagesAsReadUseCase } from '../interfaces/IMarkMessagesAsReadUseCase';
+import {
+  IMarkMessagesAsReadUseCase,
+  IMarkMessagesAsReadData,
+} from '../interfaces/IMarkMessagesAsReadUseCase';
 import { IMessageWriteRepository } from '../../domain/IRepositories/IMessageRepository';
 import { IConversationWriteRepository } from '../../domain/IRepositories/IConversationWriteRepository';
-import { SocketService } from '../../../../shared/services/socket-service.ts/SocketService';
+import { IChatNotifier } from '../interfaces/IChatNotifier';
 
 export class MarkMessagesAsReadUseCase implements IMarkMessagesAsReadUseCase {
   constructor(
     private messageWriteRepository: IMessageWriteRepository,
     private conversationWriteRepository: IConversationWriteRepository,
+    private chatNotifier: IChatNotifier,
   ) {}
 
-  async execute(
-    conversationId: string,
-    userId: string,
-    role: 'student' | 'instructor',
-  ): Promise<void> {
+  async execute(data: IMarkMessagesAsReadData): Promise<void> {
+    const { conversationId, userId, role } = data;
+
     // Mark all messages as read for this user
     await this.messageWriteRepository.markAllAsRead(conversationId, userId);
 
@@ -23,24 +25,10 @@ export class MarkMessagesAsReadUseCase implements IMarkMessagesAsReadUseCase {
       role,
     );
 
-    // Emit read receipt via Socket.IO
-    SocketService.getInstance().emitToConversation(
-      conversationId,
-      'chat:messages-read',
-      {
-        conversationId,
-        userId,
-        timestamp: new Date(),
-      },
-    );
+    // Emit read receipt via notifier
+    this.chatNotifier.notifyMessagesRead(conversationId, userId);
 
     // Emit update to the user who read it so their unread count badge updates instantly
-    SocketService.getInstance().emitToUser(
-      userId,
-      'chat:conversation-updated',
-      {
-        conversationId,
-      },
-    );
+    this.chatNotifier.notifyConversationUpdated(userId, conversationId);
   }
 }

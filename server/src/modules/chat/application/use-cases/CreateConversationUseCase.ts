@@ -5,16 +5,17 @@ import {
 import { IConversationWriteRepository } from '../../domain/IRepositories/IConversationWriteRepository';
 import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentReadRepository';
 import { IConversation } from '../../domain/entities/Conversation';
-import { SocketService } from '../../../../shared/services/socket-service.ts/SocketService';
 import { IConversationReadRepository } from '../../domain/IRepositories/IConversationReadRepository';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { IChatNotifier } from '../interfaces/IChatNotifier';
 
 export class CreateConversationUseCase implements ICreateConversationUseCase {
   constructor(
     private conversationReadRepository: IConversationReadRepository,
     private conversationWriteRepository: IConversationWriteRepository,
     private enrollmentReadRepository: IEnrollmentReadRepository,
+    private chatNotifier: IChatNotifier,
   ) {}
 
   async execute(data: ICreateConversationData): Promise<IConversation> {
@@ -64,20 +65,14 @@ export class CreateConversationUseCase implements ICreateConversationUseCase {
 
     const saved = await this.conversationWriteRepository.save(newConversation);
 
-    // Emit update to both participants
-    SocketService.getInstance().emitToUser(
+    // Emit update to both participants via notifier
+    this.chatNotifier.notifyConversationUpdated(
       studentId,
-      'chat:conversation-updated',
-      {
-        conversationId: saved.conversationId,
-      },
+      saved.conversationId!,
     );
-    SocketService.getInstance().emitToUser(
+    this.chatNotifier.notifyConversationUpdated(
       instructorId,
-      'chat:conversation-updated',
-      {
-        conversationId: saved.conversationId,
-      },
+      saved.conversationId!,
     );
 
     return saved;

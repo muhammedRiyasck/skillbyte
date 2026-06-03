@@ -6,16 +6,17 @@ import { IMessageWriteRepository } from '../../domain/IRepositories/IMessageRepo
 import { IConversationWriteRepository } from '../../domain/IRepositories/IConversationWriteRepository';
 import { IConversationReadRepository } from '../../domain/IRepositories/IConversationReadRepository';
 import { IMessage } from '../../domain/entities/Message';
-import { SocketService } from '../../../../shared/services/socket-service.ts/SocketService';
 import { ICreateNotificationUseCase } from '../../../notification/application/interfaces/ICreateNotificationUseCase';
 import logger from '../../../../shared/utils/Logger';
 import { NotificationType } from '../../../../shared/enums/NotificationType';
+import { IChatNotifier } from '../interfaces/IChatNotifier';
 
 export class SendMessageUseCase implements ISendMessageUseCase {
   constructor(
     private messageWriteRepository: IMessageWriteRepository,
     private conversationWriteRepository: IConversationWriteRepository,
     private conversationReadRepository: IConversationReadRepository,
+    private chatNotifier: IChatNotifier,
     private createNotificationUseCase?: ICreateNotificationUseCase,
   ) {}
 
@@ -70,30 +71,15 @@ export class SendMessageUseCase implements ISendMessageUseCase {
           ? conversation.instructorId
           : conversation.studentId;
 
-      const messageWithId = {
-        ...savedMessage,
-        id: savedMessage.messageId,
-      };
-
-      // 1. Emit to conversation room (for people already in the chat window)
-      SocketService.getInstance()
-        .getIO()
-        .to(`conversation:${conversationId}`)
-        .emit('chat:new-message', messageWithId);
-
-      // 2. Emit to recipient's personal room (for global notifications and list updates)
-      SocketService.getInstance().emitToUser(
+      // Notify new message via notifier
+      this.chatNotifier.notifyNewMessage(
         recipientId,
-        'chat:new-message',
-        messageWithId,
+        conversationId,
+        savedMessage,
       );
 
-      // 3. Emit conversation update event to refresh the list
-      SocketService.getInstance().emitToUser(
-        recipientId,
-        'chat:conversation-updated',
-        { conversationId },
-      );
+      // Emit conversation update event to refresh the list
+      this.chatNotifier.notifyConversationUpdated(recipientId, conversationId);
 
       // 4. Create a push notification for the recipient
       if (this.createNotificationUseCase) {

@@ -14,6 +14,7 @@ import { InstructorRepository } from '../../../instructor/infrastructure/reposit
 import { CourseRepository } from '../../../course/infrastructure/repositories/CourseRepository';
 import { NotificationRepository } from '../../../notification/infrastructure/repositories/NotificationRepository';
 import { CreateNotificationUseCase } from '../../../notification/application/use-cases/CreateNotificationUseCase';
+import { SocketChatNotifier } from '../../infrastructure/services/SocketChatNotifier';
 
 // Repositories
 const conversationReadRepository = new ConversationReadRepository();
@@ -25,10 +26,14 @@ const studentRepository = new StudentRepository();
 const instructorRepository = new InstructorRepository();
 const courseRepository = new CourseRepository();
 
+// Notifier
+const chatNotifier = new SocketChatNotifier();
+
 const createConversationUseCase = new CreateConversationUseCase(
   conversationReadRepository,
   conversationWriteRepository,
   enrollmentReadRepository,
+  chatNotifier,
 );
 
 const notificationRepository = new NotificationRepository();
@@ -40,6 +45,7 @@ const sendMessageUseCase = new SendMessageUseCase(
   messageWriteRepository,
   conversationWriteRepository,
   conversationReadRepository,
+  chatNotifier,
   createNotificationUseCase,
 );
 
@@ -58,6 +64,7 @@ const getMessagesUseCase = new GetMessagesUseCase(
 const markMessagesAsReadUseCase = new MarkMessagesAsReadUseCase(
   messageWriteRepository,
   conversationWriteRepository,
+  chatNotifier,
 );
 
 // Controller
