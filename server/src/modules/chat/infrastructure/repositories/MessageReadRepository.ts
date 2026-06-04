@@ -30,15 +30,4 @@ export class MessageReadRepository
 
     return docs.map((doc) => this.toEntity(doc)).reverse();
   }
-
-  async countUnreadMessages(
-    conversationId: string,
-    userId: string,
-  ): Promise<number> {
-    return await MessageModel.countDocuments({
-      conversationId,
-      senderId: { $ne: userId },
-      isRead: false,
-    }).exec();
-  }
 }

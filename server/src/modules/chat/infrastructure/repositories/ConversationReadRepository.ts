@@ -54,25 +54,4 @@ export class ConversationReadRepository
 
     return docs.map((doc) => this.toEntity(doc));
   }
-
-  async getUnreadCount(
-    userId: string,
-    role: UserRole.STUDENT | UserRole.INSTRUCTOR,
-  ): Promise<number> {
-    const query =
-      role === UserRole.STUDENT
-        ? { studentId: userId }
-        : { instructorId: userId };
-
-    const conversations = await ConversationModel.find(query).exec();
-
-    return conversations.reduce((total, conv) => {
-      return (
-        total +
-        (role === UserRole.STUDENT
-          ? conv.unreadCount.student
-          : conv.unreadCount.instructor)
-      );
-    }, 0);
-  }
 }

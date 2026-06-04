@@ -11,13 +11,6 @@ export class MessageWriteRepository implements IMessageWriteRepository {
     return ChatDocumentMapper.toMessageEntity(saved);
   }
 
-  async markAsRead(messageId: string): Promise<void> {
-    await MessageModel.findByIdAndUpdate(messageId, {
-      isRead: true,
-      readAt: new Date(),
-    }).exec();
-  }
-
   async markAllAsRead(conversationId: string, userId: string): Promise<void> {
     await MessageModel.updateMany(
       {
