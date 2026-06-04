@@ -65,15 +65,15 @@ export const InstructorReapplySchema = z.object({
 export type InstructorReapplyDto = z.infer<typeof InstructorReapplySchema>;
 
 export const InstructorProfileUpdateSchema = z.object({
-  fullName: z.string().optional(),
+  name: z.string().optional(),
   phoneNumber: z.string().optional(),
   subject: z.string().optional(),
   jobTitle: z.string().optional(),
-  socialMediaLink: z.string().optional(),
+  socialProfile: z.string().optional(),
   experience: z.string().or(z.number()).optional(),
-  portfolioLink: z.string().optional(),
+  portfolio: z.string().optional().nullable(),
   bio: z.string().optional(),
-  // Add other profile fields if needed
+  profilePicture: z.string().optional().nullable(),
 });
 
 export type InstructorProfileUpdateDto = z.infer<
