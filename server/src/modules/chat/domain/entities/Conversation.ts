@@ -12,8 +12,8 @@ export interface IConversation {
     student: number;
     instructor: number;
   };
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
   student?: {
     id: string;
     name: string;
