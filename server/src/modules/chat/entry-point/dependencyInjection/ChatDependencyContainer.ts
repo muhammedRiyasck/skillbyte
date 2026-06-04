@@ -34,6 +34,9 @@ const createConversationUseCase = new CreateConversationUseCase(
   conversationWriteRepository,
   enrollmentReadRepository,
   chatNotifier,
+  studentRepository,
+  instructorRepository,
+  courseRepository,
 );
 
 const notificationRepository = new NotificationRepository();
