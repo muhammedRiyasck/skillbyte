@@ -8,4 +8,5 @@ export enum HttpStatusCode {
   CONFLICT = 409,
   INTERNAL_SERVER_ERROR = 500,
   NO_CONTENT = 204,
+  UNPROCESSABLE_ENTITY = 422,
 }
