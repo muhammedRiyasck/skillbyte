@@ -24,7 +24,7 @@ router.get(
 
 // Send a message
 router.post(
-  '/messages',
+  '/conversations/:conversationId/messages',
   authenticate,
   requireRole('student', 'instructor'),
   asyncHandler(chatController.sendMessage),
