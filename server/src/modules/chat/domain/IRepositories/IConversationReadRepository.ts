@@ -12,8 +12,4 @@ export interface IConversationReadRepository
     userId: string,
     role: 'student' | 'instructor',
   ): Promise<IConversation[]>;
-  getUnreadCount(
-    userId: string,
-    role: 'student' | 'instructor',
-  ): Promise<number>;
 }

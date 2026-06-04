@@ -7,11 +7,9 @@ export interface IMessageReadRepository extends IBaseRepository<IMessage> {
     limit?: number,
     offset?: number,
   ): Promise<IMessage[]>;
-  countUnreadMessages(conversationId: string, userId: string): Promise<number>;
 }
 
 export interface IMessageWriteRepository {
   save(message: IMessage): Promise<IMessage>;
-  markAsRead(messageId: string): Promise<void>;
   markAllAsRead(conversationId: string, userId: string): Promise<void>;
 }
