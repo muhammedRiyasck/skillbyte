@@ -40,8 +40,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   });
   const conversations = useMemo(() => {
     if (!conversationsResponse) return [];
-    if (Array.isArray(conversationsResponse?.data))
-      return conversationsResponse.data;
+    if (Array.isArray(conversationsResponse?.data)) {
+      return [...conversationsResponse.data].sort((a, b) => {
+        const timeA = a.lastMessage?.timestamp
+          ? new Date(a.lastMessage.timestamp).getTime()
+          : new Date(a.updatedAt || 0).getTime();
+        const timeB = b.lastMessage?.timestamp
+          ? new Date(b.lastMessage.timestamp).getTime()
+          : new Date(b.updatedAt || 0).getTime();
+        return timeB - timeA;
+      });
+    }
     return [];
   }, [conversationsResponse]);
 
