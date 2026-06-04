@@ -1,12 +1,12 @@
 import { IChatNotifier } from '../../application/interfaces/IChatNotifier';
-import { IMessage } from '../../domain/entities/Message';
+import { MessageResponseDto } from '../../application/dtos/MessageResponseDto';
 import { SocketService } from '../../../../shared/services/socket/SocketService';
 
 export class SocketChatNotifier implements IChatNotifier {
   notifyNewMessage(
     recipientId: string,
     conversationId: string,
-    message: IMessage,
+    message: MessageResponseDto,
   ): void {
     // Emit to conversation room (for people already in the chat window)
     SocketService.getInstance()
