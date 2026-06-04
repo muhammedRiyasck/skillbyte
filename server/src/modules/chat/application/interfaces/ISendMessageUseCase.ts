@@ -4,7 +4,7 @@ export interface ISendMessageData {
   conversationId: string;
   senderId: string;
   senderRole: 'student' | 'instructor';
-  content: string;
+  content?: string;
   type: 'text' | 'image' | 'document';
   fileUrl?: string;
   fileName?: string;
