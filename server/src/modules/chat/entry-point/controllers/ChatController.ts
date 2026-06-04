@@ -20,7 +20,11 @@ export class ChatController {
 
   createConversation = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { studentId, instructorId, courseId } = req.body;
+      const authenticatedUser = req as AuthenticatedRequest;
+      // Security: studentId is always derived from the authenticated token.
+      // The client cannot spoof another user's identity.
+      const studentId = authenticatedUser.user.id;
+      const { instructorId, courseId } = req.body;
 
       const conversation = await this.createConversationUseCase.execute({
         studentId,
