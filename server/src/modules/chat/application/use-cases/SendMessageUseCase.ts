@@ -32,26 +32,26 @@ export class SendMessageUseCase implements ISendMessageUseCase {
       fileUrl,
       fileName,
     } = data;
+    const messageContent = content?.trim();
 
     // Create message
     const message: IMessage = {
       conversationId,
       senderId,
       senderRole,
-      content,
       type,
       fileUrl,
       fileName,
       isRead: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      ...(messageContent ? { content: messageContent } : {}),
     };
 
     const savedMessage = await this.messageWriteRepository.save(message);
+    const messageDto = MessageResponseMapper.toDto(savedMessage);
 
     // Update conversation's last message
     await this.conversationWriteRepository.updateLastMessage(conversationId, {
-      content,
+      content: messageContent || 'Sent a file',
       senderId,
       timestamp: new Date(),
     });
@@ -77,7 +77,7 @@ export class SendMessageUseCase implements ISendMessageUseCase {
       this.chatNotifier.notifyNewMessage(
         recipientId,
         conversationId,
-        savedMessage,
+        messageDto,
       );
 
       // Emit conversation update event to refresh the list
@@ -86,9 +86,9 @@ export class SendMessageUseCase implements ISendMessageUseCase {
       // 4. Create a push notification for the recipient
       if (this.createNotificationUseCase) {
         const preview =
-          content && content.length > 50
-            ? content.substring(0, 50) + '...'
-            : content || 'Sent a file';
+          messageContent && messageContent.length > 50
+            ? messageContent.substring(0, 50) + '...'
+            : messageContent || 'Sent a file';
 
         this.createNotificationUseCase
           .execute({
@@ -103,6 +103,6 @@ export class SendMessageUseCase implements ISendMessageUseCase {
       }
     }
 
-    return MessageResponseMapper.toDto(savedMessage);
+    return messageDto;
   }
 }
