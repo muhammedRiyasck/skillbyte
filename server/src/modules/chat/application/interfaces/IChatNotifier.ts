@@ -1,10 +1,10 @@
-import { IMessage } from '../../domain/entities/Message';
+import { MessageResponseDto } from '../dtos/MessageResponseDto';
 
 export interface IChatNotifier {
   notifyNewMessage(
     recipientId: string,
     conversationId: string,
-    message: IMessage,
+    message: MessageResponseDto,
   ): void;
   notifyConversationUpdated(userId: string, conversationId: string): void;
   notifyMessagesRead(conversationId: string, readerUserId: string): void;
