@@ -71,7 +71,7 @@ const CourseDetails: React.FC = () => {
       await ChatService.createConversation({
         studentId: userId,
         instructorId: course.instructorId,
-        id: course.id
+        courseId: course.id
       });
 
       // Invalidate conversations query
@@ -383,7 +383,7 @@ const CourseDetails: React.FC = () => {
                               <Check className="w-5 h-5" />
                               Already Enrolled
                             </div>
-                            
+
                             {course.isQuizEnabled && (function () {
                               const progress = enrollmentData?.data?.enrollment?.progress ?? 0;
                               const isUnlocked = progress >= 99;
@@ -694,7 +694,7 @@ const CourseDetails: React.FC = () => {
                       onClick={() => setShowReviewForm(true)}
                       className="text-sm flex bg-indigo-50 cursor-pointer text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 px-4 py-2 rounded-lg transition-colors font-medium"
                     >
-                      <Pencil className="w-4 h-4 mr-2"/> Add a Review
+                      <Pencil className="w-4 h-4 mr-2" /> Add a Review
                     </button>
                   )
                 )}
@@ -716,15 +716,15 @@ const CourseDetails: React.FC = () => {
               )}
 
               <div className="mb-8">
-                <RatingSummary 
-                  targetType="course" 
-                  targetId={id!} 
+                <RatingSummary
+                  targetType="course"
+                  targetId={id!}
                 />
               </div>
 
-              <ReviewList 
-                targetType="course" 
-                targetId={id!} 
+              <ReviewList
+                targetType="course"
+                targetId={id!}
                 currentUserId={userId}
                 onHasReview={(has) => setHasAlreadyReviewed(has)}
                 onReviewSubmitted={() => {
