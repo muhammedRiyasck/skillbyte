@@ -3,6 +3,11 @@ import { chatController } from '../dependencyInjection/ChatDependencyContainer';
 import { authenticate } from '../../../../shared/middlewares/AuthMiddleware';
 import { requireRole } from '../../../../shared/middlewares/RequireRole';
 import asyncHandler from '../../../../shared/utils/AsyncHandler';
+import { validateRequest } from '../../../../shared/middlewares/validateRequest';
+import {
+  CreateConversationSchema,
+  SendMessageSchema,
+} from '../validations/ChatValidation';
 
 const router = Router();
 
@@ -10,7 +15,8 @@ const router = Router();
 router.post(
   '/conversations',
   authenticate,
-  requireRole('student', 'instructor'),
+  requireRole('student'),
+  validateRequest(CreateConversationSchema),
   asyncHandler(chatController.createConversation),
 );
 
@@ -27,6 +33,7 @@ router.post(
   '/conversations/:conversationId/messages',
   authenticate,
   requireRole('student', 'instructor'),
+  validateRequest(SendMessageSchema),
   asyncHandler(chatController.sendMessage),
 );
 
