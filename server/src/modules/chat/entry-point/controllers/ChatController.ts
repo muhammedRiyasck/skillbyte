@@ -6,6 +6,8 @@ import { IGetMessagesUseCase } from '../../application/interfaces/IGetMessagesUs
 import { IMarkMessagesAsReadUseCase } from '../../application/interfaces/IMarkMessagesAsReadUseCase';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 export class ChatController {
   constructor(
@@ -18,21 +20,17 @@ export class ChatController {
 
   createConversation = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { studentId, instructorId, id } = req.body;
+      const { studentId, instructorId, courseId } = req.body;
 
       const conversation = await this.createConversationUseCase.execute({
         studentId,
         instructorId,
-        courseId: id,
+        courseId,
       });
 
       ApiResponseHelper.created(res, 'Conversation created', conversation);
     } catch (error) {
-      ApiResponseHelper.badRequest(
-        res,
-        'Failed to create conversation',
-        error instanceof Error ? error.message : undefined,
-      );
+      this.handleError(res, 'Failed to create conversation', error);
     }
   };
 
@@ -54,17 +52,14 @@ export class ChatController {
 
       ApiResponseHelper.success(res, 'Conversations fetched', conversations);
     } catch (error) {
-      ApiResponseHelper.error(
-        res,
-        'Failed to fetch conversations',
-        error instanceof Error ? error.message : undefined,
-      );
+      this.handleError(res, 'Failed to fetch conversations', error);
     }
   };
 
   sendMessage = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { conversationId, content, type, fileUrl, fileName } = req.body;
+      const { conversationId } = req.params;
+      const { content, type, fileUrl, fileName } = req.body;
       const authenticatedUser = req as AuthenticatedRequest;
       const senderId = authenticatedUser.user.id;
       const senderRole = authenticatedUser.user.role as
@@ -88,11 +83,7 @@ export class ChatController {
 
       ApiResponseHelper.created(res, 'Message sent', message);
     } catch (error) {
-      ApiResponseHelper.badRequest(
-        res,
-        'Failed to send message',
-        error instanceof Error ? error.message : undefined,
-      );
+      this.handleError(res, 'Failed to send message', error);
     }
   };
 
@@ -118,11 +109,7 @@ export class ChatController {
 
       ApiResponseHelper.success(res, 'Messages fetched', messages);
     } catch (error) {
-      ApiResponseHelper.badRequest(
-        res,
-        'Failed to fetch messages',
-        error instanceof Error ? error.message : undefined,
-      );
+      this.handleError(res, 'Failed to fetch messages', error);
     }
   };
 
@@ -146,11 +133,21 @@ export class ChatController {
 
       ApiResponseHelper.success(res, 'Messages marked as read');
     } catch (error) {
-      ApiResponseHelper.badRequest(
-        res,
-        'Failed to mark messages as read',
-        error instanceof Error ? error.message : undefined,
-      );
+      this.handleError(res, 'Failed to mark messages as read', error);
     }
   };
+
+  private handleError(res: Response, message: string, error: unknown): void {
+    if (error instanceof HttpError) {
+      ApiResponseHelper.error(res, message, error.message, error.status);
+      return;
+    }
+
+    ApiResponseHelper.error(
+      res,
+      message,
+      'Internal server error',
+      HttpStatusCode.INTERNAL_SERVER_ERROR,
+    );
+  }
 }
