@@ -6,7 +6,7 @@ import type { IConversation } from '../types/IConversation';
 export interface ICreateConversationRequest {
   studentId: string;
   instructorId: string;
-  id: string;
+  courseId: string;
 }
 
 export interface ISendMessageRequest {
@@ -29,7 +29,8 @@ export const ChatService = {
   },
 
   sendMessage: async (data: ISendMessageRequest): Promise<ApiResponse<IMessage>> => {
-    const response = await api.post('/chat/messages', data);
+    const { conversationId, ...body } = data;
+    const response = await api.post(`/chat/conversations/${conversationId}/messages`, body);
     return response.data;
   },
 
