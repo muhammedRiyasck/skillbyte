@@ -13,8 +13,8 @@ export class ConversationResponseMapper {
       student: conversation.student,
       instructor: conversation.instructor,
       course: conversation.course,
-      createdAt: conversation.createdAt,
-      updatedAt: conversation.updatedAt,
+      createdAt: conversation.createdAt!,
+      updatedAt: conversation.updatedAt!,
     };
   }
 }

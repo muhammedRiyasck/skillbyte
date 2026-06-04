@@ -8,13 +8,13 @@ export class MessageResponseMapper {
       conversationId: message.conversationId,
       senderId: message.senderId,
       senderRole: message.senderRole,
-      content: message.content,
+      content: message.content || '',
       type: message.type,
       fileUrl: message.fileUrl,
       fileName: message.fileName,
       isRead: message.isRead,
       readAt: message.readAt,
-      createdAt: message.createdAt,
+      createdAt: message.createdAt!,
     };
   }
 }
