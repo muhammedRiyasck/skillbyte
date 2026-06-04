@@ -51,9 +51,19 @@ export class InstructorMapper {
   }
 
   static toUpdateProfileEntity(dto: InstructorProfileUpdateDto) {
-    const updates: Record<string, unknown> = { ...dto };
-    if (updates.experience) {
-      updates.experience = Number(updates.experience);
+    const updates: Record<string, unknown> = {};
+    if (dto.name !== undefined) updates.name = dto.name;
+    if (dto.phoneNumber !== undefined) updates.phoneNumber = dto.phoneNumber;
+    if (dto.subject !== undefined) updates.subject = dto.subject;
+    if (dto.jobTitle !== undefined) updates.jobTitle = dto.jobTitle;
+    if (dto.socialProfile !== undefined)
+      updates.socialProfile = dto.socialProfile;
+    if (dto.portfolio !== undefined) updates.portfolio = dto.portfolio;
+    if (dto.bio !== undefined) updates.bio = dto.bio;
+    if (dto.profilePicture !== undefined)
+      updates.profilePictureUrl = dto.profilePicture;
+    if (dto.experience !== undefined) {
+      updates.experience = Number(dto.experience);
     }
     return updates;
   }
