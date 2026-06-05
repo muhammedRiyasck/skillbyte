@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../core/store/Index';
+import api from '@shared/utils/AxiosInstance';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -23,20 +24,39 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     if (user) {
-      // Initialize socket connection
-      const newSocket = io(import.meta.env.VITE_API_BASE_URL , {
+      let hasRetriedAuth = false;
+      const newSocket = io(import.meta.env.VITE_API_BASE_URL, {
         withCredentials: true,
       });
 
       newSocket.on('connect', () => {
         console.log('Socket connected:', newSocket.id);
         setIsConnected(true);
-        newSocket.emit('join', user.id);
+        newSocket.emit('join');
       });
 
       newSocket.on('disconnect', () => {
         console.log('Socket disconnected');
         setIsConnected(false);
+      });
+
+      newSocket.on('connect_error', async (error) => {
+        console.error('Socket connection failed:', error.message);
+        setIsConnected(false);
+
+        if (
+          !hasRetriedAuth &&
+          error.message.toLowerCase().includes('authentication failed')
+        ) {
+          hasRetriedAuth = true;
+
+          try {
+            await api.get('/auth/refresh-token', { _skipGlobalToast: true });
+            newSocket.connect();
+          } catch (refreshError) {
+            console.error('Socket token refresh failed:', refreshError);
+          }
+        }
       });
 
       setSocket(newSocket);

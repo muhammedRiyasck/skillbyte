@@ -1,9 +1,15 @@
 import { Server as HttpServer } from 'http';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { Server, Socket } from 'socket.io';
 import logger from '../../utils/Logger';
 import { HttpError } from '../../types/HttpError';
 import { HttpStatusCode } from '../../enums/HttpStatusCodes';
 import { IVideoSignalingService } from '../video-signaling/IVideoSignalingService';
+
+type SocketUser = JwtPayload & {
+  id: string;
+  role?: string;
+};
 
 export class SocketService {
   private static instance: SocketService;
@@ -33,10 +39,48 @@ export class SocketService {
       },
     });
 
-    this.io.on('connection', (socket: Socket) => {
-      logger.info(`New client connected: ${socket.id}`);
+    this.io.use((socket: Socket, next) => {
+      const token = this.getHandshakeToken(socket);
 
-      socket.on('join', (userId: string) => {
+      if (!token) {
+        logger.warn(
+          `Socket authentication failed: No token provided for socket ${socket.id}`,
+        );
+        next(new Error('Authentication failed: token missing'));
+        return;
+      }
+
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+
+        if (!this.isSocketUser(decoded)) {
+          logger.warn(
+            `Socket authentication failed: Invalid token payload for socket ${socket.id}`,
+          );
+          next(new Error('Authentication failed: invalid token payload'));
+          return;
+        }
+
+        socket.data.user = decoded;
+        next();
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : 'Unknown error';
+        logger.warn(
+          `Socket authentication failed: Invalid or expired token for socket ${socket.id}, error: ${errorMessage}`,
+        );
+        next(new Error('Authentication failed: invalid token'));
+      }
+    });
+
+    this.io.on('connection', (socket: Socket) => {
+      const authenticatedUser = socket.data.user as SocketUser;
+      logger.info(
+        `New authenticated client connected: ${socket.id} for user ${authenticatedUser.id}`,
+      );
+
+      socket.on('join', () => {
+        const userId = authenticatedUser.id;
         this.userSockets.set(userId, socket.id);
         logger.info(`User ${userId} joined with socket ${socket.id}`);
         // Broadcast user online status
@@ -116,6 +160,71 @@ export class SocketService {
         this.videoSignaling.registerHandlers(this.io, socket);
       }
     });
+  }
+
+  private getHandshakeToken(socket: Socket): string | null {
+    const token =
+      this.getAuthToken(socket.handshake.auth?.token) ??
+      this.getCookieToken(socket.handshake.headers.cookie);
+
+    if (!token) {
+      return null;
+    }
+
+    return token;
+  }
+
+  private getAuthToken(token: unknown): string | null {
+    if (typeof token !== 'string') {
+      return null;
+    }
+
+    return this.normalizeToken(token);
+  }
+
+  private getCookieToken(cookieHeader: string | undefined): string | null {
+    if (!cookieHeader) {
+      return null;
+    }
+
+    const accessToken = cookieHeader
+      .split(';')
+      .map((cookie) => cookie.trim())
+      .find((cookie) => cookie.startsWith('access_token='));
+
+    if (!accessToken) {
+      return null;
+    }
+
+    const tokenValue = accessToken.slice('access_token='.length);
+    try {
+      return this.normalizeToken(decodeURIComponent(tokenValue));
+    } catch {
+      return null;
+    }
+  }
+
+  private normalizeToken(token: string): string | null {
+    const trimmedToken = token.trim();
+
+    if (!trimmedToken) {
+      return null;
+    }
+
+    const tokenWithoutBearer = trimmedToken.startsWith('Bearer ')
+      ? trimmedToken.slice('Bearer '.length).trim()
+      : trimmedToken;
+
+    return tokenWithoutBearer || null;
+  }
+
+  private isSocketUser(decoded: string | JwtPayload): decoded is SocketUser {
+    return (
+      typeof decoded === 'object' &&
+      decoded !== null &&
+      typeof decoded.id === 'string' &&
+      decoded.id.trim().length > 0
+    );
   }
 
   public getIO(): Server {
