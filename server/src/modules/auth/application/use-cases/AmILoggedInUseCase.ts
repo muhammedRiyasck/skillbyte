@@ -1,12 +1,12 @@
 import { IAdminRepository } from '../../../admin/domain/IRepositories/IAdminRepository';
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
 import { IStudentRepository } from '../../../student/domain/IRepositories/IStudentRepository';
-import { Admin } from '../../../admin/domain/entities/Admin';
-import { Instructor } from '../../../instructor/domain/entities/Instructor';
-import { Student } from '../../../student/domain/entities/Student';
 import { IAmILoggedInUseCase } from '../interfaces/IAmILoggedInUseCase';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { UserRole } from '../../../../shared/enums/UserRole';
+import { AuthResponseDto } from '../dtos/AuthResponseDto';
+import { AuthMapper } from '../mappers/AuthMapper';
 
 /**
  * Use case for checking if a user is logged in by retrieving their data based on ID and role.
@@ -31,10 +31,7 @@ export class AmILoggedInUseCase implements IAmILoggedInUseCase {
    * @returns A promise that resolves to the user data (Student or Instructor) or null if not found.
    * @throws {HttpError} If the ID or role is missing or invalid.
    */
-  async execute(
-    id: string,
-    role: string,
-  ): Promise<Student | Instructor | Admin | null> {
+  async execute(id: string, role: UserRole): Promise<AuthResponseDto | null> {
     if (!id || !role) {
       throw new HttpError(
         'ID and role are required',
@@ -42,25 +39,29 @@ export class AmILoggedInUseCase implements IAmILoggedInUseCase {
       );
     }
 
-    if (role !== 'student' && role !== 'instructor' && role !== 'admin') {
+    if (
+      role !== UserRole.STUDENT &&
+      role !== UserRole.INSTRUCTOR &&
+      role !== UserRole.ADMIN
+    ) {
       throw new HttpError('Invalid role provided', HttpStatusCode.BAD_REQUEST);
     }
 
     let userRepo;
     switch (role) {
-      case 'student':
+      case UserRole.STUDENT:
         userRepo = this._studentRepo;
         break;
-      case 'instructor':
+      case UserRole.INSTRUCTOR:
         userRepo = this._instructorRepo;
         break;
-      case 'admin':
+      case UserRole.ADMIN:
         userRepo = this._adminRepo;
         break;
       default:
         throw new HttpError('Unsupported role', HttpStatusCode.BAD_REQUEST);
     }
     const user = await userRepo.findById(id);
-    return user;
+    return user ? AuthMapper.toAuthResponseDto(user, role, id) : null;
   }
 }

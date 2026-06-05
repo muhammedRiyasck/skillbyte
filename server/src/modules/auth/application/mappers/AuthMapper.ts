@@ -2,19 +2,7 @@ import { Student } from '../../../student/domain/entities/Student';
 import { Instructor } from '../../../instructor/domain/entities/Instructor';
 import { Admin } from '../../../admin/domain/entities/Admin';
 import { UserRole } from '../../../../shared/enums/UserRole';
-
-export interface AuthUserData {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  profilePicture?: string | null;
-  accountStatus?: string;
-}
-
-export interface AuthResponseDto {
-  userData: AuthUserData;
-}
+import { AuthResponseDto, AuthUserData } from '../dtos/AuthResponseDto';
 
 export class AuthMapper {
   static toAuthResponseDto(

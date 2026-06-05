@@ -17,10 +17,9 @@ import {
 import logger from '../../../../shared/utils/Logger';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
-import { Student } from '../../../student/domain/entities/Student';
-import { Instructor } from '../../../instructor/domain/entities/Instructor';
 import { AuthMapper } from '../../application/mappers/AuthMapper';
 import { UserRole } from '../../../../shared/enums/UserRole';
+import { AuthResponseDto } from '../../application/dtos/AuthResponseDto';
 
 export class CommonAuthController {
   constructor(
@@ -41,26 +40,18 @@ export class CommonAuthController {
   amILoggedIn = async (req: Request, res: Response): Promise<void> => {
     logger.info(`AmILoggedIn check from IP: ${req.ip}`);
     const decodedUserData = req.user as { id: string; role: UserRole };
-    const user = await this._amILoggedInUseCase.execute(
+    const authResponse = await this._amILoggedInUseCase.execute(
       decodedUserData.id,
       decodedUserData.role,
     );
-    logger.info(`User logged in status: ${user ? true : false}`);
+    logger.info(`User logged in status: ${authResponse ? true : false}`);
 
-    if (!user) {
+    if (!authResponse) {
       ApiResponseHelper.unauthorized(res, 'User not found');
       return;
     }
 
-    ApiResponseHelper.success(
-      res,
-      'User is logged in',
-      AuthMapper.toAuthResponseDto(
-        user,
-        decodedUserData.role,
-        decodedUserData.id,
-      ),
-    );
+    ApiResponseHelper.success(res, 'User is logged in', authResponse);
   };
 
   /**
@@ -82,19 +73,25 @@ export class CommonAuthController {
 
     const { email, password, role } = validationResult.data;
 
-    let data: {
-      user: Student | Instructor;
-      accessToken: string;
-      refreshToken: string;
-    };
+    let authResponse: AuthResponseDto;
+    let accessToken: string;
+    let refreshToken: string;
 
     switch (role) {
-      case 'student':
-        data = await this._studentLoginUC.execute(email, password);
+      case UserRole.STUDENT: {
+        const data = await this._studentLoginUC.execute(email, password);
+        authResponse = AuthMapper.toAuthResponseDto(data.user, role);
+        accessToken = data.accessToken;
+        refreshToken = data.refreshToken;
         break;
-      case 'instructor':
-        data = await this._instructorLoginUC.execute(email, password);
+      }
+      case UserRole.INSTRUCTOR: {
+        const data = await this._instructorLoginUC.execute(email, password);
+        authResponse = AuthMapper.toAuthResponseDto(data.user, role);
+        accessToken = data.accessToken;
+        refreshToken = data.refreshToken;
         break;
+      }
       default:
         logger.warn(`Invalid role attempted: ${role}`);
         throw new HttpError(
@@ -102,8 +99,7 @@ export class CommonAuthController {
           HttpStatusCode.BAD_REQUEST,
         );
     }
-    const { user, accessToken, refreshToken } = data;
-    if (user.accountStatus !== 'rejected') {
+    if (authResponse.userData.accountStatus !== 'rejected') {
       res.cookie('access_token', accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -123,7 +119,7 @@ export class CommonAuthController {
     ApiResponseHelper.success(
       res,
       'Login successful',
-      AuthMapper.toAuthResponseDto(user, role),
+      authResponse,
     );
   };
 
