@@ -1,28 +1,22 @@
+import { SlotStatus } from '../../domain/entities/MentorshipSlot';
 import {
-  MentorshipSlot,
-  SlotStatus,
-} from '../../domain/entities/MentorshipSlot';
-import { CreateSlotDto, UpdateSlotDto, SlotFiltersDto } from '../dtos/SlotDto';
+  CreateSlotDto,
+  UpdateSlotRequestDto,
+  SlotFiltersDto,
+  GetInstructorSlotsDto,
+} from '../dtos/SlotDto';
+import { SlotResponseDto } from '../dtos/SlotResponseDto';
 
 export interface ICreateSlotUseCase {
-  execute(dto: CreateSlotDto): Promise<MentorshipSlot>;
+  execute(dto: CreateSlotDto): Promise<SlotResponseDto>;
 }
 
 export interface IGetInstructorSlotsUseCase {
-  execute(
-    instructorId: string,
-    filters?: {
-      status?: SlotStatus;
-      fromDate?: Date;
-      toDate?: Date;
-      page?: number;
-      limit?: number;
-    },
-  ): Promise<MentorshipSlot[]>;
+  execute(dto: GetInstructorSlotsDto): Promise<SlotResponseDto[]>;
 }
 
 export interface IUpdateSlotUseCase {
-  execute(slotId: string, dto: UpdateSlotDto): Promise<MentorshipSlot | null>;
+  execute(dto: UpdateSlotRequestDto): Promise<SlotResponseDto | null>;
 }
 
 export interface IDeleteSlotUseCase {
@@ -30,15 +24,15 @@ export interface IDeleteSlotUseCase {
 }
 
 export interface IGetSlotsByJobTitleUseCase {
-  execute(jobTitle: string): Promise<MentorshipSlot[]>;
+  execute(jobTitle: string): Promise<SlotResponseDto[]>;
 }
 
 export interface IGetAvailableSlotsUseCase {
-  execute(filters?: SlotFiltersDto): Promise<MentorshipSlot[]>;
+  execute(filters?: SlotFiltersDto): Promise<SlotResponseDto[]>;
 }
 
 export interface IGetSlotByIdUseCase {
-  execute(slotId: string): Promise<MentorshipSlot | null>;
+  execute(slotId: string): Promise<SlotResponseDto | null>;
 }
 
 export interface IGetUniqueTagsUseCase {

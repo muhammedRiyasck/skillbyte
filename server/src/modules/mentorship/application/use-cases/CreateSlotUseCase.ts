@@ -5,6 +5,8 @@ import {
   SlotStatus,
 } from '../../domain/entities/MentorshipSlot';
 import { CreateSlotDto } from '../dtos/SlotDto';
+import { SlotResponseDto } from '../dtos/SlotResponseDto';
+import { SlotResponseMapper } from '../mappers/SlotResponseMapper';
 import { ICreateSlotUseCase } from '../interfaces/ISlotUseCases';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
@@ -18,7 +20,7 @@ export class CreateSlotUseCase implements ICreateSlotUseCase {
     private _instructorRepo: IInstructorRepository,
   ) {}
 
-  async execute(dto: CreateSlotDto): Promise<MentorshipSlot> {
+  async execute(dto: CreateSlotDto): Promise<SlotResponseDto> {
     // Validate scheduled time is in the future
     const now = new Date();
     if (new Date(dto.scheduledAt) <= now) {
@@ -62,6 +64,6 @@ export class CreateSlotUseCase implements ICreateSlotUseCase {
     );
 
     const saved = await this._slotRepo.save(slot);
-    return saved;
+    return SlotResponseMapper.toResponseDto(saved);
   }
 }

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { MentorshipMapper } from '../../application/mappers/MentorshipMapper';
+import { SlotResponseMapper } from '../../application/mappers/SlotResponseMapper';
 import { SlotStatus } from '../../domain/entities/MentorshipSlot';
 import { ICreateSlotUseCase } from '../../application/interfaces/ISlotUseCases';
 import { IGetInstructorSlotsUseCase } from '../../application/interfaces/ISlotUseCases';
@@ -47,10 +47,10 @@ export class MentorshipController {
     const instructorId = authenticatedReq.user.id;
 
     logger.info(`Create slot attempt from instructor: ${instructorId}`);
-    const slotDto = MentorshipMapper.toCreateSlotDto(
-      authenticatedReq.body,
+    const slotDto = {
+      ...authenticatedReq.body,
       instructorId,
-    );
+    };
     const slot = await this._createSlotUseCase.execute(slotDto);
 
     logger.info(`Slot created successfully: ${slot.slotId}`);
@@ -75,10 +75,10 @@ export class MentorshipController {
       limit: limit ? Number(limit) : 20, // Default to a reasonable number
     };
 
-    const slots = await this._getInstructorSlotsUseCase.execute(
+    const slots = await this._getInstructorSlotsUseCase.execute({
       instructorId,
       filters,
-    );
+    });
     ApiResponseHelper.success(res, 'Slots retrieved successfully', { slots });
   };
 
@@ -94,8 +94,8 @@ export class MentorshipController {
       throw new HttpError('Slot ID is required', HttpStatusCode.BAD_REQUEST);
     }
 
-    const slotDto = MentorshipMapper.toUpdateSlotDto(authenticatedReq.body);
-    const updatedSlot = await this._updateSlotUseCase.execute(slotId, slotDto);
+    const slotDto = authenticatedReq.body;
+    const updatedSlot = await this._updateSlotUseCase.execute({ slotId, data: slotDto });
 
     if (!updatedSlot) {
       throw new HttpError('Slot not found', HttpStatusCode.NOT_FOUND);
@@ -251,14 +251,14 @@ export class MentorshipController {
     const studentId = authenticatedReq.user.id;
     const { page, limit, status, fromDate, toDate } = req.query;
 
-    const bookings = await this._getStudentBookingsUseCase.execute(
+    const bookings = await this._getStudentBookingsUseCase.execute({
       studentId,
-      page ? Number(page) : 1,
-      limit ? Number(limit) : 10,
-      status as string,
-      fromDate ? new Date(fromDate as string) : undefined,
-      toDate ? new Date(toDate as string) : undefined,
-    );
+      page: page ? Number(page) : 1,
+      limit: limit ? Number(limit) : 10,
+      status: status as string,
+      fromDate: fromDate ? new Date(fromDate as string) : undefined,
+      toDate: toDate ? new Date(toDate as string) : undefined,
+    });
     ApiResponseHelper.success(res, 'Student bookings retrieved successfully', {
       bookings,
     });
@@ -275,12 +275,12 @@ export class MentorshipController {
     const instructorId = authenticatedReq.user.id;
     const { page, limit, status } = req.query;
 
-    const bookings = await this._getInstructorBookingsUseCase.execute(
+    const bookings = await this._getInstructorBookingsUseCase.execute({
       instructorId,
-      page ? Number(page) : 1,
-      limit ? Number(limit) : 10,
-      status as string,
-    );
+      page: page ? Number(page) : 1,
+      limit: limit ? Number(limit) : 10,
+      status: status as string,
+    });
     ApiResponseHelper.success(
       res,
       'Instructor bookings retrieved successfully',
@@ -327,11 +327,11 @@ export class MentorshipController {
       throw new HttpError('Invalid user role', HttpStatusCode.FORBIDDEN);
     }
 
-    const result = await this._validateVideoRoomAccessUseCase.execute(
+    const result = await this._validateVideoRoomAccessUseCase.execute({
       roomId,
       userId,
-      userRole,
-    );
+      userRole: userRole as 'student' | 'instructor',
+    });
 
     ApiResponseHelper.success(res, 'Video room access validated', result);
   };

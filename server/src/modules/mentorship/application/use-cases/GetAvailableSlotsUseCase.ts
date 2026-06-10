@@ -1,6 +1,7 @@
 import { IMentorshipSlotRepository } from '../../domain/IRepositories/IMentorshipSlotRepository';
-import { MentorshipSlot } from '../../domain/entities/MentorshipSlot';
 import { SlotFiltersDto } from '../dtos/SlotDto';
+import { SlotResponseDto } from '../dtos/SlotResponseDto';
+import { SlotResponseMapper } from '../mappers/SlotResponseMapper';
 import { IGetAvailableSlotsUseCase } from '../interfaces/ISlotUseCases';
 
 /**
@@ -9,7 +10,8 @@ import { IGetAvailableSlotsUseCase } from '../interfaces/ISlotUseCases';
 export class GetAvailableSlotsUseCase implements IGetAvailableSlotsUseCase {
   constructor(private _slotRepo: IMentorshipSlotRepository) {}
 
-  async execute(filters?: SlotFiltersDto): Promise<MentorshipSlot[]> {
-    return await this._slotRepo.findAvailableSlots(filters);
+  async execute(filters?: SlotFiltersDto): Promise<SlotResponseDto[]> {
+    const slots = await this._slotRepo.findAvailableSlots(filters);
+    return slots.map(SlotResponseMapper.toResponseDto);
   }
 }

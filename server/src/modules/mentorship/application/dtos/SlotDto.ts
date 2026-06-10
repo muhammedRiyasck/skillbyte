@@ -23,6 +23,11 @@ export interface UpdateSlotDto {
   timezone?: string;
 }
 
+export interface UpdateSlotRequestDto {
+  slotId: string;
+  data: UpdateSlotDto;
+}
+
 export interface SlotFiltersDto {
   search?: string;
   jobTitle?: string;
@@ -33,4 +38,15 @@ export interface SlotFiltersDto {
   tags?: string[];
   page?: number;
   limit?: number;
+}
+
+export interface GetInstructorSlotsDto {
+  instructorId: string;
+  filters?: {
+    status?: string;
+    fromDate?: Date;
+    toDate?: Date;
+    page?: number;
+    limit?: number;
+  };
 }

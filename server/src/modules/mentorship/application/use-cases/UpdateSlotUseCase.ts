@@ -3,7 +3,9 @@ import {
   MentorshipSlot,
   SlotStatus,
 } from '../../domain/entities/MentorshipSlot';
-import { UpdateSlotDto } from '../dtos/SlotDto';
+import { UpdateSlotRequestDto } from '../dtos/SlotDto';
+import { SlotResponseDto } from '../dtos/SlotResponseDto';
+import { SlotResponseMapper } from '../mappers/SlotResponseMapper';
 import { IUpdateSlotUseCase } from '../interfaces/ISlotUseCases';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
@@ -15,9 +17,9 @@ export class UpdateSlotUseCase implements IUpdateSlotUseCase {
   constructor(private _slotRepo: IMentorshipSlotRepository) {}
 
   async execute(
-    slotId: string,
-    dto: UpdateSlotDto,
-  ): Promise<MentorshipSlot | null> {
+    dto: UpdateSlotRequestDto,
+  ): Promise<SlotResponseDto | null> {
+    const { slotId, data } = dto;
     // Check if slot exists
     const existingSlot = await this._slotRepo.findById(slotId);
     if (!existingSlot) {
@@ -36,9 +38,9 @@ export class UpdateSlotUseCase implements IUpdateSlotUseCase {
     }
 
     // If updating scheduledAt, validate it's in the future
-    if (dto.scheduledAt) {
+    if (data.scheduledAt) {
       const now = new Date();
-      if (new Date(dto.scheduledAt) <= now) {
+      if (new Date(data.scheduledAt) <= now) {
         throw new HttpError(
           'Scheduled time must be in the future',
           HttpStatusCode.BAD_REQUEST,
@@ -49,24 +51,25 @@ export class UpdateSlotUseCase implements IUpdateSlotUseCase {
     // Create updated slot
     const updatedSlot = new MentorshipSlot(
       existingSlot.instructorId,
-      dto.title ?? existingSlot.title,
-      dto.description ?? existingSlot.description,
-      dto.duration ?? existingSlot.duration,
-      dto.price ?? existingSlot.price,
-      dto.currency ?? existingSlot.currency,
-      dto.scheduledAt ? new Date(dto.scheduledAt) : existingSlot.scheduledAt,
+      data.title ?? existingSlot.title,
+      data.description ?? existingSlot.description,
+      data.duration ?? existingSlot.duration,
+      data.price ?? existingSlot.price,
+      data.currency ?? existingSlot.currency,
+      data.scheduledAt ? new Date(data.scheduledAt) : existingSlot.scheduledAt,
       existingSlot.status,
       existingSlot.maxBookings,
       existingSlot.currentBookings,
-      dto.jobTitle ?? existingSlot.jobTitle,
-      dto.tags ?? existingSlot.tags,
-      dto.timezone ?? existingSlot.timezone,
+      data.jobTitle ?? existingSlot.jobTitle,
+      data.tags ?? existingSlot.tags,
+      data.timezone ?? existingSlot.timezone,
       slotId,
       existingSlot.instructorDetails,
       existingSlot.createdAt,
       new Date(),
     );
 
-    return await this._slotRepo.save(updatedSlot);
+    const saved = await this._slotRepo.save(updatedSlot);
+    return SlotResponseMapper.toResponseDto(saved);
   }
 }

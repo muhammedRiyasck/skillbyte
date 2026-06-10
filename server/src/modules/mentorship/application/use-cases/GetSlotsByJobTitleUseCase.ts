@@ -1,6 +1,7 @@
 import { IMentorshipSlotRepository } from '../../domain/IRepositories/IMentorshipSlotRepository';
-import { MentorshipSlot } from '../../domain/entities/MentorshipSlot';
 import { IGetSlotsByJobTitleUseCase } from '../interfaces/ISlotUseCases';
+import { SlotResponseDto } from '../dtos/SlotResponseDto';
+import { SlotResponseMapper } from '../mappers/SlotResponseMapper';
 
 /**
  * Use case for retrieving available slots by job title.
@@ -8,7 +9,8 @@ import { IGetSlotsByJobTitleUseCase } from '../interfaces/ISlotUseCases';
 export class GetSlotsByJobTitleUseCase implements IGetSlotsByJobTitleUseCase {
   constructor(private _slotRepo: IMentorshipSlotRepository) {}
 
-  async execute(jobTitle: string): Promise<MentorshipSlot[]> {
-    return await this._slotRepo.findByJobTitle(jobTitle);
+  async execute(jobTitle: string): Promise<SlotResponseDto[]> {
+    const slots = await this._slotRepo.findByJobTitle(jobTitle);
+    return slots.map(SlotResponseMapper.toResponseDto);
   }
 }

@@ -1,10 +1,16 @@
-import { MentorshipBooking } from '../../domain/entities/MentorshipBooking';
-import { BookSlotDto, CancelBookingDto } from '../dtos/BookingDto';
+import {
+  BookSlotDto,
+  CancelBookingDto,
+  GetStudentBookingsDto,
+  GetInstructorBookingsDto,
+  ValidateVideoRoomAccessDto,
+} from '../dtos/BookingDto';
+import { BookingResponseDto } from '../dtos/BookingResponseDto';
 import { PaymentInitiationResponse } from '../../../../shared/services/payment/interfaces/IPaymentProvider';
 
 export interface IBookSlotUseCase {
   execute(dto: BookSlotDto): Promise<{
-    booking: MentorshipBooking;
+    booking: BookingResponseDto;
     providerResponse: PaymentInitiationResponse;
   }>;
 }
@@ -14,23 +20,11 @@ export interface ICancelBookingUseCase {
 }
 
 export interface IGetStudentBookingsUseCase {
-  execute(
-    studentId: string,
-    page?: number,
-    limit?: number,
-    status?: string,
-    fromDate?: Date,
-    toDate?: Date,
-  ): Promise<MentorshipBooking[]>;
+  execute(dto: GetStudentBookingsDto): Promise<BookingResponseDto[]>;
 }
 
 export interface IGetInstructorBookingsUseCase {
-  execute(
-    instructorId: string,
-    page?: number,
-    limit?: number,
-    status?: string,
-  ): Promise<MentorshipBooking[]>;
+  execute(dto: GetInstructorBookingsDto): Promise<BookingResponseDto[]>;
 }
 
 export interface ICompleteSessionUseCase {
@@ -43,10 +37,8 @@ export interface IGenerateVideoRoomUseCase {
 
 export interface IValidateVideoRoomAccessUseCase {
   execute(
-    roomId: string,
-    userId: string,
-    userRole: 'student' | 'instructor',
-  ): Promise<{ bookingId: string; isValid: boolean }>;
+    dto: ValidateVideoRoomAccessDto,
+  ): Promise<{ bookingId: string; isValid: boolean; status?: string }>;
 }
 
 export interface IAutoCompleteBookingsUseCase {

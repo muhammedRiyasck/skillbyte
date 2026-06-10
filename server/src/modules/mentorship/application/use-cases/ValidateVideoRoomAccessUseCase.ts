@@ -1,17 +1,11 @@
+import { IValidateVideoRoomAccessUseCase } from '../interfaces/IBookingUseCases';
+import { ValidateVideoRoomAccessDto } from '../dtos/BookingDto';
 import { IMentorshipBookingRepository } from '../../domain/IRepositories/IMentorshipBookingRepository';
 import logger from '../../../../shared/utils/Logger';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { UserRole } from '../../../../shared/enums/UserRole';
 import { BookingStatus } from '../../domain/entities/MentorshipBooking';
-
-export interface IValidateVideoRoomAccessUseCase {
-  execute(
-    roomId: string,
-    userId: string,
-    userRole: UserRole.STUDENT | UserRole.INSTRUCTOR,
-  ): Promise<{ bookingId: string; isValid: boolean }>;
-}
 
 export class ValidateVideoRoomAccessUseCase
   implements IValidateVideoRoomAccessUseCase
@@ -24,10 +18,9 @@ export class ValidateVideoRoomAccessUseCase
   constructor(private bookingRepo: IMentorshipBookingRepository) {}
 
   async execute(
-    roomId: string,
-    userId: string,
-    userRole: UserRole.STUDENT | UserRole.INSTRUCTOR,
-  ): Promise<{ bookingId: string; isValid: boolean; status: BookingStatus }> {
+    dto: ValidateVideoRoomAccessDto,
+  ): Promise<{ bookingId: string; isValid: boolean; status?: string }> {
+    const { roomId, userId, userRole } = dto;
     logger.info(
       `Validating video room access: roomId=${roomId}, userId=${userId}, role=${userRole}`,
     );

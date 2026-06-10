@@ -5,6 +5,8 @@ import {
   BookingStatus,
 } from '../../domain/entities/MentorshipBooking';
 import { SlotStatus } from '../../domain/entities/MentorshipSlot';
+import { BookingResponseDto } from '../dtos/BookingResponseDto';
+import { BookingResponseMapper } from '../mappers/BookingResponseMapper';
 import { PaymentInitiationResponse } from '../../../../shared/services/payment/interfaces/IPaymentProvider';
 import { IMentorshipSlotRepository } from '../../domain/IRepositories/IMentorshipSlotRepository';
 import { IMentorshipBookingRepository } from '../../domain/IRepositories/IMentorshipBookingRepository';
@@ -28,7 +30,7 @@ export class BookSlotUseCase implements IBookSlotUseCase {
   ) {}
 
   async execute(dto: BookSlotDto): Promise<{
-    booking: MentorshipBooking;
+    booking: BookingResponseDto;
     providerResponse: PaymentInitiationResponse;
   }> {
     const { slotId, studentId, providerName } = dto;
@@ -154,7 +156,7 @@ export class BookSlotUseCase implements IBookSlotUseCase {
     }
 
     return {
-      booking: savedBooking,
+      booking: BookingResponseMapper.toResponseDto(savedBooking),
       providerResponse: paymentResult.providerResponse,
     };
   }
