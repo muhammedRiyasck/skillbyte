@@ -2,7 +2,13 @@ import { Router } from 'express';
 import { mentorshipController } from '../dependencyInjection/MentorshipContainer';
 import { authenticate } from '../../../../shared/middlewares/AuthMiddleware';
 import { requireRole } from '../../../../shared/middlewares/RequireRole';
+import { validateRequest } from '../../../../shared/middlewares/validateRequest';
 import asyncHandler from '../../../../shared/utils/AsyncHandler';
+import {
+  createSlotSchema,
+  updateSlotSchema,
+  bookSlotSchema,
+} from '../validations/MentorshipValidation';
 
 const router = Router();
 
@@ -13,6 +19,7 @@ router.post(
   '/slots',
   authenticate,
   requireRole('instructor'),
+  validateRequest(createSlotSchema),
   asyncHandler(mentorshipController.createSlot),
 );
 
@@ -29,6 +36,7 @@ router.put(
   '/slots/:slotId',
   authenticate,
   requireRole('instructor'),
+  validateRequest(updateSlotSchema),
   asyncHandler(mentorshipController.updateSlot),
 );
 
@@ -71,6 +79,7 @@ router.post(
   '/book',
   authenticate,
   requireRole('student'),
+  validateRequest(bookSlotSchema),
   asyncHandler(mentorshipController.bookSlot),
 );
 
