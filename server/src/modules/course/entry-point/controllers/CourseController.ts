@@ -17,7 +17,8 @@ import {
   UpdateBaseSchema,
   UpdateStatusSchema,
   PaginationQuerySchema,
-} from '../../application/dtos/CourseDetailsDtos';
+  BlockCourseSchema,
+} from '../validations/CourseValidation';
 import { CourseMapper } from '../../application/mappers/CourseMapper';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentReadRepository';
@@ -25,7 +26,6 @@ import { GetCategories } from '../../application/use-cases/GetCategoriesUseCase'
 import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 import { IEnrollment } from '../../../enrollment/domain/entities/Enrollment';
 import { UserRole } from '../../../../shared/enums/UserRole';
-import { AdminCourseFilter } from '../../../../shared/enums/AdminCourseFilter';
 import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
 export class CourseController {
@@ -42,11 +42,6 @@ export class CourseController {
     private _storageService: IStorageService,
   ) {}
 
-  /**
-   * Creates the base details for a new course.
-   * @param req - Authenticated request object.
-   * @param res - Express response object.
-   */
   createBase = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     logger.info(`Create course base attempt from IP: ${authenticatedReq.ip}`);
@@ -54,58 +49,29 @@ export class CourseController {
     const validatedData = CreateBaseSchema.parse(authenticatedReq.body);
     const instructorId = authenticatedReq.user.id;
 
-    const courseEntity = CourseMapper.toCreateBaseEntity(
-      validatedData,
-      instructorId,
-      validatedData.thumbnail || undefined,
-    );
+    const dto = CourseMapper.toCreateDto(validatedData, instructorId);
+    const course = await this._createCourseUseCase.execute(dto);
 
-    const course = await this._createCourseUseCase.execute(courseEntity);
-
-    logger.info(
-      `Course base created successfully for instructor ${instructorId}`,
-    );
-    ApiResponseHelper.created(res, 'Details added successfully', {
-      id: course.courseId,
-    });
+    logger.info(`Course base created successfully for instructor ${instructorId}`);
+    ApiResponseHelper.created(res, 'Details added successfully', { id: course.id });
   };
 
-  /**
-   * Uploads a thumbnail image for a course.
-   * Validates the course ID, file presence, size, and type, then uploads to Cloudinary and updates the course.
-   * @param req - Authenticated request object with file upload.
-   * @param res - Express response object.
-   * @throws HttpError if validation fails.
-   */
   uploadThumbnail = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const { id } = authenticatedReq.params;
+
     if (!id) {
-      throw new HttpError(
-        ERROR_MESSAGES.CANT_SEE_COURSEID,
-        HttpStatusCode.BAD_REQUEST,
-      );
+      throw new HttpError(ERROR_MESSAGES.CANT_SEE_COURSEID, HttpStatusCode.BAD_REQUEST);
     }
     if (!authenticatedReq.file) {
-      throw new HttpError(
-        ERROR_MESSAGES.NO_FILE_UPLOADED,
-        HttpStatusCode.BAD_REQUEST,
-      );
+      throw new HttpError(ERROR_MESSAGES.NO_FILE_UPLOADED, HttpStatusCode.BAD_REQUEST);
     }
-
     if (authenticatedReq.file.size > 2 * 1024 * 1024) {
       logger.warn('Thumbnail size exceeds 2MB');
-      throw new HttpError(
-        ERROR_MESSAGES.THUMBNAIL_SIZE_EXCEEDED,
-        HttpStatusCode.BAD_REQUEST,
-      );
+      throw new HttpError(ERROR_MESSAGES.THUMBNAIL_SIZE_EXCEEDED, HttpStatusCode.BAD_REQUEST);
     }
-
     if (!authenticatedReq.file.mimetype.startsWith('image/')) {
-      throw new HttpError(
-        ERROR_MESSAGES.ONLY_IMAGE_FILES_ALLOWED,
-        HttpStatusCode.BAD_REQUEST,
-      );
+      throw new HttpError(ERROR_MESSAGES.ONLY_IMAGE_FILES_ALLOWED, HttpStatusCode.BAD_REQUEST);
     }
 
     const url = await this._storageService.upload(authenticatedReq.file.path, {
@@ -115,15 +81,9 @@ export class CourseController {
       overwrite: true,
     });
 
-    await this._updateBaseUseCase.execute(id, authenticatedReq.user.id, {
-      thumbnailUrl: url,
-    });
+    await this._updateBaseUseCase.execute(id, authenticatedReq.user.id, { thumbnailUrl: url });
+    ApiResponseHelper.success(res, 'Course Base Created Successfully', { id });
 
-    ApiResponseHelper.success(res, 'Course Base Created Successfully', {
-      id,
-    });
-
-    // Delete the local uploaded file
     try {
       await fs.unlink(authenticatedReq.file.path);
     } catch (unlinkError) {
@@ -131,322 +91,142 @@ export class CourseController {
     }
   };
 
-  /**
-   * Updates the base details of a course.
-   * @param req - Authenticated request object with course ID and update data.
-   * @param res - Express response object.
-   * @throws HttpError if update fails.
-   */
   updateBase = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const id = authenticatedReq.params.id;
     const instructorId = authenticatedReq.user.id;
 
     const validatedData = UpdateBaseSchema.parse(authenticatedReq.body);
-    const data = CourseMapper.toUpdateBaseEntity(validatedData);
+    const data = CourseMapper.toUpdateDto(validatedData);
 
     await this._updateBaseUseCase.execute(id, instructorId, data);
     ApiResponseHelper.success(res, 'Course updated successfully');
   };
 
-  /**
-   * Updates the status of a course (list or unlist).
-   * @param req - Authenticated request object with course ID and status.
-   * @param res - Express response object.
-   * @throws HttpError if status is invalid or update fails.
-   */
   updateCourseStatus = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const id = authenticatedReq.params.id;
     const instructorId = authenticatedReq.user.id;
 
-    const validatedData = UpdateStatusSchema.parse(authenticatedReq.body);
-    const { status } = validatedData; // status is typed now
-
+    const { status } = UpdateStatusSchema.parse(authenticatedReq.body);
     await this._updateCourseStatusUseCase.execute(id, instructorId, status);
     ApiResponseHelper.success(res, `Course ${status} successfully`);
   };
 
-  /**
-   * Blocks or unblocks a course.
-   * @param req - Authenticated request object with course ID and isBlocked status.
-   * @param res - Express response object.
-   */
   blockCourse = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const id = authenticatedReq.params.id;
-    const { isBlocked } = authenticatedReq.body;
-
-    // Basic validation, could add Zod schema if needed
-    if (typeof isBlocked !== 'boolean') {
-      throw new HttpError(
-        'Invalid isBlocked value',
-        HttpStatusCode.BAD_REQUEST,
-      );
-    }
+    const { isBlocked } = BlockCourseSchema.parse(authenticatedReq.body);
 
     await this._blockCourseUseCase.execute(id, isBlocked);
-    ApiResponseHelper.success(
-      res,
-      `Course ${isBlocked ? 'blocked' : 'unblocked'} successfully`,
-    );
+    ApiResponseHelper.success(res, `Course ${isBlocked ? 'blocked' : 'unblocked'} successfully`);
   };
 
-  /**
-   * Retrieves a course by its ID, considering the user's role for access control.
-   * @param req - Authenticated request object with course ID and optional include query.
-   * @param res - Express response object.
-   */
   getCourseById = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const id = authenticatedReq.params.id;
     const { include } = authenticatedReq.query;
     const role = authenticatedReq.user.role || 'student';
     const userId = authenticatedReq.user.id;
-    const course = await this._getCourseDetailsUseCase.execute(
-      id,
+
+    const course = await this._getCourseDetailsUseCase.execute({
+      courseId: id,
       role,
-      include as string,
+      include: include as string,
       userId,
-    );
+    });
 
     if (!course) {
-      throw new HttpError(
-        ERROR_MESSAGES.COURSE_NOT_FOUND,
-        HttpStatusCode.NOT_FOUND,
-      );
+      throw new HttpError(ERROR_MESSAGES.COURSE_NOT_FOUND, HttpStatusCode.NOT_FOUND);
     }
 
-    ApiResponseHelper.success(
-      res,
-      'Course retrieved successfully',
-      CourseMapper.toDetailsResponse(course),
-    );
+    ApiResponseHelper.success(res, 'Course retrieved successfully', course);
   };
 
-  /**
-   * Retrieves published courses with pagination and sorting.
-   * @param req - Request object with optional page, limit, and sort query parameters.
-   * @param res - Express response object.
-   */
   getPublishedCourses = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const validatedQuery = PaginationQuerySchema.parse(req.query);
 
-    const query: Record<string, unknown> = {
+    const courses = await this._getPaginatedCoursesUseCase.execute({
       status: CourseStatus.LIST,
-      isBlocked: false,
-    };
-    const page = validatedQuery.page || 1;
-    const limit = validatedQuery.limit || 6;
-    const { level, language } = req.query;
-
-    if (validatedQuery.category) {
-      query.category = { $regex: validatedQuery.category, $options: 'i' };
-    }
-
-    if (level) {
-      query.courseLevel = { $regex: level as string, $options: 'i' };
-    }
-    if (language) {
-      query.language = { $regex: language as string, $options: 'i' };
-    }
-
-    const { minPrice, maxPrice } = req.query;
-    if (minPrice || maxPrice) {
-      query.price = {} as Record<string, number>;
-      const priceQuery = query.price as Record<string, number>;
-      if (minPrice) priceQuery.$gte = Number(minPrice);
-      if (maxPrice) priceQuery.$lte = Number(maxPrice);
-    }
-
-    if (validatedQuery.search) {
-      query.$or = [
-        { title: { $regex: validatedQuery.search, $options: 'i' } },
-        { tags: { $regex: validatedQuery.search, $options: 'i' } },
-      ];
-    }
-
-    let sort: Record<string, 1 | -1> = { createdAt: -1 };
-    if (validatedQuery.sort) {
-      const [field, dir] = validatedQuery.sort.split(':');
-      if (field === 'price') {
-        sort = { price: dir === 'asc' ? 1 : -1 };
-      } else if (field === 'title') {
-        sort = { title: dir === 'asc' ? 1 : -1 };
-      } else {
-        sort = { [field]: dir === 'asc' ? 1 : -1 };
-      }
-    }
-    const courses = await this._getPaginatedCoursesUseCase.execute(
-      query,
-      page,
-      limit,
-      sort,
-    );
+      category: validatedQuery.category as string | undefined,
+      search: validatedQuery.search,
+      level: req.query.level as string | undefined,
+      language: req.query.language as string | undefined,
+      minPrice: req.query.minPrice ? Number(req.query.minPrice) : undefined,
+      maxPrice: req.query.maxPrice ? Number(req.query.maxPrice) : undefined,
+      page: validatedQuery.page,
+      limit: validatedQuery.limit,
+      sort: validatedQuery.sort,
+    });
 
     // Check enrollment status for each course if user is a student
     if (
       authenticatedReq.user &&
       authenticatedReq.user.role === UserRole.STUDENT &&
-      courses &&
-      courses.data
+      courses?.data
     ) {
       const userId = authenticatedReq.user.id;
-      // Use explicit casting or any only where necessary. course is Course entity.
-      const courseIds = courses.data
-        .map((course) => course.courseId || (course as { _id?: string })._id)
-        .filter((id): id is string => !!id);
-      const enrollments =
-        await this._enrollmentRepository.findEnrollmentsForUser(
-          userId,
-          courseIds,
-        );
+      const courseIds = courses.data.map((c) => c.id).filter((id): id is string => !!id);
+      const enrollments = await this._enrollmentRepository.findEnrollmentsForUser(userId, courseIds);
+      const enrolledSet = new Set(enrollments.map((e: IEnrollment) => e.courseId.toString()));
 
-      const enrolledCourseIdSet = new Set(
-        enrollments.map((e: IEnrollment) => e.courseId.toString()),
-      );
-
-      const mappedCourses = courses.data.map((course) => {
-        const dto = CourseMapper.toResponseDto(course);
-        return {
-          ...dto,
-          isEnrolled: enrolledCourseIdSet.has(
-            (course.courseId || (course as { _id?: string })._id)?.toString() ||
-              '',
-          ),
-        };
-      });
+      const withEnrollment = courses.data.map((c) => ({
+        ...c,
+        isEnrolled: enrolledSet.has(c.id || ''),
+      }));
 
       ApiResponseHelper.success(res, 'Courses retrieved successfully', {
-        courses: { ...courses, data: mappedCourses },
+        courses: { ...courses, data: withEnrollment },
       });
       return;
     }
 
-    const mappedCourses =
-      courses?.data?.map((course) => CourseMapper.toResponseDto(course)) || [];
-
-    ApiResponseHelper.success(res, 'Courses retrieved successfully', {
-      courses: { ...courses, data: mappedCourses },
-    });
+    ApiResponseHelper.success(res, 'Courses retrieved successfully', { courses });
   };
 
-  /**
-   * Retrieves all unique categories from courses.
-   * @param req - Request object.
-   * @param res - Express response object.
-   */
   getCategories = async (req: Request, res: Response): Promise<void> => {
     const categories = await this._getCategoriesUseCase.execute();
-    ApiResponseHelper.success(
-      res,
-      'Categories retrieved successfully',
-      categories,
-    );
+    ApiResponseHelper.success(res, 'Categories retrieved successfully', categories);
   };
 
-  /**
-   * Retrieves courses for the authenticated instructor with optional status filtering, pagination, and sorting.
-   * @param req - Authenticated request object with optional status, page, limit, and sort query parameters.
-   * @param res - Express response object.
-   */
   getInstructorCourses = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const instructorId = authenticatedReq.user.id;
     const validatedQuery = PaginationQuerySchema.parse(authenticatedReq.query);
 
-    const status = validatedQuery.status;
-    const page = validatedQuery.page || 1;
-    const limit = validatedQuery.limit || 6;
-    const query: Record<string, unknown> = { instructorId };
-
-    // Filter by status if provided
-    if (status) {
-      // Assuming schema allows status strings
-      if (status === AdminCourseFilter.DRAFTED) {
-        query.status = CourseStatus.DRAFT;
-      } else if (status === AdminCourseFilter.LISTED) {
-        query.status = CourseStatus.LIST;
-      } else if (status === AdminCourseFilter.UNLISTED) {
-        query.status = CourseStatus.UNLIST;
-      }
-    }
-
-    let sort: Record<string, 1 | -1> = { createdAt: -1 };
-    if (validatedQuery.sort) {
-      const [field, dir] = validatedQuery.sort.split(':');
-      sort = { [field]: dir === 'asc' ? 1 : -1 };
-    }
-
-    const courses = await this._getPaginatedCoursesUseCase.execute(
-      query,
-      page,
-      limit,
-      sort,
-    );
-
-    const mappedCourses =
-      courses?.data?.map((course) => CourseMapper.toResponseDto(course)) || [];
+    const courses = await this._getPaginatedCoursesUseCase.execute({
+      instructorId,
+      status: validatedQuery.status,
+      page: validatedQuery.page,
+      limit: validatedQuery.limit,
+      sort: validatedQuery.sort,
+    });
 
     ApiResponseHelper.success(res, 'Courses retrieved successfully', {
       ...courses,
-      data: mappedCourses,
+      data: courses?.data || [],
     });
   };
 
-  /**
-   * Retrieves all courses for admin with optional filters.
-   * @param req - Request object with optional instructorId, status, category, and search query parameters.
-   * @param res - Express response object.
-   */
   getAllCourses = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const validatedQuery = PaginationQuerySchema.parse(authenticatedReq.query);
 
-    const status = validatedQuery.status;
-    const page = validatedQuery.page || 1;
-    const limit = validatedQuery.limit || 6;
-    const query: Record<string, string> = {};
-
-    // Filter by status if provided
-    if (status) {
-      if (status === AdminCourseFilter.DRAFTED) {
-        query.status = CourseStatus.DRAFT;
-      } else if (status === AdminCourseFilter.LISTED) {
-        query.status = CourseStatus.LIST;
-      } else if (status === AdminCourseFilter.UNLISTED) {
-        query.status = CourseStatus.UNLIST;
-      }
-    }
-
-    let sort: Record<string, 1 | -1> = { createdAt: -1 };
-    if (validatedQuery.sort) {
-      const [field, dir] = validatedQuery.sort.split(':');
-      sort = { [field]: dir === 'asc' ? 1 : -1 };
-    }
-
-    const courses = await this._getPaginatedCoursesUseCase.execute(
-      query,
-      page,
-      limit,
-      sort,
-    );
-
-    const mappedCourses =
-      courses?.data?.map((course) => CourseMapper.toResponseDto(course)) || [];
+    const courses = await this._getPaginatedCoursesUseCase.execute({
+      status: validatedQuery.status,
+      category: validatedQuery.category as string | undefined,
+      search: validatedQuery.search,
+      page: validatedQuery.page,
+      limit: validatedQuery.limit,
+      sort: validatedQuery.sort,
+    });
 
     ApiResponseHelper.success(res, 'Courses retrieved successfully', {
-      courses: { ...courses, data: mappedCourses },
+      courses,
     });
   };
 
-  /**
-   * Deletes a course by its ID for the authenticated instructor.
-   * @param req - Authenticated request object with course ID.
-   * @param res - Express response object.
-   * @throws HttpError if deletion fails.
-   */
   deleteCourse = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const id = authenticatedReq.params.id;
