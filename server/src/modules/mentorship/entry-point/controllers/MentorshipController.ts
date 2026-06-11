@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { SlotResponseMapper } from '../../application/mappers/SlotResponseMapper';
 import { SlotStatus } from '../../domain/entities/MentorshipSlot';
 import { ICreateSlotUseCase } from '../../application/interfaces/ISlotUseCases';
 import { IGetInstructorSlotsUseCase } from '../../application/interfaces/ISlotUseCases';
@@ -95,7 +94,10 @@ export class MentorshipController {
     }
 
     const slotDto = authenticatedReq.body;
-    const updatedSlot = await this._updateSlotUseCase.execute({ slotId, data: slotDto });
+    const updatedSlot = await this._updateSlotUseCase.execute({
+      slotId,
+      data: slotDto,
+    });
 
     if (!updatedSlot) {
       throw new HttpError('Slot not found', HttpStatusCode.NOT_FOUND);

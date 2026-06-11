@@ -13,7 +13,9 @@ import { AdminCourseFilter } from '../../../../shared/enums/AdminCourseFilter';
 export class GetPaginatedCoursesUseCase implements IGetPaginatedCoursesUseCase {
   constructor(private _courseRepo: ICourseRepository) {}
 
-  async execute(dto: GetCoursesQueryDto): Promise<PaginatedCourseResponseDto | null> {
+  async execute(
+    dto: GetCoursesQueryDto,
+  ): Promise<PaginatedCourseResponseDto | null> {
     const {
       page = 1,
       limit = 6,
@@ -29,7 +31,8 @@ export class GetPaginatedCoursesUseCase implements IGetPaginatedCoursesUseCase {
     } = dto;
 
     const safePage = Number.isFinite(page) && page > 0 ? page : 1;
-    const safeLimit = Number.isFinite(limit) && limit > 0 ? Math.min(limit, 50) : 6;
+    const safeLimit =
+      Number.isFinite(limit) && limit > 0 ? Math.min(limit, 50) : 6;
 
     // Build the query object (MongoDB-style filtering stays in use case, not controller)
     const query: Record<string, unknown> = {};
@@ -40,9 +43,15 @@ export class GetPaginatedCoursesUseCase implements IGetPaginatedCoursesUseCase {
     if (status) {
       if (status === AdminCourseFilter.DRAFTED) {
         query.status = CourseStatus.DRAFT;
-      } else if (status === AdminCourseFilter.LISTED || status === CourseStatus.LIST) {
+      } else if (
+        status === AdminCourseFilter.LISTED ||
+        status === CourseStatus.LIST
+      ) {
         query.status = CourseStatus.LIST;
-      } else if (status === AdminCourseFilter.UNLISTED || status === CourseStatus.UNLIST) {
+      } else if (
+        status === AdminCourseFilter.UNLISTED ||
+        status === CourseStatus.UNLIST
+      ) {
         query.status = CourseStatus.UNLIST;
       } else {
         query.status = status;
@@ -78,7 +87,12 @@ export class GetPaginatedCoursesUseCase implements IGetPaginatedCoursesUseCase {
       sort = { [field]: dir === 'asc' ? 1 : -1 };
     }
 
-    const { data, total } = await this._courseRepo.paginatedList(query, safePage, safeLimit, sort);
+    const { data, total } = await this._courseRepo.paginatedList(
+      query,
+      safePage,
+      safeLimit,
+      sort,
+    );
 
     const totalPages = Math.ceil(total / safeLimit);
 

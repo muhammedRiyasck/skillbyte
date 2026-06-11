@@ -12,9 +12,7 @@ import { IWithdrawalRepository } from '../../domain/IRepositories/IWithdrawalRep
 export class RejectWithdrawalUseCase implements IRejectWithdrawal {
   constructor(private withdrawalRepo: IWithdrawalRepository) {}
 
-  async execute(
-    dto: RejectWithdrawalDto,
-  ): Promise<WithdrawalResponseDto> {
+  async execute(dto: RejectWithdrawalDto): Promise<WithdrawalResponseDto> {
     const { withdrawalId, reason } = dto;
     const adminNotes = reason;
 

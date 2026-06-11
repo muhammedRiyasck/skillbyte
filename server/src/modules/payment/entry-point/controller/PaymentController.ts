@@ -76,13 +76,7 @@ export class PaymentController {
       dateRange,
     });
 
-    ApiResponseHelper.success(
-      res,
-      'Purchases fetched',
-      result,
-    );
-
-
+    ApiResponseHelper.success(res, 'Purchases fetched', result);
   };
 
   getInstructorEarnings = async (req: Request, res: Response) => {
@@ -101,11 +95,7 @@ export class PaymentController {
         limit,
       });
 
-      return ApiResponseHelper.success(
-        res,
-        'Earnings fetched',
-        result,
-      );
+      return ApiResponseHelper.success(res, 'Earnings fetched', result);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       return ApiResponseHelper.badRequest(res, message);

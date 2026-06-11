@@ -1,6 +1,5 @@
 import { MentorshipSlot } from '../../domain/entities/MentorshipSlot';
 import { SlotResponseDto } from '../dtos/SlotResponseDto';
-import { CreateSlotDto, UpdateSlotDto } from '../dtos/SlotDto';
 
 export class SlotResponseMapper {
   static toResponseDto(slot: MentorshipSlot): SlotResponseDto {

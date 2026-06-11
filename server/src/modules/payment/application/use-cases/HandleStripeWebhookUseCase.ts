@@ -148,7 +148,9 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
     }
 
     if (withdrawal.status === WithdrawalStatus.FAILED) {
-      logger.info(`Withdrawal ${withdrawal.withdrawalId} is already marked as FAILED`);
+      logger.info(
+        `Withdrawal ${withdrawal.withdrawalId} is already marked as FAILED`,
+      );
       return;
     }
 
@@ -178,7 +180,9 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
       adminNotes: 'Transfer reversed at Stripe.',
     });
 
-    logger.info(`Reversed withdrawal ${withdrawal.withdrawalId} and recovered balance.`);
+    logger.info(
+      `Reversed withdrawal ${withdrawal.withdrawalId} and recovered balance.`,
+    );
   }
 
   private async handleAccountUpdated(account: Stripe.Account) {

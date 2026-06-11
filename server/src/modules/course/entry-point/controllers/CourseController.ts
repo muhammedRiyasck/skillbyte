@@ -52,8 +52,12 @@ export class CourseController {
     const dto = CourseMapper.toCreateDto(validatedData, instructorId);
     const course = await this._createCourseUseCase.execute(dto);
 
-    logger.info(`Course base created successfully for instructor ${instructorId}`);
-    ApiResponseHelper.created(res, 'Details added successfully', { id: course.id });
+    logger.info(
+      `Course base created successfully for instructor ${instructorId}`,
+    );
+    ApiResponseHelper.created(res, 'Details added successfully', {
+      id: course.id,
+    });
   };
 
   uploadThumbnail = async (req: Request, res: Response): Promise<void> => {
@@ -61,17 +65,29 @@ export class CourseController {
     const { id } = authenticatedReq.params;
 
     if (!id) {
-      throw new HttpError(ERROR_MESSAGES.CANT_SEE_COURSEID, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.CANT_SEE_COURSEID,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
     if (!authenticatedReq.file) {
-      throw new HttpError(ERROR_MESSAGES.NO_FILE_UPLOADED, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.NO_FILE_UPLOADED,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
     if (authenticatedReq.file.size > 2 * 1024 * 1024) {
       logger.warn('Thumbnail size exceeds 2MB');
-      throw new HttpError(ERROR_MESSAGES.THUMBNAIL_SIZE_EXCEEDED, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.THUMBNAIL_SIZE_EXCEEDED,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
     if (!authenticatedReq.file.mimetype.startsWith('image/')) {
-      throw new HttpError(ERROR_MESSAGES.ONLY_IMAGE_FILES_ALLOWED, HttpStatusCode.BAD_REQUEST);
+      throw new HttpError(
+        ERROR_MESSAGES.ONLY_IMAGE_FILES_ALLOWED,
+        HttpStatusCode.BAD_REQUEST,
+      );
     }
 
     const url = await this._storageService.upload(authenticatedReq.file.path, {
@@ -81,7 +97,9 @@ export class CourseController {
       overwrite: true,
     });
 
-    await this._updateBaseUseCase.execute(id, authenticatedReq.user.id, { thumbnailUrl: url });
+    await this._updateBaseUseCase.execute(id, authenticatedReq.user.id, {
+      thumbnailUrl: url,
+    });
     ApiResponseHelper.success(res, 'Course Base Created Successfully', { id });
 
     try {
@@ -119,7 +137,10 @@ export class CourseController {
     const { isBlocked } = BlockCourseSchema.parse(authenticatedReq.body);
 
     await this._blockCourseUseCase.execute(id, isBlocked);
-    ApiResponseHelper.success(res, `Course ${isBlocked ? 'blocked' : 'unblocked'} successfully`);
+    ApiResponseHelper.success(
+      res,
+      `Course ${isBlocked ? 'blocked' : 'unblocked'} successfully`,
+    );
   };
 
   getCourseById = async (req: Request, res: Response): Promise<void> => {
@@ -137,7 +158,10 @@ export class CourseController {
     });
 
     if (!course) {
-      throw new HttpError(ERROR_MESSAGES.COURSE_NOT_FOUND, HttpStatusCode.NOT_FOUND);
+      throw new HttpError(
+        ERROR_MESSAGES.COURSE_NOT_FOUND,
+        HttpStatusCode.NOT_FOUND,
+      );
     }
 
     ApiResponseHelper.success(res, 'Course retrieved successfully', course);
@@ -167,9 +191,17 @@ export class CourseController {
       courses?.data
     ) {
       const userId = authenticatedReq.user.id;
-      const courseIds = courses.data.map((c) => c.id).filter((id): id is string => !!id);
-      const enrollments = await this._enrollmentRepository.findEnrollmentsForUser(userId, courseIds);
-      const enrolledSet = new Set(enrollments.map((e: IEnrollment) => e.courseId.toString()));
+      const courseIds = courses.data
+        .map((c) => c.id)
+        .filter((id): id is string => !!id);
+      const enrollments =
+        await this._enrollmentRepository.findEnrollmentsForUser(
+          userId,
+          courseIds,
+        );
+      const enrolledSet = new Set(
+        enrollments.map((e: IEnrollment) => e.courseId.toString()),
+      );
 
       const withEnrollment = courses.data.map((c) => ({
         ...c,
@@ -182,12 +214,18 @@ export class CourseController {
       return;
     }
 
-    ApiResponseHelper.success(res, 'Courses retrieved successfully', { courses });
+    ApiResponseHelper.success(res, 'Courses retrieved successfully', {
+      courses,
+    });
   };
 
   getCategories = async (req: Request, res: Response): Promise<void> => {
     const categories = await this._getCategoriesUseCase.execute();
-    ApiResponseHelper.success(res, 'Categories retrieved successfully', categories);
+    ApiResponseHelper.success(
+      res,
+      'Categories retrieved successfully',
+      categories,
+    );
   };
 
   getInstructorCourses = async (req: Request, res: Response): Promise<void> => {

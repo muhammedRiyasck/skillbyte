@@ -1,8 +1,13 @@
 import { Course } from '../../domain/entities/Course';
-import { CourseResponseDto, PaginatedCourseResponseDto } from '../dtos/CourseResponseDto';
+import {
+  CourseResponseDto,
+  PaginatedCourseResponseDto,
+} from '../dtos/CourseResponseDto';
 import { ModuleMapper } from './ModuleMapper';
-import { CreateBaseValidationType, UpdateBaseValidationType } from '../dtos/CourseDetailsDtos';
-import { CourseStatus } from '../../../../shared/enums/CourseStatus';
+import {
+  CreateBaseValidationType,
+  UpdateBaseValidationType,
+} from '../dtos/CourseDetailsDtos';
 import { CreateCourseDto, UpdateCourseDto } from '../dtos/CourseDto';
 
 export class CourseMapper {
@@ -81,9 +86,10 @@ export class CourseMapper {
   }
 
   /** Maps a paginated course list to PaginatedCourseResponseDto */
-  static toPaginatedResponse(
-    courses: { data: Course[]; meta: PaginatedCourseResponseDto['meta'] },
-  ): PaginatedCourseResponseDto {
+  static toPaginatedResponse(courses: {
+    data: Course[];
+    meta: PaginatedCourseResponseDto['meta'];
+  }): PaginatedCourseResponseDto {
     return {
       data: courses.data.map((c) => this.toResponseDto(c)),
       meta: courses.meta,

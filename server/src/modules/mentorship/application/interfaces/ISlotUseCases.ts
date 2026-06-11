@@ -1,4 +1,3 @@
-import { SlotStatus } from '../../domain/entities/MentorshipSlot';
 import {
   CreateSlotDto,
   UpdateSlotRequestDto,

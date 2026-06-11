@@ -1,23 +1,16 @@
-import {
-  IWithdrawal,
-  WithdrawalStatus,
-} from '../entities/Withdrawal';
+import { IWithdrawal, WithdrawalStatus } from '../entities/Withdrawal';
 
 export interface IWithdrawalRepository {
   save(withdrawal: Partial<IWithdrawal>): Promise<IWithdrawal>;
   findById(id: string): Promise<IWithdrawal | null>;
-  findByTransactionId(
-    transactionId: string,
-  ): Promise<IWithdrawal | null>;
+  findByTransactionId(transactionId: string): Promise<IWithdrawal | null>;
   updateStatus(
     id: string,
     status: WithdrawalStatus,
     transactionId?: string,
     adminNotes?: string,
   ): Promise<void>;
-  findByTransactionId(
-    transactionId: string,
-  ): Promise<IWithdrawal | null>;
+  findByTransactionId(transactionId: string): Promise<IWithdrawal | null>;
   updateStatusWithCondition(
     id: string,
     newStatus: WithdrawalStatus,

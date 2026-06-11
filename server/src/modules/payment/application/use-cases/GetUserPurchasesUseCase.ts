@@ -22,13 +22,14 @@ export class GetUserPurchasesUseCase implements IGetUserPurchases {
         filters.startDate = d;
       }
     }
-    
-    const { data, totalCount } = await this.paymentRepository.findPaymentsByUser(
-      userId,
-      page,
-      limit,
-      filters,
-    );
+
+    const { data, totalCount } =
+      await this.paymentRepository.findPaymentsByUser(
+        userId,
+        page,
+        limit,
+        filters,
+      );
 
     return {
       data: data.map(PaymentResponseMapper.toResponseDto),

@@ -85,9 +85,13 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
     }
 
     if (includeArr.includes('instructor')) {
-      const instructor = await this._instructorRepo.findById(course.instructorId);
+      const instructor = await this._instructorRepo.findById(
+        course.instructorId,
+      );
       if (instructor) {
-        (course as Course & { instructor: Record<string, unknown> }).instructor = {
+        (
+          course as Course & { instructor: Record<string, unknown> }
+        ).instructor = {
           name: instructor.name,
           title: instructor.jobTitle,
           avatar: instructor.profilePictureUrl,
@@ -101,6 +105,8 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
     const quizConfig = await this._quizConfigRepo.findByCourseId(courseId);
     course.isQuizEnabled = quizConfig?.isEnabled || false;
 
-    return CourseMapper.toDetailsResponse(course as Course & { instructor?: unknown });
+    return CourseMapper.toDetailsResponse(
+      course as Course & { instructor?: unknown },
+    );
   }
 }

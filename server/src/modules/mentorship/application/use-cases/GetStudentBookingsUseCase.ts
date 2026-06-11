@@ -1,10 +1,7 @@
 import { IGetStudentBookingsUseCase } from '../interfaces/IBookingUseCases';
 import { GetStudentBookingsDto } from '../dtos/BookingDto';
 import { IMentorshipBookingRepository } from '../../domain/IRepositories/IMentorshipBookingRepository';
-import {
-  BookingStatus,
-  MentorshipBooking,
-} from '../../domain/entities/MentorshipBooking';
+import { BookingStatus } from '../../domain/entities/MentorshipBooking';
 import { BookingResponseDto } from '../dtos/BookingResponseDto';
 import { BookingResponseMapper } from '../mappers/BookingResponseMapper';
 

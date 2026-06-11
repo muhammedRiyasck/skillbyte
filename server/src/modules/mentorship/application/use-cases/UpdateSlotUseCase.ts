@@ -16,9 +16,7 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 export class UpdateSlotUseCase implements IUpdateSlotUseCase {
   constructor(private _slotRepo: IMentorshipSlotRepository) {}
 
-  async execute(
-    dto: UpdateSlotRequestDto,
-  ): Promise<SlotResponseDto | null> {
+  async execute(dto: UpdateSlotRequestDto): Promise<SlotResponseDto | null> {
     const { slotId, data } = dto;
     // Check if slot exists
     const existingSlot = await this._slotRepo.findById(slotId);

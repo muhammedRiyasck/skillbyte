@@ -15,7 +15,10 @@ export class GetInstructorSlotsUseCase implements IGetInstructorSlotsUseCase {
     const filters = dto.filters
       ? { ...dto.filters, status: dto.filters.status as SlotStatus | undefined }
       : undefined;
-    const slots = await this._slotRepo.findByInstructorId(dto.instructorId, filters);
+    const slots = await this._slotRepo.findByInstructorId(
+      dto.instructorId,
+      filters,
+    );
     return slots.map(SlotResponseMapper.toResponseDto);
   }
 }

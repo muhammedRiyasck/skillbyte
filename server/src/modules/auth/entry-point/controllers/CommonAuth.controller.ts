@@ -116,11 +116,7 @@ export class CommonAuthController {
     }
     logger.info(`Login successful for ${role}: ${email}`);
 
-    ApiResponseHelper.success(
-      res,
-      'Login successful',
-      authResponse,
-    );
+    ApiResponseHelper.success(res, 'Login successful', authResponse);
   };
 
   /**

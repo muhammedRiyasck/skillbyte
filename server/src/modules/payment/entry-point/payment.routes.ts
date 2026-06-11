@@ -37,9 +37,13 @@ router.get('/withdrawals/my', (req, res) => {
   withdrawalController.getMyWithdrawals(req, res);
 });
 
-router.post('/withdrawals/request', validateRequest(RequestWithdrawalSchema), (req, res) => {
-  withdrawalController.requestWithdrawal(req, res);
-});
+router.post(
+  '/withdrawals/request',
+  validateRequest(RequestWithdrawalSchema),
+  (req, res) => {
+    withdrawalController.requestWithdrawal(req, res);
+  },
+);
 
 // Admin routes for withdrawals
 router.get(

@@ -19,7 +19,6 @@ export class WithdrawalController {
   async requestWithdrawal(req: Request, res: Response): Promise<void> {
     try {
       const instructorId = (req as AuthenticatedRequest).user.id;
-      const { amount } = req.body;
 
       const result = await this.requestWithdrawalUseCase.execute({
         instructorId,
@@ -108,7 +107,10 @@ export class WithdrawalController {
       const { withdrawalId } = req.params;
       const { adminNotes } = req.body;
 
-      const result = await this.processWithdrawalUseCase.execute({ withdrawalId }, adminNotes);
+      const result = await this.processWithdrawalUseCase.execute(
+        { withdrawalId },
+        adminNotes,
+      );
 
       res.status(HttpStatusCode.OK).json({
         success: true,
@@ -135,7 +137,10 @@ export class WithdrawalController {
       const { withdrawalId } = req.params;
       const { reason } = req.body;
 
-      const result = await this.rejectWithdrawalUseCase.execute({ withdrawalId, reason });
+      const result = await this.rejectWithdrawalUseCase.execute({
+        withdrawalId,
+        reason,
+      });
 
       res.status(HttpStatusCode.OK).json({
         success: true,

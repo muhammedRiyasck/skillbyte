@@ -118,7 +118,8 @@ export class ProcessWithdrawalUseCase implements IProcessWithdrawal {
         adminNotes,
       });
 
-      const updatedWithdrawal = await this.withdrawalRepo.findById(withdrawalId);
+      const updatedWithdrawal =
+        await this.withdrawalRepo.findById(withdrawalId);
       return WithdrawalResponseMapper.toResponseDto(updatedWithdrawal!);
     } catch (error: unknown) {
       const errorMessage =
