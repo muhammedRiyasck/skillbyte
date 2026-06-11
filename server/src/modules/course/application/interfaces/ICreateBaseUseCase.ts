@@ -1,22 +1,6 @@
-import { Course } from '../../domain/entities/Course';
-import { CourseStatus } from '../../../../shared/enums/CourseStatus';
-
-export interface ICreateCourseData {
-  instructorId: string;
-  thumbnailUrl: string | null;
-  title: string;
-  subText: string;
-  category: string;
-  courseLevel: string;
-  language: string;
-  price: number;
-  features: string[];
-  description: string;
-  duration: string;
-  tags: string[];
-  status: CourseStatus;
-}
+import { CreateCourseDto } from '../dtos/CourseDto';
+import { CourseResponseDto } from '../dtos/CourseResponseDto';
 
 export interface ICreateBaseUseCase {
-  execute(data: ICreateCourseData): Promise<Course>;
+  execute(dto: CreateCourseDto): Promise<CourseResponseDto>;
 }

@@ -1,10 +1,6 @@
-import { Course } from '../../domain/entities/Course';
+import { GetCourseDto } from '../dtos/CourseDto';
+import { CourseResponseDto } from '../dtos/CourseResponseDto';
 
 export interface IGetCourseUseCase {
-  execute(
-    courseId: string,
-    role: string,
-    include?: string,
-    userId?: string,
-  ): Promise<Course | null>;
+  execute(dto: GetCourseDto): Promise<CourseResponseDto | null>;
 }

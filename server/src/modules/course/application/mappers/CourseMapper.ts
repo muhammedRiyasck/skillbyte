@@ -1,25 +1,19 @@
-import {
-  CreateBaseSchema,
-  UpdateBaseSchema,
-  CourseResponseDto,
-} from '../dtos/CourseDetailsDtos';
-import { z } from 'zod';
-import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 import { Course } from '../../domain/entities/Course';
+import { CourseResponseDto, PaginatedCourseResponseDto } from '../dtos/CourseResponseDto';
 import { ModuleMapper } from './ModuleMapper';
-
-export type CreateBaseDto = z.infer<typeof CreateBaseSchema>;
-export type UpdateBaseDto = z.infer<typeof UpdateBaseSchema>;
+import { CreateBaseValidationType, UpdateBaseValidationType } from '../dtos/CourseDetailsDtos';
+import { CourseStatus } from '../../../../shared/enums/CourseStatus';
+import { CreateCourseDto, UpdateCourseDto } from '../dtos/CourseDto';
 
 export class CourseMapper {
-  static toCreateBaseEntity(
-    dto: CreateBaseDto,
+  /** Maps the validated Zod create payload + instructor context → a plain DTO for the use case */
+  static toCreateDto(
+    dto: CreateBaseValidationType,
     instructorId: string,
-    thumbnailUrl?: string,
-  ) {
+  ): CreateCourseDto {
     return {
       instructorId,
-      thumbnailUrl: thumbnailUrl || null,
+      thumbnailUrl: dto.thumbnail || null,
       title: dto.title,
       subText: dto.subText || '',
       category: dto.customCategory ? dto.customCategory : dto.category || '',
@@ -30,13 +24,12 @@ export class CourseMapper {
       description: dto.description || '',
       duration: dto.access || '',
       tags: dto.tags || [],
-      status: CourseStatus.DRAFT,
     };
   }
 
-  static toUpdateBaseEntity(data: UpdateBaseDto) {
+  /** Maps the validated Zod update payload → a partial DTO for the use case */
+  static toUpdateDto(data: UpdateBaseValidationType): UpdateCourseDto {
     const { access, customCategory, category, thumbnail, ...rest } = data;
-
     return {
       ...rest,
       duration: access,
@@ -45,6 +38,7 @@ export class CourseMapper {
     };
   }
 
+  /** Maps a domain Course entity → a response DTO (strips internal/infra fields) */
   static toResponseDto(course: Course): CourseResponseDto {
     return {
       id: course.courseId,
@@ -70,13 +64,11 @@ export class CourseMapper {
     };
   }
 
+  /** Maps a Course entity with optional includes → a full details response DTO */
   static toDetailsResponse(
     course: Course & { instructor?: unknown },
-  ): CourseResponseDto & { modules?: unknown[]; instructor?: unknown } {
-    const response = this.toResponseDto(course) as CourseResponseDto & {
-      modules?: unknown[];
-      instructor?: unknown;
-    };
+  ): CourseResponseDto {
+    const response: CourseResponseDto = this.toResponseDto(course);
     if (course.modules) {
       response.modules = course.modules.map((mod) =>
         ModuleMapper.toResponse(mod),
@@ -86,5 +78,15 @@ export class CourseMapper {
       response.instructor = course.instructor;
     }
     return response;
+  }
+
+  /** Maps a paginated course list to PaginatedCourseResponseDto */
+  static toPaginatedResponse(
+    courses: { data: Course[]; meta: PaginatedCourseResponseDto['meta'] },
+  ): PaginatedCourseResponseDto {
+    return {
+      data: courses.data.map((c) => this.toResponseDto(c)),
+      meta: courses.meta,
+    };
   }
 }

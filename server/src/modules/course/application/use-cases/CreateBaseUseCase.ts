@@ -1,31 +1,20 @@
 import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
 import { Course } from '../../domain/entities/Course';
-import {
-  ICreateBaseUseCase,
-  ICreateCourseData,
-} from '../interfaces/ICreateBaseUseCase';
+import { ICreateBaseUseCase } from '../interfaces/ICreateBaseUseCase';
+import { CourseMapper } from '../mappers/CourseMapper';
+import { CreateCourseDto } from '../dtos/CourseDto';
+import { CourseResponseDto } from '../dtos/CourseResponseDto';
 
 /**
  * Use case for creating a new course.
- * Handles the business logic for course creation, including duration conversion and tag parsing.
  */
 export class CreateBaseUseCase implements ICreateBaseUseCase {
-  /**
-   * Constructs a new CreateBaseUseCase instance.
-   * @param repo - The repository for course data operations.
-   */
   constructor(private _courseRepo: ICourseRepository) {}
 
-  /**
-   * Executes the course creation logic.
-   * Converts the duration, parses tags, creates a new Course entity, and saves it.
-   * @param dto - The data transfer object containing course creation details.
-   * @returns A promise that resolves to the created Course entity.
-   */
-  async execute(dto: ICreateCourseData): Promise<Course> {
+  async execute(dto: CreateCourseDto): Promise<CourseResponseDto> {
     const course = new Course(
       dto.instructorId,
-      dto.thumbnailUrl,
+      dto.thumbnailUrl || null,
       dto.title,
       dto.subText,
       dto.category,
@@ -37,6 +26,7 @@ export class CreateBaseUseCase implements ICreateBaseUseCase {
       dto.duration,
       dto.tags,
     );
-    return await this._courseRepo.save(course);
+    const saved = await this._courseRepo.save(course);
+    return CourseMapper.toResponseDto(saved);
   }
 }
