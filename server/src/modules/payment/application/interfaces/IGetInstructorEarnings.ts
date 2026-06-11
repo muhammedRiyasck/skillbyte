@@ -1,12 +1,11 @@
-import { IPayment } from '../../domain/entities/Payment';
+import { GetInstructorEarningsDto } from '../dtos/PaymentDto';
+import { PaymentResponseDto } from '../dtos/PaymentResponseDto';
 
 export interface IGetInstructorEarnings {
   execute(
-    instructorId: string,
-    page: number,
-    limit: number,
+    dto: GetInstructorEarningsDto,
   ): Promise<{
-    data: IPayment[];
+    data: PaymentResponseDto[];
     totalCount: number;
     totalRevenue: number;
     totalProfit: number;

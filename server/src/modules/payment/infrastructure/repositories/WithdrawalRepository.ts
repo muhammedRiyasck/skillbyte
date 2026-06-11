@@ -1,10 +1,12 @@
 import { Model } from 'mongoose';
 import { IWithdrawalRepository } from '../../domain/IRepositories/IWithdrawalRepository';
+import { IWithdrawal } from '../../domain/entities/Withdrawal';
+import { WithdrawalMapper } from '../mappers/WithdrawalMapper';
 import {
   IWithdrawalDocument,
   WithdrawalModel,
-  WithdrawalStatus,
 } from '../models/WithdrawalModel';
+import { WithdrawalStatus } from '../../domain/entities/Withdrawal';
 
 export class WithdrawalRepository implements IWithdrawalRepository {
   private model: Model<IWithdrawalDocument>;
@@ -13,26 +15,29 @@ export class WithdrawalRepository implements IWithdrawalRepository {
     this.model = WithdrawalModel;
   }
 
-  async save(withdrawal: IWithdrawalDocument): Promise<IWithdrawalDocument> {
+  async save(withdrawal: Partial<IWithdrawal>): Promise<IWithdrawal> {
     const newWithdrawal = new this.model(withdrawal);
-    return await newWithdrawal.save();
+    const saved = await newWithdrawal.save();
+    return WithdrawalMapper.toEntity(saved);
   }
 
-  async findById(id: string): Promise<IWithdrawalDocument | null> {
-    return await this.model.findById(id);
+  async findById(id: string): Promise<IWithdrawal | null> {
+    const doc = await this.model.findById(id);
+    return doc ? WithdrawalMapper.toEntity(doc) : null;
   }
 
   async findByTransactionId(
     transactionId: string,
-  ): Promise<IWithdrawalDocument | null> {
-    return await this.model.findOne({ transactionId });
+  ): Promise<IWithdrawal | null> {
+    const doc = await this.model.findOne({ transactionId });
+    return doc ? WithdrawalMapper.toEntity(doc) : null;
   }
 
   async findByInstructorId(
     instructorId: string,
     page: number = 1,
     limit: number = 10,
-  ): Promise<{ data: IWithdrawalDocument[]; total: number }> {
+  ): Promise<{ data: IWithdrawal[]; total: number }> {
     const skip = (page - 1) * limit;
     const [data, total] = await Promise.all([
       this.model
@@ -42,7 +47,7 @@ export class WithdrawalRepository implements IWithdrawalRepository {
         .limit(limit),
       this.model.countDocuments({ instructorId }),
     ]);
-    return { data, total };
+    return { data: data.map(WithdrawalMapper.toEntity), total };
   }
 
   async updateStatus(
@@ -65,18 +70,19 @@ export class WithdrawalRepository implements IWithdrawalRepository {
     currentStatus: WithdrawalStatus,
     transactionId?: string,
     adminNotes?: string,
-  ): Promise<IWithdrawalDocument | null> {
+  ): Promise<IWithdrawal | null> {
     const updates: Record<string, string | number | boolean | Date> = {
       status: newStatus,
     };
     if (transactionId) updates.transactionId = transactionId;
     if (adminNotes) updates.adminNotes = adminNotes;
 
-    return await this.model.findOneAndUpdate(
+    const doc = await this.model.findOneAndUpdate(
       { _id: id, status: currentStatus },
       updates,
       { new: true },
     );
+    return doc ? WithdrawalMapper.toEntity(doc) : null;
   }
 
   async findAll(
@@ -84,7 +90,7 @@ export class WithdrawalRepository implements IWithdrawalRepository {
     page: number = 1,
     limit: number = 10,
     search?: string,
-  ): Promise<{ data: IWithdrawalDocument[]; total: number }> {
+  ): Promise<{ data: IWithdrawal[]; total: number }> {
     const skip = (page - 1) * limit;
     const queryFilter = { ...filter };
 
@@ -114,7 +120,7 @@ export class WithdrawalRepository implements IWithdrawalRepository {
         .limit(limit),
       this.model.countDocuments(queryFilter),
     ]);
-    return { data, total };
+    return { data: data.map(WithdrawalMapper.toEntity), total };
   }
 
   async hasPendingWithdrawal(instructorId: string): Promise<boolean> {

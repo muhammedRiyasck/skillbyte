@@ -1,43 +1,22 @@
-import { z } from 'zod';
+export interface InitiatePaymentDto {
+  courseId: string;
+  provider: 'stripe' | 'paypal';
+}
 
-export const InitiatePaymentSchema = z.object({
-  courseId: z.string().min(1, 'Course ID is required'),
-  provider: z.enum(['stripe', 'paypal']),
-});
+export interface CapturePayPalPaymentDto {
+  orderId: string;
+}
 
-export const CapturePayPalPaymentSchema = z.object({
-  orderId: z.string().min(1, 'Order ID is required'),
-});
+export interface GetUserPurchasesDto {
+  userId: string;
+  page?: number;
+  limit?: number;
+  status?: string;
+  dateRange?: string;
+}
 
-export const GetUserPurchasesSchema = z.object({
-  page: z
-    .string()
-    .optional()
-    .transform((val) => (val ? parseInt(val) : 1)),
-  limit: z
-    .string()
-    .optional()
-    .transform((val) => (val ? parseInt(val) : 10)),
-  status: z.string().optional(),
-  dateRange: z.string().optional(),
-});
-
-export const GetInstructorEarningsSchema = z.object({
-  page: z
-    .string()
-    .optional()
-    .transform((val) => (val ? parseInt(val) : 1)),
-  limit: z
-    .string()
-    .optional()
-    .transform((val) => (val ? parseInt(val) : 10)),
-});
-
-export type InitiatePaymentDto = z.infer<typeof InitiatePaymentSchema>;
-export type CapturePayPalPaymentDto = z.infer<
-  typeof CapturePayPalPaymentSchema
->;
-export type GetUserPurchasesDto = z.infer<typeof GetUserPurchasesSchema>;
-export type GetInstructorEarningsDto = z.infer<
-  typeof GetInstructorEarningsSchema
->;
+export interface GetInstructorEarningsDto {
+  instructorId: string;
+  page?: number;
+  limit?: number;
+}

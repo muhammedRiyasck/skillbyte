@@ -1,15 +1,14 @@
 import {
-  IWithdrawalDocument,
+  IWithdrawal,
   WithdrawalStatus,
-} from '../../infrastructure/models/WithdrawalModel';
+} from '../entities/Withdrawal';
 
 export interface IWithdrawalRepository {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  save(withdrawal: any): Promise<IWithdrawalDocument>;
-  findById(id: string): Promise<IWithdrawalDocument | null>;
+  save(withdrawal: Partial<IWithdrawal>): Promise<IWithdrawal>;
+  findById(id: string): Promise<IWithdrawal | null>;
   findByTransactionId(
     transactionId: string,
-  ): Promise<IWithdrawalDocument | null>;
+  ): Promise<IWithdrawal | null>;
   updateStatus(
     id: string,
     status: WithdrawalStatus,
@@ -18,24 +17,24 @@ export interface IWithdrawalRepository {
   ): Promise<void>;
   findByTransactionId(
     transactionId: string,
-  ): Promise<IWithdrawalDocument | null>;
+  ): Promise<IWithdrawal | null>;
   updateStatusWithCondition(
     id: string,
     newStatus: WithdrawalStatus,
     currentStatus: WithdrawalStatus,
     transactionId?: string,
     adminNotes?: string,
-  ): Promise<IWithdrawalDocument | null>;
+  ): Promise<IWithdrawal | null>;
   findAll(
     filter?: Record<string, unknown>,
     page?: number,
     limit?: number,
     search?: string,
-  ): Promise<{ data: IWithdrawalDocument[]; total: number }>;
+  ): Promise<{ data: IWithdrawal[]; total: number }>;
   findByInstructorId(
     instructorId: string,
     page?: number,
     limit?: number,
-  ): Promise<{ data: IWithdrawalDocument[]; total: number }>;
+  ): Promise<{ data: IWithdrawal[]; total: number }>;
   hasPendingWithdrawal(instructorId: string): Promise<boolean>;
 }

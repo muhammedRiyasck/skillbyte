@@ -2,7 +2,10 @@ import { IWithdrawalRepository } from '../../domain/IRepositories/IWithdrawalRep
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
-import { WithdrawalStatus } from '../../infrastructure/models/WithdrawalModel';
+import { WithdrawalResponseMapper } from '../mappers/WithdrawalResponseMapper';
+import { ProcessWithdrawalDto } from '../dtos/WithdrawalDto';
+import { WithdrawalResponseDto } from '../dtos/WithdrawalResponseDto';
+import { WithdrawalStatus } from '../../domain/entities/Withdrawal';
 import { PaymentProviderFactory } from '../../../../shared/services/payment/PaymentProviderFactory';
 import { eventBus } from '../../../../shared/services/event-bus/EventBus';
 import { WITHDRAWAL_EVENTS } from '../../../../shared/services/event-bus/WithdrawalEvents';
@@ -15,7 +18,11 @@ export class ProcessWithdrawalUseCase implements IProcessWithdrawal {
     private paymentProviderFactory: PaymentProviderFactory,
   ) {}
 
-  async execute(withdrawalId: string, adminNotes?: string): Promise<void> {
+  async execute(
+    dto: ProcessWithdrawalDto,
+    adminNotes?: string,
+  ): Promise<WithdrawalResponseDto> {
+    const { withdrawalId } = dto;
     // 1. Mark as processing ATOMICALLY only if it is currently PENDING
     const withdrawal = await this.withdrawalRepo.updateStatusWithCondition(
       withdrawalId,
@@ -110,6 +117,9 @@ export class ProcessWithdrawalUseCase implements IProcessWithdrawal {
         transactionId,
         adminNotes,
       });
+
+      const updatedWithdrawal = await this.withdrawalRepo.findById(withdrawalId);
+      return WithdrawalResponseMapper.toResponseDto(updatedWithdrawal!);
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';

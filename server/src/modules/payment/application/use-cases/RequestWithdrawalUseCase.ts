@@ -1,8 +1,11 @@
-import { IWithdrawalRepository } from '../../domain/IRepositories/IWithdrawalRepository';
+import { WithdrawalResponseMapper } from '../mappers/WithdrawalResponseMapper';
+import { RequestWithdrawalDto } from '../dtos/WithdrawalDto';
+import { WithdrawalResponseDto } from '../dtos/WithdrawalResponseDto';
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
-import { WithdrawalStatus } from '../../infrastructure/models/WithdrawalModel';
+import { WithdrawalStatus } from '../../domain/entities/Withdrawal';
+import { IWithdrawalRepository } from '../../domain/IRepositories/IWithdrawalRepository';
 import { IRequestWithdrawal } from '../interfaces/IRequestWithdrawal';
 
 export class RequestWithdrawalUseCase implements IRequestWithdrawal {
@@ -11,7 +14,8 @@ export class RequestWithdrawalUseCase implements IRequestWithdrawal {
     private instructorRepo: IInstructorRepository,
   ) {}
 
-  async execute(instructorId: string, amount: number): Promise<void> {
+  async execute(dto: RequestWithdrawalDto): Promise<WithdrawalResponseDto> {
+    const { instructorId, amount } = dto;
     const instructor = await this.instructorRepo.findById(instructorId);
     if (!instructor) {
       throw new HttpError('Instructor not found', HttpStatusCode.NOT_FOUND);
@@ -62,7 +66,7 @@ export class RequestWithdrawalUseCase implements IRequestWithdrawal {
     }
 
     // Create withdrawal request
-    await this.withdrawalRepo.save({
+    const withdrawal = await this.withdrawalRepo.save({
       instructorId: instructor.instructorId,
       amount,
       currency: 'USD',
@@ -70,5 +74,7 @@ export class RequestWithdrawalUseCase implements IRequestWithdrawal {
       payoutMethod,
       payoutDetails,
     });
+
+    return WithdrawalResponseMapper.toResponseDto(withdrawal);
   }
 }

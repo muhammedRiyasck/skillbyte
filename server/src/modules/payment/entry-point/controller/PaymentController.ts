@@ -68,31 +68,21 @@ export class PaymentController {
     const status = req.query.status as PaymentStatus;
     const dateRange = req.query.dateRange as DateRange;
 
-    let startDate: Date | undefined;
-    let endDate: Date | undefined;
-
-    if (dateRange) {
-      const now = new Date();
-      if (dateRange === DateRange.THIRTY_DAYS) {
-        startDate = new Date(now.setDate(now.getDate() - 30));
-      } else if (dateRange === DateRange.THREE_MONTHS) {
-        startDate = new Date(now.setMonth(now.getMonth() - 3));
-      } else if (dateRange === DateRange.LAST_YEAR) {
-        startDate = new Date(now.setFullYear(now.getFullYear() - 1));
-      }
-    }
-
-    const result = await this._getUserPurchasesUc.execute(userId, page, limit, {
+    const result = await this._getUserPurchasesUc.execute({
+      userId,
+      page,
+      limit,
       status,
-      startDate,
-      endDate,
+      dateRange,
     });
 
     ApiResponseHelper.success(
       res,
       'Purchases fetched',
-      PaymentMapper.toPurchaseHistoryResponse(result),
+      result,
     );
+
+
   };
 
   getInstructorEarnings = async (req: Request, res: Response) => {
@@ -105,16 +95,16 @@ export class PaymentController {
       const page = Number(req.query.page) || 1;
       const limit = Number(req.query.limit) || 10;
 
-      const result = await this._getInstructorEarningsUc.execute(
+      const result = await this._getInstructorEarningsUc.execute({
         instructorId,
         page,
         limit,
-      );
+      });
 
       return ApiResponseHelper.success(
         res,
         'Earnings fetched',
-        PaymentMapper.toEarningsResponse(result),
+        result,
       );
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';

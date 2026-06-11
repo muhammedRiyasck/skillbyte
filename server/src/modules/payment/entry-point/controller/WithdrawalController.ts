@@ -3,6 +3,7 @@ import { RequestWithdrawalUseCase } from '../../application/use-cases/RequestWit
 import { ProcessWithdrawalUseCase } from '../../application/use-cases/ProcessWithdrawalUseCase';
 import { RejectWithdrawalUseCase } from '../../application/use-cases/RejectWithdrawalUseCase';
 import { IWithdrawalRepository } from '../../domain/IRepositories/IWithdrawalRepository';
+import { WithdrawalResponseMapper } from '../../application/mappers/WithdrawalResponseMapper';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import logger from '../../../../shared/utils/Logger';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
@@ -20,11 +21,16 @@ export class WithdrawalController {
       const instructorId = (req as AuthenticatedRequest).user.id;
       const { amount } = req.body;
 
-      await this.requestWithdrawalUseCase.execute(instructorId, amount);
+      const result = await this.requestWithdrawalUseCase.execute({
+        instructorId,
+        amount: req.body.amount,
+        payoutMethod: req.body.payoutMethod || 'STRIPE',
+      });
 
       res.status(HttpStatusCode.CREATED).json({
         success: true,
         message: 'Withdrawal request submitted successfully',
+        data: result,
       });
     } catch (error: unknown) {
       const errorMessage =
@@ -54,7 +60,7 @@ export class WithdrawalController {
 
     res.status(HttpStatusCode.OK).json({
       success: true,
-      data: result.data,
+      data: result.data.map(WithdrawalResponseMapper.toResponseDto),
       pagination: {
         total: result.total,
         page,
@@ -81,7 +87,7 @@ export class WithdrawalController {
 
       res.status(HttpStatusCode.OK).json({
         success: true,
-        data: result.data,
+        data: result.data.map(WithdrawalResponseMapper.toResponseDto),
         pagination: {
           total: result.total,
           page,
@@ -102,11 +108,12 @@ export class WithdrawalController {
       const { withdrawalId } = req.params;
       const { adminNotes } = req.body;
 
-      await this.processWithdrawalUseCase.execute(withdrawalId, adminNotes);
+      const result = await this.processWithdrawalUseCase.execute({ withdrawalId }, adminNotes);
 
       res.status(HttpStatusCode.OK).json({
         success: true,
         message: 'Withdrawal processed successfully',
+        data: result,
       });
     } catch (error: unknown) {
       const errorMessage =
@@ -126,13 +133,14 @@ export class WithdrawalController {
   async rejectWithdrawal(req: Request, res: Response): Promise<void> {
     try {
       const { withdrawalId } = req.params;
-      const { adminNotes } = req.body;
+      const { reason } = req.body;
 
-      await this.rejectWithdrawalUseCase.execute(withdrawalId, adminNotes);
+      const result = await this.rejectWithdrawalUseCase.execute({ withdrawalId, reason });
 
       res.status(HttpStatusCode.OK).json({
         success: true,
         message: 'Withdrawal request rejected successfully',
+        data: result,
       });
     } catch (error: unknown) {
       const errorMessage =

@@ -13,7 +13,7 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { IWithdrawalRepository } from '../../domain/IRepositories/IWithdrawalRepository';
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
-import { WithdrawalStatus } from '../../infrastructure/models/WithdrawalModel';
+import { WithdrawalStatus } from '../../domain/entities/Withdrawal';
 import { WITHDRAWAL_EVENTS } from '../../../../shared/services/event-bus/WithdrawalEvents';
 
 export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
@@ -148,13 +148,13 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
     }
 
     if (withdrawal.status === WithdrawalStatus.FAILED) {
-      logger.info(`Withdrawal ${withdrawal.id} is already marked as FAILED`);
+      logger.info(`Withdrawal ${withdrawal.withdrawalId} is already marked as FAILED`);
       return;
     }
 
     // 1. Update Withdrawal Status
     await this._withdrawalRepository.updateStatus(
-      withdrawal.id,
+      withdrawal.withdrawalId!,
       WithdrawalStatus.FAILED,
       undefined,
       'Stripe transfer was reversed.',
@@ -170,7 +170,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
 
     // 3. Emit event for dashboard/notification
     eventBus.emit(WITHDRAWAL_EVENTS.WITHDRAWAL_FAILED, {
-      withdrawalId: withdrawal.id,
+      withdrawalId: withdrawal.withdrawalId!,
       instructorId: withdrawal.instructorId.toString(),
       amount: withdrawal.amount,
       currency: withdrawal.currency,
@@ -178,7 +178,7 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
       adminNotes: 'Transfer reversed at Stripe.',
     });
 
-    logger.info(`Reversed withdrawal ${withdrawal.id} and recovered balance.`);
+    logger.info(`Reversed withdrawal ${withdrawal.withdrawalId} and recovered balance.`);
   }
 
   private async handleAccountUpdated(account: Stripe.Account) {

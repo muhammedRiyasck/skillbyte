@@ -1,13 +1,6 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
-export enum WithdrawalStatus {
-  PENDING = 'PENDING',
-  PROCESSING = 'PROCESSING',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-  COMPLETED = 'COMPLETED',
-  FAILED = 'FAILED',
-}
+import { WithdrawalStatus } from '../../domain/entities/Withdrawal';
 
 export interface IWithdrawalDocument extends Document {
   instructorId: Types.ObjectId;

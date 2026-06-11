@@ -1,8 +1,6 @@
 import { PaymentModel } from '../../../payment/infrastructure/models/PaymentModel';
-import {
-  WithdrawalModel,
-  WithdrawalStatus,
-} from '../../../payment/infrastructure/models/WithdrawalModel';
+import { WithdrawalModel } from '../../../payment/infrastructure/models/WithdrawalModel';
+import { WithdrawalStatus } from '../../../payment/domain/entities/Withdrawal';
 import { StudentModel } from '../../../student/infrastructure/models/StudentModel';
 import { InstructorModel } from '../../../instructor/infrastructure/models/InstructorModel';
 import { CourseModel } from '../../../course/infrastructure/models/CourseModel';

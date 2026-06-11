@@ -1,3 +1,6 @@
+import { ProcessWithdrawalDto } from '../dtos/WithdrawalDto';
+import { WithdrawalResponseDto } from '../dtos/WithdrawalResponseDto';
+
 export interface IProcessWithdrawal {
-  execute(withdrawalId: string, adminNotes?: string): Promise<void>;
+  execute(dto: ProcessWithdrawalDto, adminNotes?: string): Promise<WithdrawalResponseDto>;
 }

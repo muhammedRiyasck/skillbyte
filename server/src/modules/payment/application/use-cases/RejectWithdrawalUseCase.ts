@@ -1,15 +1,23 @@
-import { IWithdrawalRepository } from '../../domain/IRepositories/IWithdrawalRepository';
+import { WithdrawalResponseMapper } from '../mappers/WithdrawalResponseMapper';
+import { RejectWithdrawalDto } from '../dtos/WithdrawalDto';
+import { WithdrawalResponseDto } from '../dtos/WithdrawalResponseDto';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
-import { WithdrawalStatus } from '../../infrastructure/models/WithdrawalModel';
+import { WithdrawalStatus } from '../../domain/entities/Withdrawal';
 import { eventBus } from '../../../../shared/services/event-bus/EventBus';
 import { WITHDRAWAL_EVENTS } from '../../../../shared/services/event-bus/WithdrawalEvents';
 import { IRejectWithdrawal } from '../interfaces/IRejectWithdrawal';
+import { IWithdrawalRepository } from '../../domain/IRepositories/IWithdrawalRepository';
 
 export class RejectWithdrawalUseCase implements IRejectWithdrawal {
   constructor(private withdrawalRepo: IWithdrawalRepository) {}
 
-  async execute(withdrawalId: string, adminNotes: string): Promise<void> {
+  async execute(
+    dto: RejectWithdrawalDto,
+  ): Promise<WithdrawalResponseDto> {
+    const { withdrawalId, reason } = dto;
+    const adminNotes = reason;
+
     if (!adminNotes || adminNotes.trim().length === 0) {
       throw new HttpError(
         'Admin notes (reason for rejection) are required',
@@ -48,5 +56,8 @@ export class RejectWithdrawalUseCase implements IRejectWithdrawal {
       status: WithdrawalStatus.REJECTED,
       adminNotes,
     });
+
+    const updatedWithdrawal = await this.withdrawalRepo.findById(withdrawalId);
+    return WithdrawalResponseMapper.toResponseDto(updatedWithdrawal!);
   }
 }

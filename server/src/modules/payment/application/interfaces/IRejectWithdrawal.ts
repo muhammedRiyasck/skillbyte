@@ -1,3 +1,6 @@
+import { RejectWithdrawalDto } from '../dtos/WithdrawalDto';
+import { WithdrawalResponseDto } from '../dtos/WithdrawalResponseDto';
+
 export interface IRejectWithdrawal {
-  execute(withdrawalId: string, adminNotes?: string): Promise<void>;
+  execute(dto: RejectWithdrawalDto): Promise<WithdrawalResponseDto>;
 }

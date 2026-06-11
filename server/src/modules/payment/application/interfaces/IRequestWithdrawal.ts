@@ -1,3 +1,6 @@
+import { RequestWithdrawalDto } from '../dtos/WithdrawalDto';
+import { WithdrawalResponseDto } from '../dtos/WithdrawalResponseDto';
+
 export interface IRequestWithdrawal {
-  execute(instructorId: string, amount: number): Promise<void>;
+  execute(dto: RequestWithdrawalDto): Promise<WithdrawalResponseDto>;
 }
