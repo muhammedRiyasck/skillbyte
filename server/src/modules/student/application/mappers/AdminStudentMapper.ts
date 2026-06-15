@@ -1,7 +1,7 @@
-import { AdminStudentPaginationDto } from '../dtos/AdminStudentDtos';
+import { AdminStudentPaginationRequestDto } from '../dtos/AdminStudentRequestDto';
 
 export class AdminStudentMapper {
-  static toListAllFilter(dto: AdminStudentPaginationDto) {
+  static toListAllFilter(dto: AdminStudentPaginationRequestDto) {
     let query: Record<string, unknown> = {};
     const search = dto.search;
     if (search && search.trim()) {

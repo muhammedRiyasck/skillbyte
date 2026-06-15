@@ -1,38 +1,36 @@
 import { Request, Response } from 'express';
-import { StudentMapper } from '../../application/mappers/StudentMapper';
-
-import { IChangeStudentStatusUseCase } from '../../application/interfaces/IChangeStudentStatusUseCase';
 import { IGetPaginatedStudentsUseCase } from '../../application/interfaces/IGetPaginatedStudentsUseCase';
-
+import { IChangeStudentStatusUseCase } from '../../application/interfaces/IChangeStudentStatusUseCase';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
-
-import {
-  AdminStudentPaginationSchema,
-  ChangeStudentStatusSchema,
-} from '../../application/dtos/AdminStudentDtos';
 import { AdminStudentMapper } from '../../application/mappers/AdminStudentMapper';
+import { StudentMapper } from '../../application/mappers/StudentMapper';
+import {
+  AdminStudentPaginationRequestDto,
+  ChangeStudentStatusRequestDto,
+} from '../../application/dtos/AdminStudentRequestDto';
 
+/**
+ * Controller for admin student management operations.
+ */
 export class AdminStudentController {
   constructor(
-    private _getPaginatedStudentsUC: IGetPaginatedStudentsUseCase,
-    private _changeStatusUC: IChangeStudentStatusUseCase,
+    private _listStudentsUseCase: IGetPaginatedStudentsUseCase,
+    private _changeStudentStatusUseCase: IChangeStudentStatusUseCase,
   ) {}
 
   /**
-   * Lists all students with pagination
-   * @param req The Express request object with optional page, limit, and sort query parameters
-   * @param res The Express response object
-   * @returns Promise<void>
+   * Retrieves a paginated list of all students based on query filters.
    */
-  listAll = async (req: Request, res: Response) => {
-    const validatedQuery = AdminStudentPaginationSchema.parse(req.query);
-    const filter = AdminStudentMapper.toListAllFilter(validatedQuery);
-    const sort = AdminStudentMapper.toSort(validatedQuery.sort);
+  getAllStudents = async (req: Request, res: Response): Promise<void> => {
+    const query = req.query as unknown as AdminStudentPaginationRequestDto;
 
-    const students = await this._getPaginatedStudentsUC.execute(
+    const filter = AdminStudentMapper.toListAllFilter(query);
+    const sort = AdminStudentMapper.toSort(query.sort);
+
+    const students = await this._listStudentsUseCase.execute(
       filter,
-      validatedQuery.page,
-      validatedQuery.limit,
+      query.page ?? 1,
+      query.limit ?? 6,
       sort,
     );
 
@@ -40,22 +38,24 @@ export class AdminStudentController {
       students?.data?.map((student) => StudentMapper.toResponseDto(student)) ||
       [];
 
-    ApiResponseHelper.success(res, 'Students retrieved successfully', {
-      students: { ...students, data: studentDtos },
+    ApiResponseHelper.success(res, 'Students fetched successfully', {
+      ...students,
+      data: studentDtos,
     });
   };
+
   /**
-   * Changes the status of a student account (active/blocked)
-   * @param req The Express request object containing status and studentId in body
-   * @param res The Express response object
-   * @returns Promise<void>
+   * Changes the account status (ACTIVE/BLOCKED) of a specific student.
    */
-  changeStatus = async (req: Request, res: Response) => {
-    const validatedData = ChangeStudentStatusSchema.parse(req.body);
-    await this._changeStatusUC.execute(validatedData.id, validatedData.status);
+  changeStudentStatus = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const dto: ChangeStudentStatusRequestDto = req.body;
+
+    await this._changeStudentStatusUseCase.execute(id, dto.status);
+
     ApiResponseHelper.success(
       res,
-      `Student account status changed to ${validatedData.status}`,
+      `Student status updated to ${dto.status} successfully`,
     );
   };
 }

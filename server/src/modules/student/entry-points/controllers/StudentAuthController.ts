@@ -6,9 +6,9 @@ import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import {
-  StudentRegistrationSchema,
-  StudentVerifyOtpSchema,
-} from '../../application/dtos/StudentDtos';
+  StudentRegistrationRequestDto,
+  StudentVerifyOtpRequestDto,
+} from '../../application/dtos/StudentRequestDto';
 import { StudentMapper } from '../../application/mappers/StudentMapper';
 import { TempInstructorData } from '../../../../shared/services/otp/interfaces/ITempInstructorData ';
 import { TempStudentData } from '../../../../shared/services/otp/interfaces/ITempStudentData';
@@ -36,9 +36,9 @@ export class StudentAuthController {
    * @param res - Express response object.
    */
   registerStudent = async (req: Request, res: Response): Promise<void> => {
-    const validatedData = StudentRegistrationSchema.parse(req.body);
+    const dto: StudentRegistrationRequestDto = req.body;
     const { fullName, email, password } =
-      StudentMapper.toRegisterStudentEntity(validatedData);
+      StudentMapper.toRegisterStudentEntity(dto);
 
     const isUserExists = await this._registerStudentUseCase.isUserExists(email);
     if (!isUserExists) {
@@ -67,8 +67,8 @@ export class StudentAuthController {
    * @param res - Express response object.
    */
   verifyOtp = async (req: Request, res: Response): Promise<void> => {
-    const validatedData = StudentVerifyOtpSchema.parse(req.body);
-    const { email, otp } = StudentMapper.toVerifyOtpEntity(validatedData);
+    const dto: StudentVerifyOtpRequestDto = req.body;
+    const { email, otp } = StudentMapper.toVerifyOtpEntity(dto);
     await this._registerStudentUseCase.execute(email, otp);
     ApiResponseHelper.created(res, 'Student Registration Successful.');
   };

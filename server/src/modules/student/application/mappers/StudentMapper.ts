@@ -1,12 +1,12 @@
 import {
-  StudentRegistrationDto,
-  StudentVerifyOtpDto,
-  StudentResponseDto,
-} from '../dtos/StudentDtos';
+  StudentRegistrationRequestDto,
+  StudentVerifyOtpRequestDto,
+} from '../dtos/StudentRequestDto';
+import { StudentResponseDto } from '../dtos/StudentResponseDto';
 import { Student } from '../../domain/entities/Student';
 
 export class StudentMapper {
-  static toRegisterStudentEntity(dto: StudentRegistrationDto) {
+  static toRegisterStudentEntity(dto: StudentRegistrationRequestDto) {
     return {
       fullName: dto.fullName,
       email: dto.email,
@@ -14,7 +14,7 @@ export class StudentMapper {
     };
   }
 
-  static toVerifyOtpEntity(dto: StudentVerifyOtpDto) {
+  static toVerifyOtpEntity(dto: StudentVerifyOtpRequestDto) {
     return {
       email: dto.email,
       otp: dto.Otp,
