@@ -3,6 +3,12 @@ import { quizController } from '../dependencyInjection/QuizDI';
 import { requireRole } from '../../../../shared/middlewares/RequireRole';
 import { authenticate } from '../../../../shared/middlewares/AuthMiddleware';
 import { CustomLimit } from '../../../../shared/utils/RateLimiter';
+import { validateRequest } from '../../../../shared/middlewares/validateRequest';
+import {
+  QuizConfigSchema,
+  UpdateQuizConfigSchema,
+  SubmitQuizAttemptSchema,
+} from '../validations/QuizValidation';
 
 const router = Router();
 const requireInstructor = requireRole('instructor');
@@ -13,6 +19,7 @@ router.post(
   '/config',
   authenticate,
   requireInstructor,
+  validateRequest(QuizConfigSchema),
   quizController.createConfig.bind(quizController),
 );
 
@@ -20,6 +27,7 @@ router.put(
   '/config/:courseId',
   authenticate,
   requireInstructor,
+  validateRequest(UpdateQuizConfigSchema),
   quizController.updateConfig.bind(quizController),
 );
 
@@ -58,6 +66,7 @@ router.post(
   '/submit/:attemptId',
   authenticate,
   requireStudent,
+  validateRequest(SubmitQuizAttemptSchema),
   quizController.submitAttempt.bind(quizController),
 );
 
