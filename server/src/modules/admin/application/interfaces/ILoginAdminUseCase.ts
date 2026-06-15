@@ -1,6 +1,6 @@
-import LoginAdminDTO from '../dtos/LoginAdminDTO';
-import { LoginAdminResponseDTO } from '../dtos/LoginAdminResponseDTO';
+import { LoginAdminRequestDto } from '../dtos/AdminRequestDto';
+import { LoginAdminResponseDto } from '../dtos/AdminResponseDto';
 
 export interface ILoginAdminUseCase {
-  execute(dto: LoginAdminDTO): Promise<LoginAdminResponseDTO>;
+  execute(dto: LoginAdminRequestDto): Promise<LoginAdminResponseDto>;
 }

@@ -1,11 +1,8 @@
 import { ILoginAdminUseCase } from '../../application/interfaces/ILoginAdminUseCase';
 import { Request, Response } from 'express';
-import { LoginAdminSchema } from '../../../../shared/validations/AdminValidation';
+import { LoginAdminRequestDto } from '../../application/dtos/AdminRequestDto';
 import logger from '../../../../shared/utils/Logger';
-import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
-import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
-import { HttpError } from '../../../../shared/types/HttpError';
 
 /**
  * Controller for admin authentication.
@@ -27,20 +24,9 @@ export class AdminAuthController {
   login = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Admin login attempt from IP: ${req.ip}`);
 
-    const validationResult = LoginAdminSchema.safeParse(req.body);
-    if (!validationResult.success) {
-      logger.warn(
-        `Admin login validation failed: ${validationResult.error.message}`,
-      );
-      throw new HttpError(
-        ERROR_MESSAGES.INVALID_INPUT,
-        HttpStatusCode.BAD_REQUEST,
-      );
-    }
+    const dto: LoginAdminRequestDto = req.body;
 
-    const { email, password } = validationResult.data;
-
-    const data = await this._loginAdminUseCase.execute({ email, password });
+    const data = await this._loginAdminUseCase.execute(dto);
     const { admin, accessToken, refreshToken } = data;
 
     res.cookie('access_token', accessToken, {
@@ -57,7 +43,7 @@ export class AdminAuthController {
       maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
     });
 
-    logger.info(`Admin login successful for email: ${email}`);
+    logger.info(`Admin login successful for email: ${dto.email}`);
 
     const userData = {
       name: admin.name,

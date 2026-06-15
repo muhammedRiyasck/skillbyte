@@ -1,4 +1,4 @@
-import { AdminAuthController } from '../controllers/AuthController';
+import { AdminAuthController } from '../controllers/AdminAuthController';
 import { AdminRepository } from '../../infrastructure/repositories/AdminRepository';
 
 import { LoginAdminUseCase } from '../../application/use-cases/LoginAdminUseCase';

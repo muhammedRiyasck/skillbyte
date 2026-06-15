@@ -1,5 +1,5 @@
 import { IAdminRepository } from '../../domain/IRepositories/IAdminRepository';
-import LoginAdminDTO from '../dtos/LoginAdminDTO';
+import { LoginAdminRequestDto } from '../dtos/AdminRequestDto';
 import bcrypt from 'bcryptjs';
 import { generateAccessToken } from '../../../../shared/utils/AccessToken';
 import { generateRefreshToken } from '../../../../shared/utils/RefreshToken';
@@ -9,7 +9,7 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { UserRole } from '../../../../shared/enums/UserRole';
 import { AdminAccountStatus } from '../../../../shared/enums/AdminAccountStatus';
-import { LoginAdminResponseDTO } from '../dtos/LoginAdminResponseDTO';
+import { LoginAdminResponseDto } from '../dtos/AdminResponseDto';
 
 /**
  * Use case for handling admin login.
@@ -27,7 +27,7 @@ export class LoginAdminUseCase implements ILoginAdminUseCase {
    * @returns A promise resolving to the admin entity, access token, and refresh token.
    * @throws Error if credentials are invalid or account is blocked.
    */
-  async execute(dto: LoginAdminDTO): Promise<LoginAdminResponseDTO> {
+  async execute(dto: LoginAdminRequestDto): Promise<LoginAdminResponseDto> {
     const admin = await this._adminRepo.findByEmail(dto.email);
 
     // Use a dummy hash for comparison if admin is not found to prevent timing attacks
