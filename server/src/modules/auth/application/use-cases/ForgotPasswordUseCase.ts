@@ -13,6 +13,8 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { UserRole } from '../../../../shared/enums/UserRole';
 
+import { ForgotPasswordRequestDto } from '../dtos/ForgotPasswordRequestDto';
+
 /**
  * Use case for handling forgot password functionality.
  * This class generates a password reset token and sends a reset email to the user.
@@ -31,12 +33,12 @@ export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
 
   /**
    * Executes the forgot password process.
-   * @param email - The email address of the user requesting password reset.
-   * @param role - The role of the user ('student' or 'instructor').
+   * @param dto - The forgot password request DTO containing email and role.
    * @returns A promise that resolves to false if the user is not found, or void if the process succeeds.
    * @throws {HttpError} If the email or role is invalid, user ID is not found, or email sending fails.
    */
-  async execute(email: string, role: UserRole): Promise<false | void> {
+  async execute(dto: ForgotPasswordRequestDto): Promise<false | void> {
+    const { email, role } = dto;
     if (!email || !role) {
       throw new HttpError(
         'Email and role are required',

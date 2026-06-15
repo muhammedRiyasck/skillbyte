@@ -12,25 +12,21 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
  * Use case for student login.
  * Authenticates student credentials and generates access and refresh tokens.
  */
+import { LoginRequestDto } from '../../../auth/application/dtos/LoginRequestDto';
+
 export class LoginStudentUseCase implements ILoginStudentUseCase {
-  /**
-   * Constructs the LoginStudentUseCase.
-   * @param studentRepo - The student repository for data operations.
-   */
   constructor(private _studentRepo: IStudentRepository) {}
 
-  /**
-   * Executes the student login process.
-   * Validates email and password, checks account status, and generates tokens.
-   * @param email - The student's email address.
-   * @param password - The student's password.
-   * @returns A promise that resolves to an object containing the user, access token, and refresh token.
-   * @throws HttpError with appropriate status code if login fails.
-   */
   async execute(
-    email: string,
-    password: string,
+    dto: LoginRequestDto,
   ): Promise<{ user: Student; accessToken: string; refreshToken: string }> {
+    const { email, password } = dto;
+    if (!password) {
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_CREDENTIALS,
+        HttpStatusCode.UNAUTHORIZED,
+      );
+    }
     const student = await this._studentRepo.findByEmail(email);
     const passwordHash = student
       ? student.passwordHash

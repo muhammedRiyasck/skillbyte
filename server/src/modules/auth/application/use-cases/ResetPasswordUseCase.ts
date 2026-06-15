@@ -8,9 +8,11 @@ import { IResetPasswordUseCase } from '../interfaces/IResetPasswordUseCase';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
-import { ResetPasswordSchema } from '../../../../shared/validations/AuthValidation';
+
 import { IMailerService } from '../../../../shared/services/mail/IMailerService';
 import { UserRole } from '../../../../shared/enums/UserRole';
+
+import { ResetPasswordRequestDto } from '../dtos/ResetPasswordRequestDto';
 
 /**
  * Use case for resetting a user's password.
@@ -30,16 +32,18 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
 
   /**
    * Executes the password reset process.
-   * @param token - The reset token from the request.
-   * @param password - The new password to set.
-   * @param role - The role of the user ('student' or 'instructor').
+   * @param dto - The reset password request DTO.
    * @throws Error if the token is invalid, expired, or if password reset fails.
    */
-  async execute(
-    token: string,
-    password: string,
-    role: UserRole,
-  ): Promise<void> {
+  async execute(dto: ResetPasswordRequestDto): Promise<void> {
+    const { token, password, role } = dto;
+    if (!password) {
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_INPUT,
+        HttpStatusCode.BAD_REQUEST,
+      );
+    }
+
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     const userId = await redis.get(`reset:${tokenHash}`);
     if (!userId) {
@@ -49,23 +53,7 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
       );
     }
 
-    // Validate the password using Zod schema
-    const validationResult = ResetPasswordSchema.safeParse({
-      token,
-      password,
-      role,
-    });
-    if (!validationResult.success) {
-      throw new HttpError(
-        validationResult.error.issues.map((e) => e.message).join(', '),
-        HttpStatusCode.BAD_REQUEST,
-      );
-    }
-
-    const hashedPassword = await bcrypt.hash(
-      validationResult.data.password,
-      10,
-    );
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const repository =
       role === UserRole.STUDENT ? this._studentRepo : this._instructorRepo;

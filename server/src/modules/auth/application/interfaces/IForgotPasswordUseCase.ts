@@ -1,5 +1,5 @@
-import { UserRole } from '../../../../shared/enums/UserRole';
+import { ForgotPasswordRequestDto } from '../dtos/ForgotPasswordRequestDto';
 
 export interface IForgotPasswordUseCase {
-  execute(email: string, role: UserRole): Promise<false | void>;
+  execute(dto: ForgotPasswordRequestDto): Promise<false | void>;
 }

@@ -1,5 +1,5 @@
-import { UserRole } from '../../../../shared/enums/UserRole';
+import { ResetPasswordRequestDto } from '../dtos/ResetPasswordRequestDto';
 
 export interface IResetPasswordUseCase {
-  execute(token: string, password: string, role: UserRole): Promise<void>;
+  execute(dto: ResetPasswordRequestDto): Promise<void>;
 }

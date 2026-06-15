@@ -1,3 +1,5 @@
+import { ResendOtpRequestDto } from '../dtos/ResendOtpRequestDto';
+
 export interface IResendOtpUseCase {
-  execute(email: string): Promise<void>;
+  execute(dto: ResendOtpRequestDto): Promise<void>;
 }

@@ -6,6 +6,8 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { TempInstructorData } from '../../../../shared/services/otp/interfaces/ITempInstructorData ';
 import { TempStudentData } from '../../../../shared/services/otp/interfaces/ITempStudentData';
 
+import { ResendOtpRequestDto } from '../dtos/ResendOtpRequestDto';
+
 export class ResendOtpUseCase implements IResendOtpUseCase {
   constructor(
     private _otpService: IOtpService<TempInstructorData | TempStudentData>,
@@ -14,16 +16,17 @@ export class ResendOtpUseCase implements IResendOtpUseCase {
 
   /**
    * Executes the resend OTP process.
-   * @param email - The email address to resend the OTP to.
+   * @param dto - The resend OTP request DTO.
    * @throws {HttpError} If the email is invalid, no data is found, or rate limiting is in effect.
    */
-  async execute(email: string): Promise<void> {
+  async execute(dto: ResendOtpRequestDto): Promise<void> {
+    const { email } = dto;
     if (!email) {
       throw new HttpError('Email is required', HttpStatusCode.BAD_REQUEST);
     }
 
-    const dto = await this._otpService.getTempData(email);
-    if (!dto) {
+    const tempData = await this._otpService.getTempData(email);
+    if (!tempData) {
       throw new HttpError(
         'No data found or your current data has expired',
         HttpStatusCode.BAD_REQUEST,

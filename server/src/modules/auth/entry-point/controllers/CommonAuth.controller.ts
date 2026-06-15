@@ -8,18 +8,16 @@ import { ILoginStudentUseCase } from '../../../student/application/interfaces/IL
 import { ILoginInstructorUseCase } from '../../../instructor/application/interfaces/ILoginInstructorUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { HttpError } from '../../../../shared/types/HttpError';
-import {
-  LoginSchema,
-  ResendOtpSchema,
-  ForgotPasswordSchema,
-  ResetPasswordSchema,
-} from '../../../../shared/validations/AuthValidation';
 import logger from '../../../../shared/utils/Logger';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { AuthMapper } from '../../application/mappers/AuthMapper';
 import { UserRole } from '../../../../shared/enums/UserRole';
 import { AuthResponseDto } from '../../application/dtos/AuthResponseDto';
+import { LoginRequestDto } from '../../application/dtos/LoginRequestDto';
+import { ResendOtpRequestDto } from '../../application/dtos/ResendOtpRequestDto';
+import { ForgotPasswordRequestDto } from '../../application/dtos/ForgotPasswordRequestDto';
+import { ResetPasswordRequestDto } from '../../application/dtos/ResetPasswordRequestDto';
 
 export class CommonAuthController {
   constructor(
@@ -32,11 +30,6 @@ export class CommonAuthController {
     private readonly _amILoggedInUseCase: IAmILoggedInUseCase,
   ) {}
 
-  /**
-   * Checks if the user is logged in.
-   * @param req - Authenticated request object.
-   * @param res - Express response object.
-   */
   amILoggedIn = async (req: Request, res: Response): Promise<void> => {
     logger.info(`AmILoggedIn check from IP: ${req.ip}`);
     const decodedUserData = req.user as { id: string; role: UserRole };
@@ -54,24 +47,10 @@ export class CommonAuthController {
     ApiResponseHelper.success(res, 'User is logged in', authResponse);
   };
 
-  /**
-   * Handles user login for students and instructors.
-   * @param req - Express request object.
-   * @param res - Express response object.
-   */
   login = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Login attempt from IP: ${req.ip}`);
-
-    const validationResult = LoginSchema.safeParse(req.body);
-    if (!validationResult.success) {
-      logger.warn(`Login validation failed: ${validationResult.error.message}`);
-      throw new HttpError(
-        ERROR_MESSAGES.INVALID_INPUT,
-        HttpStatusCode.BAD_REQUEST,
-      );
-    }
-
-    const { email, password, role } = validationResult.data;
+    const dto: LoginRequestDto = req.body;
+    const { email, role } = dto;
 
     let authResponse: AuthResponseDto;
     let accessToken: string;
@@ -79,14 +58,14 @@ export class CommonAuthController {
 
     switch (role) {
       case UserRole.STUDENT: {
-        const data = await this._studentLoginUC.execute(email, password);
+        const data = await this._studentLoginUC.execute(dto);
         authResponse = AuthMapper.toAuthResponseDto(data.user, role);
         accessToken = data.accessToken;
         refreshToken = data.refreshToken;
         break;
       }
       case UserRole.INSTRUCTOR: {
-        const data = await this._instructorLoginUC.execute(email, password);
+        const data = await this._instructorLoginUC.execute(dto);
         authResponse = AuthMapper.toAuthResponseDto(data.user, role);
         accessToken = data.accessToken;
         refreshToken = data.refreshToken;
@@ -99,6 +78,7 @@ export class CommonAuthController {
           HttpStatusCode.BAD_REQUEST,
         );
     }
+
     if (authResponse.userData.accountStatus !== 'rejected') {
       res.cookie('access_token', accessToken, {
         httpOnly: true,
@@ -115,19 +95,13 @@ export class CommonAuthController {
       });
     }
     logger.info(`Login successful for ${role}: ${email}`);
-
     ApiResponseHelper.success(res, 'Login successful', authResponse);
   };
 
-  /**
-   * Refreshes the access token using the refresh token.
-   * @param req - Express request object.
-   * @param res - Express response object.
-   */
   refreshToken = (req: Request, res: Response): void => {
     logger.info(`Refresh token attempt from IP: ${req.ip}`);
-
     const refreshToken = req.cookies.refresh_token;
+
     if (!refreshToken) {
       logger.warn('Refresh token missing');
       throw new HttpError(
@@ -149,60 +123,27 @@ export class CommonAuthController {
     ApiResponseHelper.success(res, 'Access token refreshed');
   };
 
-  /**
-   * Resends OTP to the user's email.
-   * @param req - Express request object.
-   * @param res - Express response object.
-   */
   resendOtp = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Resend OTP attempt from IP: ${req.ip}`);
+    const dto: ResendOtpRequestDto = req.body;
 
-    const validationResult = ResendOtpSchema.safeParse(req.body);
-    if (!validationResult.success) {
-      logger.warn(
-        `Resend OTP validation failed: ${validationResult.error.message}`,
-      );
-      throw new HttpError(
-        ERROR_MESSAGES.INVALID_INPUT,
-        HttpStatusCode.BAD_REQUEST,
-      );
-    }
-
-    const { email } = validationResult.data;
-
-    await this._resendOtpUseCase.execute(email);
-    logger.info(`OTP resent successfully to: ${email}`);
+    await this._resendOtpUseCase.execute(dto);
+    logger.info(`OTP resent successfully to: ${dto.email}`);
     ApiResponseHelper.success(res, 'OTP resent successfully');
   };
 
-  /**
-   * Handles forgot password request by sending reset link.
-   * @param req - Express request object.
-   * @param res - Express response object.
-   */
   forgotPassword = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Forgot password attempt from IP: ${req.ip}`);
+    const dto: ForgotPasswordRequestDto = req.body;
 
-    const validationResult = ForgotPasswordSchema.safeParse(req.body);
-    if (!validationResult.success) {
-      logger.warn(
-        `Forgot password validation failed: ${validationResult.error.message}`,
-      );
-      throw new HttpError(
-        ERROR_MESSAGES.INVALID_INPUT,
-        HttpStatusCode.BAD_REQUEST,
-      );
-    }
-
-    const { email, role } = validationResult.data;
-
-    const user = await this._forgotPasswordUseCase.execute(email, role);
-    // Delay to prevent timing attacks
+    const user = await this._forgotPasswordUseCase.execute(dto);
     if (user === false) {
-      logger.info(`Non-existent user delay for email: ${email}`);
+      logger.info(`Non-existent user delay for email: ${dto.email}`);
       await new Promise((resolve) => setTimeout(resolve, 5000));
     } else {
-      logger.info(`Forgot password link sent to: ${email} for role: ${role}`);
+      logger.info(
+        `Forgot password link sent to: ${dto.email} for role: ${dto.role}`,
+      );
     }
     ApiResponseHelper.success(
       res,
@@ -210,37 +151,15 @@ export class CommonAuthController {
     );
   };
 
-  /**
-   * Resets the user's password using a reset token.
-   * @param req - Express request object.
-   * @param res - Express response object.
-   */
   resetPassword = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Reset password attempt from IP: ${req.ip}`);
+    const dto: ResetPasswordRequestDto = req.body;
 
-    const validationResult = ResetPasswordSchema.safeParse(req.body);
-    if (!validationResult.success) {
-      logger.warn(
-        `Reset password validation failed: ${validationResult.error.message}`,
-      );
-      throw new HttpError(
-        ERROR_MESSAGES.INVALID_INPUT,
-        HttpStatusCode.BAD_REQUEST,
-      );
-    }
-
-    const { token, password, role } = validationResult.data;
-
-    await this._resetPasswordUseCase.execute(token, password, role);
-    logger.info(`Password reset successful for role: ${role}`);
+    await this._resetPasswordUseCase.execute(dto);
+    logger.info(`Password reset successful for role: ${dto.role}`);
     ApiResponseHelper.success(res, 'Password reset successfully');
   };
 
-  /**
-   * Logs out the user by clearing authentication cookies.
-   * @param req - Express request object.
-   * @param res - Express response object.
-   */
   logout = (req: Request, res: Response): void => {
     logger.info(`Logout attempt from IP: ${req.ip}`);
 

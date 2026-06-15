@@ -1,8 +1,8 @@
 import { Instructor } from '../../domain/entities/Instructor';
+import { LoginRequestDto } from '../../../auth/application/dtos/LoginRequestDto';
 
 export interface ILoginInstructorUseCase {
   execute(
-    email: string,
-    password: string,
+    dto: LoginRequestDto,
   ): Promise<{ user: Instructor; accessToken: string; refreshToken: string }>;
 }

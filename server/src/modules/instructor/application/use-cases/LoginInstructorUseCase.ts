@@ -14,25 +14,21 @@ import { UserRole } from '../../../../shared/enums/UserRole';
  * Use case for logging in an instructor.
  * Validates credentials, checks account status, and generates tokens upon successful login.
  */
+import { LoginRequestDto } from '../../../auth/application/dtos/LoginRequestDto';
+
 export class LoginInstructorUseCase implements ILoginInstructorUseCase {
-  /**
-   * Constructs the LoginInstructorUseCase.
-   * @param _instructorRepo - The instructor repository for data operations.
-   */
   constructor(private _instructorRepo: IInstructorRepository) {}
 
-  /**
-   * Executes the instructor login process.
-   * Validates email and password, checks account status, and returns user data with tokens.
-   * @param email - The instructor's email address.
-   * @param password - The instructor's password.
-   * @returns A promise that resolves to an object containing the user, access token, and refresh token.
-   * @throws HttpError with appropriate status code if login fails.
-   */
   async execute(
-    email: string,
-    password: string,
+    dto: LoginRequestDto,
   ): Promise<{ user: Instructor; accessToken: string; refreshToken: string }> {
+    const { email, password } = dto;
+    if (!password) {
+      throw new HttpError(
+        ERROR_MESSAGES.INVALID_CREDENTIALS,
+        HttpStatusCode.UNAUTHORIZED,
+      );
+    }
     const instructor = await this._instructorRepo.findByEmail(email);
 
     // Use a dummy hash for comparison if instructor is not found to prevent timing attacks
