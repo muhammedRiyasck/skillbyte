@@ -1,50 +1,4 @@
 import { z } from 'zod';
-import { UserRole } from '../enums/UserRole';
-
-/**
- * Zod schema for validating login data.
- */
-export const LoginSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  password: z.string().min(1, 'Password is required'),
-  role: z.enum([UserRole.STUDENT, UserRole.INSTRUCTOR], {
-    message: 'Role must be student or instructor',
-  }),
-});
-
-/**
- * Zod schema for validating resend OTP data.
- */
-export const ResendOtpSchema = z.object({
-  email: z.string().email('Invalid email format'),
-});
-
-/**
- * Zod schema for validating forgot password data.
- */
-export const ForgotPasswordSchema = z.object({
-  email: z.string().email('Invalid email format'),
-  role: z.enum([UserRole.STUDENT, UserRole.INSTRUCTOR], {
-    message: 'Role must be student or instructor',
-  }),
-});
-
-/**
- * Zod schema for validating reset password data.
- */
-export const ResetPasswordSchema = z.object({
-  token: z.string().min(1, 'Token is required'),
-  password: z
-    .string()
-    .min(8, 'Password must be at least 8 characters')
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-      'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
-    ),
-  role: z.enum([UserRole.STUDENT, UserRole.INSTRUCTOR], {
-    message: 'Role must be student or instructor',
-  }),
-});
 
 /**
  * Zod schema for validating instructor registration data.
@@ -76,10 +30,6 @@ export const InstructorRegistrationSchema = z.object({
 /**
  * Types inferred from the schemas.
  */
-export type LoginValidationType = z.infer<typeof LoginSchema>;
-export type ResendOtpValidationType = z.infer<typeof ResendOtpSchema>;
-export type ForgotPasswordValidationType = z.infer<typeof ForgotPasswordSchema>;
-export type ResetPasswordValidationType = z.infer<typeof ResetPasswordSchema>;
 export type InstructorRegistrationValidationType = z.infer<
   typeof InstructorRegistrationSchema
 >;

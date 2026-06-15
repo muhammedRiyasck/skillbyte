@@ -9,11 +9,17 @@ import { facebookController } from '../controllers/Facebook.controller';
 import { CustomLimit } from '../../../../shared/utils/RateLimiter';
 import asyncHandler from '../../../../shared/utils/AsyncHandler';
 import { requireRole } from '../../../../shared/middlewares/RequireRole';
+import { validateRequest } from '../../../../shared/middlewares/validateRequest';
+import { LoginSchema } from '../validations/LoginValidation';
+import { ResendOtpSchema } from '../validations/ResendOtpValidation';
+import { ForgotPasswordSchema } from '../validations/ForgotPasswordValidation';
+import { ResetPasswordSchema } from '../validations/ResetPasswordValidation';
 
 // Authentication routes
 router.post(
   '/login',
   CustomLimit(10, 'login'),
+  validateRequest(LoginSchema),
   requireRole('student', 'instructor'),
   asyncHandler(commonAuthController.login),
 );
@@ -30,16 +36,19 @@ router.get('/refresh-token', commonAuthController.refreshToken);
 router.post(
   '/resend-otp',
   CustomLimit(10, 'resend OTP'),
+  validateRequest(ResendOtpSchema),
   asyncHandler(commonAuthController.resendOtp),
 );
 router.post(
   '/forgot-password',
   CustomLimit(10, 'forgot password'),
+  validateRequest(ForgotPasswordSchema),
   asyncHandler(commonAuthController.forgotPassword),
 );
 router.post(
   '/reset-password',
   CustomLimit(10, 'reset password'),
+  validateRequest(ResetPasswordSchema),
   asyncHandler(commonAuthController.resetPassword),
 );
 router.post('/logout', commonAuthController.logout);
