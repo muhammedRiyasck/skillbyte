@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
 
 export const AdminInstructorPaginationSchema = z.object({
   page: z
@@ -14,7 +15,7 @@ export const AdminInstructorPaginationSchema = z.object({
   search: z.string().optional(),
 });
 
-export type AdminInstructorPaginationDto = z.infer<
+export type AdminInstructorPaginationValidationType = z.infer<
   typeof AdminInstructorPaginationSchema
 >;
 
@@ -22,19 +23,20 @@ export const ApproveInstructorSchema = z.object({
   id: z.string().min(1, 'Instructor ID is required'),
 });
 
-export type ApproveInstructorDto = z.infer<typeof ApproveInstructorSchema>;
+export type ApproveInstructorValidationType = z.infer<
+  typeof ApproveInstructorSchema
+>;
 
 export const DeclineInstructorSchema = z.object({
   id: z.string().min(1, 'Instructor ID is required'),
   reason: z.string().min(1, 'Reason is required'),
 });
 
-export type DeclineInstructorDto = z.infer<typeof DeclineInstructorSchema>;
-
-import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
+export type DeclineInstructorValidationType = z.infer<
+  typeof DeclineInstructorSchema
+>;
 
 export const ChangeInstructorStatusSchema = z.object({
-  // instructorId comes from params usually, but could be body. Controller uses params.
   status: z.enum([
     InstructorAccountStatus.ACTIVE,
     InstructorAccountStatus.SUSPENDED,
@@ -42,6 +44,6 @@ export const ChangeInstructorStatusSchema = z.object({
   reason: z.string().optional(),
 });
 
-export type ChangeInstructorStatusDto = z.infer<
+export type ChangeInstructorStatusValidationType = z.infer<
   typeof ChangeInstructorStatusSchema
 >;

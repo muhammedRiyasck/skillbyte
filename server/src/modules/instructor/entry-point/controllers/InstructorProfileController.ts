@@ -8,21 +8,15 @@ import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequ
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
-import { InstructorProfileUpdateSchema } from '../../application/dtos/InstructorDtos';
 import { InstructorMapper } from '../../application/mappers/InstructorMapper';
 import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
+import { InstructorProfileUpdateRequestDto } from '../../application/dtos/InstructorRequestDto';
 
 /**
  * Controller for instructor profile operations.
  * Handles retrieving, updating, and managing profile images for instructors.
  */
 export class InstructorProfileController {
-  /**
-   * Constructs the InstructorProfileController.
-   * @param getInstructorProfileUseCase - Use case for retrieving instructor profiles.
-   * @param updateInstructorProfileUseCase - Use case for updating instructor profiles.
-   * @param _storageService - Service for storage operations.
-   */
   constructor(
     private readonly _getInstructorProfileUseCase: IGetInstructorProfileUseCase,
     private readonly _updateInstructorProfileUseCase: IUpdateInstructorProfileUseCase,
@@ -31,11 +25,6 @@ export class InstructorProfileController {
     private readonly _storageService: IStorageService,
   ) {}
 
-  /**
-   * Retrieves the profile of the authenticated instructor.
-   * @param req - Authenticated request object.
-   * @param res - Express response object.
-   */
   getProfile = async (req: Request, res: Response): Promise<void> => {
     const authenticatedRequest = req as AuthenticatedRequest;
     const instructorId = authenticatedRequest.user.id;
@@ -54,29 +43,16 @@ export class InstructorProfileController {
     );
   };
 
-  /**
-   * Updates the profile of the authenticated instructor.
-   * @param req - Authenticated request object with update data in body.
-   * @param res - Express response object.
-   */
   updateProfile = async (req: Request, res: Response): Promise<void> => {
     const authenticatedRequest = req as AuthenticatedRequest;
     const instructorId = authenticatedRequest.user.id;
-
-    const validatedData = InstructorProfileUpdateSchema.parse(
-      authenticatedRequest.body,
-    );
-    const updates = InstructorMapper.toUpdateProfileEntity(validatedData);
+    const dto: InstructorProfileUpdateRequestDto = req.body;
+    const updates = InstructorMapper.toUpdateProfileEntity(dto);
 
     await this._updateInstructorProfileUseCase.execute(instructorId, updates);
     ApiResponseHelper.success(res, 'Profile updated successfully');
   };
 
-  /**
-   * Uploads a profile image for the authenticated instructor.
-   * @param req - Authenticated request object with file upload.
-   * @param res - Express response object.
-   */
   uploadProfileImage = async (req: Request, res: Response): Promise<void> => {
     const authenticatedRequest = req as AuthenticatedRequest;
     const instructorId = authenticatedRequest.user.id;
@@ -115,11 +91,6 @@ export class InstructorProfileController {
     });
   };
 
-  /**
-   * Removes the profile image of the authenticated instructor.
-   * @param req - Authenticated request object.
-   * @param res - Express response object.
-   */
   removeProfileImage = async (req: Request, res: Response): Promise<void> => {
     const authenticatedRequest = req as AuthenticatedRequest;
     const instructorId = authenticatedRequest.user.id;
@@ -140,7 +111,6 @@ export class InstructorProfileController {
         await this._storageService.delete(publicId);
       } catch (error) {
         console.error('Failed to delete image from cloud:', error);
-        // Continue to update profile even if delete fails
       }
       await this._updateInstructorProfileUseCase.execute(instructorId, {
         profilePictureUrl: null,
@@ -149,11 +119,6 @@ export class InstructorProfileController {
     ApiResponseHelper.success(res, 'Profile image removed');
   };
 
-  /**
-   * Creates a Stripe onboarding link for the authenticated instructor.
-   * @param req - Authenticated request object.
-   * @param res - Express response object.
-   */
   createStripeOnboardingLink = async (
     req: Request,
     res: Response,
@@ -167,12 +132,9 @@ export class InstructorProfileController {
     });
   };
 
-  /**
-   * Manually synchronizes the Stripe verification status for the instructor.
-   */
   syncStripeStatus = async (req: Request, res: Response): Promise<void> => {
-    const AuthenticatedRequest = req as AuthenticatedRequest;
-    const instructorId = AuthenticatedRequest.user.id;
+    const authenticatedRequest = req as AuthenticatedRequest;
+    const instructorId = authenticatedRequest.user.id;
     const isVerified =
       await this._syncStripeStatusUseCase.execute(instructorId);
     ApiResponseHelper.success(res, 'Stripe status synchronized successfully', {

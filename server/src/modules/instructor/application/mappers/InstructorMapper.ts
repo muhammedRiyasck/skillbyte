@@ -1,17 +1,17 @@
-// Role: Maps between DTOs (Data Transfer Objects) and Domain Entities.
+// Role: Maps between DTOs and Domain Entities.
 
 import {
-  InstructorRegistrationDto,
-  InstructorVerifyOtpDto,
-  InstructorReapplyDto,
-  InstructorProfileUpdateDto,
-  InstructorResponseDto,
-} from '../dtos/InstructorDtos';
+  InstructorRegistrationRequestDto,
+  InstructorVerifyOtpRequestDto,
+  InstructorReapplyRequestDto,
+  InstructorProfileUpdateRequestDto,
+} from '../dtos/InstructorRequestDto';
+import { InstructorResponseDto } from '../dtos/InstructorResponseDto';
 import { Instructor } from '../../domain/entities/Instructor';
 
 export class InstructorMapper {
   static toRegisterInstructorEntity(
-    dto: InstructorRegistrationDto,
+    dto: InstructorRegistrationRequestDto,
     file?: Express.Multer.File,
   ) {
     const subject =
@@ -34,14 +34,14 @@ export class InstructorMapper {
     };
   }
 
-  static toVerifyOtpEntity(dto: InstructorVerifyOtpDto) {
+  static toVerifyOtpEntity(dto: InstructorVerifyOtpRequestDto) {
     return {
       email: dto.email,
       otp: dto.Otp,
     };
   }
 
-  static toReapplyEntity(dto: InstructorReapplyDto) {
+  static toReapplyEntity(dto: InstructorReapplyRequestDto) {
     const { email, ...rest } = dto;
     const updates: Record<string, unknown> = { ...rest };
     if (updates.experience) {
@@ -50,7 +50,7 @@ export class InstructorMapper {
     return { email, updates };
   }
 
-  static toUpdateProfileEntity(dto: InstructorProfileUpdateDto) {
+  static toUpdateProfileEntity(dto: InstructorProfileUpdateRequestDto) {
     const updates: Record<string, unknown> = {};
     if (dto.name !== undefined) updates.name = dto.name;
     if (dto.phoneNumber !== undefined) updates.phoneNumber = dto.phoneNumber;

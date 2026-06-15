@@ -1,9 +1,9 @@
-import { AdminInstructorPaginationDto } from '../dtos/AdminInstructorDtos';
+import { AdminInstructorPaginationRequestDto } from '../dtos/AdminInstructorRequestDto';
 import { AdminInstructorFilter } from '../../../../shared/enums/AdminInstructorFilter';
 import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
 
 export class AdminInstructorMapper {
-  static toGetInstructorsFilter(dto: AdminInstructorPaginationDto) {
+  static toGetInstructorsFilter(dto: AdminInstructorPaginationRequestDto) {
     let query: Record<string, unknown> = {};
     const status = dto.status;
 

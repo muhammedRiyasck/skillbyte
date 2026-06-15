@@ -6,14 +6,14 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { IReapplyInstructorUseCase } from '../../application/interfaces/IReapplyInstructorUseCase';
-import {
-  InstructorRegistrationSchema,
-  InstructorVerifyOtpSchema,
-  InstructorReapplySchema,
-} from '../../application/dtos/InstructorDtos';
 import { InstructorMapper } from '../../application/mappers/InstructorMapper';
 import { TempInstructorData } from '../../../../shared/services/otp/interfaces/ITempInstructorData ';
 import { TempStudentData } from '../../../../shared/services/otp/interfaces/ITempStudentData';
+import {
+  InstructorRegistrationRequestDto,
+  InstructorVerifyOtpRequestDto,
+  InstructorReapplyRequestDto,
+} from '../../application/dtos/InstructorRequestDto';
 
 /**
  * Controller for instructor authentication operations.
@@ -46,12 +46,10 @@ export class InstructorAuthController {
       );
     }
 
-    // Parse and validate body
-    const validatedData = InstructorRegistrationSchema.parse(req.body);
+    const dto: InstructorRegistrationRequestDto = req.body;
 
-    // Check if user exists
     const isUserExists = await this._registerInstructorUseCase.isUserExists(
-      validatedData.email,
+      dto.email,
     );
     if (isUserExists)
       throw new HttpError(
@@ -59,19 +57,15 @@ export class InstructorAuthController {
         HttpStatusCode.BAD_REQUEST,
       );
 
-    // Map to entity
     const instructorEntity = InstructorMapper.toRegisterInstructorEntity(
-      validatedData,
+      dto,
       req.file,
     );
 
-    await this._generateOtpUseCase.storeTempData(
-      validatedData.email,
-      instructorEntity,
-    );
+    await this._generateOtpUseCase.storeTempData(dto.email, instructorEntity);
     await this._generateOtpUseCase.sendOtp(
-      validatedData.email,
-      validatedData.fullName,
+      dto.email,
+      dto.fullName,
       'Instructor Registration OTP',
     );
     ApiResponseHelper.created(res, 'An OTP sent to your mail.');
@@ -83,8 +77,8 @@ export class InstructorAuthController {
    * @param res - Express response object.
    */
   verifyOtp = async (req: Request, res: Response): Promise<void> => {
-    const validatedData = InstructorVerifyOtpSchema.parse(req.body);
-    const { email, otp } = InstructorMapper.toVerifyOtpEntity(validatedData);
+    const dto: InstructorVerifyOtpRequestDto = req.body;
+    const { email, otp } = InstructorMapper.toVerifyOtpEntity(dto);
     await this._registerInstructorUseCase.execute(email, otp);
     ApiResponseHelper.created(
       res,
@@ -98,9 +92,9 @@ export class InstructorAuthController {
    * @param res - Express response object.
    */
   reapply = async (req: Request, res: Response): Promise<void> => {
-    const validatedData = InstructorReapplySchema.parse(req.body);
+    const dto: InstructorReapplyRequestDto = req.body;
     const file = req.file;
-    const { email, updates } = InstructorMapper.toReapplyEntity(validatedData);
+    const { email, updates } = InstructorMapper.toReapplyEntity(dto);
 
     await this._reapplyInstructorUseCase.execute(email, updates, file);
     ApiResponseHelper.success(res, 'Application re-submitted successfully');

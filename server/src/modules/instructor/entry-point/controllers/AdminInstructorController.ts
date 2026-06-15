@@ -11,28 +11,20 @@ import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequ
 import { HttpError } from '../../../../shared/types/HttpError';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
-import {
-  AdminInstructorPaginationSchema,
-  ApproveInstructorSchema,
-  DeclineInstructorSchema,
-  ChangeInstructorStatusSchema,
-} from '../../application/dtos/AdminInstructorDtos';
 import { AdminInstructorMapper } from '../../application/mappers/AdminInstructorMapper';
 import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
+import {
+  AdminInstructorPaginationValidationType,
+  ApproveInstructorValidationType,
+  DeclineInstructorValidationType,
+  ChangeInstructorStatusValidationType,
+} from '../validations/AdminInstructorValidation';
 
 /**
  * Controller for admin operations on instructors.
  * Handles listing, approving, declining, status changes, and deletion of instructors.
  */
 export class AdminInstructorController {
-  /**
-   * Constructs the AdminInstructorController.
-   * @param listInstructorsUC - Use case for listing instructors.
-   * @param approveUC - Use case for approving instructors.
-   * @param declineUC - Use case for declining instructors.
-   * @param changeStatusUC - Use case for changing instructor status.
-   * @param deleteInstructorUC - Use case for deleting instructors.
-   */
   constructor(
     private _listInstructorsUC: IlistInstructorsUC,
     private _approveUC: IApproveInstructorUseCase,
@@ -42,20 +34,16 @@ export class AdminInstructorController {
     private _storageService: IStorageService,
   ) {}
 
-  /**
-   * Retrieves a paginated list of instructors based on status filter.
-   * @param req - Express request object with query parameters.
-   * @param res - Express response object.
-   */
   getInstructors = async (req: Request, res: Response): Promise<void> => {
-    const validatedQuery = AdminInstructorPaginationSchema.parse(req.query);
-    const query = AdminInstructorMapper.toGetInstructorsFilter(validatedQuery);
-    const sort = AdminInstructorMapper.toSort(validatedQuery.sort);
+    const query =
+      req.query as unknown as AdminInstructorPaginationValidationType;
+    const filter = AdminInstructorMapper.toGetInstructorsFilter(query);
+    const sort = AdminInstructorMapper.toSort(query.sort);
 
     const instructors = await this._listInstructorsUC.execute(
-      query,
-      validatedQuery.page,
-      validatedQuery.limit,
+      filter,
+      query.page ?? 1,
+      query.limit ?? 12,
       sort,
     );
     const instructorDtos =
@@ -69,87 +57,49 @@ export class AdminInstructorController {
     });
   };
 
-  /**
-   * Approves an instructor application.
-   * @param req - Authenticated request object with instructor ID in body.
-   * @param res - Express response object.
-   */
   approve = async (req: Request, res: Response): Promise<void> => {
-    const AuthenticatedRequest = req as AuthenticatedRequest;
-    const validatedData = ApproveInstructorSchema.parse(
-      AuthenticatedRequest.body,
-    );
-    const adminId = AuthenticatedRequest.user.id;
+    const AuthenticatedReq = req as AuthenticatedRequest;
+    const dto = req.body as ApproveInstructorValidationType;
+    const adminId = AuthenticatedReq.user.id;
 
-    await this._approveUC.execute(validatedData.id, adminId);
+    await this._approveUC.execute(dto.id, adminId);
     ApiResponseHelper.success(res, 'Instructor approved');
   };
 
-  /**
-   * Declines an instructor application with a reason.
-   * @param req - Authenticated request object with instructor ID and reason in body.
-   * @param res - Express response object.
-   */
   decline = async (req: Request, res: Response): Promise<void> => {
-    const AuthenticatedRequest = req as AuthenticatedRequest;
-    const validatedData = DeclineInstructorSchema.parse(
-      AuthenticatedRequest.body,
-    );
-    const adminId = AuthenticatedRequest.user.id;
+    const AuthenticatedReq = req as AuthenticatedRequest;
+    const dto = req.body as DeclineInstructorValidationType;
+    const adminId = AuthenticatedReq.user.id;
 
-    await this._declineUC.execute(
-      validatedData.id,
-      adminId,
-      validatedData.reason,
-    );
+    await this._declineUC.execute(dto.id, adminId, dto.reason);
     ApiResponseHelper.success(res, 'Instructor declined', {
-      note: validatedData.reason,
+      note: dto.reason,
     });
   };
 
-  /**
-   * Changes the status of an instructor (activate or suspend).
-   * @param req - Request object with instructor ID in params and status/reason in body.
-   * @param res - Express response object.
-   */
   changeInstructorStatus = async (
     req: Request,
     res: Response,
   ): Promise<void> => {
     const { id } = req.params;
-    const validatedData = ChangeInstructorStatusSchema.parse(req.body);
+    const dto = req.body as ChangeInstructorStatusValidationType;
 
-    await this._changeStatusUC.execute(
-      id,
-      validatedData.status,
-      validatedData.reason,
-    );
+    await this._changeStatusUC.execute(id, dto.status, dto.reason);
     ApiResponseHelper.success(
       res,
-      `Instructor account status changed to ${validatedData.status}`,
+      `Instructor account status changed to ${dto.status}`,
     );
   };
 
-  /**
-   * Deletes an instructor by ID.
-   * @param req - Request object with instructor ID in params.
-   * @param res - Express response object.
-   */
   deleteInstructor = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     await this._deleteInstructorUC.execute(id);
     ApiResponseHelper.success(res, 'Instructor deleted successfully');
   };
 
-  /**
-   * Retrieves the resume URL for a specific instructor.
-   * @param req - Request object with instructor ID in params.
-   * @param res - Express response object.
-   */
   getInstructorResume = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
 
-    // Get instructor details to retrieve resume URL
     const instructors = await this._listInstructorsUC.execute(
       { _id: id },
       1,
@@ -171,12 +121,8 @@ export class AdminInstructorController {
       );
     }
 
-    // The resumeUrl is now the file key (e.g., "instructor-resumes/filename.pdf")
     const fileKey = instructor.resumeUrl;
-
-    // Generate a fresh signed URL with 1 hour expiration
     const freshSignedUrl = await this._storageService.getSignedUrl(fileKey);
-
     const fileResponse = await fetch(freshSignedUrl);
 
     if (!fileResponse.ok)
@@ -185,7 +131,6 @@ export class AdminInstructorController {
         HttpStatusCode.INTERNAL_SERVER_ERROR,
       );
 
-    // 5. Set headers to view inline
     res.setHeader(
       'Content-Type',
       fileResponse.headers.get('content-type') || 'application/pdf',

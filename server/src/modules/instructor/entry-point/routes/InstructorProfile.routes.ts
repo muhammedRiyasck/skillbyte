@@ -3,6 +3,8 @@ import { instructorProfileController } from '../dependencyInjection/InstructorPr
 import { authenticate } from '../../../../shared/middlewares/AuthMiddleware';
 import { requireRole } from '../../../../shared/middlewares/RequireRole';
 import asyncHandler from '../../../../shared/utils/AsyncHandler';
+import { validateRequest } from '../../../../shared/middlewares/validateRequest';
+import { InstructorProfileUpdateSchema } from '../validations/InstructorProfileUpdateValidation';
 import multer from 'multer';
 
 const router = Router();
@@ -19,6 +21,7 @@ router.put(
   '/profile',
   authenticate,
   requireRole('instructor'),
+  validateRequest(InstructorProfileUpdateSchema),
   asyncHandler(instructorProfileController.updateProfile),
 );
 

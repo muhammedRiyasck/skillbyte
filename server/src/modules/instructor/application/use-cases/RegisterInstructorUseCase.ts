@@ -5,7 +5,7 @@ import { IOtpService } from '../../../../shared/services/otp/interfaces/IOtpServ
 import { IRegisterInstructorUseCase } from '../interfaces/IRegisterInstructorUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { HttpError } from '../../../../shared/types/HttpError';
-import { InstructorRegistrationSchema } from '../../../../shared/validations/AuthValidation';
+
 import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
 import {
   JOB_NAMES,
@@ -63,32 +63,20 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
         HttpStatusCode.BAD_REQUEST,
       );
     }
-    // Validate the registration data using Zod schema
-    const validationResult = InstructorRegistrationSchema.safeParse(dto);
-    if (!validationResult.success) {
-      throw new HttpError(
-        validationResult.error.issues.map((e) => e.message).join(', '),
-        HttpStatusCode.BAD_REQUEST,
-      );
-    }
-
-    const hashedPassword = await bcrypt.hash(
-      validationResult.data.password,
-      10,
-    );
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
     const instructor = new Instructor(
-      validationResult.data.fullName,
-      validationResult.data.email,
+      dto.fullName,
+      dto.email,
       hashedPassword,
-      validationResult.data.subject,
-      validationResult.data.jobTitle,
-      Number(validationResult.data.experience),
-      validationResult.data.socialMediaLink || '',
-      validationResult.data.portfolio || '',
-      validationResult.data.bio,
-      validationResult.data.phoneNumber || null,
+      dto.subject,
+      dto.jobTitle,
+      Number(dto.experience),
+      dto.socialMediaLink || '',
+      dto.portfolioLink || '',
+      dto.bio,
+      dto.phoneNumber || null,
       null, // resumeUrl - will be set asynchronously
-      validationResult.data.profilePictureUrl || null,
+      null, // profilePictureUrl
       true, // isEmailVerified
       InstructorAccountStatus.PENDING, // accountStatus
       false, // not approved
@@ -115,7 +103,7 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
         instructorId: savedInstructor.instructorId || '',
         filePath: file.path,
         originalName: file.originalname,
-        email: validationResult.data.email,
+        email: dto.email,
       };
 
       await jobQueueService.addJob(
