@@ -1,7 +1,5 @@
-import {
-  IGetQuizAnalyticsUseCase,
-  IQuizAnalyticsDto,
-} from '../interfaces/IGetQuizAnalyticsUseCase';
+import { IGetQuizAnalyticsUseCase } from '../interfaces/IGetQuizAnalyticsUseCase';
+import { QuizAnalyticsResponseDto } from '../dtos/QuizAnalyticsResponseDto';
 import { IQuizAttemptRepository } from '../../domain/IRepositories/IQuizAttemptRepository';
 import { IQuizConfigRepository } from '../../domain/IRepositories/IQuizConfigRepository';
 import { IQuizAttempt } from '../../domain/entities/QuizAttempt';
@@ -19,7 +17,7 @@ export class GetQuizAnalyticsUseCase implements IGetQuizAnalyticsUseCase {
     instructorId: string,
     page: number = 1,
     limit: number = 10,
-  ): Promise<IQuizAnalyticsDto> {
+  ): Promise<QuizAnalyticsResponseDto> {
     const config = await this.quizConfigRepository.findByCourseId(courseId);
     if (!config) {
       return {
@@ -186,7 +184,7 @@ export class GetQuizAnalyticsUseCase implements IGetQuizAnalyticsUseCase {
       averageScore,
       passRate,
       studentAttempts:
-        paginatedStudents as unknown as IQuizAnalyticsDto['studentAttempts'],
+        paginatedStudents as unknown as QuizAnalyticsResponseDto['studentAttempts'],
       currentPage: page,
       totalPages,
       passPercentage: config.passPercentage,

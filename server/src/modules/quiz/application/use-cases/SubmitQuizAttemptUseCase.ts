@@ -1,14 +1,13 @@
 import { ISubmitQuizAttemptUseCase } from '../interfaces/ISubmitQuizAttemptUseCase';
 import { IQuizAttemptRepository } from '../../domain/IRepositories/IQuizAttemptRepository';
 import { IQuizConfigRepository } from '../../domain/IRepositories/IQuizConfigRepository';
-import {
-  IQuizAttempt,
-  IPerQuestionResult,
-} from '../../domain/entities/QuizAttempt';
+import { IPerQuestionResult } from '../../domain/entities/QuizAttempt';
 import { StudentAnswer } from '../../domain/entities/StudentAnswer';
 import { QuizStatus } from '../../../../shared/enums/QuizStatus';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { QuizAttemptResponseDto } from '../dtos/QuizAttemptResponseDto';
+import { QuizAttemptMapper } from '../mappers/QuizAttemptMapper';
 
 import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentReadRepository';
 import { IEnrollmentWriteRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentWriteRepository';
@@ -29,7 +28,7 @@ export class SubmitQuizAttemptUseCase implements ISubmitQuizAttemptUseCase {
     attemptId: string,
     userId: string,
     answers: StudentAnswer[],
-  ): Promise<IQuizAttempt> {
+  ): Promise<QuizAttemptResponseDto> {
     const attempt = await this.quizAttemptRepository.findById(attemptId);
     if (!attempt) {
       throw new HttpError('Quiz attempt not found', HttpStatusCode.NOT_FOUND);
@@ -142,6 +141,6 @@ export class SubmitQuizAttemptUseCase implements ISubmitQuizAttemptUseCase {
       }
     }
 
-    return updatedAttempt!;
+    return QuizAttemptMapper.toDto(updatedAttempt!);
   }
 }

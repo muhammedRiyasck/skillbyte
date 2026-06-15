@@ -1,5 +1,6 @@
 import { IGetQuizConfigUseCase } from '../interfaces/IGetQuizConfigUseCase';
-import { IQuizConfig } from '../../domain/entities/QuizConfig';
+import { QuizConfigResponseDto } from '../dtos/QuizConfigResponseDto';
+import { QuizConfigMapper } from '../mappers/QuizConfigMapper';
 import { IQuizConfigRepository } from '../../domain/IRepositories/IQuizConfigRepository';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
@@ -11,7 +12,7 @@ export class GetQuizConfigUseCase implements IGetQuizConfigUseCase {
     courseId: string,
     userId: string,
     role: string,
-  ): Promise<IQuizConfig | null> {
+  ): Promise<QuizConfigResponseDto | null> {
     const config = await this.quizConfigRepository.findByCourseId(courseId);
 
     if (!config) {
@@ -29,6 +30,6 @@ export class GetQuizConfigUseCase implements IGetQuizConfigUseCase {
       );
     }
 
-    return config;
+    return config ? QuizConfigMapper.toDto(config) : null;
   }
 }

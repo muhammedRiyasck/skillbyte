@@ -1,9 +1,10 @@
-import { IQuizConfig } from '../../domain/entities/QuizConfig';
+import { QuizConfigResponseDto } from '../dtos/QuizConfigResponseDto';
+import { UpdateQuizConfigRequestDto } from '../dtos/QuizRequestDto';
 
 export interface IUpdateQuizConfigUseCase {
   execute(
     courseId: string,
     instructorId: string,
-    updates: Partial<IQuizConfig>,
-  ): Promise<IQuizConfig | null>;
+    updates: UpdateQuizConfigRequestDto,
+  ): Promise<QuizConfigResponseDto | null>;
 }

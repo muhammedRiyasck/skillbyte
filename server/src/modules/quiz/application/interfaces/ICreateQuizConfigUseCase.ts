@@ -1,10 +1,8 @@
-import { IQuizConfig } from '../../domain/entities/QuizConfig';
+import { QuizConfigResponseDto } from '../dtos/QuizConfigResponseDto';
+import { CreateQuizConfigRequestDto } from '../dtos/QuizRequestDto';
 
 export interface ICreateQuizConfigUseCase {
   execute(
-    data: Omit<
-      IQuizConfig,
-      'configId' | 'cachedQuestions' | 'questionsGeneratedAt'
-    >,
-  ): Promise<IQuizConfig>;
+    data: CreateQuizConfigRequestDto & { instructorId: string },
+  ): Promise<QuizConfigResponseDto>;
 }

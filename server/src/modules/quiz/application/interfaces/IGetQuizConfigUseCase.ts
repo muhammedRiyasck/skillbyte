@@ -1,9 +1,9 @@
-import { IQuizConfig } from '../../domain/entities/QuizConfig';
+import { QuizConfigResponseDto } from '../dtos/QuizConfigResponseDto';
 
 export interface IGetQuizConfigUseCase {
   execute(
     courseId: string,
     userId: string,
     role: string,
-  ): Promise<IQuizConfig | null>;
+  ): Promise<QuizConfigResponseDto | null>;
 }

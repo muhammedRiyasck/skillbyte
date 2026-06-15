@@ -1,4 +1,4 @@
-import { IQuizAttempt } from '../../domain/entities/QuizAttempt';
+import { QuizAttemptResponseDto } from '../dtos/QuizAttemptResponseDto';
 import { StudentAnswer } from '../../domain/entities/StudentAnswer';
 
 export interface ISubmitQuizAttemptUseCase {
@@ -6,5 +6,5 @@ export interface ISubmitQuizAttemptUseCase {
     attemptId: string,
     userId: string,
     answers: StudentAnswer[],
-  ): Promise<IQuizAttempt>;
+  ): Promise<QuizAttemptResponseDto>;
 }

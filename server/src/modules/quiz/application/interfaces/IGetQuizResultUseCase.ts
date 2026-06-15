@@ -1,5 +1,8 @@
-import { IQuizAttempt } from '../../domain/entities/QuizAttempt';
+import { QuizAttemptResponseDto } from '../dtos/QuizAttemptResponseDto';
 
 export interface IGetQuizResultUseCase {
-  execute(courseId: string, userId: string): Promise<IQuizAttempt | null>;
+  execute(
+    courseId: string,
+    userId: string,
+  ): Promise<QuizAttemptResponseDto | null>;
 }

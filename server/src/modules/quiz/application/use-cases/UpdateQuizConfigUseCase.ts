@@ -1,5 +1,8 @@
 import { IUpdateQuizConfigUseCase } from '../interfaces/IUpdateQuizConfigUseCase';
 import { IQuizConfig } from '../../domain/entities/QuizConfig';
+import { QuizConfigResponseDto } from '../dtos/QuizConfigResponseDto';
+import { QuizConfigMapper } from '../mappers/QuizConfigMapper';
+import { UpdateQuizConfigRequestDto } from '../dtos/QuizRequestDto';
 import { IQuizConfigRepository } from '../../domain/IRepositories/IQuizConfigRepository';
 import { ICourseRepository } from '../../../course/domain/IRepositories/ICourseRepository';
 import { IAIQuizService } from '../../../../shared/services/ai/IAIQuizService';
@@ -17,8 +20,8 @@ export class UpdateQuizConfigUseCase implements IUpdateQuizConfigUseCase {
   async execute(
     courseId: string,
     instructorId: string,
-    updates: Partial<IQuizConfig>,
-  ): Promise<IQuizConfig | null> {
+    updates: UpdateQuizConfigRequestDto,
+  ): Promise<QuizConfigResponseDto | null> {
     const existingConfig =
       await this.quizConfigRepository.findByCourseId(courseId);
 
@@ -86,7 +89,7 @@ export class UpdateQuizConfigUseCase implements IUpdateQuizConfigUseCase {
     }
 
     // Determine if any core settings changed that would invalidate the cached questions
-    const cacheInvalidatingKeys: (keyof IQuizConfig)[] = [
+    const cacheInvalidatingKeys: (keyof UpdateQuizConfigRequestDto)[] = [
       'topics',
       'questionCount',
       'questionTypes',
@@ -97,14 +100,15 @@ export class UpdateQuizConfigUseCase implements IUpdateQuizConfigUseCase {
     for (const key of cacheInvalidatingKeys) {
       if (
         updates[key] !== undefined &&
-        JSON.stringify(updates[key]) !== JSON.stringify(existingConfig[key])
+        JSON.stringify(updates[key]) !==
+          JSON.stringify(existingConfig[key as keyof IQuizConfig])
       ) {
         shouldInvalidateCache = true;
         break;
       }
     }
 
-    const finalUpdates = { ...updates };
+    const finalUpdates: Partial<IQuizConfig> = { ...updates };
     if (shouldInvalidateCache) {
       finalUpdates.cachedQuestions = null;
       finalUpdates.questionsGeneratedAt = null;
@@ -173,6 +177,6 @@ export class UpdateQuizConfigUseCase implements IUpdateQuizConfigUseCase {
       })();
     }
 
-    return savedConfig;
+    return savedConfig ? QuizConfigMapper.toDto(savedConfig) : null;
   }
 }

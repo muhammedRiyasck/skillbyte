@@ -1,6 +1,7 @@
 import { IGetQuizResultUseCase } from '../interfaces/IGetQuizResultUseCase';
 import { IQuizAttemptRepository } from '../../domain/IRepositories/IQuizAttemptRepository';
-import { IQuizAttempt } from '../../domain/entities/QuizAttempt';
+import { QuizAttemptResponseDto } from '../dtos/QuizAttemptResponseDto';
+import { QuizAttemptMapper } from '../mappers/QuizAttemptMapper';
 
 export class GetQuizResultUseCase implements IGetQuizResultUseCase {
   constructor(private quizAttemptRepository: IQuizAttemptRepository) {}
@@ -8,7 +9,7 @@ export class GetQuizResultUseCase implements IGetQuizResultUseCase {
   async execute(
     courseId: string,
     userId: string,
-  ): Promise<IQuizAttempt | null> {
+  ): Promise<QuizAttemptResponseDto | null> {
     const attempt = await this.quizAttemptRepository.findLatestByCourseAndUser(
       courseId,
       userId,
@@ -17,6 +18,6 @@ export class GetQuizResultUseCase implements IGetQuizResultUseCase {
       return null;
     }
 
-    return attempt;
+    return QuizAttemptMapper.toDto(attempt);
   }
 }

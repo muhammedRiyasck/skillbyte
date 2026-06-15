@@ -1,11 +1,19 @@
 import { IGetAllQuizAttemptsUseCase } from '../interfaces/IGetAllQuizAttemptsUseCase';
 import { IQuizAttemptRepository } from '../../domain/IRepositories/IQuizAttemptRepository';
-import { IQuizAttempt } from '../../domain/entities/QuizAttempt';
+import { QuizAttemptResponseDto } from '../dtos/QuizAttemptResponseDto';
+import { QuizAttemptMapper } from '../mappers/QuizAttemptMapper';
 
 export class GetAllQuizAttemptsUseCase implements IGetAllQuizAttemptsUseCase {
   constructor(private quizAttemptRepository: IQuizAttemptRepository) {}
 
-  async execute(courseId: string, userId: string): Promise<IQuizAttempt[]> {
-    return this.quizAttemptRepository.findAllByCourseAndUser(courseId, userId);
+  async execute(
+    courseId: string,
+    userId: string,
+  ): Promise<QuizAttemptResponseDto[]> {
+    const attempts = await this.quizAttemptRepository.findAllByCourseAndUser(
+      courseId,
+      userId,
+    );
+    return attempts.map((a) => QuizAttemptMapper.toDto(a));
   }
 }

@@ -9,6 +9,8 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentReadRepository';
 import { ICourseRepository } from '../../../course/domain/IRepositories/ICourseRepository';
 import logger from '../../../../shared/utils/Logger';
+import { QuizAttemptResponseDto } from '../dtos/QuizAttemptResponseDto';
+import { QuizAttemptMapper } from '../mappers/QuizAttemptMapper';
 
 /** Fisher-Yates in-place shuffle — returns the same array shuffled. */
 function shuffleArray<T>(arr: T[]): T[] {
@@ -28,7 +30,10 @@ export class StartQuizAttemptUseCase implements IStartQuizAttemptUseCase {
     private courseRepo: ICourseRepository,
   ) {}
 
-  async execute(courseId: string, userId: string): Promise<IQuizAttempt> {
+  async execute(
+    courseId: string,
+    userId: string,
+  ): Promise<QuizAttemptResponseDto> {
     // 1. Check if enrollment exists and is 99% complete (videos watched)
     const enrollment = await this.enrollmentReadRepo.findEnrollment(
       userId,
@@ -65,7 +70,7 @@ export class StartQuizAttemptUseCase implements IStartQuizAttemptUseCase {
         latestAttempt.questions.some((q) => !q.questionId);
       if (!isCorrupted) {
         // Reuse the existing in-progress attempt
-        return latestAttempt;
+        return QuizAttemptMapper.toDto(latestAttempt);
       } else {
         // Delete the corrupted attempt so a fresh one can be generated
         await this.quizAttemptRepository.deleteAttemptsByCourseAndUser(
@@ -156,6 +161,7 @@ export class StartQuizAttemptUseCase implements IStartQuizAttemptUseCase {
       startedAt: new Date(),
     };
 
-    return await this.quizAttemptRepository.create(newAttempt);
+    const savedAttempt = await this.quizAttemptRepository.create(newAttempt);
+    return QuizAttemptMapper.toDto(savedAttempt);
   }
 }

@@ -8,8 +8,12 @@ import { IGetQuizResultUseCase } from '../../application/interfaces/IGetQuizResu
 import { IGetAllQuizAttemptsUseCase } from '../../application/interfaces/IGetAllQuizAttemptsUseCase';
 import { IGetQuizAnalyticsUseCase } from '../../application/interfaces/IGetQuizAnalyticsUseCase';
 import { IResetStudentQuizAttemptsUseCase } from '../../application/interfaces/IResetStudentQuizAttemptsUseCase';
-import { QuizConfigMapper } from '../../application/mappers/QuizConfigMapper';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
+import {
+  CreateQuizConfigRequestDto,
+  UpdateQuizConfigRequestDto,
+  SubmitQuizAttemptRequestDto,
+} from '../../application/dtos/QuizRequestDto';
 
 interface IUserRequest extends Request {
   user?: {
@@ -44,13 +48,14 @@ export class QuizController {
         return;
       }
 
-      const configData = { ...req.body, instructorId };
+      const dto: CreateQuizConfigRequestDto = req.body;
+      const configData = { ...dto, instructorId };
       const config = await this.createQuizConfigUseCase.execute(configData);
 
       ApiResponseHelper.created(
         res,
         'Quiz configuration created successfully',
-        QuizConfigMapper.toDto(config),
+        config,
       );
     } catch (error) {
       next(error);
@@ -71,16 +76,17 @@ export class QuizController {
         return;
       }
 
+      const dto: UpdateQuizConfigRequestDto = req.body;
       const updatedConfig = await this.updateQuizConfigUseCase.execute(
         courseId,
         instructorId,
-        req.body,
+        dto,
       );
 
       ApiResponseHelper.success(
         res,
         'Quiz configuration updated successfully',
-        updatedConfig ? QuizConfigMapper.toDto(updatedConfig) : null,
+        updatedConfig,
       );
     } catch (error) {
       next(error);
@@ -113,7 +119,7 @@ export class QuizController {
         config
           ? 'Quiz configuration retrieved successfully'
           : 'No configuration found',
-        config ? QuizConfigMapper.toDto(config) : null,
+        config,
       );
     } catch (error) {
       next(error);
@@ -153,7 +159,7 @@ export class QuizController {
     try {
       const userId = (req as unknown as IUserRequest).user?.id;
       const { attemptId } = req.params;
-      const { answers } = req.body;
+      const dto: SubmitQuizAttemptRequestDto = req.body;
 
       if (!userId) {
         ApiResponseHelper.unauthorized(res, 'Unauthorized');
@@ -163,7 +169,7 @@ export class QuizController {
       const attempt = await this.submitQuizAttemptUseCase.execute(
         attemptId,
         userId,
-        answers,
+        dto.answers,
       );
       ApiResponseHelper.success(res, 'Quiz submitted successfully', attempt);
     } catch (error) {
