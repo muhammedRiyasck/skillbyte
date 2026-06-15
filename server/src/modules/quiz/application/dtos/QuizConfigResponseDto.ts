@@ -1,7 +1,7 @@
 import { QuizDifficulty } from '../../../../shared/enums/QuizDifficulty';
 import { QuestionType } from '../../domain/entities/QuizConfig';
 
-export interface IQuizConfigDto {
+export interface QuizConfigResponseDto {
   configId?: string;
   courseId: string;
   isEnabled: boolean;

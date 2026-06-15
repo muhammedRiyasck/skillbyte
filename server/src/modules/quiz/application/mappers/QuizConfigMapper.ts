@@ -1,8 +1,8 @@
 import { IQuizConfig } from '../../domain/entities/QuizConfig';
-import { IQuizConfigDto } from '../dtos/QuizConfigDto';
+import { QuizConfigResponseDto } from '../dtos/QuizConfigResponseDto';
 
 export class QuizConfigMapper {
-  static toDto(entity: IQuizConfig): IQuizConfigDto {
+  static toDto(entity: IQuizConfig): QuizConfigResponseDto {
     return {
       configId: entity.configId,
       courseId: entity.courseId,
