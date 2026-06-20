@@ -1,5 +1,8 @@
-import { CertificateDto } from '../dtos/CertificateDto';
+import { CertificateResponseDto } from '../dtos/CertificateResponseDto';
 
 export interface IGetCertificateUseCase {
-  execute(certificateId: string, userId?: string): Promise<CertificateDto>;
+  execute(
+    certificateId: string,
+    userId: string,
+  ): Promise<CertificateResponseDto | null>;
 }

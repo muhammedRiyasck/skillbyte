@@ -1,4 +1,4 @@
-export interface CertificateDto {
+export interface CertificateResponseDto {
   certificateId: string;
   certificateNumber: string;
   verificationCode: string;

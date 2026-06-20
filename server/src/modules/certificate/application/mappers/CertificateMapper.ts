@@ -1,6 +1,6 @@
 import { ICertificate } from '../../domain/entities/Certificate';
 import { IEnrollment } from '../../../enrollment/domain/entities/Enrollment';
-import { CertificateDto } from '../dtos/CertificateDto';
+import { CertificateResponseDto } from '../dtos/CertificateResponseDto';
 import { Course } from '../../../course/domain/entities/Course';
 import { Instructor } from '../../../instructor/domain/entities/Instructor';
 import { Student } from '../../../student/domain/entities/Student';
@@ -12,7 +12,7 @@ export class CertificateMapper {
     course: Course,
     enrollment: IEnrollment,
     instructor: Instructor,
-  ): CertificateDto {
+  ): CertificateResponseDto {
     return {
       certificateId: certificate.certificateId!,
       certificateNumber: certificate.certificateNumber,

@@ -6,7 +6,7 @@ import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositor
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
 import { IStudentRepository } from '../../../student/domain/IRepositories/IStudentRepository';
 import { ICertificateRepository } from '../../domain/IRepositories/ICertificateRepository';
-import { CertificateDto } from '../dtos/CertificateDto';
+import { CertificateResponseDto } from '../dtos/CertificateResponseDto';
 import { ICertificateCodeGenerator } from '../interfaces/ICertificateCodeGenerator';
 import { IIssueCertificateUseCase } from '../interfaces/IIssueCertificateUseCase';
 import { CertificateMapper } from '../mappers/CertificateMapper';
@@ -21,7 +21,10 @@ export class IssueCertificateUseCase implements IIssueCertificateUseCase {
     private codeGenerator: ICertificateCodeGenerator,
   ) {}
 
-  async execute(userId: string, courseId: string): Promise<CertificateDto> {
+  async execute(
+    userId: string,
+    courseId: string,
+  ): Promise<CertificateResponseDto> {
     const enrollment = await this.enrollmentReadRepo.findEnrollment(
       userId,
       courseId,

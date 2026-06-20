@@ -1,5 +1,5 @@
-import { CertificateDto } from '../dtos/CertificateDto';
+import { CertificateResponseDto } from '../dtos/CertificateResponseDto';
 
 export interface IVerifyCertificateUseCase {
-  execute(verificationCode: string): Promise<CertificateDto>;
+  execute(verificationCode: string): Promise<CertificateResponseDto | null>;
 }

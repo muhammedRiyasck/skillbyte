@@ -5,7 +5,7 @@ import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositor
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
 import { IStudentRepository } from '../../../student/domain/IRepositories/IStudentRepository';
 import { ICertificateRepository } from '../../domain/IRepositories/ICertificateRepository';
-import { CertificateDto } from '../dtos/CertificateDto';
+import { CertificateResponseDto } from '../dtos/CertificateResponseDto';
 import { IGetCertificateUseCase } from '../interfaces/IGetCertificateUseCase';
 import { CertificateMapper } from '../mappers/CertificateMapper';
 
@@ -21,7 +21,7 @@ export class GetCertificateUseCase implements IGetCertificateUseCase {
   async execute(
     certificateId: string,
     userId?: string,
-  ): Promise<CertificateDto> {
+  ): Promise<CertificateResponseDto> {
     const certificate = await this.certificateRepo.findById(certificateId);
     if (!certificate) {
       throw new HttpError('Certificate not found', HttpStatusCode.NOT_FOUND);
