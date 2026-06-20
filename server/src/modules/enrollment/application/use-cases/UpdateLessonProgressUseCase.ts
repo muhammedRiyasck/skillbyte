@@ -1,11 +1,13 @@
 import { IEnrollmentWriteRepository } from '../../domain/IRepositories/IEnrollmentWriteRepository';
-import { IEnrollment } from '../../domain/entities/Enrollment';
-import logger from '../../../../shared/utils/Logger';
 import { IUpdateLessonProgress } from '../interfaces/IUpdateLessonProgress';
 import { ILessonRepository } from '../../../course/domain/IRepositories/ILessonRepository';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
+import { EnrollmentMapper } from '../mappers/EnrollmentMapper';
+import { EnrollmentResponseDto } from '../dtos/EnrollmentResponseDto';
+import { UpdateLessonProgressRequestDto } from '../dtos/UpdateLessonProgressRequestDto';
+import logger from '../../../../shared/utils/Logger';
 
 export class UpdateLessonProgressUseCase implements IUpdateLessonProgress {
   constructor(
@@ -16,12 +18,8 @@ export class UpdateLessonProgressUseCase implements IUpdateLessonProgress {
   async execute(
     enrollmentId: string,
     lessonId: string,
-    progressData: {
-      lastWatchedSecond: number;
-      totalDuration: number;
-      isCompleted: boolean;
-    },
-  ): Promise<IEnrollment | null> {
+    progressData: Omit<UpdateLessonProgressRequestDto, 'lessonId'>,
+  ): Promise<EnrollmentResponseDto | null> {
     if (!enrollmentId || !lessonId) {
       throw new HttpError(
         'Enrollment ID and Lesson ID are required',
@@ -29,7 +27,6 @@ export class UpdateLessonProgressUseCase implements IUpdateLessonProgress {
       );
     }
 
-    // 1. Update lesson progress in repository (data-only operation)
     const updatedEnrollment =
       await this.enrollmentWriteRepo.updateLessonProgress(
         enrollmentId,
@@ -42,13 +39,11 @@ export class UpdateLessonProgressUseCase implements IUpdateLessonProgress {
       return null;
     }
 
-    // 2. Get active lessons in the course
     const activeLessonIds = await this.lessonRepo.findLessonIdsByCourseId(
       updatedEnrollment.courseId,
     );
     const totalLessonsInCourse = activeLessonIds.length;
 
-    // 3. Calculate progress based on total course lessons (only counting existing lessons)
     const completedLessons = updatedEnrollment.lessonProgress.filter(
       (lp) => lp.isCompleted && activeLessonIds.includes(lp.lessonId),
     ).length;
@@ -61,7 +56,6 @@ export class UpdateLessonProgressUseCase implements IUpdateLessonProgress {
           )
         : 0;
 
-    // 4. Update overall progress
     const status =
       progressPercentage >= 100 &&
       updatedEnrollment.status !== EnrollmentStatus.COMPLETED
@@ -72,11 +66,13 @@ export class UpdateLessonProgressUseCase implements IUpdateLessonProgress {
         ? new Date()
         : undefined;
 
-    return await this.enrollmentWriteRepo.updateProgress(
+    const finalEnrollment = await this.enrollmentWriteRepo.updateProgress(
       enrollmentId,
       progressPercentage,
       status,
       completedAt,
     );
+
+    return finalEnrollment ? EnrollmentMapper.toDto(finalEnrollment) : null;
   }
 }

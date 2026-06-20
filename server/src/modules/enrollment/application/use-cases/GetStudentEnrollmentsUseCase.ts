@@ -1,7 +1,8 @@
-import { IStudentEnrollment } from '../../types/IStudentEnrollment';
 import { IGetStudentEnrollmentsUseCase } from '../interfaces/IGetStudentEnrollments';
 import { IEnrollmentReadRepository } from '../../domain/IRepositories/IEnrollmentReadRepository';
 import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
+import { StudentEnrollmentsResponseDto } from '../dtos/StudentEnrollmentsResponseDto';
+import { IStudentEnrollment } from '../../types/IStudentEnrollment';
 
 export class GetStudentEnrollmentsUseCase
   implements IGetStudentEnrollmentsUseCase
@@ -16,12 +17,17 @@ export class GetStudentEnrollmentsUseCase
       search?: string;
       status?: EnrollmentStatus;
     },
-  ): Promise<{ data: IStudentEnrollment[]; totalCount: number }> {
-    return (await this.enrollmentRepository.findEnrollmentsByUser(
+  ): Promise<StudentEnrollmentsResponseDto> {
+    const result = (await this.enrollmentRepository.findEnrollmentsByUser(
       userId,
       page,
       limit,
       filters,
     )) as { data: IStudentEnrollment[]; totalCount: number };
+
+    return {
+      data: result.data,
+      totalCount: result.totalCount,
+    };
   }
 }

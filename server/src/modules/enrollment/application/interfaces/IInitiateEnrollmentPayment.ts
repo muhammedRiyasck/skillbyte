@@ -1,12 +1,9 @@
-interface OrderResponse {
-  id: string;
-  client_secret?: string;
-}
+import { InitiatedPaymentResponseDto } from '../dtos/InitiatedPaymentResponseDto';
 
 export interface IInitiateEnrollmentPayment {
   execute(
     userId: string,
     courseId: string,
     providerName: string,
-  ): Promise<{ providerResponse: OrderResponse; paymentId: string }>;
+  ): Promise<InitiatedPaymentResponseDto>;
 }

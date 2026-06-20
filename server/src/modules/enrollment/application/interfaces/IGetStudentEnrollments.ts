@@ -1,4 +1,5 @@
-import { IStudentEnrollment } from '../../types/IStudentEnrollment';
+import { StudentEnrollmentsResponseDto } from '../dtos/StudentEnrollmentsResponseDto';
+import { StudentEnrollmentItemDto } from '../dtos/StudentEnrollmentsResponseDto';
 import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
 
 export interface IGetStudentEnrollmentsUseCase {
@@ -10,5 +11,7 @@ export interface IGetStudentEnrollmentsUseCase {
       search?: string;
       status?: EnrollmentStatus;
     },
-  ): Promise<{ data: IStudentEnrollment[]; totalCount: number }>;
+  ): Promise<StudentEnrollmentsResponseDto>;
 }
+
+export type { StudentEnrollmentItemDto };

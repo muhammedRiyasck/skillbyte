@@ -1,13 +1,10 @@
-import { IEnrollment } from '../../domain/entities/Enrollment';
+import { EnrollmentResponseDto } from '../dtos/EnrollmentResponseDto';
+import { UpdateLessonProgressRequestDto } from '../dtos/UpdateLessonProgressRequestDto';
 
 export interface IUpdateLessonProgress {
   execute(
     enrollmentId: string,
     lessonId: string,
-    metaData: {
-      lastWatchedSecond: number;
-      totalDuration: number;
-      isCompleted: boolean;
-    },
-  ): Promise<IEnrollment | null>;
+    metaData: Omit<UpdateLessonProgressRequestDto, 'lessonId'>,
+  ): Promise<EnrollmentResponseDto | null>;
 }

@@ -1,13 +1,14 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../../../shared/types/AuthenticatedRequestType';
 import { ICheckEnrollment } from '../application/interfaces/ICheckEnrollment';
 import { IGetInstructorEnrollmentsUseCase } from '../application/interfaces/IGetInstructorEnrollments';
 import { IUpdateLessonProgress } from '../application/interfaces/IUpdateLessonProgress';
 import { IGetStudentEnrollmentsUseCase } from '../application/interfaces/IGetStudentEnrollments';
 import { IInitiateEnrollmentPayment } from '../application/interfaces/IInitiateEnrollmentPayment';
-
 import { ApiResponseHelper } from '../../../shared/utils/ApiResponseHelper';
 import { EnrollmentStatus } from '../../../shared/enums/EnrollmentStatus';
+import { UpdateLessonProgressRequestDto } from '../application/dtos/UpdateLessonProgressRequestDto';
+import { InitiatePaymentRequestDto } from '../application/dtos/InitiatePaymentRequestDto';
 
 export class EnrollmentController {
   constructor(
@@ -18,33 +19,42 @@ export class EnrollmentController {
     private _initiateEnrollmentPaymentUc: IInitiateEnrollmentPayment,
   ) {}
 
-  async checkEnrollmentStatus(req: Request, res: Response) {
+  async checkEnrollmentStatus(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const id = req.params.id;
       const userId = (req as AuthenticatedRequest).user.id;
 
       if (!userId) {
-        return ApiResponseHelper.unauthorized(res, 'Unauthorized');
+        ApiResponseHelper.unauthorized(res, 'Unauthorized');
+        return;
       }
 
       const enrollment = await this._checkEnrollmentUc.execute(userId, id);
 
-      return ApiResponseHelper.success(res, 'Enrollment status checked', {
+      ApiResponseHelper.success(res, 'Enrollment status checked', {
         isEnrolled: !!enrollment,
-        enrollment: enrollment,
+        enrollment,
       });
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      return ApiResponseHelper.badRequest(res, message);
+      next(error);
     }
   }
 
-  async getInstructorEnrollments(req: Request, res: Response) {
+  async getInstructorEnrollments(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const userId = (req as AuthenticatedRequest).user.id;
 
       if (!userId) {
-        return ApiResponseHelper.unauthorized(res, 'Unauthorized');
+        ApiResponseHelper.unauthorized(res, 'Unauthorized');
+        return;
       }
 
       const page = Number(req.query.page) || 1;
@@ -64,41 +74,49 @@ export class EnrollmentController {
         filters,
       );
 
-      return ApiResponseHelper.success(res, 'Enrollments fetched', enrollments);
+      ApiResponseHelper.success(res, 'Enrollments fetched', enrollments);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      return ApiResponseHelper.badRequest(res, message);
+      next(error);
     }
   }
 
-  async updateProgress(req: Request, res: Response) {
+  async updateProgress(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
-      const { lessonId, lastWatchedSecond, totalDuration, isCompleted } =
-        req.body;
+      const dto: UpdateLessonProgressRequestDto = req.body;
       const { enrollmentId } = req.params;
       const userId = (req as AuthenticatedRequest).user.id;
 
       if (!userId) {
-        return ApiResponseHelper.unauthorized(res, 'Unauthorized');
+        ApiResponseHelper.unauthorized(res, 'Unauthorized');
+        return;
       }
 
+      const { lessonId, ...progressData } = dto;
       const result = await this._updateLessonProgressUc.execute(
         enrollmentId,
         lessonId,
-        { lastWatchedSecond, totalDuration, isCompleted },
+        progressData,
       );
-      return ApiResponseHelper.success(res, 'Progress updated', result);
+      ApiResponseHelper.success(res, 'Progress updated', result);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      return ApiResponseHelper.badRequest(res, message);
+      next(error);
     }
   }
 
-  async getStudentEnrollments(req: Request, res: Response) {
+  async getStudentEnrollments(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       const userId = (req as AuthenticatedRequest).user.id;
       if (!userId) {
-        return ApiResponseHelper.unauthorized(res, 'Unauthorized');
+        ApiResponseHelper.unauthorized(res, 'Unauthorized');
+        return;
       }
 
       const page = Number(req.query.page) || 1;
@@ -115,31 +133,35 @@ export class EnrollmentController {
         limit,
         filters,
       );
-      return ApiResponseHelper.success(res, 'Enrollments fetched', result);
+      ApiResponseHelper.success(res, 'Enrollments fetched', result);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      return ApiResponseHelper.badRequest(res, message);
+      next(error);
     }
   }
 
-  async initiatePayment(req: Request, res: Response) {
+  async initiatePayment(
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
-      const { id, provider } = req.body;
+      const dto: InitiatePaymentRequestDto = req.body;
       const userId = (req as AuthenticatedRequest).user.id;
 
       if (!userId) {
-        return ApiResponseHelper.unauthorized(res, 'Unauthorized');
+        ApiResponseHelper.unauthorized(res, 'Unauthorized');
+        return;
       }
+
       const result = await this._initiateEnrollmentPaymentUc.execute(
         userId,
-        id,
-        provider,
+        dto.id,
+        dto.provider,
       );
 
-      return ApiResponseHelper.success(res, 'Payment initiated', result);
+      ApiResponseHelper.success(res, 'Payment initiated', result);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      return ApiResponseHelper.badRequest(res, message);
+      next(error);
     }
   }
 }

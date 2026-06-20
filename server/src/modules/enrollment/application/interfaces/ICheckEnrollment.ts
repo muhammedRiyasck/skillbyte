@@ -1,5 +1,8 @@
-import { IEnrollment } from '../../domain/entities/Enrollment';
+import { EnrollmentResponseDto } from '../dtos/EnrollmentResponseDto';
 
 export interface ICheckEnrollment {
-  execute(userId: string, courseId: string): Promise<IEnrollment | null>;
+  execute(
+    userId: string,
+    courseId: string,
+  ): Promise<EnrollmentResponseDto | null>;
 }

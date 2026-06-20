@@ -1,8 +1,12 @@
 import mongoose from 'mongoose';
 import { IGetInstructorEnrollmentsUseCase } from '../interfaces/IGetInstructorEnrollments';
 import { IEnrollmentReadRepository } from '../../domain/IRepositories/IEnrollmentReadRepository';
-import { ICourseEnrollmentSummary } from '../../types/IInstructorEnrollment';
 import { IEnrollmentFilters } from '../../types/IInstructorEnrollment';
+import {
+  InstructorEnrollmentsResponseDto,
+  CourseEnrollmentSummaryDto,
+} from '../dtos/InstructorEnrollmentsResponseDto';
+import { InstructorEnrollmentFiltersDto } from '../dtos/InstructorEnrollmentFiltersDto';
 
 export class GetInstructorEnrollmentsUseCase
   implements IGetInstructorEnrollmentsUseCase
@@ -13,22 +17,21 @@ export class GetInstructorEnrollmentsUseCase
     instructorId: string,
     page: number,
     limit: number,
-    filters?: IEnrollmentFilters,
-  ): Promise<ICourseEnrollmentSummary> {
+    filters?: InstructorEnrollmentFiltersDto,
+  ): Promise<InstructorEnrollmentsResponseDto> {
     const instructorObjectId = new mongoose.Types.ObjectId(instructorId);
     const result = await this.enrollmentRepository.findEnrollmentsByInstructor(
       instructorObjectId,
       page,
       limit,
-      filters,
+      filters as IEnrollmentFilters,
     );
 
     const enrollmentData = result[0];
     const enrollments = enrollmentData?.data || [];
     const totalCount = enrollmentData?.totalCount[0]?.count || 0;
 
-    // Group enrollments by course and enrich with course/student data
-    const courseMap = new Map<string, ICourseEnrollmentSummary['data'][0]>();
+    const courseMap = new Map<string, CourseEnrollmentSummaryDto>();
 
     for (const enrollment of enrollments) {
       const courseId = enrollment.courseId._id.toString();
@@ -55,6 +58,7 @@ export class GetInstructorEnrollmentsUseCase
         });
       }
     }
+
     return { data: Array.from(courseMap.values()), totalCount };
   }
 }
