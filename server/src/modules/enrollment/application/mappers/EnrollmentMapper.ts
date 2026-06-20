@@ -1,33 +1,24 @@
-import { IEnrollment as IEnrollmentEntity } from '../../domain/entities/Enrollment';
+import { IEnrollment } from '../../domain/entities/Enrollment';
+import { EnrollmentResponseDto } from '../dtos/EnrollmentResponseDto';
 
 export class EnrollmentMapper {
-  static toResponse(enrollment: IEnrollmentEntity) {
+  static toDto(entity: IEnrollment): EnrollmentResponseDto {
     return {
-      id: enrollment.enrollmentId,
-      userId: enrollment.userId,
-      courseId: enrollment.courseId,
-      paymentId: enrollment.paymentId,
-      status: enrollment.status,
-      enrolledAt: enrollment.enrolledAt,
-      completedAt: enrollment.completedAt,
-      progress: Math.min(100, enrollment.progress),
-      lessonProgress: enrollment.lessonProgress,
-      createdAt: enrollment.createdAt,
-      updatedAt: enrollment.updatedAt,
-    };
-  }
-
-  static toResponseList(enrollments: IEnrollmentEntity[]) {
-    return enrollments.map((enrollment) => this.toResponse(enrollment));
-  }
-
-  static toStudentEnrollmentsResponse(data: {
-    data: unknown[];
-    totalCount: number;
-  }) {
-    return {
-      enrollments: data.data,
-      totalCount: data.totalCount,
+      enrollmentId: entity.enrollmentId!,
+      userId: entity.userId,
+      courseId: entity.courseId,
+      paymentId: entity.paymentId,
+      status: entity.status,
+      enrolledAt: entity.enrolledAt,
+      completedAt: entity.completedAt,
+      progress: Math.min(100, entity.progress),
+      lessonProgress: entity.lessonProgress.map((lp) => ({
+        lessonId: lp.lessonId,
+        lastWatchedSecond: lp.lastWatchedSecond,
+        totalDuration: lp.totalDuration,
+        isCompleted: lp.isCompleted,
+        lastUpdated: lp.lastUpdated,
+      })),
     };
   }
 }
