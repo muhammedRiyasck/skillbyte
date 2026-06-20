@@ -1,4 +1,4 @@
-import { Report } from '../../domain/entities/Report';
+import { ReportResponseDto } from '../dtos/ReportResponseDto';
 
 export interface ISubmitReportUseCase {
   execute(
@@ -7,5 +7,5 @@ export interface ISubmitReportUseCase {
     targetId: string,
     reason: string,
     description?: string,
-  ): Promise<Report>;
+  ): Promise<ReportResponseDto>;
 }

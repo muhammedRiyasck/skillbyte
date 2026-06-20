@@ -6,7 +6,8 @@ import { IGetPendingReportsUseCase } from '../interfaces/IGetPendingReportsUseCa
 import { ICourseRepository } from '../../../course/domain/IRepositories/ICourseRepository';
 import { ILessonRepository } from '../../../course/domain/IRepositories/ILessonRepository';
 import { IReviewRepository } from '../../../review/domain/IRepositories/IReviewRepository';
-import { Report } from '../../domain/entities/Report';
+import { ReportMapper } from '../mappers/ReportMapper';
+import { PendingReportsResponseDto } from '../dtos/PendingReportsResponseDto';
 
 export class GetPendingReportsUseCase implements IGetPendingReportsUseCase {
   constructor(
@@ -18,7 +19,7 @@ export class GetPendingReportsUseCase implements IGetPendingReportsUseCase {
 
   async execute(
     filters: ReportFilterOptions,
-  ): Promise<{ reports: Report[]; total: number }> {
+  ): Promise<PendingReportsResponseDto> {
     const { reports, total } =
       await this.reportRepository.findWithFilters(filters);
 
@@ -62,6 +63,6 @@ export class GetPendingReportsUseCase implements IGetPendingReportsUseCase {
       }),
     );
 
-    return { reports: enrichedReports, total };
+    return ReportMapper.toPendingReportsDto(enrichedReports, total);
   }
 }

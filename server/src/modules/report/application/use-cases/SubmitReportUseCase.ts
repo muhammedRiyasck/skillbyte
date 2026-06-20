@@ -1,5 +1,7 @@
 import { IReportRepository } from '../../domain/IRepositories/IReportRepository';
 import { ISubmitReportUseCase } from '../interfaces/ISubmitReportUseCase';
+import { ReportMapper } from '../mappers/ReportMapper';
+import { ReportResponseDto } from '../dtos/ReportResponseDto';
 import { Report } from '../../domain/entities/Report';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
@@ -13,7 +15,7 @@ export class SubmitReportUseCase implements ISubmitReportUseCase {
     targetId: string,
     reason: string,
     description?: string,
-  ): Promise<Report> {
+  ): Promise<ReportResponseDto> {
     const hasReported = await this.reportRepository.hasUserReportedTarget(
       studentId,
       targetType,
@@ -34,6 +36,7 @@ export class SubmitReportUseCase implements ISubmitReportUseCase {
       description,
     );
 
-    return this.reportRepository.save(report);
+    const savedReport = await this.reportRepository.save(report);
+    return ReportMapper.toDto(savedReport);
   }
 }

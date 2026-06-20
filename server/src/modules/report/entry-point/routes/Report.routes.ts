@@ -4,6 +4,8 @@ import { authenticate } from '../../../../shared/middlewares/AuthMiddleware';
 import { requireRole } from '../../../../shared/middlewares/RequireRole';
 import { UserRole } from '../../../../shared/enums/UserRole';
 import asyncHandler from '../../../../shared/utils/AsyncHandler';
+import { validateRequest } from '../../../../shared/middlewares/validateRequest';
+import { SubmitReportSchema } from '../validations/ReportValidation';
 
 const router = Router();
 
@@ -12,6 +14,7 @@ router.post(
   '/',
   authenticate,
   requireRole(UserRole.STUDENT),
+  validateRequest(SubmitReportSchema),
   asyncHandler(reportController.submitReport),
 );
 
