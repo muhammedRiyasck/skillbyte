@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { IGetUserNotificationsUseCase } from '../application/interfaces/IGetUserNotificationsUseCase';
 import { IGetRecentNotificationsUseCase } from '../application/interfaces/IGetRecentNotificationsUseCase';
 import { IMarkNotificationAsReadUseCase } from '../application/interfaces/IMarkNotificationAsReadUseCase';
@@ -17,83 +17,54 @@ export class NotificationController {
     private _createNotificationUseCase: ICreateNotificationUseCase,
   ) {}
 
-  getUserNotifications = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    try {
-      const authenticatedReq = req as AuthenticatedRequest;
-      const userId = authenticatedReq.user.id;
-      const validatedQuery = NotificationPaginationSchema.parse(req.query);
-      const { page, limit } = validatedQuery;
+  getUserNotifications = async (req: Request, res: Response): Promise<void> => {
+    const authenticatedReq = req as AuthenticatedRequest;
+    const userId = authenticatedReq.user.id;
+    const validatedQuery = NotificationPaginationSchema.parse(req.query);
+    const { page, limit } = validatedQuery;
 
-      // If page is not specified but limit is, we want recent notifications for dropdown
-      if (!req.query.page && req.query.limit) {
-        const notifications = await this._getRecentNotificationsUseCase.execute(
-          userId,
-          limit,
-        );
-        ApiResponseHelper.success(
-          res,
-          'Recent notifications fetched successfully',
-          notifications,
-        );
-        return;
-      }
-
-      const { notifications, total } =
-        await this._getUserNotificationsUseCase.execute(userId, page, limit);
-
-      ApiResponseHelper.success(res, 'Notifications fetched successfully', {
-        notifications,
-        pagination: {
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit),
-        },
-      });
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  markAsRead = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    try {
-      const { id } = req.params;
-      const notification =
-        await this._markNotificationAsReadUseCase.execute(id);
-      if (!notification) {
-        ApiResponseHelper.notFound(res, 'Notification not found');
-        return;
-      }
+    // If page is not specified but limit is, we want recent notifications for dropdown
+    if (!req.query.page && req.query.limit) {
+      const notifications = await this._getRecentNotificationsUseCase.execute(
+        userId,
+        limit,
+      );
       ApiResponseHelper.success(
         res,
-        'Notification marked as read',
-        notification,
+        'Recent notifications fetched successfully',
+        notifications,
       );
-    } catch (error) {
-      next(error);
+      return;
     }
+
+    const { notifications, total } =
+      await this._getUserNotificationsUseCase.execute(userId, page, limit);
+
+    ApiResponseHelper.success(res, 'Notifications fetched successfully', {
+      notifications,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   };
 
-  markAllAsRead = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> => {
-    try {
-      const authenticatedReq = req as AuthenticatedRequest;
-      const userId = authenticatedReq.user.id;
-      await this._markAllNotificationsAsReadUseCase.execute(userId);
-      ApiResponseHelper.success(res, 'All notifications marked as read');
-    } catch (error) {
-      next(error);
+  markAsRead = async (req: Request, res: Response): Promise<void> => {
+    const { id } = req.params;
+    const notification = await this._markNotificationAsReadUseCase.execute(id);
+    if (!notification) {
+      ApiResponseHelper.notFound(res, 'Notification not found');
+      return;
     }
+    ApiResponseHelper.success(res, 'Notification marked as read', notification);
+  };
+
+  markAllAsRead = async (req: Request, res: Response): Promise<void> => {
+    const authenticatedReq = req as AuthenticatedRequest;
+    const userId = authenticatedReq.user.id;
+    await this._markAllNotificationsAsReadUseCase.execute(userId);
+    ApiResponseHelper.success(res, 'All notifications marked as read');
   };
 }

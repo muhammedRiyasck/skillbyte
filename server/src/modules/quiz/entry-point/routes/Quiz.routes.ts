@@ -20,7 +20,7 @@ router.post(
   authenticate,
   requireInstructor,
   validateRequest(QuizConfigSchema),
-  quizController.createConfig.bind(quizController),
+  quizController.createConfig,
 );
 
 router.put(
@@ -28,14 +28,14 @@ router.put(
   authenticate,
   requireInstructor,
   validateRequest(UpdateQuizConfigSchema),
-  quizController.updateConfig.bind(quizController),
+  quizController.updateConfig,
 );
 
 router.get(
   '/config/:courseId',
   authenticate,
   requireRole('instructor', 'student'),
-  quizController.getConfig.bind(quizController),
+  quizController.getConfig,
 );
 
 // Analytics Route (Instructor Only)
@@ -43,14 +43,14 @@ router.get(
   '/analytics/:courseId',
   authenticate,
   requireInstructor,
-  quizController.getAnalytics.bind(quizController),
+  quizController.getAnalytics,
 );
 
 router.delete(
   '/course/:courseId/attempts/:userId',
   authenticate,
   requireInstructor,
-  quizController.resetStudentAttempts.bind(quizController),
+  quizController.resetStudentAttempts,
 );
 
 // Student Routes
@@ -59,7 +59,7 @@ router.post(
   authenticate,
   requireStudent,
   CustomLimit(60, 'starting a quiz'), // Limit generation attempts
-  quizController.startAttempt.bind(quizController),
+  quizController.startAttempt,
 );
 
 router.post(
@@ -67,21 +67,21 @@ router.post(
   authenticate,
   requireStudent,
   validateRequest(SubmitQuizAttemptSchema),
-  quizController.submitAttempt.bind(quizController),
+  quizController.submitAttempt,
 );
 
 router.get(
   '/result/:courseId',
   authenticate,
   requireStudent,
-  quizController.getResult.bind(quizController),
+  quizController.getResult,
 );
 
 router.get(
   '/attempts/:courseId',
   authenticate,
   requireStudent,
-  quizController.getAllAttempts.bind(quizController),
+  quizController.getAllAttempts,
 );
 
 export default router;

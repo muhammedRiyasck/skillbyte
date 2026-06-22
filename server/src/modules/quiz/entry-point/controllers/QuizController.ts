@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import { ICreateQuizConfigUseCase } from '../../application/interfaces/ICreateQuizConfigUseCase';
 import { IUpdateQuizConfigUseCase } from '../../application/interfaces/IUpdateQuizConfigUseCase';
 import { IGetQuizConfigUseCase } from '../../application/interfaces/IGetQuizConfigUseCase';
@@ -36,243 +36,171 @@ export class QuizController {
     private resetStudentAttemptsUseCase: IResetStudentQuizAttemptsUseCase,
   ) {}
 
-  async createConfig(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const instructorId = (req as unknown as IUserRequest).user?.id; // Assuming auth middleware attaches user
-      if (!instructorId) {
-        ApiResponseHelper.unauthorized(res, 'Unauthorized');
-        return;
-      }
-
-      const dto: CreateQuizConfigRequestDto = req.body;
-      const configData = { ...dto, instructorId };
-      const config = await this.createQuizConfigUseCase.execute(configData);
-
-      ApiResponseHelper.created(
-        res,
-        'Quiz configuration created successfully',
-        config,
-      );
-    } catch (error) {
-      next(error);
+  createConfig = async (req: Request, res: Response): Promise<void> => {
+    const instructorId = (req as unknown as IUserRequest).user?.id; // Assuming auth middleware attaches user
+    if (!instructorId) {
+      ApiResponseHelper.unauthorized(res, 'Unauthorized');
+      return;
     }
-  }
 
-  async updateConfig(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const instructorId = (req as unknown as IUserRequest).user?.id;
-      const { courseId } = req.params;
+    const dto: CreateQuizConfigRequestDto = req.body;
+    const configData = { ...dto, instructorId };
+    const config = await this.createQuizConfigUseCase.execute(configData);
 
-      if (!instructorId) {
-        ApiResponseHelper.unauthorized(res, 'Unauthorized');
-        return;
-      }
+    ApiResponseHelper.created(
+      res,
+      'Quiz configuration created successfully',
+      config,
+    );
+  };
 
-      const dto: UpdateQuizConfigRequestDto = req.body;
-      const updatedConfig = await this.updateQuizConfigUseCase.execute(
-        courseId,
-        instructorId,
-        dto,
-      );
+  updateConfig = async (req: Request, res: Response): Promise<void> => {
+    const instructorId = (req as unknown as IUserRequest).user?.id;
+    const { courseId } = req.params;
 
-      ApiResponseHelper.success(
-        res,
-        'Quiz configuration updated successfully',
-        updatedConfig,
-      );
-    } catch (error) {
-      next(error);
+    if (!instructorId) {
+      ApiResponseHelper.unauthorized(res, 'Unauthorized');
+      return;
     }
-  }
 
-  async getConfig(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const userId = (req as unknown as IUserRequest).user?.id;
-      const role = (req as unknown as IUserRequest).user?.role;
-      const { courseId } = req.params;
+    const dto: UpdateQuizConfigRequestDto = req.body;
+    const updatedConfig = await this.updateQuizConfigUseCase.execute(
+      courseId,
+      instructorId,
+      dto,
+    );
 
-      if (!userId || !role) {
-        ApiResponseHelper.unauthorized(res, 'Unauthorized');
-        return;
-      }
+    ApiResponseHelper.success(
+      res,
+      'Quiz configuration updated successfully',
+      updatedConfig,
+    );
+  };
 
-      const config = await this.getQuizConfigUseCase.execute(
-        courseId,
-        userId,
-        role,
-      );
+  getConfig = async (req: Request, res: Response): Promise<void> => {
+    const userId = (req as unknown as IUserRequest).user?.id;
+    const role = (req as unknown as IUserRequest).user?.role;
+    const { courseId } = req.params;
 
-      ApiResponseHelper.success(
-        res,
-        config
-          ? 'Quiz configuration retrieved successfully'
-          : 'No configuration found',
-        config,
-      );
-    } catch (error) {
-      next(error);
+    if (!userId || !role) {
+      ApiResponseHelper.unauthorized(res, 'Unauthorized');
+      return;
     }
-  }
+
+    const config = await this.getQuizConfigUseCase.execute(
+      courseId,
+      userId,
+      role,
+    );
+
+    ApiResponseHelper.success(
+      res,
+      config
+        ? 'Quiz configuration retrieved successfully'
+        : 'No configuration found',
+      config,
+    );
+  };
 
   // Student Endpoints
-  async startAttempt(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const userId = (req as unknown as IUserRequest).user?.id;
-      const { courseId } = req.params;
+  startAttempt = async (req: Request, res: Response): Promise<void> => {
+    const userId = (req as unknown as IUserRequest).user?.id;
+    const { courseId } = req.params;
 
-      if (!userId) {
-        ApiResponseHelper.unauthorized(res, 'Unauthorized');
-        return;
-      }
-
-      const attempt = await this.startQuizAttemptUseCase.execute(
-        courseId,
-        userId,
-      );
-      ApiResponseHelper.created(res, 'Quiz started', attempt);
-    } catch (error) {
-      next(error);
+    if (!userId) {
+      ApiResponseHelper.unauthorized(res, 'Unauthorized');
+      return;
     }
-  }
 
-  async submitAttempt(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const userId = (req as unknown as IUserRequest).user?.id;
-      const { attemptId } = req.params;
-      const dto: SubmitQuizAttemptRequestDto = req.body;
+    const attempt = await this.startQuizAttemptUseCase.execute(
+      courseId,
+      userId,
+    );
+    ApiResponseHelper.created(res, 'Quiz started', attempt);
+  };
 
-      if (!userId) {
-        ApiResponseHelper.unauthorized(res, 'Unauthorized');
-        return;
-      }
+  submitAttempt = async (req: Request, res: Response): Promise<void> => {
+    const userId = (req as unknown as IUserRequest).user?.id;
+    const { attemptId } = req.params;
+    const dto: SubmitQuizAttemptRequestDto = req.body;
 
-      const attempt = await this.submitQuizAttemptUseCase.execute(
-        attemptId,
-        userId,
-        dto.answers,
-      );
-      ApiResponseHelper.success(res, 'Quiz submitted successfully', attempt);
-    } catch (error) {
-      next(error);
+    if (!userId) {
+      ApiResponseHelper.unauthorized(res, 'Unauthorized');
+      return;
     }
-  }
 
-  async getResult(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const userId = (req as unknown as IUserRequest).user?.id;
-      const { courseId } = req.params;
+    const attempt = await this.submitQuizAttemptUseCase.execute(
+      attemptId,
+      userId,
+      dto.answers,
+    );
+    ApiResponseHelper.success(res, 'Quiz submitted successfully', attempt);
+  };
 
-      if (!userId) {
-        ApiResponseHelper.unauthorized(res, 'Unauthorized');
-        return;
-      }
+  getResult = async (req: Request, res: Response): Promise<void> => {
+    const userId = (req as unknown as IUserRequest).user?.id;
+    const { courseId } = req.params;
 
-      const result = await this.getQuizResultUseCase.execute(courseId, userId);
-      ApiResponseHelper.success(res, 'Quiz result retrieved', result);
-    } catch (error) {
-      next(error);
+    if (!userId) {
+      ApiResponseHelper.unauthorized(res, 'Unauthorized');
+      return;
     }
-  }
 
-  async getAllAttempts(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const userId = (req as unknown as IUserRequest).user?.id;
-      const { courseId } = req.params;
+    const result = await this.getQuizResultUseCase.execute(courseId, userId);
+    ApiResponseHelper.success(res, 'Quiz result retrieved', result);
+  };
 
-      if (!userId) {
-        ApiResponseHelper.unauthorized(res, 'Unauthorized');
-        return;
-      }
+  getAllAttempts = async (req: Request, res: Response): Promise<void> => {
+    const userId = (req as unknown as IUserRequest).user?.id;
+    const { courseId } = req.params;
 
-      const attempts = await this.getAllQuizAttemptsUseCase.execute(
-        courseId,
-        userId,
-      );
-      ApiResponseHelper.success(res, 'Quiz attempts retrieved', attempts);
-    } catch (error) {
-      next(error);
+    if (!userId) {
+      ApiResponseHelper.unauthorized(res, 'Unauthorized');
+      return;
     }
-  }
+
+    const attempts = await this.getAllQuizAttemptsUseCase.execute(
+      courseId,
+      userId,
+    );
+    ApiResponseHelper.success(res, 'Quiz attempts retrieved', attempts);
+  };
 
   // Instructor Analytics
-  async getAnalytics(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const instructorId = (req as unknown as IUserRequest).user?.id;
-      const { courseId } = req.params;
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
+  getAnalytics = async (req: Request, res: Response): Promise<void> => {
+    const instructorId = (req as unknown as IUserRequest).user?.id;
+    const { courseId } = req.params;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
 
-      if (!instructorId) {
-        ApiResponseHelper.unauthorized(res, 'Unauthorized');
-        return;
-      }
-
-      const analytics = await this.getQuizAnalyticsUseCase.execute(
-        courseId,
-        instructorId,
-        page,
-        limit,
-      );
-      ApiResponseHelper.success(res, 'Quiz analytics retrieved', analytics);
-    } catch (error) {
-      next(error);
+    if (!instructorId) {
+      ApiResponseHelper.unauthorized(res, 'Unauthorized');
+      return;
     }
-  }
 
-  async resetStudentAttempts(
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ): Promise<void> {
-    try {
-      const instructorId = (req as unknown as IUserRequest).user?.id;
-      const { courseId, userId } = req.params;
+    const analytics = await this.getQuizAnalyticsUseCase.execute(
+      courseId,
+      instructorId,
+      page,
+      limit,
+    );
+    ApiResponseHelper.success(res, 'Quiz analytics retrieved', analytics);
+  };
 
-      if (!instructorId) {
-        ApiResponseHelper.unauthorized(res, 'Unauthorized');
-        return;
-      }
+  resetStudentAttempts = async (req: Request, res: Response): Promise<void> => {
+    const instructorId = (req as unknown as IUserRequest).user?.id;
+    const { courseId, userId } = req.params;
 
-      await this.resetStudentAttemptsUseCase.execute(
-        courseId,
-        userId,
-        instructorId,
-      );
-      ApiResponseHelper.success(res, 'Student attempts reset successfully');
-    } catch (error) {
-      next(error);
+    if (!instructorId) {
+      ApiResponseHelper.unauthorized(res, 'Unauthorized');
+      return;
     }
-  }
+
+    await this.resetStudentAttemptsUseCase.execute(
+      courseId,
+      userId,
+      instructorId,
+    );
+    ApiResponseHelper.success(res, 'Student attempts reset successfully');
+  };
 }

@@ -15,27 +15,21 @@ const router = express.Router();
 router.get(
   '/check/:id',
   authenticate,
-  asyncHandler(
-    enrollmentController.checkEnrollmentStatus.bind(enrollmentController),
-  ),
+  asyncHandler(enrollmentController.checkEnrollmentStatus),
 );
 
 // Get Student Enrolled Courses - Protected Route
 router.get(
   '/my-enrollments',
   authenticate,
-  asyncHandler(
-    enrollmentController.getStudentEnrollments.bind(enrollmentController),
-  ),
+  asyncHandler(enrollmentController.getStudentEnrollments),
 );
 
 router.get(
   '/instructor-enrollments',
   authenticate,
   requireRole('instructor'),
-  asyncHandler(
-    enrollmentController.getInstructorEnrollments.bind(enrollmentController),
-  ),
+  asyncHandler(enrollmentController.getInstructorEnrollments),
 );
 
 // Update Lesson Progress - Protected Route
@@ -43,7 +37,7 @@ router.patch(
   '/:enrollmentId/lesson-progress',
   authenticate,
   validateRequest(UpdateLessonProgressSchema),
-  asyncHandler(enrollmentController.updateProgress.bind(enrollmentController)),
+  asyncHandler(enrollmentController.updateProgress),
 );
 
 // Initiate Payment - Protected Route
@@ -51,7 +45,7 @@ router.post(
   '/initiate-payment',
   authenticate,
   validateRequest(InitiatePaymentSchema),
-  asyncHandler(enrollmentController.initiatePayment.bind(enrollmentController)),
+  asyncHandler(enrollmentController.initiatePayment),
 );
 
 export default router;
