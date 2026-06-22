@@ -14,11 +14,11 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { AdminInstructorMapper } from '../../application/mappers/AdminInstructorMapper';
 import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 import {
-  AdminInstructorPaginationValidationType,
-  ApproveInstructorValidationType,
-  DeclineInstructorValidationType,
-  ChangeInstructorStatusValidationType,
-} from '../validations/AdminInstructorValidation';
+  AdminInstructorPaginationRequestDto,
+  ApproveInstructorRequestDto,
+  DeclineInstructorRequestDto,
+  ChangeInstructorStatusRequestDto,
+} from '../../application/dtos/AdminInstructorRequestDto';
 
 /**
  * Controller for admin operations on instructors.
@@ -35,8 +35,7 @@ export class AdminInstructorController {
   ) {}
 
   getInstructors = async (req: Request, res: Response): Promise<void> => {
-    const query =
-      req.query as unknown as AdminInstructorPaginationValidationType;
+    const query = req.query as unknown as AdminInstructorPaginationRequestDto;
     const filter = AdminInstructorMapper.toGetInstructorsFilter(query);
     const sort = AdminInstructorMapper.toSort(query.sort);
 
@@ -59,7 +58,7 @@ export class AdminInstructorController {
 
   approve = async (req: Request, res: Response): Promise<void> => {
     const AuthenticatedReq = req as AuthenticatedRequest;
-    const dto = req.body as ApproveInstructorValidationType;
+    const dto = req.body as ApproveInstructorRequestDto;
     const adminId = AuthenticatedReq.user.id;
 
     await this._approveUC.execute(dto.id, adminId);
@@ -68,7 +67,7 @@ export class AdminInstructorController {
 
   decline = async (req: Request, res: Response): Promise<void> => {
     const AuthenticatedReq = req as AuthenticatedRequest;
-    const dto = req.body as DeclineInstructorValidationType;
+    const dto = req.body as DeclineInstructorRequestDto;
     const adminId = AuthenticatedReq.user.id;
 
     await this._declineUC.execute(dto.id, adminId, dto.reason);
@@ -82,7 +81,7 @@ export class AdminInstructorController {
     res: Response,
   ): Promise<void> => {
     const { id } = req.params;
-    const dto = req.body as ChangeInstructorStatusValidationType;
+    const dto = req.body as ChangeInstructorStatusRequestDto;
 
     await this._changeStatusUC.execute(id, dto.status, dto.reason);
     ApiResponseHelper.success(

@@ -34,7 +34,3 @@ export const InstructorRegistrationSchema = z
       });
     }
   });
-
-export type InstructorRegistrationValidationType = z.infer<
-  typeof InstructorRegistrationSchema
->;

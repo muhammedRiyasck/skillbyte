@@ -11,7 +11,3 @@ export const InstructorProfileUpdateSchema = z.object({
   bio: z.string().optional(),
   profilePicture: z.string().optional().nullable(),
 });
-
-export type InstructorProfileUpdateValidationType = z.infer<
-  typeof InstructorProfileUpdateSchema
->;

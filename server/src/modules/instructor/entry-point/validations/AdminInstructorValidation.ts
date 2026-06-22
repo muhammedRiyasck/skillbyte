@@ -15,26 +15,14 @@ export const AdminInstructorPaginationSchema = z.object({
   search: z.string().optional(),
 });
 
-export type AdminInstructorPaginationValidationType = z.infer<
-  typeof AdminInstructorPaginationSchema
->;
-
 export const ApproveInstructorSchema = z.object({
   id: z.string().min(1, 'Instructor ID is required'),
 });
-
-export type ApproveInstructorValidationType = z.infer<
-  typeof ApproveInstructorSchema
->;
 
 export const DeclineInstructorSchema = z.object({
   id: z.string().min(1, 'Instructor ID is required'),
   reason: z.string().min(1, 'Reason is required'),
 });
-
-export type DeclineInstructorValidationType = z.infer<
-  typeof DeclineInstructorSchema
->;
 
 export const ChangeInstructorStatusSchema = z.object({
   status: z.enum([
@@ -43,7 +31,3 @@ export const ChangeInstructorStatusSchema = z.object({
   ]),
   reason: z.string().optional(),
 });
-
-export type ChangeInstructorStatusValidationType = z.infer<
-  typeof ChangeInstructorStatusSchema
->;

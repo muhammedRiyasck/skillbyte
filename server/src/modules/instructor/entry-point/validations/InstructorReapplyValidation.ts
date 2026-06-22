@@ -13,7 +13,3 @@ export const InstructorReapplySchema = z.object({
   customJobTitle: z.string().optional(),
   customSubject: z.string().optional(),
 });
-
-export type InstructorReapplyValidationType = z.infer<
-  typeof InstructorReapplySchema
->;
