@@ -1,5 +1,6 @@
 import { INotificationWriteRepository } from '../../domain/IRepositories/INotificationRepository';
-import { INotification } from '../../domain/entities/Notification';
+import { NotificationMapper } from '../mappers/NotificationMapper';
+import { NotificationResponseDto } from '../dtos/NotificationDto';
 import { IMarkNotificationAsReadUseCase } from '../interfaces/IMarkNotificationAsReadUseCase';
 
 export class MarkNotificationAsReadUseCase
@@ -7,7 +8,11 @@ export class MarkNotificationAsReadUseCase
 {
   constructor(private notificationRepository: INotificationWriteRepository) {}
 
-  async execute(notificationId: string): Promise<INotification | null> {
-    return this.notificationRepository.markAsRead(notificationId);
+  async execute(
+    notificationId: string,
+  ): Promise<NotificationResponseDto | null> {
+    const notification =
+      await this.notificationRepository.markAsRead(notificationId);
+    return notification ? NotificationMapper.toResponse(notification) : null;
   }
 }

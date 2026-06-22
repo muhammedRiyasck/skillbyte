@@ -1,4 +1,4 @@
-import { INotification } from '../../domain/entities/Notification';
+import { NotificationResponseDto } from '../dtos/NotificationDto';
 import { NotificationType } from '../../../../shared/enums/NotificationType';
 
 export interface ICreateNotificationData {
@@ -9,5 +9,5 @@ export interface ICreateNotificationData {
 }
 
 export interface ICreateNotificationUseCase {
-  execute(data: ICreateNotificationData): Promise<INotification>;
+  execute(data: ICreateNotificationData): Promise<NotificationResponseDto>;
 }

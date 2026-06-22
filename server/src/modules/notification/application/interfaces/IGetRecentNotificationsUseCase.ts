@@ -1,5 +1,5 @@
-import { INotification } from '../../domain/entities/Notification';
+import { NotificationResponseDto } from '../dtos/NotificationDto';
 
 export interface IGetRecentNotificationsUseCase {
-  execute(userId: string, limit?: number): Promise<INotification[]>;
+  execute(userId: string, limit?: number): Promise<NotificationResponseDto[]>;
 }

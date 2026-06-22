@@ -1,5 +1,6 @@
 import { INotificationWriteRepository } from '../../domain/IRepositories/INotificationRepository';
-import { INotification } from '../../domain/entities/Notification';
+import { NotificationMapper } from '../mappers/NotificationMapper';
+import { NotificationResponseDto } from '../dtos/NotificationDto';
 import { SocketService } from '../../../../shared/services/socket/SocketService';
 import {
   ICreateNotificationUseCase,
@@ -10,9 +11,11 @@ import { NotificationType } from '../../../../shared/enums/NotificationType';
 export class CreateNotificationUseCase implements ICreateNotificationUseCase {
   constructor(private notificationRepository: INotificationWriteRepository) {}
 
-  async execute(data: ICreateNotificationData): Promise<INotification> {
+  async execute(
+    data: ICreateNotificationData,
+  ): Promise<NotificationResponseDto> {
     const { userId, title, message, type = NotificationType.INFO } = data;
-    const notification: INotification = {
+    const notification = {
       userId,
       title,
       message,
@@ -31,6 +34,6 @@ export class CreateNotificationUseCase implements ICreateNotificationUseCase {
       id: savedNotification.notificationId,
     });
 
-    return savedNotification;
+    return NotificationMapper.toResponse(savedNotification);
   }
 }

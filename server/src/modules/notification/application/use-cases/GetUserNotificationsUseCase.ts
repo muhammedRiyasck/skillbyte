@@ -1,5 +1,6 @@
 import { INotificationReadRepository } from '../../domain/IRepositories/INotificationRepository';
-import { INotification } from '../../domain/entities/Notification';
+import { NotificationMapper } from '../mappers/NotificationMapper';
+import { NotificationResponseDto } from '../dtos/NotificationDto';
 import { IGetUserNotificationsUseCase } from '../interfaces/IGetUserNotificationsUseCase';
 
 export class GetUserNotificationsUseCase
@@ -11,14 +12,14 @@ export class GetUserNotificationsUseCase
     userId: string,
     page: number = 1,
     limit: number = 10,
-  ): Promise<{ notifications: INotification[]; total: number }> {
+  ): Promise<{ notifications: NotificationResponseDto[]; total: number }> {
     const result = await this.notificationRepository.paginatedList(
       { userId },
       page,
       limit,
     );
     return {
-      notifications: result.data,
+      notifications: NotificationMapper.toResponseList(result.data),
       total: result.total,
     };
   }

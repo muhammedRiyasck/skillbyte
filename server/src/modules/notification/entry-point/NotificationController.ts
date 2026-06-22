@@ -1,11 +1,10 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { IGetUserNotificationsUseCase } from '../application/interfaces/IGetUserNotificationsUseCase';
 import { IGetRecentNotificationsUseCase } from '../application/interfaces/IGetRecentNotificationsUseCase';
 import { IMarkNotificationAsReadUseCase } from '../application/interfaces/IMarkNotificationAsReadUseCase';
 import { IMarkAllNotificationsAsReadUseCase } from '../application/interfaces/IMarkAllNotificationsAsReadUseCase';
 import { ICreateNotificationUseCase } from '../application/interfaces/ICreateNotificationUseCase';
-import { NotificationPaginationSchema } from '../application/dtos/NotificationDto';
-import { NotificationMapper } from '../application/mappers/NotificationMapper';
+import { NotificationPaginationSchema } from './validations/NotificationValidation';
 import { AuthenticatedRequest } from '../../../shared/types/AuthenticatedRequestType';
 import { ApiResponseHelper } from '../../../shared/utils/ApiResponseHelper';
 
@@ -18,7 +17,11 @@ export class NotificationController {
     private _createNotificationUseCase: ICreateNotificationUseCase,
   ) {}
 
-  getUserNotifications = async (req: Request, res: Response): Promise<void> => {
+  getUserNotifications = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const authenticatedReq = req as AuthenticatedRequest;
       const userId = authenticatedReq.user.id;
@@ -34,7 +37,7 @@ export class NotificationController {
         ApiResponseHelper.success(
           res,
           'Recent notifications fetched successfully',
-          NotificationMapper.toResponseList(notifications),
+          notifications,
         );
         return;
       }
@@ -43,7 +46,7 @@ export class NotificationController {
         await this._getUserNotificationsUseCase.execute(userId, page, limit);
 
       ApiResponseHelper.success(res, 'Notifications fetched successfully', {
-        notifications: NotificationMapper.toResponseList(notifications),
+        notifications,
         pagination: {
           total,
           page,
@@ -52,15 +55,15 @@ export class NotificationController {
         },
       });
     } catch (error) {
-      ApiResponseHelper.error(
-        res,
-        'Failed to fetch notifications',
-        error instanceof Error ? error.message : undefined,
-      );
+      next(error);
     }
   };
 
-  markAsRead = async (req: Request, res: Response): Promise<void> => {
+  markAsRead = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const { id } = req.params;
       const notification =
@@ -72,29 +75,25 @@ export class NotificationController {
       ApiResponseHelper.success(
         res,
         'Notification marked as read',
-        NotificationMapper.toResponse(notification),
+        notification,
       );
     } catch (error) {
-      ApiResponseHelper.error(
-        res,
-        'Failed to mark notification as read',
-        error instanceof Error ? error.message : undefined,
-      );
+      next(error);
     }
   };
 
-  markAllAsRead = async (req: Request, res: Response): Promise<void> => {
+  markAllAsRead = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> => {
     try {
       const authenticatedReq = req as AuthenticatedRequest;
       const userId = authenticatedReq.user.id;
       await this._markAllNotificationsAsReadUseCase.execute(userId);
       ApiResponseHelper.success(res, 'All notifications marked as read');
     } catch (error) {
-      ApiResponseHelper.error(
-        res,
-        'Failed to mark notifications as read',
-        error instanceof Error ? error.message : undefined,
-      );
+      next(error);
     }
   };
 }

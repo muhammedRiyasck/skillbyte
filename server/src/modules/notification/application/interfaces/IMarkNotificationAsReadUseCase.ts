@@ -1,5 +1,5 @@
-import { INotification } from '../../domain/entities/Notification';
+import { NotificationResponseDto } from '../dtos/NotificationDto';
 
 export interface IMarkNotificationAsReadUseCase {
-  execute(notificationId: string): Promise<INotification | null>;
+  execute(notificationId: string): Promise<NotificationResponseDto | null>;
 }
