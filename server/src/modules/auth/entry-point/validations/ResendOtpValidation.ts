@@ -6,5 +6,3 @@ import { z } from 'zod';
 export const ResendOtpSchema = z.object({
   email: z.string().email('Invalid email format'),
 });
-
-export type ResendOtpValidationType = z.infer<typeof ResendOtpSchema>;

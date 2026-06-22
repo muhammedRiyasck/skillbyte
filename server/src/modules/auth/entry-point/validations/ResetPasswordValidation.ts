@@ -17,5 +17,3 @@ export const ResetPasswordSchema = z.object({
     message: 'Role must be student or instructor',
   }),
 });
-
-export type ResetPasswordValidationType = z.infer<typeof ResetPasswordSchema>;

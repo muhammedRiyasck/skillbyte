@@ -11,5 +11,3 @@ export const LoginSchema = z.object({
     message: 'Role must be student or instructor',
   }),
 });
-
-export type LoginValidationType = z.infer<typeof LoginSchema>;
