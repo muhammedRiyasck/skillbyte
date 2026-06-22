@@ -30,6 +30,3 @@ export const SendMessageSchema = z
         'Text messages require non-empty content; file messages require a fileUrl',
     },
   );
-
-export type CreateConversationInput = z.infer<typeof CreateConversationSchema>;
-export type SendMessageInput = z.infer<typeof SendMessageSchema>;

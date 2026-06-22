@@ -4,6 +4,8 @@ import { ISendMessageUseCase } from '../../application/interfaces/ISendMessageUs
 import { IGetConversationsUseCase } from '../../application/interfaces/IGetConversationsUseCase';
 import { IGetMessagesUseCase } from '../../application/interfaces/IGetMessagesUseCase';
 import { IMarkMessagesAsReadUseCase } from '../../application/interfaces/IMarkMessagesAsReadUseCase';
+import { CreateConversationRequestDto } from '../../application/dtos/CreateConversationRequestDto';
+import { SendMessageRequestDto } from '../../application/dtos/SendMessageRequestDto';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import { HttpError } from '../../../../shared/types/HttpError';
@@ -24,9 +26,8 @@ export class ChatController {
   createConversation = async (req: Request, res: Response): Promise<void> => {
     const authenticatedUser = req as AuthenticatedRequest;
     // Security: studentId is always derived from the authenticated token.
-    // The client cannot spoof another user's identity.
     const studentId = authenticatedUser.user.id;
-    const { instructorId, courseId } = req.body;
+    const { instructorId, courseId } = req.body as CreateConversationRequestDto;
 
     const conversation = await this.createConversationUseCase.execute({
       studentId,
@@ -57,7 +58,8 @@ export class ChatController {
 
   sendMessage = async (req: Request, res: Response): Promise<void> => {
     const { conversationId } = req.params;
-    const { content, type, fileUrl, fileName } = req.body;
+    const { content, type, fileUrl, fileName } =
+      req.body as SendMessageRequestDto;
     const authenticatedUser = req as AuthenticatedRequest;
     const senderId = authenticatedUser.user.id;
     const senderRole = this.getChatParticipantRole(authenticatedUser.user.role);
@@ -124,7 +126,7 @@ export class ChatController {
 
   private getChatParticipantRole(role: string): ChatParticipantRole {
     if (role === UserRole.STUDENT || role === UserRole.INSTRUCTOR) {
-      return role;
+      return role as ChatParticipantRole;
     }
 
     throw new HttpError(
