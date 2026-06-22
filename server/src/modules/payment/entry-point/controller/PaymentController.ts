@@ -17,9 +17,7 @@ export class PaymentController {
     private _capturePayPalPaymentUc: ICapturePayPalPayment,
   ) {}
 
-  // change methods to arrow functions
-
-  handleStripeWebhook = async (req: Request, res: Response) => {
+  handleStripeWebhook = async (req: Request, res: Response): Promise<void> => {
     const sig = req.headers['stripe-signature'];
     const payload = req.body;
 
@@ -29,12 +27,10 @@ export class PaymentController {
     }
 
     await this._handleStripeWebhookUc.execute(sig as string, payload);
-    ApiResponseHelper.success(res, 'Webhook received', {
-      received: true,
-    });
+    ApiResponseHelper.success(res, 'Webhook received', { received: true });
   };
 
-  capturePayPalPayment = async (req: Request, res: Response) => {
+  capturePayPalPayment = async (req: Request, res: Response): Promise<void> => {
     const { orderId } = req.body;
 
     if (!orderId) {
@@ -56,7 +52,7 @@ export class PaymentController {
     }
   };
 
-  getUserPurchases = async (req: Request, res: Response) => {
+  getUserPurchases = async (req: Request, res: Response): Promise<void> => {
     const userId = (req as AuthenticatedRequest).user.id;
     if (!userId) {
       ApiResponseHelper.unauthorized(res, 'Unauthorized');
@@ -79,26 +75,25 @@ export class PaymentController {
     ApiResponseHelper.success(res, 'Purchases fetched', result);
   };
 
-  getInstructorEarnings = async (req: Request, res: Response) => {
-    try {
-      const instructorId = (req as AuthenticatedRequest).user.id;
-      if (!instructorId) {
-        return ApiResponseHelper.unauthorized(res, 'Unauthorized');
-      }
-
-      const page = Number(req.query.page) || 1;
-      const limit = Number(req.query.limit) || 10;
-
-      const result = await this._getInstructorEarningsUc.execute({
-        instructorId,
-        page,
-        limit,
-      });
-
-      return ApiResponseHelper.success(res, 'Earnings fetched', result);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
-      return ApiResponseHelper.badRequest(res, message);
+  getInstructorEarnings = async (
+    req: Request,
+    res: Response,
+  ): Promise<void> => {
+    const instructorId = (req as AuthenticatedRequest).user.id;
+    if (!instructorId) {
+      ApiResponseHelper.unauthorized(res, 'Unauthorized');
+      return;
     }
+
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    const result = await this._getInstructorEarningsUc.execute({
+      instructorId,
+      page,
+      limit,
+    });
+
+    ApiResponseHelper.success(res, 'Earnings fetched', result);
   };
 }

@@ -26,53 +26,39 @@ router.post(
 router.get('/purchases', asyncHandler(paymentController.getUserPurchases));
 
 // Instructor routes
-router.get('/earnings', (req, res) => {
-  paymentController.getInstructorEarnings(req, res);
-});
+router.get('/earnings', asyncHandler(paymentController.getInstructorEarnings));
 
-// Withdrawal routes
-
-// Instructor routes for withdrawals
-router.get('/withdrawals/my', (req, res) => {
-  withdrawalController.getMyWithdrawals(req, res);
-});
+// Instructor withdrawal routes
+router.get(
+  '/withdrawals/my',
+  asyncHandler(withdrawalController.getMyWithdrawals),
+);
 
 router.post(
   '/withdrawals/request',
   validateRequest(RequestWithdrawalSchema),
-  (req, res) => {
-    withdrawalController.requestWithdrawal(req, res);
-  },
+  asyncHandler(withdrawalController.requestWithdrawal),
 );
 
-// Admin routes for withdrawals
+// Admin withdrawal routes
 router.get(
   '/withdrawals/all',
-  authenticate,
   requireRole('admin'),
-  (req, res) => {
-    withdrawalController.getAllWithdrawals(req, res);
-  },
+  asyncHandler(withdrawalController.getAllWithdrawals),
 );
 
 router.post(
   '/withdrawals/:withdrawalId/process',
-  authenticate,
   requireRole('admin'),
   validateRequest(ProcessWithdrawalSchema),
-  (req, res) => {
-    withdrawalController.processWithdrawal(req, res);
-  },
+  asyncHandler(withdrawalController.processWithdrawal),
 );
 
 router.post(
   '/withdrawals/:withdrawalId/reject',
-  authenticate,
   requireRole('admin'),
   validateRequest(RejectWithdrawalSchema),
-  (req, res) => {
-    withdrawalController.rejectWithdrawal(req, res);
-  },
+  asyncHandler(withdrawalController.rejectWithdrawal),
 );
 
 export default router;
