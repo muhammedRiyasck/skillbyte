@@ -1,4 +1,4 @@
-import { IReviewResponseDto } from './IReviewResponseDto';
+import { ReviewResponseDto } from '../dtos/ReviewResponseDto';
 
 export interface IGetReviewsUseCase {
   execute(
@@ -8,5 +8,5 @@ export interface IGetReviewsUseCase {
     sort?: 'recent' | 'helpful',
     page?: number,
     limit?: number,
-  ): Promise<{ reviews: IReviewResponseDto[]; total: number }>;
+  ): Promise<{ reviews: ReviewResponseDto[]; total: number }>;
 }

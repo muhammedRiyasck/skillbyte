@@ -1,13 +1,14 @@
 import { Review } from '../../domain/entities/Review';
+import { ReviewResponseDto } from '../dtos/ReviewResponseDto';
 
 export class ReviewMapper {
-  static toResponseDto(
+  static toDto(
     review: Review,
     studentInfo?: { name: string; profileImageUrl?: string },
     isUpvotedByCurrentUser: boolean = false,
-  ) {
+  ): ReviewResponseDto {
     return {
-      reviewId: review.reviewId!, // Asserts presence since it's coming from DB
+      reviewId: review.reviewId!,
       studentId: review.studentId,
       student: studentInfo,
       targetType: review.targetType,
@@ -23,5 +24,14 @@ export class ReviewMapper {
       updatedAt: review.updatedAt,
       targetName: review.targetName,
     };
+  }
+
+  // Backward-compat alias
+  static toResponseDto(
+    review: Review,
+    studentInfo?: { name: string; profileImageUrl?: string },
+    isUpvotedByCurrentUser: boolean = false,
+  ): ReviewResponseDto {
+    return ReviewMapper.toDto(review, studentInfo, isUpvotedByCurrentUser);
   }
 }

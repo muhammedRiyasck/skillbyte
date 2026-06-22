@@ -1,6 +1,6 @@
 import { IReviewRepository } from '../../domain/IRepositories/IReviewRepository';
 import { IGetReviewsUseCase } from '../interfaces/IGetReviewsUseCase';
-import { IReviewResponseDto } from '../interfaces/IReviewResponseDto';
+import { ReviewResponseDto } from '../dtos/ReviewResponseDto';
 import { ReviewMapper } from '../mappers/ReviewMapper';
 
 export class GetReviewsUseCase implements IGetReviewsUseCase {
@@ -13,7 +13,7 @@ export class GetReviewsUseCase implements IGetReviewsUseCase {
     sort: 'recent' | 'helpful' = 'recent',
     page: number = 1,
     limit: number = 10,
-  ): Promise<{ reviews: IReviewResponseDto[]; total: number }> {
+  ): Promise<{ reviews: ReviewResponseDto[]; total: number }> {
     const rawReviews = await this.reviewRepository.findByTarget(
       targetType,
       targetId,

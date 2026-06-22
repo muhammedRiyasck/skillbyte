@@ -1,6 +1,8 @@
 import { IReviewRepository } from '../../domain/IRepositories/IReviewRepository';
 import { ISubmitReviewUseCase } from '../interfaces/ISubmitReviewUseCase';
 import { Review } from '../../domain/entities/Review';
+import { ReviewMapper } from '../mappers/ReviewMapper';
+import { ReviewResponseDto } from '../dtos/ReviewResponseDto';
 import { ICourseRepository } from '../../../course/domain/IRepositories/ICourseRepository';
 import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentReadRepository';
 import { IMentorshipBookingRepository } from '../../../mentorship/domain/IRepositories/IMentorshipBookingRepository';
@@ -24,7 +26,7 @@ export class SubmitReviewUseCase implements ISubmitReviewUseCase {
     targetId: string,
     rating: number,
     comment: string,
-  ): Promise<Review> {
+  ): Promise<ReviewResponseDto> {
     // 1. Check if user already reviewed
     const existing = await this.reviewRepository.findByStudentAndTarget(
       studentId,
@@ -115,6 +117,6 @@ export class SubmitReviewUseCase implements ISubmitReviewUseCase {
       });
     }
 
-    return savedReview;
+    return ReviewMapper.toDto(savedReview);
   }
 }

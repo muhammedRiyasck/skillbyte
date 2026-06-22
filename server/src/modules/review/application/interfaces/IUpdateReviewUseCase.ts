@@ -1,4 +1,4 @@
-import { Review } from '../../domain/entities/Review';
+import { ReviewResponseDto } from '../dtos/ReviewResponseDto';
 
 export interface IUpdateReviewUseCase {
   execute(
@@ -6,5 +6,5 @@ export interface IUpdateReviewUseCase {
     reviewId: string,
     rating?: number,
     comment?: string,
-  ): Promise<Review>;
+  ): Promise<ReviewResponseDto>;
 }

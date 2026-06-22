@@ -1,4 +1,4 @@
-export interface IReviewResponseDto {
+export interface ReviewResponseDto {
   reviewId: string;
   studentId: string;
   student?: {
@@ -16,4 +16,5 @@ export interface IReviewResponseDto {
   repliedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
+  targetName?: string;
 }

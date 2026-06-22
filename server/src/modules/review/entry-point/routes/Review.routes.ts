@@ -3,6 +3,13 @@ import { reviewController } from '../dependencyInjection/ReviewContainer';
 import { authenticate } from '../../../../shared/middlewares/AuthMiddleware';
 import { requireRole } from '../../../../shared/middlewares/RequireRole';
 import asyncHandler from '../../../../shared/utils/AsyncHandler';
+import { validateRequest } from '../../../../shared/middlewares/validateRequest';
+import {
+  SubmitReviewSchema,
+  UpdateReviewSchema,
+  ReplyToReviewSchema,
+  AdminToggleHideSchema,
+} from '../validations/ReviewValidation';
 
 const router = Router();
 
@@ -18,6 +25,7 @@ router.patch(
   '/admin/:reviewId/toggle-hide',
   authenticate,
   requireRole('admin'),
+  validateRequest(AdminToggleHideSchema),
   asyncHandler(reviewController.adminToggleHideReview),
 );
 
@@ -33,6 +41,7 @@ router.post(
   '/',
   authenticate,
   requireRole('student'),
+  validateRequest(SubmitReviewSchema),
   asyncHandler(reviewController.submitReview),
 );
 
@@ -40,6 +49,7 @@ router.put(
   '/:reviewId',
   authenticate,
   requireRole('student'),
+  validateRequest(UpdateReviewSchema),
   asyncHandler(reviewController.updateReview),
 );
 
@@ -69,6 +79,7 @@ router.post(
   '/instructor/:reviewId/reply',
   authenticate,
   requireRole('instructor'),
+  validateRequest(ReplyToReviewSchema),
   asyncHandler(reviewController.replyToReview),
 );
 

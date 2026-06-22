@@ -1,6 +1,8 @@
 import { IReviewRepository } from '../../domain/IRepositories/IReviewRepository';
 import { IUpdateReviewUseCase } from '../interfaces/IUpdateReviewUseCase';
 import { Review } from '../../domain/entities/Review';
+import { ReviewMapper } from '../mappers/ReviewMapper';
+import { ReviewResponseDto } from '../dtos/ReviewResponseDto';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ICourseRepository } from '../../../course/domain/IRepositories/ICourseRepository';
@@ -18,7 +20,7 @@ export class UpdateReviewUseCase implements IUpdateReviewUseCase {
     reviewId: string,
     rating?: number,
     comment?: string,
-  ): Promise<Review> {
+  ): Promise<ReviewResponseDto> {
     const review = await this.reviewRepository.findById(reviewId);
     if (!review) {
       throw new HttpError('Review not found.', HttpStatusCode.NOT_FOUND);
@@ -61,6 +63,6 @@ export class UpdateReviewUseCase implements IUpdateReviewUseCase {
       });
     }
 
-    return updatedReview!;
+    return ReviewMapper.toDto(updatedReview!);
   }
 }
