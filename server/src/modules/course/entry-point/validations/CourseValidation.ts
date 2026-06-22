@@ -53,11 +53,47 @@ export const GetCourseQuerySchema = z.object({
   include: z.string().optional(),
 });
 
-export type CreateBaseValidationType = z.infer<typeof CreateBaseSchema>;
-export type UpdateBaseValidationType = z.infer<typeof UpdateBaseSchema>;
-export type UpdateStatusValidationType = z.infer<typeof UpdateStatusSchema>;
-export type CourseIdParamValidationType = z.infer<typeof CourseIdParamSchema>;
-export type PaginationQueryValidationType = z.infer<
-  typeof PaginationQuerySchema
->;
-export type GetCourseQueryValidationType = z.infer<typeof GetCourseQuerySchema>;
+export const CreateLessonSchema = z.object({
+  moduleId: z.string().min(1, 'Module ID is required'),
+  title: z.string().min(1, 'Title is required'),
+  description: z.string().optional(),
+  contentType: z.enum(['video', 'pdf']),
+  fileName: z.string().min(1, 'File Name is required'),
+  order: z.coerce.number(),
+  duration: z.coerce.number().optional().default(0),
+  resources: z.array(z.any()).optional(),
+  isFreePreview: z.boolean().optional(),
+  isPublished: z.boolean().optional(),
+});
+
+export const UpdateLessonSchema = z.record(z.string(), z.any());
+
+export const GetUploadUrlSchema = z.object({
+  fileName: z.string().min(1, 'File Name is required'),
+  contentType: z.string().optional(),
+});
+
+export const GetVideoSignedUrlsSchema = z.object({
+  fileNames: z.array(z.string()).min(1, 'At least one file name is required'),
+});
+
+export const BlockLessonSchema = z.object({
+  isBlocked: z.boolean(),
+});
+
+export const CreateModuleSchema = z
+  .object({
+    courseId: z.string().optional(),
+    id: z.string().optional(),
+    moduleId: z.string().min(1, 'Module ID is required'),
+    title: z.string().min(1, 'Title is required'),
+    description: z.string().optional(),
+    order: z.number(),
+    lessons: z.array(z.any()).optional(),
+  })
+  .refine((data) => data.courseId || data.id, {
+    message: 'Either courseId or id (for course) must be provided',
+    path: ['courseId'],
+  });
+
+export const UpdateModuleSchema = z.record(z.string(), z.any());

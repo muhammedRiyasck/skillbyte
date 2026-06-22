@@ -13,7 +13,7 @@ import {
   GetVideoSignedUrlsSchema,
   BlockLessonSchema,
   UpdateLessonSchema,
-} from '../../application/dtos/LessonDtos';
+} from '../../entry-point/validations/CourseValidation';
 import { LessonMapper } from '../../application/mappers/LessonMapper';
 import logger from '../../../../shared/utils/Logger';
 import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';

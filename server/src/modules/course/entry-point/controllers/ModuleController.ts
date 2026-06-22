@@ -11,7 +11,7 @@ import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import {
   CreateModuleSchema,
   UpdateModuleSchema,
-} from '../../application/dtos/ModuleDtos';
+} from '../../entry-point/validations/CourseValidation';
 import { ModuleMapper } from '../../application/mappers/ModuleMapper';
 
 /**

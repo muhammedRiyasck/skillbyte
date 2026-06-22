@@ -1,10 +1,9 @@
-import { z } from 'zod';
-import { CreateModuleSchema } from '../dtos/ModuleDtos';
+import { CreateModuleDto } from '../dtos/ModuleDtos';
 import { LessonMapper } from './LessonMapper';
 import { Module } from '../../domain/entities/Module';
 
 export class ModuleMapper {
-  static toCreateEntity(dto: z.infer<typeof CreateModuleSchema>) {
+  static toCreateEntity(dto: CreateModuleDto) {
     return {
       courseId: dto.courseId || dto.id || '',
       moduleId: dto.moduleId,
