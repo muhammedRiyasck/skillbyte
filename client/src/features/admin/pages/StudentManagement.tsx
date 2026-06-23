@@ -17,7 +17,7 @@ const StudentManagement: React.FC = () => {
     queryKey: ['students', page, search],
     queryFn: () =>
       api.get(`/students/allStudents?page=${page}&limit=${ITEMS_PER_PAGE}&search=${search}`).then(r => r.data?.data),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
   });
 
   const students = data?.students?.data || [];

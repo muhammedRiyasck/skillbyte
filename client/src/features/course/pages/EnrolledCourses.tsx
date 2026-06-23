@@ -39,7 +39,7 @@ const EnrolledCourses: React.FC = () => {
       const r = await api.get(`/enrollment/my-enrollments?${params.toString()}`);
       return r.data;
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
   });
 
   if (isLoading) return <Card />;

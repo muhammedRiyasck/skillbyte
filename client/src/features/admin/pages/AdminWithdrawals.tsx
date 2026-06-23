@@ -73,7 +73,7 @@ const AdminWithdrawals: React.FC = () => {
             page, 
             limit 
         }),
-        staleTime: 60 * 1000,
+        staleTime: 0,
     });
 
     const processMutation = useMutation({

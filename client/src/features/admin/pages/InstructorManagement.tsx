@@ -31,7 +31,7 @@ const InstructorManagement: React.FC = () => {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['instructors', dropDownValue, page, search],
     queryFn: () => api.get(`/instructors/getInstructors?status=${dropDownValue}&page=${page}&limit=${ITEMS_PER_PAGE}&search=${encodeURIComponent(search)}`).then(r => r.data),
-    staleTime: 5 * 60 * 1000
+    staleTime: 0
   });
 
   const approveMutation = useMutation({
