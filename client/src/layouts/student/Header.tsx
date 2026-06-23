@@ -99,7 +99,7 @@ const Header = () => {
                   )}
                 </NavLink>
                 <NavLink
-                  to="/notYet"
+                  to={ROUTES.home.about}
                   className={({ isActive }) =>
                     isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"
                   }
@@ -107,7 +107,7 @@ const Header = () => {
                   About
                 </NavLink>
                 <NavLink
-                  to="/notYet"
+                  to={ROUTES.home.support}
                   className={({ isActive }) =>
                     isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"
                   }
@@ -152,8 +152,7 @@ const Header = () => {
                     <NavLink
                       to={ROUTES.root}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${
-                          isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
+                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
                         }`
                       }
                       onClick={() => setIsOpen(false)}
@@ -164,8 +163,7 @@ const Header = () => {
                     <NavLink
                       to={ROUTES.student.courses}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${
-                          isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
+                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
                         }`
                       }
                       onClick={() => setIsOpen(false)}
@@ -176,8 +174,7 @@ const Header = () => {
                     <NavLink
                       to={ROUTES.student.enrolledCourses}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${
-                          isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
+                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
                         }`
                       }
                       onClick={() => setIsOpen(false)}
@@ -188,8 +185,7 @@ const Header = () => {
                     <NavLink
                       to={ROUTES.student.purchases}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${
-                          isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
+                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
                         }`
                       }
                       onClick={() => setIsOpen(false)}
@@ -200,8 +196,7 @@ const Header = () => {
                     <NavLink
                       to={ROUTES.student.mentorship.browse}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${
-                          isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
+                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
                         }`
                       }
                       onClick={() => setIsOpen(false)}
@@ -212,8 +207,7 @@ const Header = () => {
                     <NavLink
                       to={ROUTES.student.mentorship.bookings}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${
-                          isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
+                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
                         }`
                       }
                       onClick={() => setIsOpen(false)}
@@ -224,14 +218,13 @@ const Header = () => {
                     <NavLink
                       to={ROUTES.chat}
                       className={({ isActive }) =>
-                        `flex items-center  gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${
-                          isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
+                        `flex items-center  gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
                         }`
                       }
                       onClick={() => setIsOpen(false)}
                     >
                       <MessageSquare size={20} className="text-green-600 group-hover:scale-110 transition-transform" />
-                     
+
                       <span className="font-medium relative">Messages</span>
                       {totalUnreadCount > 0 && (
                         <span className="absolute  right-8 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-1 ring-white">
@@ -242,8 +235,7 @@ const Header = () => {
                     <NavLink
                       to={ROUTES.notifications}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${
-                          isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
+                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
                         }`
                       }
                       onClick={() => setIsOpen(false)}
@@ -260,10 +252,9 @@ const Header = () => {
                       <span className="font-medium">Profile</span>
                     </Link>
                     <NavLink
-                      to="/notYet"
+                      to={ROUTES.home.about}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${
-                          isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
+                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
                         }`
                       }
                       onClick={() => setIsOpen(false)}
@@ -273,10 +264,9 @@ const Header = () => {
                     </NavLink>
 
                     <NavLink
-                      to="/notYet"
+                      to={ROUTES.home.support}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${
-                          isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
+                        `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? "bg-indigo-50 dark:bg-indigo-900/30" : ""
                         }`
                       }
                       onClick={() => setIsOpen(false)}

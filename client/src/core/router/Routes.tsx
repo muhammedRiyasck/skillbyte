@@ -62,6 +62,8 @@ const QuizSession = lazy(() => import("@features/quiz/pages/student/QuizSession.
 const QuizResult = lazy(() => import("@features/quiz/pages/student/QuizResult.tsx"));
 const CertificatePage = lazy(() => import("@features/certificate/pages/CertificatePage.tsx"));
 const VerifyCertificatePage = lazy(() => import("@features/certificate/pages/VerifyCertificatePage.tsx"));
+const AboutPage = lazy(() => import("@features/home/pages/About.tsx"));
+const SupportPage = lazy(() => import("@features/home/pages/Support.tsx"));
 
 const router = createBrowserRouter([
   // auth routes
@@ -317,6 +319,22 @@ const router = createBrowserRouter([
               <QuizResult />
             </Fallback>
           </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.home.about,
+        element: (
+          <Fallback>
+            <AboutPage />
+          </Fallback>
+        ),
+      },
+      {
+        path: ROUTES.home.support,
+        element: (
+          <Fallback>
+            <SupportPage />
+          </Fallback>
         ),
       },
     ],

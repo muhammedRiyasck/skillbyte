@@ -6,6 +6,10 @@ export const ROUTES = {
   notifications: '/notifications',
   chat: '/chat',
   videoCall: '/video-call/:roomId',
+  home: {
+    about: '/about',
+    support: '/support',
+  },
 
   auth: {
     signIn: '/auth',

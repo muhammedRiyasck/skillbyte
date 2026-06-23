@@ -21,8 +21,10 @@ const Header = () => {
               Home
             </NavLink>
             <NavLink to={ROUTES.student.courses} className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Courses</NavLink>
-            <NavLink to="/notYet" className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>About</NavLink>
-            <NavLink to="/notYet" className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Support</NavLink>
+            {/* mentorship */}
+            <NavLink to={ROUTES.student.mentorship.bookings} className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Mentorship</NavLink>
+            <NavLink to={ROUTES.home.about} className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>About</NavLink>
+            <NavLink to={ROUTES.home.support} className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Support</NavLink>
           </nav>
           </div>
           <div className="flex gap-4">
