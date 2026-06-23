@@ -3,6 +3,7 @@ import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository'
 import { ILessonRepository } from '../../domain/IRepositories/ILessonRepository';
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
 import { IQuizConfigRepository } from '../../../quiz/domain/IRepositories/IQuizConfigRepository';
+import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentReadRepository';
 import { Course } from '../../domain/entities/Course';
 import { IGetCourseUseCase } from '../interfaces/IGetCourseDetailsUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
@@ -24,6 +25,7 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
     private _lessonRepo: ILessonRepository,
     private _instructorRepo: IInstructorRepository,
     private _quizConfigRepo: IQuizConfigRepository,
+    private _enrollmentRepo: IEnrollmentReadRepository,
   ) {}
 
   async execute(dto: GetCourseDto): Promise<CourseResponseDto | null> {
@@ -59,10 +61,23 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
     }
 
     if (role === UserRole.STUDENT && course.status !== CourseStatus.LIST) {
-      throw new HttpError(
-        ERROR_MESSAGES.COURSE_UNLISTED_OR_NOT_AVAILABLE,
-        HttpStatusCode.FORBIDDEN,
-      );
+      if (userId) {
+        const enrollment = await this._enrollmentRepo.findEnrollment(
+          userId,
+          courseId,
+        );
+        if (!enrollment) {
+          throw new HttpError(
+            ERROR_MESSAGES.COURSE_UNLISTED_OR_NOT_AVAILABLE,
+            HttpStatusCode.FORBIDDEN,
+          );
+        }
+      } else {
+        throw new HttpError(
+          ERROR_MESSAGES.COURSE_UNLISTED_OR_NOT_AVAILABLE,
+          HttpStatusCode.FORBIDDEN,
+        );
+      }
     }
 
     const includeArr = include ? include.split(',') : [];

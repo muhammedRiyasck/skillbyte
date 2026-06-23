@@ -26,7 +26,7 @@ const AdminCourses: React.FC = () => {
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['courses', selectedStatus, page, email],
     queryFn: () => api.get(`/course/admin/courses?status=${selectedStatus === "All Courses" ? "" : selectedStatus}&page=${page}&limit=${limit}`).then(r => r.data),
-    staleTime: 5 * 60 * 1000
+    staleTime: 0
   });
 
 

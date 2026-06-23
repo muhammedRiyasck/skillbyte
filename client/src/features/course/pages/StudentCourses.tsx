@@ -64,7 +64,7 @@ const StudentCourses: React.FC = () => {
       const r = await api.get(`/course/published-courses?${params.toString()}`);
       return r.data;
     },
-    staleTime: 5 * 60 * 1000
+    staleTime: 0
   });
   if (isLoading) return <Card />
   if (isError) return <p><ErrorPage message={error.message} statusCode={500} /></p>;

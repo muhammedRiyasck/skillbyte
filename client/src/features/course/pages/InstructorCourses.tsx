@@ -37,7 +37,7 @@ const InstructorCourses: React.FC = () => {
     queryKey: ["courses", selectedStatus, page, email],
     queryFn: () =>
       api.get(`/course/instructor-courses?status=${selectedStatus === "All Courses" ? "" : selectedStatus}&page=${page}&limit=${limit}`).then((r) => r.data),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
   });
 
   if (isLoading) return <Card />;

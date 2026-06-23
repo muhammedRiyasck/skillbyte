@@ -29,6 +29,13 @@ export class InitiateEnrollmentPaymentUseCase
       throw new HttpError('Course not found', HttpStatusCode.NOT_FOUND);
     }
 
+    if (course.status !== 'list' || course.isBlocked) {
+      throw new HttpError(
+        'This course is currently unavailable for enrollment',
+        HttpStatusCode.BAD_REQUEST,
+      );
+    }
+
     // 1.1 Fetch student details
     const student = await StudentModel.findById(userId);
     if (!student) {

@@ -31,6 +31,7 @@ const getCourseDetailsUC = new GetCourseDetailUseCase(
   lessonRepository,
   instructorRepository,
   quizConfigRepository,
+  enrollmentRepository,
 );
 
 const updateBaseUC = new UpdateBaseUseCase(courseRepository);
