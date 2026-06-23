@@ -36,7 +36,7 @@ const PurchaseHistory: React.FC = () => {
       if (dateFilter !== 'all') filters.dateRange = dateFilter;
 
       const data = await getStudentPurchases(page, itemsPerPage, filters);
-      setPurchases(data?.data?.purchases || []);
+      setPurchases(data?.data?.data || []);
       setTotalCount(data?.data?.totalCount || 0);
     } catch {
       console.error('Failed to load purchase history');

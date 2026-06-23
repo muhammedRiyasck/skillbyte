@@ -1,7 +1,7 @@
 import { PaymentStatus } from '../../../../shared/enums/PaymentStatus';
 
 export interface PaymentResponseDto {
-  paymentId: string;
+  id: string;
   courseId?: string;
   mentorshipBookingId?: string;
   amount: number;
@@ -10,4 +10,6 @@ export interface PaymentResponseDto {
   productName: string;
   productImage?: string;
   createdAt?: Date;
+  stripePaymentIntentId?: string;
+  paypalOrderId?: string;
 }
