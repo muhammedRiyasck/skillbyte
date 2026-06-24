@@ -50,6 +50,14 @@ export class BookSlotUseCase implements IBookSlotUseCase {
     if (!slot) {
       throw new HttpError('Slot not found', HttpStatusCode.NOT_FOUND);
     }
+
+    if (new Date() > new Date(slot.scheduledAt)) {
+      throw new HttpError(
+        'Cannot book an expired session slot',
+        HttpStatusCode.BAD_REQUEST,
+      );
+    }
+
     if (slot.status !== SlotStatus.AVAILABLE) {
       throw new HttpError(
         'Slot is not available for booking',

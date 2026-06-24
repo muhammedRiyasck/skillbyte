@@ -18,15 +18,17 @@ export const SlotCard = ({ slot, onEdit, onDelete, onBook, variant = 'instructor
 
     const startTime = new Date(slot.scheduledAt);
     const endTime = new Date(startTime.getTime() + slot.duration * 60000);
+    const isExpired = new Date() > startTime;
+    const isUnavailable = isBooked || (isExpired && variant === 'student');
 
     return (
-        <div className={`group relative flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl border transition-all duration-300 overflow-hidden ${isBooked
+        <div className={`group relative flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl border transition-all duration-300 overflow-hidden ${isUnavailable
                 ? 'border-gray-300 dark:border-gray-700 opacity-70 cursor-not-allowed bg-gray-50 dark:bg-gray-900'
                 : 'border-gray-200 dark:border-gray-700 hover:shadow-xl hover:-translate-y-1 hover:border-indigo-200 dark:hover:border-indigo-900'
             }`}>
 
             {/* Decorative gradient for available slots */}
-            {!isBooked && (
+            {!isUnavailable && (
                 <div className="absolute top-0 left-0 w-full h-1  opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             )}
 
@@ -42,14 +44,14 @@ export const SlotCard = ({ slot, onEdit, onDelete, onBook, variant = 'instructor
 
                         {/* Status Badge & Video Icon */}
                         <div className="flex items-center gap-2 mt-2">
-                            <div className={`flex items-center justify-center w-6 h-6 rounded-full ${isBooked ? 'bg-gray-100 dark:bg-gray-800' : 'bg-blue-50 dark:bg-blue-900/30'}`}>
-                                <Video size={14} className={isBooked ? 'text-gray-400' : 'text-blue-500'} />
+                            <div className={`flex items-center justify-center w-6 h-6 rounded-full ${isUnavailable ? 'bg-gray-100 dark:bg-gray-800' : 'bg-blue-50 dark:bg-blue-900/30'}`}>
+                                <Video size={14} className={isUnavailable ? 'text-gray-400' : 'text-blue-500'} />
                             </div>
-                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${isBooked
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${isUnavailable
                                     ? 'bg-gray-100 text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
                                     : 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800'
                                 }`}>
-                                {slot.status}
+                                {isExpired && variant === 'student' ? 'EXPIRED' : slot.status}
                             </span>
                         </div>
                     </div>
@@ -140,7 +142,7 @@ export const SlotCard = ({ slot, onEdit, onDelete, onBook, variant = 'instructor
 
             {/* Footer: Price & Action */}
             <div className="p-4 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between gap-4">
-                {isBooked && variant === 'student' ? <span className="text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-4 py-1 rounded-full">Booked</span> : <div className="flex flex-col">
+                {isUnavailable && variant === 'student' ? <span className="text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-4 py-1 rounded-full">{isExpired ? 'Expired' : 'Booked'}</span> : <div className="flex flex-col">
                     <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Investment</span>
                     <div className="flex items-center gap-1 mt-0.5">
                         {slot.price > 0 ? (
@@ -156,7 +158,7 @@ export const SlotCard = ({ slot, onEdit, onDelete, onBook, variant = 'instructor
                     </div>
                 </div>}
 
-                {variant === 'student' && !isBooked && onBook && (
+                {variant === 'student' && !isUnavailable && onBook && (
                     <button
                         onClick={() => onBook(slot)}
                         className="relative overflow-hidden cursor-pointer bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 active:scale-95 group/btn shrink-0"
