@@ -1,7 +1,7 @@
 import { ROUTES } from "@/core/router/paths";
 import { BookOpen, Calendar, TrendingUp, Users } from "lucide-react";
 
-export function getStats(totalProfitUSD: number, totalStudents: number, courses: [], bookings: []) {
+export function getStats(totalProfitUSD: number, totalStudents: number, courses: unknown[], bookings: unknown[]) {
     const USD_TO_INR = 83;
     const totalProfitINR = Math.round(totalProfitUSD * USD_TO_INR);
     

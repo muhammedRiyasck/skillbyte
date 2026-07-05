@@ -45,37 +45,41 @@ import {
 } from 'recharts';
 import { useEffect, useState, useMemo } from 'react';
 
+// Matches PaymentResponseDto from server
 interface DashboardEarnings {
     id: string;
-    studentName: string;
     productName: string;
-    instructorAmount: number;
+    amount: number;
     currency: string;
-    convertedAmount?: number;
-    createdAt: string;
+    createdAt?: string | Date;
 }
 
+// Matches CourseEnrollmentSummaryDto from server
 interface DashboardCourse {
     id: string;
-    courseThumbnail: string;
+    courseThumbnail?: string;
     courseTitle: string;
     coursePrice: number;
-    enrollments: { studentId: string }[];
+    enrollments: { studentId: string; studentName: string; studentEmail: string; enrollmentDate: Date; status: string; progress: number }[];
 }
 
+// Matches BookingResponseDto from server
 interface DashboardBooking {
     bookingId: string;
-    studentId: {
-        name: string;
-    };
-    scheduledAt: string;
+    studentId: string;
+    scheduledAt: string | Date;
+    status: string;
+    amount: number;
+    currency: string;
 }
 
+// Matches WithdrawalResponseDto from server
 interface WithdrawalItem {
-    _id: string;
+    withdrawalId: string;
     amount: number;
     status: string;
-    createdAt: string;
+    currency: string;
+    createdAt?: string | Date;
 }
 
 interface DashboardStat {
@@ -95,17 +99,20 @@ const InstructorDashboard: React.FC = () => {
     const [withdrawalPage, setWithdrawalPage] = useState(1);
     const ITEMS_PER_PAGE = 5;
 
-    const { data: earningsData } = useQuery<{ data: { earnings: DashboardEarnings[]; statistics: { totalProfit: number } } }>({
+    // Backend: { data: PaymentResponseDto[]; totalCount; totalRevenue; totalProfit }
+    const { data: earningsData } = useQuery<{ data: DashboardEarnings[]; totalCount: number; totalRevenue: number; totalProfit: number }>({
         queryKey: ['instructor-dashboard-earnings'],
         queryFn: () => getDashboardEarnings()
     });
 
-    const { data: enrollmentData, isLoading: enrollmentLoading } = useQuery({
+    // Backend: { data: CourseEnrollmentSummaryDto[]; totalCount }
+    const { data: enrollmentData, isLoading: enrollmentLoading } = useQuery<{ data: DashboardCourse[]; totalCount: number }>({
         queryKey: ['instructor-dashboard-enrollments'],
         queryFn: getDashboardEnrollments
     });
 
-    const { data: bookingsData, isLoading: bookingsLoading } = useQuery({
+    // Backend: { bookings: BookingResponseDto[] } (wrapped in ApiResponse.data)
+    const { data: bookingsData, isLoading: bookingsLoading } = useQuery<{ bookings: DashboardBooking[] }>({
         queryKey: ['instructor-dashboard-bookings'],
         queryFn: getDashboardBookings
     });
@@ -115,7 +122,8 @@ const InstructorDashboard: React.FC = () => {
         queryFn: getInstructorProfile
     });
 
-    const { data: withdrawalsData, isFetching: withdrawalsFetching, refetch } = useQuery<{ data: WithdrawalItem[] }>({
+    // Backend: { data: WithdrawalResponseDto[]; pagination: { total, page, limit } }
+    const { data: withdrawalsData, isFetching: withdrawalsFetching, refetch } = useQuery<{ data: WithdrawalItem[]; pagination: { total: number; page: number; limit: number } }>({
         queryKey: ['instructor-withdrawals', withdrawalPage],
         queryFn: () => getMyWithdrawals(withdrawalPage, ITEMS_PER_PAGE),
         placeholderData: keepPreviousData
@@ -198,11 +206,14 @@ const InstructorDashboard: React.FC = () => {
     const isInitialLoading = profileLoading || enrollmentLoading || bookingsLoading;
     const isLoading = isInitialLoading && !profileData; // Only show global spinner if core data is missing
 
-    const earnings = useMemo(() => earningsData?.data?.earnings || [], [earningsData]);
-    const totalProfit = earningsData?.data?.statistics?.totalProfit || 0;
-    const totalStudents = enrollmentData?.data?.totalCount || 0;
-    const courses = enrollmentData?.data?.data || [];
-    const bookings = bookingsData?.data?.bookings || [];
+    const earnings = useMemo(() => {
+        const raw = earningsData?.data;
+        return Array.isArray(raw) ? raw : [];
+    }, [earningsData]);
+    const totalProfit = earningsData?.totalProfit || 0;
+    const totalStudents = enrollmentData?.totalCount || 0;
+    const courses = enrollmentData?.data || [];
+    const bookings = bookingsData?.bookings || [];
     const withdrawals = withdrawalsData?.data || [];
 
     const instructor = profileData;
@@ -213,12 +224,13 @@ const InstructorDashboard: React.FC = () => {
     const stats = getStats(totalProfit, totalStudents, courses, bookings);
 
     const chartData = useMemo(() => {
-        if (!earnings || earnings.length === 0) return [];
+        if (!Array.isArray(earnings) || earnings.length === 0) return [];
         const grouped = earnings.reduce((acc: Record<string, number>, curr: DashboardEarnings) => {
-            const date = new Date(curr.createdAt).toLocaleDateString();
-            const amountInUSD = curr.currency === 'INR' 
-                ? (curr.convertedAmount || curr.instructorAmount / USD_TO_INR)
-                : curr.instructorAmount;
+            const date = new Date(curr.createdAt ?? '').toLocaleDateString();
+            // Backend always returns amount in the payment currency (USD or INR)
+            const amountInUSD = curr.currency === 'INR'
+                ? curr.amount / USD_TO_INR
+                : curr.amount;
             acc[date] = (acc[date] || 0) + amountInUSD;
             return acc;
         }, {});
@@ -566,30 +578,29 @@ const InstructorDashboard: React.FC = () => {
                                     <div key={item.id} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all border border-transparent hover:border-slate-100 dark:hover:border-slate-700 group">
                                         <div className="flex items-center gap-4">
                                             <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-lg border border-indigo-100 dark:border-indigo-500/20">
-                                                {item.studentName.charAt(0)}
+                                                {item.productName?.charAt(0) || '$'}
                                             </div>
                                             <div>
-                                                <p className="font-black text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">{item.studentName}</p>
-                                                <p className="text-xs text-slate-500 font-medium line-clamp-1">{item.productName}</p>
+                                                <p className="font-black text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">{item.productName || 'Unknown Product'}</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
                                             {item.currency === 'INR' ? (
                                                 <>
-                                                    <p className="font-black text-emerald-600 dark:text-emerald-400 text-lg">₹{item.instructorAmount.toLocaleString()}</p>
+                                                    <p className="font-black text-emerald-600 dark:text-emerald-400 text-lg">₹{item.amount.toLocaleString()}</p>
                                                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">
-                                                        ≈ ${item.convertedAmount ? item.convertedAmount.toLocaleString() : (item.instructorAmount / USD_TO_INR).toFixed(2)}
+                                                        ≈ ${(item.amount / USD_TO_INR).toFixed(2)}
                                                     </p>
                                                 </>
                                             ) : (
                                                 <>
-                                                    <p className="font-black text-emerald-600 dark:text-emerald-400 text-lg">${item.instructorAmount.toLocaleString()}</p>
+                                                    <p className="font-black text-emerald-600 dark:text-emerald-400 text-lg">${item.amount.toLocaleString()}</p>
                                                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">
-                                                        ≈ ₹{Math.round(item.instructorAmount * USD_TO_INR).toLocaleString()}
+                                                        ≈ ₹{Math.round(item.amount * USD_TO_INR).toLocaleString()}
                                                     </p>
                                                 </>
                                             )}
-                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.05em] mt-1">{new Date(item.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</p>
+                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.05em] mt-1">{new Date(item.createdAt ?? '').toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</p>
                                         </div>
                                     </div>
                                 ))
@@ -633,7 +644,7 @@ const InstructorDashboard: React.FC = () => {
                             <div className="p-4 space-y-3">
                                 {withdrawals.length > 0 ? (
                                     withdrawals.slice(0, 5).map((w: WithdrawalItem) => (
-                                        <div key={w._id} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
+                                        <div key={w.withdrawalId} className="flex items-center justify-between p-4 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all border border-transparent hover:border-slate-100 dark:hover:border-slate-700">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-400 font-black border border-slate-200 dark:border-slate-600">
                                                     <ExternalLink className="w-5 h-5" />
@@ -651,7 +662,7 @@ const InstructorDashboard: React.FC = () => {
                                                 }`}>
                                                     {w.status}
                                                 </span>
-                                                <p className="text-[10px] text-slate-400 font-bold">{new Date(w.createdAt).toLocaleDateString()}</p>
+                                                <p className="text-[10px] text-slate-400 font-bold">{w.createdAt ? new Date(w.createdAt).toLocaleDateString() : '—'}</p>
                                             </div>
                                         </div>
                                     ))
@@ -711,7 +722,7 @@ const InstructorDashboard: React.FC = () => {
                                                 <Clock className="w-6 h-6" />
                                             </div>
                                             <div>
-                                                <p className="font-black text-slate-900 dark:text-white">{booking.studentId.name}</p>
+                                                <p className="font-black text-slate-900 dark:text-white">{typeof booking.studentId === 'string' ? `Student #${booking.studentId.slice(-6)}` : 'Student'}</p>
                                                 <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none">Session Student</p>
                                             </div>
                                         </div>
