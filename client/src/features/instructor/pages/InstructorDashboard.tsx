@@ -102,31 +102,41 @@ const InstructorDashboard: React.FC = () => {
     // Backend: { data: PaymentResponseDto[]; totalCount; totalRevenue; totalProfit }
     const { data: earningsData } = useQuery<{ data: DashboardEarnings[]; totalCount: number; totalRevenue: number; totalProfit: number }>({
         queryKey: ['instructor-dashboard-earnings'],
-        queryFn: () => getDashboardEarnings()
+        queryFn: () => getDashboardEarnings(),
+        staleTime: 5 * 60 * 1000, // 5 min — earnings summary changes infrequently
+        refetchOnWindowFocus: false
     });
 
     // Backend: { data: CourseEnrollmentSummaryDto[]; totalCount }
     const { data: enrollmentData, isLoading: enrollmentLoading } = useQuery<{ data: DashboardCourse[]; totalCount: number }>({
         queryKey: ['instructor-dashboard-enrollments'],
-        queryFn: getDashboardEnrollments
+        queryFn: getDashboardEnrollments,
+        staleTime: 5 * 60 * 1000, // 5 min
+        refetchOnWindowFocus: false
     });
 
     // Backend: { bookings: BookingResponseDto[] } (wrapped in ApiResponse.data)
     const { data: bookingsData, isLoading: bookingsLoading } = useQuery<{ bookings: DashboardBooking[] }>({
         queryKey: ['instructor-dashboard-bookings'],
-        queryFn: getDashboardBookings
+        queryFn: getDashboardBookings,
+        staleTime: 5 * 60 * 1000, // 5 min
+        refetchOnWindowFocus: false
     });
 
     const { data: profileData, isLoading: profileLoading } = useQuery({
         queryKey: ['instructor-profile'],
-        queryFn: getInstructorProfile
+        queryFn: getInstructorProfile,
+        staleTime: 10 * 60 * 1000, // 10 min — profile rarely changes
+        refetchOnWindowFocus: false
     });
 
     // Backend: { data: WithdrawalResponseDto[]; pagination: { total, page, limit } }
     const { data: withdrawalsData, isFetching: withdrawalsFetching, refetch } = useQuery<{ data: WithdrawalItem[]; pagination: { total: number; page: number; limit: number } }>({
         queryKey: ['instructor-withdrawals', withdrawalPage],
         queryFn: () => getMyWithdrawals(withdrawalPage, ITEMS_PER_PAGE),
-        placeholderData: keepPreviousData
+        placeholderData: keepPreviousData,
+        staleTime: 0, // Always fetch fresh on page change; controlled via manual refetch
+        refetchOnWindowFocus: false
     });
 
     useEffect(() => {
