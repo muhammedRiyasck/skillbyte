@@ -259,24 +259,31 @@ const InstructorDashboard: React.FC = () => {
     }
 
     const containerVariants = {
-        hidden: { opacity: 0, y: 20 },
+        hidden: {},
         visible: {
-            opacity: 1,
-            y: 0,
             transition: {
-                duration: 0.6,
-                staggerChildren: 0.1
+                staggerChildren: 0.08,
+                delayChildren: 0.05
             }
         }
     };
 
     const itemVariants = {
-        hidden: { opacity: 0, scale: 0.95 },
-        visible: { opacity: 1, scale: 1 }
+        hidden: { opacity: 0, y: 40 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                type: 'spring' as const,
+                stiffness: 260,
+                damping: 24,
+                mass: 0.8
+            }
+        }
     };
 
     return (
-        <motion.div 
+        <motion.div
             initial="hidden"
             animate="visible"
             variants={containerVariants}
@@ -390,7 +397,7 @@ const InstructorDashboard: React.FC = () => {
                         <motion.div
                             key={stat.label}
                             variants={itemVariants}
-                            whileHover={{ y: -5, transition: { duration: 0.2 } }}
+                            whileHover={{ y: -6, scale: 1.02, transition: { type: 'spring', stiffness: 400, damping: 20 } }}
                         >
                             <Link
                                 to={stat.link}
