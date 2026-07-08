@@ -1,7 +1,5 @@
-import { IAdminDashboardData } from '../../domain/interfaces/IDashboardData';
-
-export { IAdminDashboardData };
+import { AdminDashboardResponseDto } from '../dtos/AdminResponseDto';
 
 export interface IGetDashboardDataUseCase {
-  execute(): Promise<IAdminDashboardData>;
+  execute(): Promise<AdminDashboardResponseDto>;
 }

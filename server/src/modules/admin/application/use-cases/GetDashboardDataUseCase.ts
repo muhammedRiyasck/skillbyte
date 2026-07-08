@@ -1,7 +1,5 @@
-import {
-  IAdminDashboardData,
-  IGetDashboardDataUseCase,
-} from '../interfaces/IGetDashboardDataUseCase';
+import { IGetDashboardDataUseCase } from '../interfaces/IGetDashboardDataUseCase';
+import { AdminDashboardResponseDto } from '../dtos/AdminResponseDto';
 import { ITopInstructorRepository } from '../../domain/IRepositories/ITopInstructorRepository';
 import { IDashboardRepository } from '../../domain/IRepositories/IDashboardRepository';
 
@@ -11,7 +9,7 @@ export class GetDashboardDataUseCase implements IGetDashboardDataUseCase {
     private readonly topInstructorRepository: ITopInstructorRepository,
   ) {}
 
-  async execute(): Promise<IAdminDashboardData> {
+  async execute(): Promise<AdminDashboardResponseDto> {
     const today = new Date();
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(today.getMonth() - 6);
