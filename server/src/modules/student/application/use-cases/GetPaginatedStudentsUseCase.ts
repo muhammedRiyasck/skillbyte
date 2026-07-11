@@ -1,7 +1,8 @@
-import { Student } from '../../domain/entities/Student';
 import { IStudentRepository } from '../../domain/IRepositories/IStudentRepository';
 import { IGetPaginatedStudentsUseCase } from '../interfaces/IGetPaginatedStudentsUseCase';
 import { PaginatedResult } from '../../../../shared/types/PaginationType';
+import { StudentResponseDto } from '../dtos/StudentResponseDto';
+import { StudentMapper } from '../mappers/StudentMapper';
 
 /**
  * Query filters for paginated students.
@@ -41,7 +42,7 @@ export class GetPaginatedStudentsUseCase
     page: number,
     limit: number,
     sort: StudentSort,
-  ): Promise<PaginatedResult<Student> | null> {
+  ): Promise<PaginatedResult<StudentResponseDto> | null> {
     // Validate and sanitize the page number
     const safePage = Number.isFinite(page) && page > 0 ? page : 1;
 
@@ -62,7 +63,7 @@ export class GetPaginatedStudentsUseCase
 
     // Return the paginated result with metadata
     return {
-      data,
+      data: data.map((student) => StudentMapper.toResponseDto(student)),
       meta: {
         page: safePage,
         limit: safeLimit,

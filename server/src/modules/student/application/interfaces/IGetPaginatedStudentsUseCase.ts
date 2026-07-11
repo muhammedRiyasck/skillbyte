@@ -1,7 +1,7 @@
-import { Student } from '../../domain/entities/Student';
+import { StudentResponseDto } from '../dtos/StudentResponseDto';
 import { PaginatedResult } from '../../../../shared/types/PaginationType';
 
-type GetPaginatedStudents<T = Student> = PaginatedResult<T>;
+type GetPaginatedStudents<T = StudentResponseDto> = PaginatedResult<T>;
 
 export interface IGetPaginatedStudentsUseCase {
   execute(

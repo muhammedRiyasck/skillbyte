@@ -1,12 +1,13 @@
 import { generateRefreshToken } from '../../../../shared/utils/RefreshToken';
 import { generateAccessToken } from '../../../../shared/utils/AccessToken';
 import { IStudentRepository } from '../../domain/IRepositories/IStudentRepository';
-import { Student } from '../../domain/entities/Student';
 import bcrypt from 'bcryptjs';
 import { ILoginStudentUseCase } from '../interfaces/ILoginStudentUseCase';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { StudentMapper } from '../mappers/StudentMapper';
+import { StudentResponseDto } from '../dtos/StudentResponseDto';
 
 /**
  * Use case for student login.
@@ -17,9 +18,11 @@ import { LoginRequestDto } from '../../../auth/application/dtos/LoginRequestDto'
 export class LoginStudentUseCase implements ILoginStudentUseCase {
   constructor(private _studentRepo: IStudentRepository) {}
 
-  async execute(
-    dto: LoginRequestDto,
-  ): Promise<{ user: Student; accessToken: string; refreshToken: string }> {
+  async execute(dto: LoginRequestDto): Promise<{
+    user: StudentResponseDto;
+    accessToken: string;
+    refreshToken: string;
+  }> {
     const { email, password } = dto;
     if (!password) {
       throw new HttpError(
@@ -57,6 +60,10 @@ export class LoginStudentUseCase implements ILoginStudentUseCase {
       id: student.studentId,
       role: 'student',
     });
-    return { user: student, accessToken, refreshToken };
+    return {
+      user: StudentMapper.toResponseDto(student),
+      accessToken,
+      refreshToken,
+    };
   }
 }

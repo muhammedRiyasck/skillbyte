@@ -3,7 +3,6 @@ import { IGetPaginatedStudentsUseCase } from '../../application/interfaces/IGetP
 import { IChangeStudentStatusUseCase } from '../../application/interfaces/IChangeStudentStatusUseCase';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { AdminStudentMapper } from '../../application/mappers/AdminStudentMapper';
-import { StudentMapper } from '../../application/mappers/StudentMapper';
 import {
   AdminStudentPaginationRequestDto,
   ChangeStudentStatusRequestDto,
@@ -34,14 +33,7 @@ export class AdminStudentController {
       sort,
     );
 
-    const studentDtos =
-      students?.data?.map((student) => StudentMapper.toResponseDto(student)) ||
-      [];
-
-    ApiResponseHelper.success(res, 'Students fetched successfully', {
-      ...students,
-      data: studentDtos,
-    });
+    ApiResponseHelper.success(res, 'Students fetched successfully', students);
   };
 
   /**

@@ -1,5 +1,5 @@
-import { Student } from '../../domain/entities/Student';
+import { StudentResponseDto } from '../dtos/StudentResponseDto';
 
 export interface IListAllStudentsUseCase {
-  execute(): Promise<Student[] | null>;
+  execute(): Promise<StudentResponseDto[] | null>;
 }
