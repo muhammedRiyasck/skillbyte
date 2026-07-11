@@ -1,6 +1,6 @@
-import { Instructor } from '../../domain/entities/Instructor';
+import { InstructorResponseDto } from '../dtos/InstructorResponseDto';
 import { PaginatedResult } from '../../../../shared/types/PaginationType';
-type GetPaginatedInstructors<T = Instructor> = PaginatedResult<T>;
+type GetPaginatedInstructors<T = InstructorResponseDto> = PaginatedResult<T>;
 
 export interface IlistInstructorsUC {
   execute(

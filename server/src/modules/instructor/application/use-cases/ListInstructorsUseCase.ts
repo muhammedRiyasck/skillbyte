@@ -1,6 +1,7 @@
 import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRepository';
-import { Instructor } from '../../domain/entities/Instructor';
 import { IlistInstructorsUC } from '../interfaces/IlistInstructorsUseCase';
+import { InstructorResponseDto } from '../dtos/InstructorResponseDto';
+import { InstructorMapper } from '../mappers/InstructorMapper';
 
 /**
  * Use case for listing instructors with pagination and sorting.
@@ -29,7 +30,7 @@ export class ListInstructorsUseCase implements IlistInstructorsUC {
     limit: number,
     sort: Record<string, 1 | -1>,
   ): Promise<{
-    data: Instructor[];
+    data: InstructorResponseDto[];
     meta: {
       page: number;
       limit: number;
@@ -38,7 +39,7 @@ export class ListInstructorsUseCase implements IlistInstructorsUC {
       hasNextPage: boolean;
       hasPrevPage: boolean;
     };
-  }> {
+  } | null> {
     const safePage = Number.isFinite(page) && page > 0 ? page : 1;
     const safeLimit =
       Number.isFinite(limit) && limit > 0 ? Math.min(limit, 50) : 6;
@@ -50,7 +51,9 @@ export class ListInstructorsUseCase implements IlistInstructorsUC {
     );
     const totalPages = Math.ceil(total / safeLimit);
     return {
-      data,
+      data: data.map((instructor) =>
+        InstructorMapper.toResponseDto(instructor),
+      ),
       meta: {
         page: safePage,
         limit: safeLimit,

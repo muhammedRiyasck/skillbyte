@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { InstructorMapper } from '../../application/mappers/InstructorMapper';
 import { Readable } from 'node:stream';
 import { IlistInstructorsUC } from '../../application/interfaces/IlistInstructorsUseCase';
 import { IApproveInstructorUseCase } from '../../application/interfaces/IApproveInstructorUseCase';
@@ -45,15 +44,11 @@ export class AdminInstructorController {
       query.limit ?? 12,
       sort,
     );
-    const instructorDtos =
-      instructors?.data?.map((instructor) =>
-        InstructorMapper.toResponseDto(instructor),
-      ) || [];
-
-    ApiResponseHelper.success(res, 'Instructors retrieved successfully', {
-      ...instructors,
-      data: instructorDtos,
-    });
+    ApiResponseHelper.success(
+      res,
+      'Instructors retrieved successfully',
+      instructors,
+    );
   };
 
   approve = async (req: Request, res: Response): Promise<void> => {

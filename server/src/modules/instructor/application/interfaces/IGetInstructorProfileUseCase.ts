@@ -1,5 +1,5 @@
-import { Instructor } from '../../domain/entities/Instructor';
+import { InstructorResponseDto } from '../dtos/InstructorResponseDto';
 
 export interface IGetInstructorProfileUseCase {
-  execute(id: string): Promise<Instructor | null>;
+  execute(id: string): Promise<InstructorResponseDto | null>;
 }

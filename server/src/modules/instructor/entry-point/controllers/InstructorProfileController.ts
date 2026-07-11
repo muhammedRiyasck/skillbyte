@@ -39,7 +39,7 @@ export class InstructorProfileController {
     ApiResponseHelper.success(
       res,
       'Instructor profile retrieved successfully',
-      { instructor: InstructorMapper.toResponseDto(instructor) },
+      { instructor },
     );
   };
 
@@ -66,10 +66,10 @@ export class InstructorProfileController {
 
     const instructor =
       await this._getInstructorProfileUseCase.execute(instructorId);
-    if (instructor && instructor.profilePictureUrl) {
+    if (instructor && instructor.profilePicture) {
       try {
         const oldPicId = this._storageService.getIdentifierFromUrl(
-          instructor.profilePictureUrl,
+          instructor.profilePicture,
         );
         await this._storageService.delete(oldPicId);
       } catch (error) {
@@ -103,10 +103,10 @@ export class InstructorProfileController {
       );
     }
 
-    if (instructor.profilePictureUrl) {
+    if (instructor.profilePicture) {
       try {
         const publicId = this._storageService.getIdentifierFromUrl(
-          instructor.profilePictureUrl,
+          instructor.profilePicture,
         );
         await this._storageService.delete(publicId);
       } catch (error) {
