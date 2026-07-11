@@ -10,6 +10,7 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { UserRole } from '../../../../shared/enums/UserRole';
 import { AdminAccountStatus } from '../../../../shared/enums/AdminAccountStatus';
 import { LoginAdminResponseDto } from '../dtos/AdminResponseDto';
+import { AdminMapper } from '../mappers/AdminMapper';
 
 /**
  * Use case for handling admin login.
@@ -59,6 +60,6 @@ export class LoginAdminUseCase implements ILoginAdminUseCase {
       role: UserRole.ADMIN,
     });
 
-    return { admin, accessToken, refreshToken };
+    return { admin: AdminMapper.toResponse(admin), accessToken, refreshToken };
   }
 }

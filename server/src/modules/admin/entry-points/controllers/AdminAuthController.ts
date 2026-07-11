@@ -45,13 +45,6 @@ export class AdminAuthController {
 
     logger.info(`Admin login successful for email: ${dto.email}`);
 
-    const userData = {
-      name: admin.name,
-      email: admin.email,
-      role: 'admin',
-      profilePicture: admin.profilePictureUrl,
-    };
-
-    ApiResponseHelper.success(res, 'Admin Login Successful', userData);
+    ApiResponseHelper.success(res, 'Admin Login Successful', admin);
   };
 }
