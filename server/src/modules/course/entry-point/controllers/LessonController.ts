@@ -49,11 +49,7 @@ export class LessonController {
     logger.info(
       `Lesson created successfully for module ${validatedData.moduleId}`,
     );
-    ApiResponseHelper.created(
-      res,
-      'Lesson created successfully.',
-      LessonMapper.toResponse(data),
-    );
+    ApiResponseHelper.created(res, 'Lesson created successfully.', data);
   };
 
   /**
@@ -155,7 +151,7 @@ export class LessonController {
     ApiResponseHelper.success(
       res,
       `Lesson ${isBlocked ? 'blocked' : 'unblocked'} successfully`,
-      LessonMapper.toResponse(lesson),
+      lesson,
     );
   };
 

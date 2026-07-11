@@ -1,4 +1,4 @@
-import { CreateModuleDto } from '../dtos/ModuleDtos';
+import { CreateModuleDto, ModuleResponseDto } from '../dtos/ModuleDtos';
 import { LessonMapper } from './LessonMapper';
 import { Module } from '../../domain/entities/Module';
 
@@ -14,7 +14,7 @@ export class ModuleMapper {
     };
   }
 
-  static toResponse(module: Module) {
+  static toResponse(module: Module): ModuleResponseDto {
     return {
       id: module.moduleId,
       courseId: module.courseId,

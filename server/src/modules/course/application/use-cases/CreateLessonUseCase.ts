@@ -8,6 +8,8 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { eventBus } from '../../../../shared/services/event-bus/EventBus';
 import { COURSE_EVENTS } from '../../../../shared/services/event-bus/CourseEvents';
+import { LessonMapper } from '../mappers/LessonMapper';
+import { LessonResponseDto } from '../dtos/LessonDtos';
 
 type WithInstructorId<T> = T & { instructorId: string };
 
@@ -33,10 +35,10 @@ export class CreateLessonUseCase implements ICreateLessonUseCase {
    * Validates the module exists, the course exists, and the instructor owns the course.
    * Creates a new Lesson entity and saves it.
    * @param dto - The data transfer object containing lesson creation details with instructor ID.
-   * @returns A promise that resolves to the created Lesson entity.
+   * @returns A promise that resolves to the created LessonResponseDto.
    * @throws HttpError with appropriate status code if validation fails.
    */
-  async execute(dto: WithInstructorId<Lesson>): Promise<Lesson> {
+  async execute(dto: WithInstructorId<Lesson>): Promise<LessonResponseDto> {
     const module = await this._moduleRepo.findById(dto.moduleId);
     if (!module) {
       throw new HttpError(
@@ -83,6 +85,6 @@ export class CreateLessonUseCase implements ICreateLessonUseCase {
       instructorId: dto.instructorId,
     });
 
-    return savedLesson;
+    return LessonMapper.toResponse(savedLesson);
   }
 }

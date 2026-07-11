@@ -1,7 +1,5 @@
-import { Module } from '../../domain/entities/Module';
-
-import { CreateModuleDto } from '../dtos/ModuleDtos';
+import { CreateModuleDto, ModuleResponseDto } from '../dtos/ModuleDtos';
 
 export interface ICreateModuleUseCase {
-  execute(dto: CreateModuleDto): Promise<Module | null>;
+  execute(dto: CreateModuleDto): Promise<ModuleResponseDto | null>;
 }

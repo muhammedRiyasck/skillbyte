@@ -3,9 +3,10 @@ import { Module } from '../../domain/entities/Module';
 import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository';
 import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
 import { ICreateModuleUseCase } from '../interfaces/ICreateModuleUseCase';
-import { CreateModuleDto } from '../dtos/ModuleDtos';
+import { CreateModuleDto, ModuleResponseDto } from '../dtos/ModuleDtos';
 import { eventBus } from '../../../../shared/services/event-bus/EventBus';
 import { COURSE_EVENTS } from '../../../../shared/services/event-bus/CourseEvents';
+import { ModuleMapper } from '../mappers/ModuleMapper';
 
 /**
  * Use case for creating a new module.
@@ -27,9 +28,9 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
    * Validates if the moduleId is a valid ObjectId. If not, creates a new module.
    * If it is a valid ObjectId, checks if the module exists; if not, creates it to avoid redundancy when adding lessons.
    * @param dto - The data transfer object containing module creation details.
-   * @returns A promise that resolves to the created Module entity or null if no module was created.
+   * @returns A promise that resolves to the created ModuleResponseDto or null if no module was created.
    */
-  async execute(dto: CreateModuleDto): Promise<Module | null> {
+  async execute(dto: CreateModuleDto): Promise<ModuleResponseDto | null> {
     const courseId = (dto.courseId || dto.id) as string;
 
     // Check if the provided moduleId is a valid MongoDB ObjectId
@@ -75,6 +76,6 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
       }
     }
 
-    return savedModule;
+    return savedModule ? ModuleMapper.toResponse(savedModule) : null;
   }
 }

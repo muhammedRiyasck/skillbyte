@@ -61,8 +61,7 @@ export class ModuleController {
     if (!module) {
       throw new HttpError('Module not found', HttpStatusCode.NOT_FOUND);
     }
-    const responseDto = ModuleMapper.toResponse(module);
-    ApiResponseHelper.created(res, 'Module created successfully.', responseDto);
+    ApiResponseHelper.created(res, 'Module created successfully.', module);
   };
 
   /**

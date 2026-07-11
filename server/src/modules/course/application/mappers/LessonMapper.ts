@@ -1,4 +1,4 @@
-import { CreateLessonDto } from '../dtos/LessonDtos';
+import { CreateLessonDto, LessonResponseDto } from '../dtos/LessonDtos';
 import { Lesson } from '../../domain/entities/Lesson';
 import { ContentType } from '../../../../shared/enums/ContentType';
 
@@ -20,7 +20,7 @@ export class LessonMapper {
     };
   }
 
-  static toResponse(lesson: Lesson) {
+  static toResponse(lesson: Lesson): LessonResponseDto {
     return {
       id: lesson.lessonId,
       moduleId: lesson.moduleId,
