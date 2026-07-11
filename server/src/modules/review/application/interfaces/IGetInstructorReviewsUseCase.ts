@@ -1,5 +1,5 @@
-import { Review } from '../../domain/entities/Review';
 import { InstructorReviewFilters } from '../../domain/IRepositories/IReviewRepository';
+import { ReviewResponseDto } from '../dtos/ReviewResponseDto';
 
 export interface IGetInstructorReviewsUseCase {
   execute(
@@ -7,5 +7,5 @@ export interface IGetInstructorReviewsUseCase {
     filters: InstructorReviewFilters,
     page: number,
     limit: number,
-  ): Promise<{ reviews: Review[]; total: number }>;
+  ): Promise<{ reviews: ReviewResponseDto[]; total: number }>;
 }

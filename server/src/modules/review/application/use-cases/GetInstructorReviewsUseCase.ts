@@ -3,7 +3,8 @@ import {
   InstructorReviewFilters,
 } from '../../domain/IRepositories/IReviewRepository';
 import { IGetInstructorReviewsUseCase } from '../interfaces/IGetInstructorReviewsUseCase';
-import { Review } from '../../domain/entities/Review';
+import { ReviewResponseDto } from '../dtos/ReviewResponseDto';
+import { ReviewMapper } from '../mappers/ReviewMapper';
 
 export class GetInstructorReviewsUseCase
   implements IGetInstructorReviewsUseCase
@@ -15,7 +16,7 @@ export class GetInstructorReviewsUseCase
     filters: InstructorReviewFilters,
     page: number,
     limit: number,
-  ): Promise<{ reviews: Review[]; total: number }> {
+  ): Promise<{ reviews: ReviewResponseDto[]; total: number }> {
     const reviews = await this.reviewRepository.findInstructorReviews(
       instructorId,
       filters,
@@ -27,6 +28,10 @@ export class GetInstructorReviewsUseCase
       filters,
     );
 
-    return { reviews, total };
+    const mappedReviews = reviews.map((r) =>
+      ReviewMapper.toDto(r, r.studentInfo),
+    );
+
+    return { reviews: mappedReviews, total };
   }
 }

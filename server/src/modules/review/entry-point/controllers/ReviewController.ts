@@ -14,7 +14,6 @@ import { IAdminToggleHideReviewUseCase } from '../../application/interfaces/IAdm
 import { IAdminDeleteReviewUseCase } from '../../application/interfaces/IAdminDeleteReviewUseCase';
 import { IReplyToReviewUseCase } from '../../application/interfaces/IReplyToReviewUseCase';
 import { IGetInstructorReviewsUseCase } from '../../application/interfaces/IGetInstructorReviewsUseCase';
-import { ReviewMapper } from '../../application/mappers/ReviewMapper';
 import { SubmitReviewRequestDto } from '../../application/dtos/SubmitReviewRequestDto';
 import { UpdateReviewRequestDto } from '../../application/dtos/UpdateReviewRequestDto';
 
@@ -160,14 +159,10 @@ export class ReviewController {
       limit,
     );
 
-    const mappedReviews = reviews.map((r) =>
-      ReviewMapper.toDto(r, r.studentInfo),
-    );
-
     ApiResponseHelper.success(
       res,
       'Instructor reviews retrieved successfully',
-      { reviews: mappedReviews, total },
+      { reviews, total },
     );
   };
 
