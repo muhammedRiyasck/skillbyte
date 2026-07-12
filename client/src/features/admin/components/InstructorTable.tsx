@@ -229,7 +229,6 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
     {
       header: "Actions",
       accessor: (row: Instructor) => {
-        console.log(row);
         if (row.accountStatus === InstructorAccountStatus.PENDING && !row.approved) {
           return (
             <div className="flex space-x-2">

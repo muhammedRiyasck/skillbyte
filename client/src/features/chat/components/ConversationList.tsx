@@ -79,7 +79,6 @@ const ConversationList: React.FC<ConversationListProps> = ({
             const timeDisplay = conversation.lastMessage
               ? format(new Date(conversation.lastMessage.timestamp), 'MMM d, h:mm a')
               : format(new Date(conversation.updatedAt), 'MMM d');
-            console.log(conversation)
             return (
               <div
                 key={conversation.conversationId}

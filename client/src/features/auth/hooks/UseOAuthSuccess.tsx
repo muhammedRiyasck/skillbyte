@@ -13,7 +13,6 @@ const OAuthSuccess = () => {
   useEffect(() => {
     axios.get(`${import.meta.env.VITE_API_URL}/auth/me`, { withCredentials: true })
       .then(res => {
-        console.log("User:", res.data);
         toast.success("Login successful!");
         dispatch(setUser(res.data.userData))
         navigate(ROUTES.root);

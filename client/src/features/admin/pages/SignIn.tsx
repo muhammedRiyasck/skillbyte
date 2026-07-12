@@ -39,7 +39,6 @@ const Login: React.FC = () => {
       if (emailValidation.success && passwordValidation.success ){
         setLoading(true);
           const response = await login({email,password})
-          console.log(response)
           dispatch(setUser(response?.data))
           navigate(ROUTES.admin.dashboard)
           toast.success(response.message)
