@@ -67,7 +67,7 @@ const StudentCourses: React.FC = () => {
     staleTime: 0
   });
   if (isLoading) return <Card />
-  if (isError) return <p><ErrorPage message={error.message} statusCode={500} /></p>;
+  if (isError) return <ErrorPage message={error.message} statusCode={500} />;
 
   return (
     <div className="min-h-screen bg-gradient-to-br bg-white dark:bg-gray-900   pb-8">

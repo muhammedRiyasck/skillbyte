@@ -32,7 +32,7 @@ const AdminCourses: React.FC = () => {
 
   if (isLoading) return <Card />
 
-  if (isError) return <p><ErrorPage message={error.message} statusCode={500} /></p>;
+  if (isError) return <ErrorPage message={error.message} statusCode={500} />;
   const handleListStatus = (option: CourseFilterOption) => {
     setIsOpen(false);
     setSelectedStatus(option);
