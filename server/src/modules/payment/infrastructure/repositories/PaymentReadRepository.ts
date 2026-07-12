@@ -156,4 +156,26 @@ export class PaymentReadRepository
 
     return { data, totalCount, totalRevenue, totalProfit };
   }
+
+  async findPaymentByUserAndProduct(
+    userId: string,
+    courseId?: string,
+    mentorshipBookingId?: string,
+    status?: string,
+  ): Promise<IPayment | null> {
+    const query: any = { userId: new Types.ObjectId(userId) };
+    if (courseId) {
+      query.courseId = new Types.ObjectId(courseId);
+    }
+    if (mentorshipBookingId) {
+      query.mentorshipBookingId = new Types.ObjectId(mentorshipBookingId);
+    }
+    if (status) {
+      query.status = status;
+    }
+    
+    // In case there are multiple, get the most recent one
+    const doc = await this.model.findOne(query).sort({ createdAt: -1 });
+    return doc ? this.toEntity(doc) : null;
+  }
 }

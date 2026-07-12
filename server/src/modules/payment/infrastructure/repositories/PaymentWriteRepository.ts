@@ -59,4 +59,16 @@ export class PaymentWriteRepository
   async updateStatus(paymentId: string, status: string): Promise<void> {
     await this.model.findByIdAndUpdate(paymentId, { status });
   }
+
+  async updatePaymentDetails(
+    paymentId: string,
+    paymentData: Partial<IPayment>,
+  ): Promise<IPayment | null> {
+    const doc = await this.model.findByIdAndUpdate(
+      paymentId,
+      { $set: paymentData },
+      { new: true },
+    );
+    return doc ? this.toEntity(doc) : null;
+  }
 }

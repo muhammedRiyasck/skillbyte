@@ -9,9 +9,12 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
 
+import { IPaymentReadRepository } from '../../domain/IRepositories/IPaymentReadRepository';
+
 export class InitiatePaymentUseCase implements IInitiatePayment {
   constructor(
     private paymentRepo: IPaymentWriteRepository,
+    private paymentReadRepo: IPaymentReadRepository,
     private paymentProviderFactory: PaymentProviderFactory,
     private instructorRepo: IInstructorRepository,
   ) {}
@@ -41,6 +44,30 @@ export class InitiatePaymentUseCase implements IInitiatePayment {
         HttpStatusCode.BAD_REQUEST,
       );
     }
+
+    // 0.5 Check for existing purchases
+    const completedPayment =
+      await this.paymentReadRepo.findPaymentByUserAndProduct(
+        userId,
+        courseId,
+        mentorshipBookingId,
+        PaymentStatus.SUCCEEDED,
+      );
+
+    if (completedPayment) {
+      throw new HttpError(
+        'You have already purchased this item.',
+        HttpStatusCode.CONFLICT,
+      );
+    }
+
+    const pendingPayment =
+      await this.paymentReadRepo.findPaymentByUserAndProduct(
+        userId,
+        courseId,
+        mentorshipBookingId,
+        PaymentStatus.PENDING,
+      );
 
     // 1. Get provider from factory
     const provider = this.paymentProviderFactory.getProvider(providerName);
@@ -85,14 +112,14 @@ export class InitiatePaymentUseCase implements IInitiatePayment {
     // 4. Calculate fees (already calculated adminFee)
     const instructorAmount = amount - adminFee;
 
-    // 5. Create local payment record (Pending)
+    // 5. Create or Update local payment record
     const paymentData: Partial<IPayment> = {
       userId,
       courseId,
       mentorshipBookingId,
       instructorId,
       amount,
-      currency, // Use the request currency (INR or USD)
+      currency,
       status: PaymentStatus.PENDING,
       adminFee,
       instructorAmount,
@@ -111,11 +138,19 @@ export class InitiatePaymentUseCase implements IInitiatePayment {
       paymentData.paypalOrderId = providerResponse.id;
     }
 
-    const payment = await this.paymentRepo.createPayment(paymentData);
+    let payment;
+    if (pendingPayment && pendingPayment.paymentId) {
+      payment = await this.paymentRepo.updatePaymentDetails(
+        pendingPayment.paymentId,
+        paymentData,
+      );
+    } else {
+      payment = await this.paymentRepo.createPayment(paymentData);
+    }
 
     return {
       providerResponse,
-      paymentId: payment.paymentId!,
+      paymentId: payment!.paymentId!,
     };
   }
 }

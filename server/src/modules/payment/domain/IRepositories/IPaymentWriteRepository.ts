@@ -12,4 +12,8 @@ export interface IPaymentWriteRepository {
   ): Promise<IPayment | null>;
   updatePayPalCaptureId(orderId: string, captureId: string): Promise<void>;
   updateStatus(paymentId: string, status: string): Promise<void>;
+  updatePaymentDetails(
+    paymentId: string,
+    paymentData: Partial<IPayment>,
+  ): Promise<IPayment | null>;
 }

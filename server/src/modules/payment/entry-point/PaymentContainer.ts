@@ -43,6 +43,7 @@ const capturePayPalPaymentUc = new CapturePayPalPaymentUseCase(
 );
 const initiatePaymentUc = new InitiatePaymentUseCase(
   paymentWriteRepo,
+  paymentReadRepo,
   paymentProviderFactory,
   instructorRepo,
 );

@@ -17,6 +17,8 @@ interface Purchase {
   createdAt: string;
   stripePaymentIntentId?: string;
   paypalOrderId?: string;
+  courseId?: string;
+  mentorshipBookingId?: string;
 }
 
 const PurchaseHistory: React.FC = () => {
@@ -144,6 +146,7 @@ const PurchaseHistory: React.FC = () => {
                   <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Provider</th>
                   <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
                   <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-4 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -191,6 +194,16 @@ const PurchaseHistory: React.FC = () => {
                         {purchase.status.toUpperCase()}
                       </span>
                     </td>
+                    <td className="px-6 py-5 text-center">
+                      {purchase.status === PaymentStatus.PENDING && purchase.courseId && (
+                        <Link
+                          to={`/checkout/${purchase.courseId}`}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg transition-colors cursor-pointer"
+                        >
+                          Retry Payment
+                        </Link>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -224,6 +237,16 @@ const PurchaseHistory: React.FC = () => {
                     {purchase.status.toUpperCase()}
                   </span>
                 </div>
+                {purchase.status === PaymentStatus.PENDING && purchase.courseId && (
+                  <div className="mt-4 pt-4 border-t border-gray-50 dark:border-gray-700 flex justify-end">
+                    <Link
+                      to={`/checkout/${purchase.courseId}`}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl transition-colors cursor-pointer w-full justify-center"
+                    >
+                      Retry Payment
+                    </Link>
+                  </div>
+                )}
               </div>
             ))}
           </div>

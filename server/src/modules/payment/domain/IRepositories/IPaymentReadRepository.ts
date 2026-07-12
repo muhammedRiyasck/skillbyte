@@ -20,4 +20,10 @@ export interface IPaymentReadRepository {
     totalRevenue: number;
     totalProfit: number;
   }>;
+  findPaymentByUserAndProduct(
+    userId: string,
+    courseId?: string,
+    mentorshipBookingId?: string,
+    status?: string,
+  ): Promise<IPayment | null>;
 }
