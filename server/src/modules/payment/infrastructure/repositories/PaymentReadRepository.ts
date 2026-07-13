@@ -1,4 +1,4 @@
-import { Types, PipelineStage } from 'mongoose';
+import { Types, PipelineStage, FilterQuery } from 'mongoose';
 import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { IPayment } from '../../domain/entities/Payment';
 import { IPaymentReadRepository } from '../../domain/IRepositories/IPaymentReadRepository';
@@ -132,15 +132,31 @@ export class PaymentReadRepository
           instructorId: 1,
           productName: 1,
           productImage: 1,
+          usdAmount: {
+            $cond: {
+              if: { $eq: [{ $toUpper: '$currency' }, 'INR'] },
+              then: { $divide: ['$amount', 83] },
+              else: '$amount',
+            },
+          },
+          usdInstructorAmount: {
+            $cond: {
+              if: { $eq: [{ $toUpper: '$currency' }, 'INR'] },
+              then: { $divide: ['$instructorAmount', 83] },
+              else: '$instructorAmount',
+            },
+          },
         },
       },
       {
         $facet: {
           data: [{ $skip: skip }, { $limit: limit }],
           totalCount: [{ $count: 'count' }],
-          totalRevenue: [{ $group: { _id: null, total: { $sum: '$amount' } } }],
+          totalRevenue: [
+            { $group: { _id: null, total: { $sum: '$usdAmount' } } },
+          ],
           totalProfit: [
-            { $group: { _id: null, total: { $sum: '$instructorAmount' } } },
+            { $group: { _id: null, total: { $sum: '$usdInstructorAmount' } } },
           ],
         },
       },
@@ -163,7 +179,9 @@ export class PaymentReadRepository
     mentorshipBookingId?: string,
     status?: string,
   ): Promise<IPayment | null> {
-    const query: any = { userId: new Types.ObjectId(userId) };
+    const query: FilterQuery<IPaymentDocument> = {
+      userId: new Types.ObjectId(userId),
+    };
     if (courseId) {
       query.courseId = new Types.ObjectId(courseId);
     }
@@ -173,7 +191,7 @@ export class PaymentReadRepository
     if (status) {
       query.status = status;
     }
-    
+
     // In case there are multiple, get the most recent one
     const doc = await this.model.findOne(query).sort({ createdAt: -1 });
     return doc ? this.toEntity(doc) : null;
