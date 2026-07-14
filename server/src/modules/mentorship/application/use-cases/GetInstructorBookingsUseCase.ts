@@ -11,12 +11,14 @@ export class GetInstructorBookingsUseCase
   constructor(private bookingRepo: IMentorshipBookingRepository) {}
 
   async execute(dto: GetInstructorBookingsDto): Promise<BookingResponseDto[]> {
-    const bookings = await this.bookingRepo.findByInstructorId(
-      dto.instructorId,
-      dto.page,
-      dto.limit,
-      dto.status as BookingStatus,
-    );
+    const bookings = dto.upcoming
+      ? await this.bookingRepo.findUpcomingByInstructorId(dto.instructorId)
+      : await this.bookingRepo.findByInstructorId(
+          dto.instructorId,
+          dto.page,
+          dto.limit,
+          dto.status as BookingStatus,
+        );
     return bookings.map(BookingResponseMapper.toResponseDto);
   }
 }

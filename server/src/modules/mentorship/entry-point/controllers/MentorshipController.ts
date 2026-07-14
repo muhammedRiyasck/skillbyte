@@ -275,13 +275,14 @@ export class MentorshipController {
   ): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const instructorId = authenticatedReq.user.id;
-    const { page, limit, status } = req.query;
+    const { page, limit, status, upcoming } = req.query;
 
     const bookings = await this._getInstructorBookingsUseCase.execute({
       instructorId,
       page: page ? Number(page) : 1,
       limit: limit ? Number(limit) : 10,
       status: status as string,
+      upcoming: upcoming === 'true',
     });
     ApiResponseHelper.success(
       res,

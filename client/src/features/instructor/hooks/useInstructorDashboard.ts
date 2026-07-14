@@ -5,6 +5,7 @@ import { useSocket } from '../../../context/SocketContext';
 import {
     getDashboardEarnings,
     getDashboardEnrollments,
+    getDashboardCourseCount,
     getDashboardBookings,
     getInstructorProfile,
     createStripeOnboardingLink,
@@ -85,6 +86,13 @@ export const useInstructorDashboard = () => {
     const { data: enrollmentData, isLoading: enrollmentLoading } = useQuery<{ data: DashboardCourse[]; totalCount: number; totalStudents: number }>({
         queryKey: ['instructor-dashboard-enrollments'],
         queryFn: getDashboardEnrollments,
+        staleTime: 5 * 60 * 1000,
+        refetchOnWindowFocus: false
+    });
+
+    const { data: courseData, isLoading: coursesLoading } = useQuery<{ meta: { totalItems: number } }>({
+        queryKey: ['instructor-dashboard-course-count'],
+        queryFn: getDashboardCourseCount,
         staleTime: 5 * 60 * 1000,
         refetchOnWindowFocus: false
     });
@@ -185,7 +193,7 @@ export const useInstructorDashboard = () => {
         }
     };
 
-    const isInitialLoading = profileLoading || enrollmentLoading || bookingsLoading;
+    const isInitialLoading = profileLoading || enrollmentLoading || coursesLoading || bookingsLoading;
     const isLoading = isInitialLoading && !profileData;
 
     const earnings = useMemo(() => {
@@ -195,6 +203,7 @@ export const useInstructorDashboard = () => {
 
     const totalProfit = earningsData?.totalProfit || 0;
     const totalStudents = enrollmentData?.totalStudents || 0;
+    const totalCourses = courseData?.meta?.totalItems || 0;
     const courses = enrollmentData?.data || [];
     const bookings = bookingsData?.bookings || [];
     const withdrawals = withdrawalsData?.data || [];
@@ -204,7 +213,7 @@ export const useInstructorDashboard = () => {
     const USD_TO_INR = 83;
     const availableBalanceINR = Math.round(availableBalance * USD_TO_INR);
 
-    const stats = getStats(totalProfit, totalStudents, courses, bookings);
+    const stats = getStats(totalProfit, totalStudents, totalCourses, bookings);
 
     const chartData = useMemo(() => {
         if (!Array.isArray(earnings) || earnings.length === 0) return [];

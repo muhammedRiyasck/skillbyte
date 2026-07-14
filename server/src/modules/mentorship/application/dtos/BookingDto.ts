@@ -23,6 +23,7 @@ export interface GetInstructorBookingsDto {
   page?: number;
   limit?: number;
   status?: string;
+  upcoming?: boolean;
 }
 
 export interface ValidateVideoRoomAccessDto {

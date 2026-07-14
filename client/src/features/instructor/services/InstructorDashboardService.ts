@@ -10,8 +10,13 @@ export const getDashboardEnrollments = async () => {
     return response.data?.data;
 };
 
+export const getDashboardCourseCount = async () => {
+    const response = await api.get(`/course/instructor-courses?page=1&limit=1`);
+    return response.data?.data;
+};
+
 export const getDashboardBookings = async () => {
-    const response = await api.get(`/mentorship/bookings/instructor?limit=5`);
+    const response = await api.get(`/mentorship/bookings/instructor?upcoming=true`);
     return response.data?.data; // { bookings: BookingResponseDto[] }
 };
 
