@@ -82,7 +82,7 @@ export const useInstructorDashboard = () => {
         refetchOnWindowFocus: false
     });
 
-    const { data: enrollmentData, isLoading: enrollmentLoading } = useQuery<{ data: DashboardCourse[]; totalCount: number }>({
+    const { data: enrollmentData, isLoading: enrollmentLoading } = useQuery<{ data: DashboardCourse[]; totalCount: number; totalStudents: number }>({
         queryKey: ['instructor-dashboard-enrollments'],
         queryFn: getDashboardEnrollments,
         staleTime: 5 * 60 * 1000,
@@ -194,7 +194,7 @@ export const useInstructorDashboard = () => {
     }, [earningsData]);
 
     const totalProfit = earningsData?.totalProfit || 0;
-    const totalStudents = enrollmentData?.totalCount || 0;
+    const totalStudents = enrollmentData?.totalStudents || 0;
     const courses = enrollmentData?.data || [];
     const bookings = bookingsData?.bookings || [];
     const withdrawals = withdrawalsData?.data || [];

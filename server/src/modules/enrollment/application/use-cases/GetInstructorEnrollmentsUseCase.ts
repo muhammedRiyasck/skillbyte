@@ -30,6 +30,7 @@ export class GetInstructorEnrollmentsUseCase
     const enrollmentData = result[0];
     const enrollments = enrollmentData?.data || [];
     const totalCount = enrollmentData?.totalCount[0]?.count || 0;
+    const totalStudents = enrollmentData?.totalStudents[0]?.count || 0;
 
     const courseMap = new Map<string, CourseEnrollmentSummaryDto>();
 
@@ -59,6 +60,6 @@ export class GetInstructorEnrollmentsUseCase
       }
     }
 
-    return { data: Array.from(courseMap.values()), totalCount };
+    return { data: Array.from(courseMap.values()), totalCount, totalStudents };
   }
 }

@@ -238,6 +238,17 @@ export class EnrollmentReadRepository
         $facet: {
           data: [{ $skip: skip }, { $limit: safeLimit }],
           totalCount: [{ $count: 'count' }],
+          totalStudents: [
+            {
+              $match: {
+                status: {
+                  $in: [EnrollmentStatus.ACTIVE, EnrollmentStatus.COMPLETED],
+                },
+              },
+            },
+            { $group: { _id: '$userId' } },
+            { $count: 'count' },
+          ],
         },
       },
     );

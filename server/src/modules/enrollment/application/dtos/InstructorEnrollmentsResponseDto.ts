@@ -18,4 +18,5 @@ export interface CourseEnrollmentSummaryDto {
 export interface InstructorEnrollmentsResponseDto {
   data: CourseEnrollmentSummaryDto[];
   totalCount: number;
+  totalStudents: number;
 }

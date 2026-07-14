@@ -17,6 +17,7 @@ export interface IInstructorEnrollment {
     progress: number;
   }[];
   totalCount: { count: number }[];
+  totalStudents: { count: number }[];
 }
 
 export interface IEnrollmentFilters {
