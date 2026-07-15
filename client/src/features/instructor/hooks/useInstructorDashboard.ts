@@ -18,7 +18,12 @@ import { getStats } from '../constants/instructorDashboard';
 export interface DashboardEarnings {
     id: string;
     productName: string;
+    productImage?: string;
+    studentName?: string;
+    courseId?: string;
+    mentorshipBookingId?: string;
     amount: number;
+    instructorAmount?: number;
     currency: string;
     createdAt?: string | Date;
 }
