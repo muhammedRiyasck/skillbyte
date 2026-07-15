@@ -95,17 +95,11 @@ export class ProcessWithdrawalUseCase implements IProcessWithdrawal {
         adminNotes,
       );
 
-      // 4. Update instructor's withdrawnAmount
-      const instructor = await this.instructorRepo.findById(
+      // 4. Update instructor's withdrawnAmount atomically
+      await this.instructorRepo.incrementWithdrawnAmount(
         withdrawal.instructorId.toString(),
+        withdrawal.amount,
       );
-      if (instructor) {
-        const newWithdrawnAmount =
-          (instructor.withdrawnAmount || 0) + withdrawal.amount;
-        await this.instructorRepo.updateById(instructor.instructorId!, {
-          withdrawnAmount: newWithdrawnAmount,
-        });
-      }
 
       // 5. Emit event for notifications and real-time updates
       eventBus.emit(WITHDRAWAL_EVENTS.WITHDRAWAL_COMPLETED, {

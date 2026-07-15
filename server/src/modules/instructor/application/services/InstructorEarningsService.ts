@@ -38,15 +38,13 @@ export class InstructorEarningsService {
         event.currency,
       );
 
-      const newTotalEarnings =
-        (instructor.totalEarnings || 0) + convertedAmount;
-
-      await this.instructorRepo.updateById(event.instructorId, {
-        totalEarnings: newTotalEarnings,
-      });
+      await this.instructorRepo.incrementTotalEarnings(
+        event.instructorId,
+        convertedAmount,
+      );
 
       logger.info(
-        `Instructor ${event.instructorId} earnings updated. New total: ${newTotalEarnings}`,
+        `Instructor ${event.instructorId} earnings updated with increment: ${convertedAmount}`,
       );
     } catch (error) {
       logger.error(

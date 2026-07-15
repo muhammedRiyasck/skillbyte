@@ -172,9 +172,13 @@ export const useInstructorDashboard = () => {
     const handleRequestWithdrawal = async (amount: number) => {
         try {
             setIsWithdrawing(true);
-            await requestWithdrawal(amount);
+            const roundedAmount = Math.round(amount * 100) / 100;
+            await requestWithdrawal(roundedAmount);
             toast.success('Withdrawal request submitted! It will be processed soon.');
             refetchWithdrawals();
+        } catch (error: unknown) {
+            const err = error as { response?: { data?: { message?: string } } };
+            toast.error(err.response?.data?.message || 'Failed to submit withdrawal request.');
         } finally {
             setIsWithdrawing(false);
         }

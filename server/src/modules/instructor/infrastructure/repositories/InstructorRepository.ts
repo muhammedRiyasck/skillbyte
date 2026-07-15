@@ -143,6 +143,18 @@ export class InstructorRepository
     });
   }
 
+  async incrementTotalEarnings(id: string, amount: number): Promise<void> {
+    await this.model.findByIdAndUpdate(id, {
+      $inc: { totalEarnings: amount },
+    });
+  }
+
+  async incrementWithdrawnAmount(id: string, amount: number): Promise<void> {
+    await this.model.findByIdAndUpdate(id, {
+      $inc: { withdrawnAmount: amount },
+    });
+  }
+
   async updateStripeVerificationStatus(
     id: string,
     isVerified: boolean,

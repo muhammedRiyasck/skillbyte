@@ -17,6 +17,8 @@ export interface IInstructorRepository extends IBaseRepository<Instructor> {
   ): Promise<void>;
   updateById(id: string, updates: Partial<Instructor>): Promise<void>;
   decrementWithdrawnAmount(id: string, amount: number): Promise<void>;
+  incrementTotalEarnings(id: string, amount: number): Promise<void>;
+  incrementWithdrawnAmount(id: string, amount: number): Promise<void>;
   updateStripeVerificationStatus(
     id: string,
     isVerified: boolean,

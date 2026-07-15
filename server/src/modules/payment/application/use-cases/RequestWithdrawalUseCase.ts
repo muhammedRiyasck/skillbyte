@@ -21,16 +21,33 @@ export class RequestWithdrawalUseCase implements IRequestWithdrawal {
       throw new HttpError('Instructor not found', HttpStatusCode.NOT_FOUND);
     }
 
-    // Calculate withdrawable balance
-    const availableBalance =
-      instructor.totalEarnings - instructor.withdrawnAmount;
+    // Guard: Stripe account must be set up
+    if (!instructor.stripeAccountId) {
+      throw new HttpError(
+        'Please set up your Stripe account for payouts before withdrawing',
+        HttpStatusCode.BAD_REQUEST,
+      );
+    }
 
+    // Guard: Stripe account must be fully verified
+    if (!instructor.isStripeVerified) {
+      throw new HttpError(
+        'Your Stripe account is not yet verified. Please complete the Stripe verification process before requesting a withdrawal.',
+        HttpStatusCode.BAD_REQUEST,
+      );
+    }
+
+    // Validate amount
     if (amount <= 0) {
       throw new HttpError(
         'Withdrawal amount must be greater than zero',
         HttpStatusCode.BAD_REQUEST,
       );
     }
+
+    // Calculate withdrawable balance
+    const availableBalance =
+      instructor.totalEarnings - instructor.withdrawnAmount;
 
     if (amount > availableBalance) {
       throw new HttpError(
@@ -49,30 +66,14 @@ export class RequestWithdrawalUseCase implements IRequestWithdrawal {
       );
     }
 
-    // Determine payout method: Stripe is now the only supported platform
-    let payoutMethod: 'STRIPE' | null = null;
-    let payoutDetails: string | null = null;
-
-    if (instructor.stripeAccountId) {
-      payoutMethod = 'STRIPE';
-      payoutDetails = instructor.stripeAccountId;
-    }
-
-    if (!payoutMethod || !payoutDetails) {
-      throw new HttpError(
-        'Please set up your Stripe account for payouts before withdrawing',
-        HttpStatusCode.BAD_REQUEST,
-      );
-    }
-
     // Create withdrawal request
     const withdrawal = await this.withdrawalRepo.save({
       instructorId: instructor.instructorId,
-      amount,
+      amount: Math.round(amount * 100) / 100,
       currency: 'USD',
       status: WithdrawalStatus.PENDING,
-      payoutMethod,
-      payoutDetails,
+      payoutMethod: 'STRIPE',
+      payoutDetails: instructor.stripeAccountId,
     });
 
     return WithdrawalResponseMapper.toResponseDto(withdrawal);
