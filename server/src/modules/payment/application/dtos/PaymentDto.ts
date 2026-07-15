@@ -19,4 +19,5 @@ export interface GetInstructorEarningsDto {
   instructorId: string;
   page?: number;
   limit?: number;
+  trendDays?: number;
 }

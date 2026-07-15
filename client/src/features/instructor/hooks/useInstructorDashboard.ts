@@ -23,6 +23,13 @@ export interface DashboardEarnings {
     createdAt?: string | Date;
 }
 
+export interface EarningsTrendPoint {
+    date: string;
+    revenue: number;
+    profit: number;
+    enrollments: number;
+}
+
 export interface DashboardCourse {
     id: string;
     courseThumbnail?: string;
@@ -76,7 +83,7 @@ export const useInstructorDashboard = () => {
     const [withdrawalPage, setWithdrawalPage] = useState(1);
     const ITEMS_PER_PAGE = 5;
 
-    const { data: earningsData } = useQuery<{ data: DashboardEarnings[]; totalCount: number; totalRevenue: number; totalProfit: number }>({
+    const { data: earningsData } = useQuery<{ data: DashboardEarnings[]; totalCount: number; totalRevenue: number; totalProfit: number; trend: EarningsTrendPoint[] }>({
         queryKey: ['instructor-dashboard-earnings'],
         queryFn: () => getDashboardEarnings(),
         staleTime: 5 * 60 * 1000,
@@ -215,21 +222,7 @@ export const useInstructorDashboard = () => {
 
     const stats = getStats(totalProfit, totalStudents, totalCourses, bookings);
 
-    const chartData = useMemo(() => {
-        if (!Array.isArray(earnings) || earnings.length === 0) return [];
-        const grouped = earnings.reduce((acc: Record<string, number>, curr: DashboardEarnings) => {
-            const date = new Date(curr.createdAt ?? '').toLocaleDateString();
-            const amountInUSD = curr.currency === 'INR'
-                ? curr.amount / USD_TO_INR
-                : curr.amount;
-            acc[date] = (acc[date] || 0) + amountInUSD;
-            return acc;
-        }, {});
-        return Object.entries(grouped)
-            .map(([date, amount]) => ({ date, amount: amount as number }))
-            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-            .slice(-7);
-    }, [earnings]);
+    const chartData = earningsData?.trend || [];
 
     return {
         isLoading,

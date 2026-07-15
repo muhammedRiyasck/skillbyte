@@ -1,7 +1,10 @@
 import { Types, PipelineStage, FilterQuery } from 'mongoose';
 import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { IPayment } from '../../domain/entities/Payment';
-import { IPaymentReadRepository } from '../../domain/IRepositories/IPaymentReadRepository';
+import {
+  IPaymentReadRepository,
+  InstructorEarningsTrendPoint,
+} from '../../domain/IRepositories/IPaymentReadRepository';
 import { PaymentModel } from '../models/PaymentModel';
 import { IPaymentDocument } from '../types/IPaymentDocument';
 import { PaymentMapper } from '../mappers/PaymentMapper';
@@ -171,6 +174,71 @@ export class PaymentReadRepository
     const totalProfit = result[0].totalProfit[0]?.total || 0;
 
     return { data, totalCount, totalRevenue, totalProfit };
+  }
+
+  async findInstructorEarningsTrend(
+    instructorId: string,
+    days: number,
+  ): Promise<InstructorEarningsTrendPoint[]> {
+    const startDate = new Date();
+    startDate.setUTCHours(0, 0, 0, 0);
+    startDate.setUTCDate(startDate.getUTCDate() - (days - 1));
+
+    const result = await this.model.aggregate<InstructorEarningsTrendPoint>([
+      {
+        $match: {
+          instructorId: new Types.ObjectId(instructorId),
+          status: 'succeeded',
+          createdAt: { $gte: startDate },
+        },
+      },
+      {
+        $project: {
+          date: {
+            $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
+          },
+          usdAmount: {
+            $cond: {
+              if: { $eq: [{ $toUpper: '$currency' }, 'INR'] },
+              then: { $divide: ['$amount', 83] },
+              else: '$amount',
+            },
+          },
+          usdInstructorAmount: {
+            $cond: {
+              if: { $eq: [{ $toUpper: '$currency' }, 'INR'] },
+              then: { $divide: ['$instructorAmount', 83] },
+              else: '$instructorAmount',
+            },
+          },
+          isCoursePurchase: {
+            $ne: [{ $ifNull: ['$courseId', null] }, null],
+          },
+        },
+      },
+      {
+        $group: {
+          _id: '$date',
+          revenue: { $sum: '$usdAmount' },
+          profit: { $sum: '$usdInstructorAmount' },
+          enrollments: {
+            $sum: { $cond: ['$isCoursePurchase', 1, 0] },
+          },
+        },
+      },
+      { $sort: { _id: 1 } },
+      {
+        $project: {
+          _id: 0,
+          date: '$_id',
+          revenue: { $round: ['$revenue', 2] },
+          profit: { $round: ['$profit', 2] },
+          enrollments: 1,
+        },
+      },
+    ]);
+
+    return result;
   }
 
   async findPaymentByUserAndProduct(

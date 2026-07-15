@@ -20,6 +20,17 @@ export interface IPaymentReadRepository {
     totalRevenue: number;
     totalProfit: number;
   }>;
+  findInstructorEarningsTrend(
+    instructorId: string,
+    days: number,
+  ): Promise<
+    {
+      date: string;
+      revenue: number;
+      profit: number;
+      enrollments: number;
+    }[]
+  >;
   findPaymentByUserAndProduct(
     userId: string,
     courseId?: string,

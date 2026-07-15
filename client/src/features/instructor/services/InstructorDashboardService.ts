@@ -1,7 +1,7 @@
 import api from "@shared/utils/AxiosInstance";
 
 export const getDashboardEarnings = async () => {
-    const response = await api.get(`/payment/earnings?page=1&limit=5`);
+    const response = await api.get(`/payment/earnings?page=1&limit=5&trendDays=30`);
     return response.data?.data;
 };
 
