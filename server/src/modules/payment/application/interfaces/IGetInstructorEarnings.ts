@@ -1,6 +1,6 @@
 import { GetInstructorEarningsDto } from '../dtos/PaymentDto';
 import { PaymentResponseDto } from '../dtos/PaymentResponseDto';
-import { InstructorEarningsTrendPoint } from '../../domain/IRepositories/IPaymentReadRepository';
+import { InstructorEarningsTrendPointDto } from '../dtos/InstructorEarningsTrendPointDto';
 
 export interface IGetInstructorEarnings {
   execute(dto: GetInstructorEarningsDto): Promise<{
@@ -8,6 +8,6 @@ export interface IGetInstructorEarnings {
     totalCount: number;
     totalRevenue: number;
     totalProfit: number;
-    trend: InstructorEarningsTrendPoint[];
+    trend: InstructorEarningsTrendPointDto[];
   }>;
 }

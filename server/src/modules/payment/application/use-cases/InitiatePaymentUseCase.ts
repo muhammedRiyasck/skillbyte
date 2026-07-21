@@ -3,23 +3,20 @@ import { PaymentProviderFactory } from '../../../../shared/services/payment/Paym
 import { IPayment } from '../../domain/entities/Payment';
 import { PaymentStatus } from '../../../../shared/enums/PaymentStatus';
 import { PaymentInitiationResponse } from '../../../../shared/services/payment/interfaces/IPaymentProvider';
-import { InitiatePaymentRequest } from '../dtos/InitiatePaymentDto';
+import { InitiatePaymentDto } from '../dtos/InitiatePaymentDto';
 import { IInitiatePayment } from '../interfaces/IInitiatePayment';
+import { IPaymentReadRepository } from '../../domain/IRepositories/IPaymentReadRepository';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
-import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
-
-import { IPaymentReadRepository } from '../../domain/IRepositories/IPaymentReadRepository';
 
 export class InitiatePaymentUseCase implements IInitiatePayment {
   constructor(
     private paymentRepo: IPaymentWriteRepository,
     private paymentReadRepo: IPaymentReadRepository,
     private paymentProviderFactory: PaymentProviderFactory,
-    private instructorRepo: IInstructorRepository,
   ) {}
 
-  async execute(request: InitiatePaymentRequest): Promise<{
+  async execute(request: InitiatePaymentDto): Promise<{
     providerResponse: PaymentInitiationResponse;
     paymentId: string;
   }> {

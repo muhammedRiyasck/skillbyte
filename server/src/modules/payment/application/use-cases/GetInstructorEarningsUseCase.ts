@@ -3,7 +3,7 @@ import { PaymentResponseMapper } from '../mappers/PaymentResponseMapper';
 import { GetInstructorEarningsDto } from '../dtos/PaymentDto';
 import { PaymentResponseDto } from '../dtos/PaymentResponseDto';
 import { IGetInstructorEarnings } from '../interfaces/IGetInstructorEarnings';
-import { InstructorEarningsTrendPoint } from '../../domain/IRepositories/IPaymentReadRepository';
+import { InstructorEarningsTrendPointDto } from '../dtos/InstructorEarningsTrendPointDto';
 
 export class GetInstructorEarningsUseCase implements IGetInstructorEarnings {
   constructor(private paymentRepository: IPaymentReadRepository) {}
@@ -13,7 +13,7 @@ export class GetInstructorEarningsUseCase implements IGetInstructorEarnings {
     totalCount: number;
     totalRevenue: number;
     totalProfit: number;
-    trend: InstructorEarningsTrendPoint[];
+    trend: InstructorEarningsTrendPointDto[];
   }> {
     const { instructorId, page = 1, limit = 10, trendDays = 0 } = dto;
     const { data, totalCount, totalRevenue, totalProfit } =

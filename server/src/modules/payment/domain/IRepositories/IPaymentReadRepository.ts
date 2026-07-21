@@ -1,4 +1,5 @@
 import { IPayment } from '../entities/Payment';
+import { InstructorEarningsTrendPointDto } from '../../application/dtos/InstructorEarningsTrendPointDto';
 
 export interface IPaymentReadRepository {
   findById(id: string): Promise<IPayment | null>;
@@ -23,14 +24,7 @@ export interface IPaymentReadRepository {
   findInstructorEarningsTrend(
     instructorId: string,
     days: number,
-  ): Promise<
-    {
-      date: string;
-      revenue: number;
-      profit: number;
-      enrollments: number;
-    }[]
-  >;
+  ): Promise<InstructorEarningsTrendPointDto[]>;
   findPaymentByUserAndProduct(
     userId: string,
     courseId?: string,

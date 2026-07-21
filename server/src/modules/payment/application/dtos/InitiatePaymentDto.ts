@@ -1,4 +1,4 @@
-export interface InitiatePaymentRequest {
+export interface InitiatePaymentDto {
   userId: string;
   courseId?: string;
   mentorshipBookingId?: string;

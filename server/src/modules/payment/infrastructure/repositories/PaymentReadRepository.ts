@@ -1,10 +1,8 @@
 import { Types, PipelineStage, FilterQuery } from 'mongoose';
 import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { IPayment } from '../../domain/entities/Payment';
-import {
-  IPaymentReadRepository,
-  InstructorEarningsTrendPoint,
-} from '../../domain/IRepositories/IPaymentReadRepository';
+import { IPaymentReadRepository } from '../../domain/IRepositories/IPaymentReadRepository';
+import { InstructorEarningsTrendPointDto } from '../../application/dtos/InstructorEarningsTrendPointDto';
 import { PaymentModel } from '../models/PaymentModel';
 import { IPaymentDocument } from '../types/IPaymentDocument';
 import { PaymentMapper } from '../mappers/PaymentMapper';
@@ -179,12 +177,12 @@ export class PaymentReadRepository
   async findInstructorEarningsTrend(
     instructorId: string,
     days: number,
-  ): Promise<InstructorEarningsTrendPoint[]> {
+  ): Promise<InstructorEarningsTrendPointDto[]> {
     const startDate = new Date();
     startDate.setUTCHours(0, 0, 0, 0);
     startDate.setUTCDate(startDate.getUTCDate() - (days - 1));
 
-    const result = await this.model.aggregate<InstructorEarningsTrendPoint>([
+    const result = await this.model.aggregate<InstructorEarningsTrendPointDto>([
       {
         $match: {
           instructorId: new Types.ObjectId(instructorId),
