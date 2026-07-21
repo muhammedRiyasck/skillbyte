@@ -38,8 +38,6 @@ const paymentWriteRepository = new PaymentWriteRepository();
 const stripeProvider = new StripeProvider();
 const paypalProvider = new PayPalProvider();
 
-// Services (Side-effects on instantiation)
-new MentorshipFulfillmentService(bookingRepository);
 new MentorshipSocketService();
 
 // Use Cases
@@ -79,6 +77,10 @@ const validateVideoRoomAccessUC = new ValidateVideoRoomAccessUseCase(
 export const autoCompleteBookingsUC = new AutoCompleteBookingsUseCase(
   bookingRepository,
 );
+
+// Fulfillment Service (Listens to Payment Events)
+new MentorshipFulfillmentService(bookingRepository, generateVideoRoomUC);
+
 export { bookingRepository, slotRepository };
 
 // Controller

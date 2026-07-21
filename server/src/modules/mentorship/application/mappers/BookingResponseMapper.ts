@@ -7,6 +7,11 @@ export class BookingResponseMapper {
       bookingId: booking.bookingId!,
       slotId: booking.slotId,
       studentId: booking.studentId,
+      studentName: booking.studentDetails?.name,
+      studentEmail: booking.studentDetails?.email,
+      studentAvatar: booking.studentDetails?.profileImageUrl,
+      slotDuration: booking.slotDetails?.duration,
+      slotTitle: booking.slotDetails?.title,
       instructorId: booking.instructorId,
       // Note: paymentId is intentionally excluded — sensitive payment data
       amount: booking.amount,

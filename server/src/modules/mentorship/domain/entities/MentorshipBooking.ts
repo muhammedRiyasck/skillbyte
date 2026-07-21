@@ -30,5 +30,14 @@ export class MentorshipBooking {
     public bookingId?: string,
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
+    public studentDetails?: {
+      name: string;
+      email: string;
+      profileImageUrl?: string;
+    },
+    public slotDetails?: {
+      duration: number;
+      title: string;
+    },
   ) {}
 }

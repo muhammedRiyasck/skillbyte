@@ -2,6 +2,11 @@ export interface BookingResponseDto {
   bookingId: string;
   slotId: string;
   studentId: string;
+  studentName?: string;
+  studentEmail?: string;
+  studentAvatar?: string;
+  slotDuration?: number;
+  slotTitle?: string;
   instructorId: string;
   amount: number;
   currency: string;

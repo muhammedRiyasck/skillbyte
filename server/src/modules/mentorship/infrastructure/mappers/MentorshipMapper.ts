@@ -11,15 +11,20 @@ import { IMentorshipBookingDoc } from '../types/IMentorshipBookingDoc';
 import { IMentorshipSlotDoc } from '../types/IMentorshipSlotDoc';
 
 export class MentorshipMapper {
+  private static extractId(field: unknown): string {
+    if (!field) return '';
+    if (field instanceof Types.ObjectId) return field.toString();
+    if (typeof field === 'object' && field !== null && '_id' in field) {
+      return String((field as { _id: unknown })._id);
+    }
+    return String(field);
+  }
+
   static toBookingEntity(doc: IMentorshipBookingDoc): MentorshipBooking {
-    return new MentorshipBooking(
-      doc.slotId instanceof Types.ObjectId ? doc.slotId.toString() : doc.slotId,
-      doc.studentId instanceof Types.ObjectId
-        ? doc.studentId.toString()
-        : doc.studentId,
-      doc.instructorId instanceof Types.ObjectId
-        ? doc.instructorId.toString()
-        : doc.instructorId,
+    const entity = new MentorshipBooking(
+      MentorshipMapper.extractId(doc.slotId),
+      MentorshipMapper.extractId(doc.studentId),
+      MentorshipMapper.extractId(doc.instructorId),
       doc.paymentId ? doc.paymentId.toString() : null,
       doc.amount,
       doc.currency,
@@ -34,6 +39,37 @@ export class MentorshipMapper {
       doc.createdAt,
       doc.updatedAt,
     );
+
+    if (
+      doc.studentId &&
+      typeof doc.studentId === 'object' &&
+      'name' in doc.studentId
+    ) {
+      const student = doc.studentId as unknown as {
+        name: string;
+        email: string;
+        profileImageUrl?: string;
+      };
+      entity.studentDetails = {
+        name: student.name,
+        email: student.email,
+        profileImageUrl: student.profileImageUrl,
+      };
+    }
+
+    if (
+      doc.slotId &&
+      typeof doc.slotId === 'object' &&
+      'duration' in doc.slotId
+    ) {
+      const slot = doc.slotId as unknown as { duration: number; title: string };
+      entity.slotDetails = {
+        duration: slot.duration,
+        title: slot.title,
+      };
+    }
+
+    return entity;
   }
 
   static toSlotEntity(doc: IMentorshipSlotDoc): MentorshipSlot {

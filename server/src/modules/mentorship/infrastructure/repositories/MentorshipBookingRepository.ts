@@ -135,15 +135,20 @@ export class MentorshipBookingRepository
   async findUpcomingByInstructorId(
     instructorId: string,
   ): Promise<MentorshipBooking[]> {
+    const now = new Date();
+    // Show sessions from 2 hours ago (catches in-progress) up to 7 days ahead
+    const from = new Date(now.getTime() - 2 * 60 * 60 * 1000);
+    const to = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
     const docs = await this.model
       .find({
         instructorId,
-        scheduledAt: { $gt: new Date() },
-        status: { $in: ['pending', 'confirmed'] },
+        scheduledAt: { $gte: from, $lte: to },
+        status: 'confirmed',
       })
       .populate('slotId')
       .populate('studentId', 'name email profileImageUrl')
-      .sort({ scheduledAt: 1 });
+      .sort({ scheduledAt: 1 })
+      .limit(3); // Only need 3 for the dashboard widget
     return docs.map((doc) => this.toEntity(doc));
   }
 

@@ -12,8 +12,13 @@ import {
 import logger from '../../../../shared/utils/Logger';
 import { BookingStatus } from '../../domain/entities/MentorshipBooking';
 
+import { IGenerateVideoRoomUseCase } from '../interfaces/IBookingUseCases';
+
 export class MentorshipFulfillmentService {
-  constructor(private bookingRepo: IMentorshipBookingRepository) {
+  constructor(
+    private bookingRepo: IMentorshipBookingRepository,
+    private generateVideoRoomUseCase: IGenerateVideoRoomUseCase,
+  ) {
     this.registerEventListeners();
   }
 
@@ -53,7 +58,10 @@ export class MentorshipFulfillmentService {
         return;
       }
 
-      // 3. Emit Booking Confirmed Event
+      // 3. Auto-generate Video Room
+      await this.generateVideoRoomUseCase.execute(booking.bookingId!);
+
+      // 4. Emit Booking Confirmed Event
       const confirmedEvent: MentorshipBookingConfirmedEvent = {
         bookingId: booking.bookingId!,
         studentId: booking.studentId,
