@@ -10,8 +10,8 @@ export const getDashboardEnrollments = async () => {
     return response.data?.data;
 };
 
-export const getDashboardCourseCount = async () => {
-    const response = await api.get(`/course/instructor-courses?page=1&limit=1`);
+export const getDashboardCourses = async () => {
+    const response = await api.get(`/course/instructor-courses?page=1&limit=100`);
     return response.data?.data;
 };
 

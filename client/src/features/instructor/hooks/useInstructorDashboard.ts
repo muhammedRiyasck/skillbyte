@@ -5,7 +5,7 @@ import { useSocket } from '../../../context/SocketContext';
 import {
     getDashboardEarnings,
     getDashboardEnrollments,
-    getDashboardCourseCount,
+    getDashboardCourses,
     getDashboardBookings,
     getInstructorProfile,
     createStripeOnboardingLink,
@@ -107,9 +107,9 @@ export const useInstructorDashboard = () => {
         refetchOnWindowFocus: false
     });
 
-    const { data: courseData, isLoading: coursesLoading } = useQuery<{ meta: { totalItems: number } }>({
-        queryKey: ['instructor-dashboard-course-count'],
-        queryFn: getDashboardCourseCount,
+    const { data: courseData, isLoading: coursesLoading } = useQuery<{ data: Array<{ id: string; thumbnailUrl?: string; title: string; price: number }>, meta: { totalItems: number } }>({
+        queryKey: ['instructor-dashboard-courses'],
+        queryFn: getDashboardCourses,
         staleTime: 5 * 60 * 1000,
         refetchOnWindowFocus: false
     });
@@ -225,7 +225,22 @@ export const useInstructorDashboard = () => {
     const totalProfit = earningsData?.totalProfit || 0;
     const totalStudents = enrollmentData?.totalStudents || 0;
     const totalCourses = courseData?.meta?.totalItems || 0;
-    const courses = enrollmentData?.data || [];
+
+    const courses = useMemo(() => {
+        const rawCourses = courseData?.data || [];
+        const enrollmentsMap = new Map(
+            (enrollmentData?.data || []).map(c => [c.id, c.enrollments || []])
+        );
+
+        return rawCourses.map(course => ({
+            id: course.id,
+            courseThumbnail: course.thumbnailUrl,
+            courseTitle: course.title,
+            coursePrice: course.price,
+            enrollments: enrollmentsMap.get(course.id) || []
+        })) as DashboardCourse[];
+    }, [courseData, enrollmentData]);
+
     const bookings = bookingsData?.bookings || [];
     const withdrawals = withdrawalsData?.data || [];
 
