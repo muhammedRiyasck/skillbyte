@@ -46,10 +46,15 @@ export interface DashboardCourse {
 export interface DashboardBooking {
     bookingId: string;
     studentId: string;
+    studentName?: string;
+    studentAvatar?: string;
     scheduledAt: string | Date;
     status: string;
     amount: number;
     currency: string;
+    videoRoomUrl?: string | null;
+    slotDuration?: number;
+    slotTitle?: string;
 }
 
 export interface WithdrawalItem {
