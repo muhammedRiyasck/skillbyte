@@ -53,7 +53,7 @@ export class CreateSlotUseCase implements ICreateSlotUseCase {
       dto.description,
       dto.duration,
       dto.price,
-      dto.currency,
+      dto.currency || 'INR',
       new Date(dto.scheduledAt),
       SlotStatus.AVAILABLE,
       1, // maxBookings

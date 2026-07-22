@@ -13,11 +13,11 @@ export const createSlotSchema = z.object({
     z.literal(90),
   ]),
   price: z.number().min(0, 'Price must be greater than or equal to 0'),
-  currency: z.string().min(3).max(3),
+  currency: z.string().min(3).max(3).optional(),
   scheduledAt: z.coerce.date().refine((date) => date > new Date(), {
     message: 'Scheduled date must be in the future',
   }),
-  jobTitle: z.string().min(2),
+  jobTitle: z.string().min(2).optional(),
   tags: z.array(z.string()).optional(),
   timezone: z.string().optional(),
 });
@@ -43,5 +43,8 @@ export const updateSlotSchema = z.object({
 
 export const bookSlotSchema = z.object({
   slotId: z.string().min(1, 'Slot ID is required'),
-  providerName: z.enum(['stripe', 'paypal', 'razorpay']),
+  providerName: z.preprocess(
+    (val) => (typeof val === 'string' ? val.toLowerCase() : val),
+    z.enum(['stripe', 'paypal', 'razorpay', 'free']).optional(),
+  ),
 });

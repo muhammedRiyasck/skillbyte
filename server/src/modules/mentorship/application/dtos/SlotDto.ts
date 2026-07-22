@@ -4,9 +4,9 @@ export interface CreateSlotDto {
   description: string;
   duration: 30 | 45 | 60 | 90;
   price: number;
-  currency: string;
+  currency?: string;
   scheduledAt: Date;
-  jobTitle: string;
+  jobTitle?: string;
   tags?: string[];
   timezone?: string;
 }

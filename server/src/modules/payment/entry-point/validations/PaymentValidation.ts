@@ -4,7 +4,10 @@ export const InitiatePaymentSchema = z
   .object({
     courseId: z.string().optional(),
     mentorshipBookingId: z.string().optional(),
-    providerName: z.enum(['stripe', 'paypal']),
+    providerName: z.preprocess(
+      (val) => (typeof val === 'string' ? val.toLowerCase() : val),
+      z.enum(['stripe', 'paypal']),
+    ),
   })
   .refine((data) => data.courseId || data.mentorshipBookingId, {
     message: 'Either courseId or mentorshipBookingId must be provided',

@@ -201,17 +201,14 @@ export class MentorshipController {
     const studentId = authenticatedReq.user.id;
     const { slotId, providerName } = req.body;
 
-    if (!slotId || !providerName) {
-      throw new HttpError(
-        'Slot ID and Provider Name are required',
-        HttpStatusCode.BAD_REQUEST,
-      );
+    if (!slotId) {
+      throw new HttpError('Slot ID is required', HttpStatusCode.BAD_REQUEST);
     }
 
     const { booking, providerResponse } = await this._bookSlotUseCase.execute({
       slotId,
       studentId,
-      providerName,
+      providerName: providerName || 'free',
     });
 
     ApiResponseHelper.success(
