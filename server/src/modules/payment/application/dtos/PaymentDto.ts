@@ -20,4 +20,6 @@ export interface GetInstructorEarningsDto {
   page?: number;
   limit?: number;
   trendDays?: number;
+  search?: string;
+  filter?: string;
 }

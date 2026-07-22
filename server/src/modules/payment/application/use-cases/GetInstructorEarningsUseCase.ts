@@ -15,12 +15,20 @@ export class GetInstructorEarningsUseCase implements IGetInstructorEarnings {
     totalProfit: number;
     trend: InstructorEarningsTrendPointDto[];
   }> {
-    const { instructorId, page = 1, limit = 10, trendDays = 0 } = dto;
+    const {
+      instructorId,
+      page = 1,
+      limit = 10,
+      trendDays = 0,
+      search,
+      filter,
+    } = dto;
     const { data, totalCount, totalRevenue, totalProfit } =
       await this.paymentRepository.findPaymentsByInstructor(
         instructorId,
         page,
         limit,
+        { search, filter },
       );
 
     const dailyTotals = trendDays

@@ -91,12 +91,16 @@ export class PaymentController {
       Math.max(Number(req.query.trendDays) || 0, 0),
       90,
     );
+    const search = (req.query.search as string) || undefined;
+    const filter = (req.query.filter as string) || undefined;
 
     const result = await this._getInstructorEarningsUc.execute({
       instructorId,
       page,
       limit,
       trendDays,
+      search,
+      filter,
     });
 
     ApiResponseHelper.success(res, 'Earnings fetched', result);

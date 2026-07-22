@@ -102,6 +102,7 @@ export class PaymentReadRepository
     instructorId: string,
     page: number,
     limit: number,
+    options?: { search?: string; filter?: string },
   ): Promise<{
     data: IPayment[];
     totalCount: number;
@@ -109,6 +110,8 @@ export class PaymentReadRepository
     totalProfit: number;
   }> {
     const skip = (page - 1) * limit;
+    const { search, filter } = options ?? {};
+
     const pipeline: PipelineStage[] = [
       {
         $match: {
@@ -116,6 +119,34 @@ export class PaymentReadRepository
           status: 'succeeded',
         },
       },
+      // Search filter
+      ...(search
+        ? [
+            {
+              $match: {
+                $or: [
+                  { studentName: { $regex: search, $options: 'i' } },
+                  { studentEmail: { $regex: search, $options: 'i' } },
+                  { productName: { $regex: search, $options: 'i' } },
+                ],
+              },
+            } as PipelineStage,
+          ]
+        : []),
+      // Product type filter
+      ...(filter === 'course'
+        ? [
+            {
+              $match: { courseId: { $exists: true, $ne: null } },
+            } as PipelineStage,
+          ]
+        : filter === 'mentorship'
+          ? [
+              {
+                $match: { mentorshipBookingId: { $exists: true, $ne: null } },
+              } as PipelineStage,
+            ]
+          : []),
       { $sort: { createdAt: -1 } },
       {
         $project: {

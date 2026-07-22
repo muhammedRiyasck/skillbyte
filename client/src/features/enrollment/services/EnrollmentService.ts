@@ -39,7 +39,18 @@ export const getStudentPurchases = async (page: number = 1, limit: number = 10, 
   return response.data;
 };
 
-export const getInstructorEarnings = async (page: number = 1, limit: number = 10) => {
-  const response = await api.get(`/payment/earnings?page=${page}&limit=${limit}`);
+export const getInstructorEarnings = async (
+  page: number = 1,
+  limit: number = 10,
+  search?: string,
+  filter?: string,
+) => {
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+    ...(search ? { search } : {}),
+    ...(filter && filter !== 'all' ? { filter } : {}),
+  });
+  const response = await api.get(`/payment/earnings?${params.toString()}`);
   return response.data;
 };

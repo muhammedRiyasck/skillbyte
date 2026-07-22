@@ -15,6 +15,7 @@ export interface IPaymentReadRepository {
     instructorId: string,
     page: number,
     limit: number,
+    options?: { search?: string; filter?: string },
   ): Promise<{
     data: IPayment[];
     totalCount: number;
