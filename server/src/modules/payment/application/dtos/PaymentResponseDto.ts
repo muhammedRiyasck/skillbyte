@@ -12,6 +12,7 @@ export interface PaymentResponseDto {
   productName: string;
   productImage?: string;
   studentName?: string;
+  studentEmail?: string;
   createdAt?: Date;
   stripePaymentIntentId?: string;
   paypalOrderId?: string;

@@ -29,11 +29,12 @@ const EarningsHistory: React.FC = () => {
   const fetchEarnings = useCallback(async (page: number) => {
     try {
       setLoading(true);
-      const data = await getInstructorEarnings(page, itemsPerPage);
-      setEarnings(data?.data?.earnings|| []);
-      setTotalCount(data?.data?.totalCount|| 0);
-      setTotalRevenue(data?.data?.statistics?.totalRevenue|| 0);
-      setTotalProfit(data?.data?.statistics?.totalProfit|| 0);
+      const result = await getInstructorEarnings(page, itemsPerPage);
+      const payload = result?.data;
+      setEarnings(payload?.data || []);
+      setTotalCount(payload?.totalCount || 0);
+      setTotalRevenue(payload?.totalRevenue || 0);
+      setTotalProfit(payload?.totalProfit || 0);
     } catch {
       console.error('Failed to load earnings data');
     } finally {
@@ -51,6 +52,15 @@ const EarningsHistory: React.FC = () => {
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  const formatCurrency = (amount: number, currency: string = 'USD') => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currency,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
   };
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
@@ -92,8 +102,11 @@ const EarningsHistory: React.FC = () => {
                <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">Total Sales</span>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-4xl font-black text-gray-900 dark:text-gray-100">₹{totalRevenue.toLocaleString()}</span>
+              <span className="text-4xl font-black text-gray-900 dark:text-gray-100">{formatCurrency(totalRevenue, 'USD')}</span>
               <span className="text-sm text-green-500 font-bold bg-green-50 px-2 py-0.5 rounded-lg">+12%</span>
+            </div>
+            <div className="text-sm font-medium text-gray-400 mt-1">
+               {formatCurrency(totalRevenue * 83, 'INR')}
             </div>
           </div>
 
@@ -104,7 +117,10 @@ const EarningsHistory: React.FC = () => {
                </div>
                <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">Net Profit</span>
             </div>
-            <div className="text-4xl font-black text-gray-900 dark:text-gray-100">₹{totalProfit.toLocaleString()}</div>
+            <div className="text-4xl font-black text-gray-900 dark:text-gray-100">{formatCurrency(totalProfit, 'USD')}</div>
+            <div className="text-sm font-medium text-gray-400 mt-1">
+               {formatCurrency(totalProfit * 83, 'INR')}
+            </div>
           </div>
 
           <div className="bg-white dark:bg-gray-700 p-8 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-600">
@@ -161,15 +177,36 @@ const EarningsHistory: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-8 py-6">
-                        <span className="font-medium text-gray-600 dark:text-gray-400">₹{item.amount}</span>
+                        <div className="flex flex-col">
+                          <span className="font-medium text-gray-600 dark:text-gray-400">{formatCurrency(item.amount, item.currency)}</span>
+                          <span className="text-xs text-gray-400">
+                            {item.currency.toUpperCase() === 'INR' 
+                              ? formatCurrency(item.amount / 83, 'USD')
+                              : formatCurrency(item.amount * 83, 'INR')}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-8 py-6">
-                        <span className="text-sm text-red-400 font-medium">-₹{(item.adminFee).toFixed(2)}</span>
+                        <div className="flex flex-col">
+                          <span className="text-sm text-red-400 font-medium">-{formatCurrency(item.adminFee, item.currency)}</span>
+                          <span className="text-xs text-red-300/70">
+                            -{item.currency.toUpperCase() === 'INR' 
+                              ? formatCurrency(item.adminFee / 83, 'USD')
+                              : formatCurrency(item.adminFee * 83, 'INR')}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-8 py-6">
-                        <div className="flex items-center gap-1.5 font-black text-green-600 dark:text-green-400 text-lg">
-                          ₹{item.instructorAmount}
-                          <ArrowUpRight className="w-4 h-4" />
+                        <div className="flex flex-col">
+                          <div className="flex items-center gap-1.5 font-black text-green-600 dark:text-green-400 text-lg">
+                            {formatCurrency(item.instructorAmount, item.currency)}
+                            <ArrowUpRight className="w-4 h-4" />
+                          </div>
+                          <span className="text-xs text-green-600/60 dark:text-green-400/60 font-semibold mt-0.5">
+                            {item.currency.toUpperCase() === 'INR' 
+                              ? formatCurrency(item.instructorAmount / 83, 'USD')
+                              : formatCurrency(item.instructorAmount * 83, 'INR')}
+                          </span>
                         </div>
                       </td>
                       <td className="px-8 py-6">

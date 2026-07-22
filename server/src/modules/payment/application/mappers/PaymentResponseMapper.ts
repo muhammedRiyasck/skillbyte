@@ -15,6 +15,7 @@ export class PaymentResponseMapper {
       productName: payment.productName,
       productImage: payment.productImage,
       studentName: payment.studentName,
+      studentEmail: payment.studentEmail,
       createdAt: payment.createdAt,
       stripePaymentIntentId: payment.stripePaymentIntentId,
       paypalOrderId: payment.paypalOrderId,
