@@ -87,7 +87,7 @@ export class MentorshipSlotRepository
 
     const docs = await this.model
       .find(query)
-      .sort({ scheduledAt: 1 })
+      .sort({ scheduledAt: -1 })
       .skip(skip)
       .limit(limit);
 
@@ -106,14 +106,14 @@ export class MentorshipSlotRepository
     limit?: number;
   }): Promise<MentorshipSlot[]> {
     const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+    tomorrow.setUTCHours(0, 0, 0, 0);
 
     const pipeline: PipelineStage[] = [];
 
     // 1. Base Match (Status and Date)
     const matchStage: findAvailableSlotsType = {
-      status: { $in: [SlotStatus.AVAILABLE, SlotStatus.BOOKED] },
+      status: { $in: [SlotStatus.AVAILABLE] },
       scheduledAt: { $gte: tomorrow },
     };
 
@@ -198,13 +198,13 @@ export class MentorshipSlotRepository
 
   async findByJobTitle(jobTitle: string): Promise<MentorshipSlot[]> {
     const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+    tomorrow.setUTCHours(0, 0, 0, 0);
 
     const docs = await this.model
       .find({
         jobTitle: { $regex: jobTitle, $options: 'i' },
-        status: { $in: ['available', 'booked'] },
+        status: SlotStatus.AVAILABLE,
         scheduledAt: { $gte: tomorrow },
       })
       .populate('instructorId', 'name profilePictureUrl jobTitle')
@@ -242,11 +242,11 @@ export class MentorshipSlotRepository
 
   async getUniqueTags(): Promise<string[]> {
     const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    tomorrow.setHours(0, 0, 0, 0);
+    tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
+    tomorrow.setUTCHours(0, 0, 0, 0);
 
     const tags = await this.model.distinct('tags', {
-      status: { $in: [SlotStatus.AVAILABLE, SlotStatus.BOOKED] },
+      status: SlotStatus.AVAILABLE,
       scheduledAt: { $gte: tomorrow },
     });
 
