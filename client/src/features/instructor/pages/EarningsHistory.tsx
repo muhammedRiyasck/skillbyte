@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getInstructorEarnings } from '../../enrollment/services/EnrollmentService';
+import { getInstructorProfile, getMyWithdrawals } from '../../instructor/services/InstructorDashboardService';
 import Spiner from '@shared/ui/Spiner';
-import { RefreshCw, TrendingUp, Users, DollarSign, ArrowUpRight } from 'lucide-react';
+import { RefreshCw, TrendingUp, Users, DollarSign, ArrowUpRight, Wallet, Clock } from 'lucide-react';
 
 interface Earnings {
   id: string;
@@ -23,18 +24,32 @@ const EarningsHistory: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
-  const [totalProfit, setTotalProfit] = useState(0);
+  const [withdrawnAmount, setWithdrawnAmount] = useState(0);
+  const [pendingAmount, setPendingAmount] = useState(0);
+  const [totalEarnings, setTotalEarnings] = useState(0);
   const itemsPerPage = 10;
 
   const fetchEarnings = useCallback(async (page: number) => {
     try {
       setLoading(true);
-      const result = await getInstructorEarnings(page, itemsPerPage);
+      const [result, profileRes, withdrawalsRes] = await Promise.all([
+        getInstructorEarnings(page, itemsPerPage),
+        getInstructorProfile(),
+        getMyWithdrawals(1, 100)
+      ]);
       const payload = result?.data;
       setEarnings(payload?.data || []);
       setTotalCount(payload?.totalCount || 0);
-      setTotalRevenue(payload?.totalRevenue || 0);
-      setTotalProfit(payload?.totalProfit || 0);
+      setTotalRevenue(payload?.totalRevenue || 0);      
+      setWithdrawnAmount(profileRes?.withdrawnAmount || 0);
+      setTotalEarnings(profileRes?.totalEarnings || 0);
+      
+      const withdrawals = withdrawalsRes?.data || [];
+      const pending = withdrawals
+      // dont use any type
+        .filter((w: { status: string; amount: number; }) => w?.status === 'PENDING')
+        .reduce((sum: number, w: { status: string; amount: number; }) => sum + w?.amount, 0);
+      setPendingAmount(pending);
     } catch {
       console.error('Failed to load earnings data');
     } finally {
@@ -92,8 +107,8 @@ const EarningsHistory: React.FC = () => {
           </button>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        {/* Primary Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div className="bg-white dark:bg-gray-700 p-8 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-600">
             <div className="flex items-center gap-4 mb-4">
                <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-2xl text-green-600">
@@ -117,20 +132,64 @@ const EarningsHistory: React.FC = () => {
                </div>
                <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">Net Profit</span>
             </div>
-            <div className="text-4xl font-black text-gray-900 dark:text-gray-100">{formatCurrency(totalProfit, 'USD')}</div>
+            <div className="text-4xl font-black text-gray-900 dark:text-gray-100">{formatCurrency(totalEarnings, 'USD')}</div>
             <div className="text-sm font-medium text-gray-400 mt-1">
-               {formatCurrency(totalProfit * 83, 'INR')}
+               {formatCurrency(totalEarnings * 83, 'INR')}
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-700 p-8 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-600">
+          <div className="bg-white dark:bg-gray-700 p-8 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-600 ring-2 ring-indigo-500/20">
             <div className="flex items-center gap-4 mb-4">
-               <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-2xl text-purple-600">
-                  <Users className="w-6 h-6" />
+               <div className="bg-indigo-100 dark:bg-indigo-900/30 p-3 rounded-2xl text-indigo-600">
+                  <Wallet className="w-6 h-6" />
                </div>
-               <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">Total Students</span>
+               <span className="text-sm font-bold text-indigo-500 uppercase tracking-widest">Available Balance</span>
             </div>
-            <div className="text-4xl font-black text-gray-900 dark:text-gray-100">{totalCount}</div>
+            <div className="text-4xl font-black text-indigo-600 dark:text-indigo-400">
+              {formatCurrency(Math.max(0, totalEarnings - withdrawnAmount), 'USD')}
+            </div>
+            <div className="text-sm font-medium text-indigo-400/70 mt-1">
+               {formatCurrency(Math.max(0, totalEarnings - withdrawnAmount) * 83, 'INR')}
+            </div>
+          </div>
+        </div>
+
+        {/* Secondary Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          <div className="bg-white dark:bg-gray-700 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-600">
+            <div className="flex items-center gap-4 mb-3">
+               <div className="bg-emerald-100 dark:bg-emerald-900/30 p-2.5 rounded-2xl text-emerald-600">
+                  <ArrowUpRight className="w-5 h-5" />
+               </div>
+               <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Withdrawn</span>
+            </div>
+            <div className="text-2xl font-black text-gray-900 dark:text-gray-100">{formatCurrency(withdrawnAmount, 'USD')}</div>
+            <div className="text-xs font-medium text-gray-400 mt-1">
+               {formatCurrency(withdrawnAmount * 83, 'INR')}
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-700 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-600">
+            <div className="flex items-center gap-4 mb-3">
+               <div className="bg-amber-100 dark:bg-amber-900/30 p-2.5 rounded-2xl text-amber-600">
+                  <Clock className="w-5 h-5" />
+               </div>
+               <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Pending Requests</span>
+            </div>
+            <div className="text-2xl font-black text-gray-900 dark:text-gray-100">{formatCurrency(pendingAmount, 'USD')}</div>
+            <div className="text-xs font-medium text-gray-400 mt-1">
+               {formatCurrency(pendingAmount * 83, 'INR')}
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-700 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-600">
+            <div className="flex items-center gap-4 mb-3">
+               <div className="bg-purple-100 dark:bg-purple-900/30 p-2.5 rounded-2xl text-purple-600">
+                  <Users className="w-5 h-5" />
+               </div>
+               <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Students</span>
+            </div>
+            <div className="text-2xl font-black text-gray-900 dark:text-gray-100">{totalCount}</div>
           </div>
         </div>
 
