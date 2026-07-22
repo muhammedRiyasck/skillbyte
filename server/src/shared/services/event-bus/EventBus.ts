@@ -42,6 +42,7 @@ export interface AppEvents {
   [WITHDRAWAL_EVENTS.WITHDRAWAL_FAILED]: WithdrawalProcessedEvent;
   [WITHDRAWAL_EVENTS.WITHDRAWAL_REVERSED]: WithdrawalProcessedEvent;
   [WITHDRAWAL_EVENTS.INSTRUCTOR_STRIPE_VERIFIED]: { instructorId: string };
+  [WITHDRAWAL_EVENTS.INSTRUCTOR_STRIPE_RESTRICTED]: { instructorId: string };
 }
 
 export class EventBus {

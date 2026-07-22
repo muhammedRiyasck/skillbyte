@@ -15,4 +15,5 @@ export const WITHDRAWAL_EVENTS = {
   WITHDRAWAL_FAILED: 'withdrawal.failed',
   WITHDRAWAL_REVERSED: 'withdrawal.reversed',
   INSTRUCTOR_STRIPE_VERIFIED: 'instructor.stripe.verified',
+  INSTRUCTOR_STRIPE_RESTRICTED: 'instructor.stripe.restricted',
 } as const;

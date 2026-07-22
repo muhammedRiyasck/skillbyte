@@ -220,6 +220,9 @@ export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
         logger.warn(
           `Stripe account ${account.id} restricted for instructor ${instructor.instructorId!}`,
         );
+        eventBus.emit(WITHDRAWAL_EVENTS.INSTRUCTOR_STRIPE_RESTRICTED, {
+          instructorId: instructor.instructorId!,
+        });
       }
     }
   }

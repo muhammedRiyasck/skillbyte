@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { getInstructorEarnings } from '../../enrollment/services/EnrollmentService';
-import { getInstructorProfile, getMyWithdrawals } from '../../instructor/services/InstructorDashboardService';
+import { getInstructorProfile, getMyWithdrawals, createStripeOnboardingLink } from '../../instructor/services/InstructorDashboardService';
+import { toast } from 'sonner';
 import Spiner from '@shared/ui/Spiner';
 import { RefreshCw, TrendingUp, Users, DollarSign, ArrowUpRight, Wallet, Clock, Search } from 'lucide-react';
+import { useSocket } from '../../../context/SocketContext';
 
 interface Earnings {
   id: string;
@@ -19,6 +21,7 @@ interface Earnings {
 }
 
 const EarningsHistory: React.FC = () => {
+  const { socket } = useSocket();
   const [earnings, setEarnings] = useState<Earnings[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,6 +30,8 @@ const EarningsHistory: React.FC = () => {
   const [withdrawnAmount, setWithdrawnAmount] = useState(0);
   const [pendingAmount, setPendingAmount] = useState(0);
   const [totalEarnings, setTotalEarnings] = useState(0);
+  const [isStripeVerified, setIsStripeVerified] = useState(false);
+  const [isOnboarding, setIsOnboarding] = useState(false);
   const [searchInput, setSearchInput] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
@@ -47,6 +52,7 @@ const EarningsHistory: React.FC = () => {
       setTotalRevenue(payload?.totalRevenue || 0);      
       setWithdrawnAmount(profileRes?.withdrawnAmount || 0);
       setTotalEarnings(profileRes?.totalEarnings || 0);
+      setIsStripeVerified(profileRes?.isStripeVerified || false);
       
       const withdrawals = withdrawalsRes?.data || [];
       const pending = withdrawals
@@ -73,9 +79,39 @@ const EarningsHistory: React.FC = () => {
     };
   }, [searchInput]);
 
+  const handleSetupPayouts = async () => {
+    try {
+      setIsOnboarding(true);
+      const response = await createStripeOnboardingLink();
+      if (response.data?.url) {
+        window.location.href = response.data.url;
+      } else {
+        toast.error('Failed to create onboarding link');
+      }
+    } catch (error) {
+      console.error('Stripe onboarding error:', error);
+      toast.error('Something went wrong. Please try again later.');
+    } finally {
+      setIsOnboarding(false);
+    }
+  };
+
   useEffect(() => {
     fetchEarnings(currentPage, searchTerm || undefined, filterType !== 'all' ? filterType : undefined);
   }, [currentPage, searchTerm, filterType, fetchEarnings]);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleNotification = (notification: { title?: string }) => {
+      if (notification.title && (notification.title.includes('Restricted') || notification.title.includes('Verified'))) {
+        fetchEarnings(currentPage, searchTerm || undefined, filterType !== 'all' ? filterType : undefined);
+      }
+    };
+    socket.on('notification', handleNotification);
+    return () => {
+      socket.off('notification', handleNotification);
+    };
+  }, [socket, currentPage, searchTerm, filterType, fetchEarnings]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -108,12 +144,40 @@ const EarningsHistory: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-800 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Financial Overview</h1>
             <p className="text-gray-600 dark:text-gray-400">Manage your sales, track earnings, and analyze performance</p>
           </div>
+          {isStripeVerified && (
+            <div>
+              <button
+                onClick={handleSetupPayouts}
+                disabled={isOnboarding}
+                className="flex items-center cursor-pointer justify-center gap-2 px-5 py-2.5 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600 rounded-xl font-bold text-sm hover:bg-gray-50 dark:hover:bg-gray-600 transition-all shadow-sm active:scale-95 disabled:opacity-50"
+              >
+                <Wallet className="w-4 h-4 text-indigo-500" />
+                {isOnboarding ? 'Loading...' : 'Manage Payout Settings'}
+              </button>
+            </div>
+          )}
         </div>
+
+        {!isStripeVerified && (
+          <div className="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 p-6 rounded-[2rem] mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+              <h3 className="font-bold text-indigo-900 dark:text-indigo-100 text-lg mb-1">Action Required: Set up Payouts</h3>
+              <p className="text-indigo-600 dark:text-indigo-300 text-sm">You need to connect your bank account via Stripe to receive your earnings and request withdrawals.</p>
+            </div>
+            <button 
+              onClick={handleSetupPayouts}
+              disabled={isOnboarding}
+              className="whitespace-nowrap bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-lg shadow-indigo-500/30 active:scale-95 disabled:opacity-50"
+            >
+              {isOnboarding ? 'Loading...' : 'Connect Stripe'}
+            </button>
+          </div>
+        )}
 
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">

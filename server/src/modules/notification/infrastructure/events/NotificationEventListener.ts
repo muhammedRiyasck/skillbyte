@@ -109,6 +109,10 @@ export class NotificationEventListener {
       WITHDRAWAL_EVENTS.INSTRUCTOR_STRIPE_VERIFIED,
       this.onInstructorStripeVerified.bind(this),
     );
+    eventBus.on(
+      WITHDRAWAL_EVENTS.INSTRUCTOR_STRIPE_RESTRICTED,
+      this.onInstructorStripeRestricted.bind(this),
+    );
 
     logger.info('NotificationEventListener registered all listeners');
   }
@@ -430,6 +434,23 @@ export class NotificationEventListener {
     } catch (error) {
       logger.error(
         'NotificationEventListener: onInstructorStripeVerified failed',
+        error,
+      );
+    }
+  }
+  private async onInstructorStripeRestricted(payload: unknown) {
+    const event = payload as { instructorId: string };
+    try {
+      await this.createNotificationUseCase.execute({
+        userId: event.instructorId,
+        title: 'Payout Account Restricted',
+        message:
+          'Your payout account requires attention. Please update your Stripe settings to continue receiving payouts.',
+        type: NotificationType.WARNING,
+      });
+    } catch (error) {
+      logger.error(
+        'NotificationEventListener: onInstructorStripeRestricted failed',
         error,
       );
     }
