@@ -36,4 +36,10 @@ export interface IMentorshipSlotRepository
   getUniqueTags(): Promise<string[]>;
 
   findUpcomingSlots(instructorId: string): Promise<MentorshipSlot[]>;
+
+  hasOverlappingSlot(
+    instructorId: string,
+    startTime: Date,
+    endTime: Date,
+  ): Promise<boolean>;
 }

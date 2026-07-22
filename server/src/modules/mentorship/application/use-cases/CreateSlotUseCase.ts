@@ -21,12 +21,19 @@ export class CreateSlotUseCase implements ICreateSlotUseCase {
   ) {}
 
   async execute(dto: CreateSlotDto): Promise<SlotResponseDto> {
-    // Validate scheduled time is in the future
-    const now = new Date();
-    if (new Date(dto.scheduledAt) <= now) {
+    // Check for overlapping slots
+    const startTime = new Date(dto.scheduledAt);
+    const endTime = new Date(startTime.getTime() + dto.duration * 60000);
+    const hasOverlap = await this._slotRepo.hasOverlappingSlot(
+      dto.instructorId,
+      startTime,
+      endTime,
+    );
+
+    if (hasOverlap) {
       throw new HttpError(
-        'Scheduled time must be in the future',
-        HttpStatusCode.BAD_REQUEST,
+        'You already have an active slot scheduled during this time period.',
+        HttpStatusCode.CONFLICT, // 409 Conflict
       );
     }
 
@@ -54,7 +61,7 @@ export class CreateSlotUseCase implements ICreateSlotUseCase {
       dto.duration,
       dto.price,
       dto.currency || 'INR',
-      new Date(dto.scheduledAt),
+      startTime,
       SlotStatus.AVAILABLE,
       1, // maxBookings
       0, // currentBookings

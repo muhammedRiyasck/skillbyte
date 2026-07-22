@@ -19,7 +19,7 @@ export const SlotCard = ({ slot, onEdit, onDelete, onBook, variant = 'instructor
     const startTime = new Date(slot.scheduledAt);
     const endTime = new Date(startTime.getTime() + slot.duration * 60000);
     const isExpired = new Date() > startTime;
-    const isUnavailable = isBooked || (isExpired && variant === 'student');
+    const isUnavailable = isBooked || isExpired;
 
     return (
         <div className={`group relative flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl border transition-all duration-300 overflow-hidden ${isUnavailable
@@ -51,28 +51,32 @@ export const SlotCard = ({ slot, onEdit, onDelete, onBook, variant = 'instructor
                                     ? 'bg-gray-100 text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
                                     : 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800'
                                 }`}>
-                                {isExpired && variant === 'student' ? 'EXPIRED' : slot.status}
+                                {isExpired ? 'EXPIRED' : slot.status}
                             </span>
                         </div>
                     </div>
 
                     {/* Action Buttons (Instructor Only) */}
-                    {variant === 'instructor' && !isBooked && onEdit && onDelete && (
+                    {variant === 'instructor' && onEdit && onDelete && (
                         <div className="flex gap-1 shrink-0">
-                            <button
-                                onClick={() => onEdit(slot)}
-                                className="p-2 cursor-pointer text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 rounded-lg transition-colors"
-                                title="Edit Slot"
-                            >
-                                <Edit size={16} />
-                            </button>
-                            <button
-                                onClick={() => onDelete(slot.slotId)}
-                                className="p-2 cursor-pointer text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/40 rounded-lg transition-colors"
-                                title="Delete Slot"
-                            >
-                                <Trash2 size={16} />
-                            </button>
+                            {!isBooked && !isExpired && (
+                                <button
+                                    onClick={() => onEdit(slot)}
+                                    className="p-2 cursor-pointer text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 rounded-lg transition-colors"
+                                    title="Edit Slot"
+                                >
+                                    <Edit size={16} />
+                                </button>
+                            )}
+                            {!isBooked && (
+                                <button
+                                    onClick={() => onDelete(slot.slotId)}
+                                    className="p-2 cursor-pointer text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/40 rounded-lg transition-colors"
+                                    title="Delete Slot"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>

@@ -263,4 +263,27 @@ export class MentorshipSlotRepository
       .sort({ scheduledAt: 1 });
     return docs.map((doc) => this.toEntity(doc));
   }
+
+  async hasOverlappingSlot(
+    instructorId: string,
+    startTime: Date,
+    endTime: Date,
+  ): Promise<boolean> {
+    const docs = await this.model.find({
+      instructorId,
+      status: { $in: [SlotStatus.AVAILABLE, SlotStatus.BOOKED] },
+      $expr: {
+        $and: [
+          { $lt: ['$scheduledAt', endTime] },
+          {
+            $gt: [
+              { $add: ['$scheduledAt', { $multiply: ['$duration', 60000] }] },
+              startTime,
+            ],
+          },
+        ],
+      },
+    });
+    return docs.length > 0;
+  }
 }
