@@ -1,12 +1,12 @@
 import { useState } from "react";
 import Modal from "../../../shared/ui/Modal";
 import type { IMentorshipSlot, BookSlotResponse } from "../types/mentorshipTypes";
-import { bookSlot } from "../services/BookingServices";
+import { bookSlot, cancelBooking } from "../services/BookingServices";
 import { toast } from "sonner";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { MentorshipCheckoutForm } from "./MentorshipCheckoutForm";
-import { CreditCard, Calendar, Clock, IndianRupee } from "lucide-react";
+import { CreditCard, Calendar, Clock, IndianRupee, AlertTriangle } from "lucide-react";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
@@ -17,9 +17,18 @@ interface SlotBookingModalProps {
   slot: IMentorshipSlot;
 }
 
+export type PendingBookingData = {
+  slotTitle?: string;
+  scheduledAt: string | number | Date;
+  amount: number;
+  expiresAt?: string | number | Date;
+  bookingId: string;
+};
+
 export const SlotBookingModal = ({ isOpen, onClose, onSuccess, slot }: SlotBookingModalProps) => {
-  const [step, setStep] = useState<'details' | 'payment-select' | 'stripe-checkout'>('details');
+  const [step, setStep] = useState<'details' | 'payment-select' | 'stripe-checkout' | 'pending-conflict'>('details');
   const [bookingResponse, setBookingResponse] = useState<BookSlotResponse | null>(null);
+  const [pendingBooking, setPendingBooking] = useState<PendingBookingData | null>(null);
   const [isInitiating, setIsInitiating] = useState(false);
 
   const isFree = slot.price === 0;
@@ -36,6 +45,13 @@ export const SlotBookingModal = ({ isOpen, onClose, onSuccess, slot }: SlotBooki
       onSuccess?.();
     } catch (error) {
       console.error(error);
+      const errData = (error as { response?: { data?: { statusCode?: number, data?: { pendingBooking?: PendingBookingData }, message?: string } } }).response?.data;
+      if (errData?.statusCode === 409 && errData?.data?.pendingBooking) {
+        setPendingBooking(errData.data.pendingBooking);
+        setStep('pending-conflict');
+      } else {
+        toast.error(errData?.message || "Failed to book slot");
+      }
     } finally {
       setIsInitiating(false);
     }
@@ -58,6 +74,13 @@ export const SlotBookingModal = ({ isOpen, onClose, onSuccess, slot }: SlotBooki
       }
     } catch (error) {
       console.error(error);
+      const errData = (error as { response?: { data?: { statusCode?: number, data?: { pendingBooking?: PendingBookingData }, message?: string } } }).response?.data;
+      if (errData?.statusCode === 409 && errData?.data?.pendingBooking) {
+        setPendingBooking(errData.data.pendingBooking);
+        setStep('pending-conflict');
+      } else {
+        toast.error(errData?.message || "Failed to initiate booking");
+      }
     } finally {
       setIsInitiating(false);
     }
@@ -66,6 +89,7 @@ export const SlotBookingModal = ({ isOpen, onClose, onSuccess, slot }: SlotBooki
   const resetAndClose = () => {
     setStep('details');
     setBookingResponse(null);
+    setPendingBooking(null);
     onClose();
   };
 
@@ -73,10 +97,18 @@ export const SlotBookingModal = ({ isOpen, onClose, onSuccess, slot }: SlotBooki
     <Modal
       isOpen={isOpen}
       onClose={resetAndClose}
-      title={step === 'details' ? (isFree ? "Free Mentorship Session" : "Confirm Booking") : "Complete Payment"}
-      confirmLabel={isInitiating ? "Processing..." : (step === 'details' ? (isFree ? "Book for Free" : "Proceed to Payment") : undefined)}
+      title={
+        step === 'details' ? (isFree ? "Free Mentorship Session" : "Confirm Booking") 
+        : step === 'pending-conflict' ? "Pending Booking Found"
+        : "Complete Payment"
+      }
+      confirmLabel={
+        isInitiating ? "Processing..." 
+        : step === 'details' ? (isFree ? "Book for Free" : "Proceed to Payment") 
+        : undefined
+      }
       onConfirm={step === 'details' ? (isFree ? handleFreeBooking : () => setStep('payment-select')) : undefined}
-      cancelLabel={step === 'stripe-checkout' ? "Back" : "Cancel"}
+      cancelLabel={step === 'stripe-checkout' ? "Back" : step === 'pending-conflict' ? "Close" : "Cancel"}
     >
       <div className="space-y-4">
         {/* Slot Brief */}
@@ -143,6 +175,56 @@ export const SlotBookingModal = ({ isOpen, onClose, onSuccess, slot }: SlotBooki
               }} 
             />
           </Elements>
+        )}
+
+        {step === 'pending-conflict' && pendingBooking && (
+          <div className="space-y-4">
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 p-4 rounded-xl flex gap-3 text-amber-800 dark:text-amber-300">
+              <AlertTriangle className="shrink-0" size={20} />
+              <div className="text-sm">
+                <p className="font-semibold mb-1">You already have a pending booking!</p>
+                <p>Please complete or cancel your existing pending booking before you can book another slot.</p>
+              </div>
+            </div>
+
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 space-y-2">
+              <h5 className="font-semibold text-gray-900 dark:text-white">{pendingBooking.slotTitle || "Mentorship Session"}</h5>
+              <div className="text-sm text-gray-500 dark:text-gray-400 flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <Calendar size={14} /> {new Date(pendingBooking.scheduledAt).toLocaleDateString()}
+                </div>
+                <div className="flex items-center gap-2">
+                  <IndianRupee size={14} /> {pendingBooking.amount > 0 ? `${pendingBooking.amount}.00` : 'FREE'}
+                </div>
+                {pendingBooking.expiresAt && (
+                  <div className="flex items-center gap-2 text-red-500 mt-2">
+                    <Clock size={14} /> Expires at {new Date(pendingBooking.expiresAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <button
+              disabled={isInitiating}
+              onClick={async () => {
+                try {
+                  setIsInitiating(true);
+                  await cancelBooking(pendingBooking.bookingId);
+                  toast.success("Pending booking cancelled successfully.");
+                  setStep('details');
+                  setPendingBooking(null);
+                } catch (error) {
+                  const err = error as { response?: { data?: { message?: string } } };
+                  toast.error(err.response?.data?.message || "Failed to cancel booking");
+                } finally {
+                  setIsInitiating(false);
+                }
+              }}
+              className="w-full py-3 cursor-pointer bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 font-semibold rounded-lg transition-colors disabled:opacity-50"
+            >
+              Cancel Pending Booking
+            </button>
+          </div>
         )}
       </div>
     </Modal>

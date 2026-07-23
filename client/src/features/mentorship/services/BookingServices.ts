@@ -13,8 +13,8 @@ export const getStudentBookings = async (filters: StudentBookingFilters = {}): P
   return response.data.data.bookings;
 };
 
-export const bookSlot = async (data: { slotId: string; providerName: string }): Promise<BookSlotResponse> => {
-  const response = await api.post('/mentorship/book', data);
+export const bookSlot = async (data: { slotId: string; providerName?: string }): Promise<BookSlotResponse> => {
+  const response = await api.post('/mentorship/book', data, { _skipGlobalToast: true });
   return response.data.data;
 };
 
