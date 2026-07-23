@@ -12,7 +12,16 @@ function errorHandler(
   logger.error(`Error occurred: ${err.message}`, { stack: err.stack });
 
   if (err instanceof HttpError) {
-    ApiResponseHelper.error(res, err.message, err.message, err.status);
+    const body: Record<string, unknown> = {
+      success: false,
+      message: err.message,
+      error: err.message,
+      statusCode: err.status,
+    };
+    if (err.data) {
+      body.data = err.data;
+    }
+    res.status(err.status).json(body);
   } else {
     // Sanitize message in production
     const isDev = process.env.NODE_ENV === 'development';

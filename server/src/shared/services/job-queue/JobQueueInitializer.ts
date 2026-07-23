@@ -11,6 +11,8 @@ import {
   bookingRepository,
   cancelBookingUC,
   autoCompleteBookingsUC,
+  stripeProvider,
+  paymentReadRepository,
 } from '../../../modules/mentorship/entry-point/dependencyInjection/MentorshipContainer';
 import { NodeMailerService } from '../mail/NodeMailerService';
 import { JOB_NAMES, QUEUE_NAMES } from './JobTypes';
@@ -38,7 +40,12 @@ export class JobQueueInitializer {
       new ResumeUploadProcessor(instructorRepo, s3StorageService);
       new EmailProcessor(nodeMailer);
       new DeleteDeclinedInstructorProcessor(instructorRepo, s3StorageService);
-      new MentorshipCleanupProcessor(bookingRepository, cancelBookingUC);
+      new MentorshipCleanupProcessor(
+        bookingRepository,
+        cancelBookingUC,
+        paymentReadRepository,
+        stripeProvider,
+      );
       new MentorshipAutoCompleteProcessor(autoCompleteBookingsUC);
 
       // Schedule repeatable job for auto-completion (every 30 minutes)

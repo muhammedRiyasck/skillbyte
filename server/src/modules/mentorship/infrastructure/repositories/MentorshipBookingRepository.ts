@@ -159,6 +159,24 @@ export class MentorshipBookingRepository
     });
   }
 
+  async findPendingByStudentId(
+    studentId: string,
+  ): Promise<MentorshipBooking | null> {
+    const doc = await this.model
+      .findOne({ studentId, status: 'pending' })
+      .populate('slotId', 'title scheduledAt duration price currency')
+      .sort({ createdAt: -1 });
+    return doc ? this.toEntity(doc) : null;
+  }
+
+  async findStalePendingBookings(now: Date): Promise<MentorshipBooking[]> {
+    const docs = await this.model.find({
+      status: 'pending',
+      scheduledAt: { $lt: now },
+    });
+    return docs.map((doc) => this.toEntity(doc));
+  }
+
   async findConfirmedPastSessions(
     timeThreshold: Date,
   ): Promise<MentorshipBooking[]> {

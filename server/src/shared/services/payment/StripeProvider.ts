@@ -132,6 +132,18 @@ export class StripeProvider implements IStripeProvider, IPaymentProvider {
     return this.stripe.balance.retrieve();
   }
 
+  async cancelPaymentIntent(paymentIntentId: string): Promise<boolean> {
+    try {
+      await this.stripe.paymentIntents.cancel(paymentIntentId);
+      return true;
+    } catch (error) {
+      // Stripe returns an error if the intent is already cancelled or succeeded.
+      // We log the warning but don't throw – the booking cancellation should still proceed.
+      console.warn(`Could not cancel PaymentIntent ${paymentIntentId}:`, error);
+      return false;
+    }
+  }
+
   async validateBalance(
     amount: number,
     currency: string,

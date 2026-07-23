@@ -1,7 +1,10 @@
 import { UserRole } from '../../../../shared/enums/UserRole';
 import { PaymentStatus } from '../../../../shared/enums/PaymentStatus';
-import { BookingStatus } from '../../domain/entities/MentorshipBooking';
-import { SlotStatus } from '../../domain/entities/MentorshipSlot';
+import {
+  BookingStatus,
+  CancelledBy,
+} from '../../domain/entities/MentorshipBooking';
+
 import { ICancelBookingUseCase } from '../interfaces/IBookingUseCases';
 import { CancelBookingDto } from '../dtos/BookingDto';
 import { IMentorshipBookingRepository } from '../../domain/IRepositories/IMentorshipBookingRepository';
@@ -57,7 +60,13 @@ export class CancelBookingUseCase implements ICancelBookingUseCase {
         const hoursDifference =
           (scheduledAt.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-        if (cancelledBy === UserRole.INSTRUCTOR) {
+        if (
+          cancelledBy === UserRole.INSTRUCTOR ||
+          cancelledBy === CancelledBy.SYSTEM
+        ) {
+          // Instructor-initiated or system-initiated (cleanup job) cancellations always refund.
+          // System cleanup only runs when a booking is still PENDING (payment not yet captured),
+          // so a real refund won't be triggered in practice – but we allow it as a safety net.
           shouldRefund = true;
         } else if (hoursDifference > 24) {
           shouldRefund = true;
@@ -103,11 +112,13 @@ export class CancelBookingUseCase implements ICancelBookingUseCase {
     // 4. Mark Booking as Cancelled
     await this.bookingRepo.markAsCancelled(bookingId, cancelledBy);
 
-    // 5. Free up status (Mark slot available)
+    // 5. Free up seat on slot.
+    // decrementBookings() atomically decrements currentBookings and restores status
+    // to AVAILABLE when currentBookings drops below maxBookings – no need to call
+    // updateStatus() manually here (doing so would race against concurrent bookings).
     if (booking.slotId) {
       const slot = await this.slotRepo.findById(booking.slotId);
       if (slot && slot.slotId) {
-        await this.slotRepo.updateStatus(slot.slotId, SlotStatus.AVAILABLE);
         await this.slotRepo.decrementBookings(slot.slotId);
       }
     }

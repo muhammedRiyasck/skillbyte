@@ -40,7 +40,8 @@ const paypalProvider = new PayPalProvider();
 
 new MentorshipSocketService();
 
-// Use Cases
+const generateVideoRoomUC = new GenerateVideoRoomUseCase(bookingRepository);
+
 const createSlotUC = new CreateSlotUseCase(
   slotRepository,
   instructorRepository,
@@ -55,6 +56,7 @@ const bookSlotUC = new BookSlotUseCase(
   slotRepository,
   bookingRepository,
   initiatePaymentUc,
+  generateVideoRoomUC,
 );
 export const cancelBookingUC = new CancelBookingUseCase(
   bookingRepository,
@@ -70,18 +72,23 @@ export const getStudentBookingsUC = new GetStudentBookingsUseCase(
 export const getInstructorBookingsUC = new GetInstructorBookingsUseCase(
   bookingRepository,
 );
-const generateVideoRoomUC = new GenerateVideoRoomUseCase(bookingRepository);
 const validateVideoRoomAccessUC = new ValidateVideoRoomAccessUseCase(
   bookingRepository,
 );
 export const autoCompleteBookingsUC = new AutoCompleteBookingsUseCase(
   bookingRepository,
+  cancelBookingUC,
 );
 
 // Fulfillment Service (Listens to Payment Events)
 new MentorshipFulfillmentService(bookingRepository, generateVideoRoomUC);
 
-export { bookingRepository, slotRepository };
+export {
+  bookingRepository,
+  slotRepository,
+  stripeProvider,
+  paymentReadRepository,
+};
 
 // Controller
 export const mentorshipController = new MentorshipController(

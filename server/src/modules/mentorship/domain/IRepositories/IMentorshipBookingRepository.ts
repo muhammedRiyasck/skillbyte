@@ -49,5 +49,9 @@ export interface IMentorshipBookingRepository
 
   countPendingByStudentId(studentId: string): Promise<number>;
 
+  findPendingByStudentId(studentId: string): Promise<MentorshipBooking | null>;
+
+  findStalePendingBookings(now: Date): Promise<MentorshipBooking[]>;
+
   findConfirmedPastSessions(timeThreshold: Date): Promise<MentorshipBooking[]>;
 }

@@ -45,7 +45,6 @@ const initiatePaymentUc = new InitiatePaymentUseCase(
   paymentWriteRepo,
   paymentReadRepo,
   paymentProviderFactory,
-  instructorRepo,
 );
 
 const requestWithdrawalUc = new RequestWithdrawalUseCase(
