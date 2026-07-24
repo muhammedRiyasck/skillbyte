@@ -15,6 +15,11 @@ export interface IMentorshipBookingRepository
     toDate?: Date,
   ): Promise<MentorshipBooking[]>;
 
+  findByStudentIdAndSlotId(
+    studentId: string,
+    slotId: string,
+  ): Promise<MentorshipBooking | null>;
+
   findByInstructorId(
     instructorId: string,
     page?: number,

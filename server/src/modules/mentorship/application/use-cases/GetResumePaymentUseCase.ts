@@ -44,6 +44,13 @@ export class GetResumePaymentUseCase implements IGetResumePaymentUseCase {
       );
     }
 
+    if (new Date() > new Date(booking.scheduledAt)) {
+      throw new HttpError(
+        'Cannot resume payment for an expired session slot',
+        HttpStatusCode.BAD_REQUEST,
+      );
+    }
+
     if (!booking.paymentId) {
       throw new HttpError(
         'This booking has no associated payment — it may be a free session',

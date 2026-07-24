@@ -38,82 +38,109 @@ export class BookSlotUseCase implements IBookSlotUseCase {
   }> {
     const { slotId, studentId, providerName } = dto;
 
-    // Prevent "Griefing" (Too many pending bookings).
-    // Fetch the actual pending booking so we can return its details to the
-    // client — the frontend can then offer a "Cancel & Rebook" flow instead
-    // of showing a dead-end error message.
-    const pendingCount =
-      await this.bookingRepo.countPendingByStudentId(studentId);
-    if (pendingCount >= 1) {
-      const pendingBooking =
-        await this.bookingRepo.findPendingByStudentId(studentId);
+    // 0. Check if student already booked this exact slot
+    const existingBookingForSlot =
+      await this.bookingRepo.findByStudentIdAndSlotId(studentId, slotId);
+    let savedBooking: MentorshipBooking | null = null;
+    let isFree = false;
 
-      // Compute when the cleanup job will auto-cancel this booking (20 min after creation)
-      const expiresAt = pendingBooking?.createdAt
-        ? new Date(
-            new Date(pendingBooking.createdAt).getTime() + 20 * 60 * 1000,
-          ).toISOString()
-        : null;
+    if (existingBookingForSlot) {
+      if (
+        existingBookingForSlot.status === BookingStatus.CONFIRMED ||
+        existingBookingForSlot.status === BookingStatus.COMPLETED
+      ) {
+        throw new HttpError(
+          'You have already booked this slot.',
+          HttpStatusCode.CONFLICT,
+        );
+      }
 
-      throw new HttpError(
-        'You already have a pending booking. Complete the payment or cancel it before booking another slot.',
-        HttpStatusCode.CONFLICT,
-        {
-          pendingBooking: pendingBooking
-            ? {
-                bookingId: pendingBooking.bookingId,
-                slotTitle: pendingBooking.slotDetails?.title ?? null,
-                scheduledAt: pendingBooking.scheduledAt,
-                amount: pendingBooking.amount,
-                currency: pendingBooking.currency,
-                expiresAt, // auto-cancel countdown target for the UI
-              }
-            : null,
-        },
-      );
+      if (existingBookingForSlot.status === BookingStatus.PENDING) {
+        // Reuse the existing pending booking
+        savedBooking = existingBookingForSlot;
+        isFree = existingBookingForSlot.amount === 0;
+      }
     }
 
-    // 1. Validate slot availability
+    // 1. Validate slot availability to get slot details needed for payment/booking
     const slot = await this.slotRepo.findById(slotId);
     if (!slot) {
       throw new HttpError('Slot not found', HttpStatusCode.NOT_FOUND);
     }
-
-    if (new Date() > new Date(slot.scheduledAt)) {
-      throw new HttpError(
-        'Cannot book an expired session slot',
-        HttpStatusCode.BAD_REQUEST,
-      );
-    }
-
-    if (slot.status !== SlotStatus.AVAILABLE) {
-      throw new HttpError(
-        'Slot is not available for booking',
-        HttpStatusCode.BAD_REQUEST,
-      );
-    }
-
     const instructorId = slot.instructorId;
-
-    // 1.1 Reserve a seat on the slot.
-    // incrementBookings() atomically increments currentBookings and sets status
-    // to BOOKED only when currentBookings >= maxBookings. We must NOT call
-    // updateStatus(BOOKED) manually here, as that would block all other students
-    // from booking remaining seats on a multi-seat slot.
-    if (slot.slotId) {
-      await this.slotRepo.incrementBookings(slot.slotId);
-    }
 
     // 2. Fetch student details (for payment metadata)
     const student = await StudentModel.findById(studentId);
     if (!student) {
-      if (slot.slotId) await this.slotRepo.decrementBookings(slot.slotId);
       throw new HttpError('Student not found', HttpStatusCode.NOT_FOUND);
     }
 
-    try {
+    if (!savedBooking) {
+      // Prevent "Griefing" (Too many pending bookings).
+      const pendingCount =
+        await this.bookingRepo.countPendingByStudentId(studentId);
+      if (pendingCount >= 1) {
+        const pendingBooking =
+          await this.bookingRepo.findPendingByStudentId(studentId);
+
+        const rawSlotId = pendingBooking?.slotId as unknown;
+        const pendingSlotId =
+          rawSlotId && typeof rawSlotId === 'object'
+            ? (rawSlotId as { slotId?: string; _id?: { toString(): string } })
+                .slotId ||
+              (
+                rawSlotId as { slotId?: string; _id?: { toString(): string } }
+              )._id?.toString()
+            : (rawSlotId as string | undefined);
+
+        if (pendingSlotId && pendingSlotId.toString() !== slotId) {
+          const expiresAt = pendingBooking?.createdAt
+            ? new Date(
+                new Date(pendingBooking.createdAt).getTime() + 20 * 60 * 1000,
+              ).toISOString()
+            : null;
+
+          throw new HttpError(
+            'You already have a pending booking for a different slot. Complete the payment or cancel it before booking another slot.',
+            HttpStatusCode.CONFLICT,
+            {
+              pendingBooking: pendingBooking
+                ? {
+                    bookingId: pendingBooking.bookingId,
+                    slotTitle: pendingBooking.slotDetails?.title ?? null,
+                    scheduledAt: pendingBooking.scheduledAt,
+                    amount: pendingBooking.amount,
+                    currency: pendingBooking.currency,
+                    expiresAt, // auto-cancel countdown target for the UI
+                  }
+                : null,
+            },
+          );
+        }
+      }
+
+      if (new Date() > new Date(slot.scheduledAt)) {
+        throw new HttpError(
+          'Cannot book an expired session slot',
+          HttpStatusCode.BAD_REQUEST,
+        );
+      }
+
+      if (slot.status !== SlotStatus.AVAILABLE) {
+        throw new HttpError(
+          'Slot is not available for booking',
+          HttpStatusCode.BAD_REQUEST,
+        );
+      }
+
+      isFree = slot.price === 0;
+
+      // 1.1 Reserve a seat on the slot.
+      if (slot.slotId) {
+        await this.slotRepo.incrementBookings(slot.slotId);
+      }
+
       // 3. Create Booking
-      const isFree = slot.price === 0;
       const initialStatus = isFree
         ? BookingStatus.CONFIRMED
         : BookingStatus.PENDING;
@@ -131,8 +158,20 @@ export class BookSlotUseCase implements IBookSlotUseCase {
         slot.scheduledAt,
       );
 
-      const savedBooking = await this.bookingRepo.save(newBooking);
+      savedBooking = await this.bookingRepo.save(newBooking);
 
+      // Schedule Cleanup Job (Expire after 20 minutes if not confirmed)
+      if (!isFree && savedBooking.bookingId) {
+        await jobQueueService.addJob(
+          QUEUE_NAMES.MENTORSHIP,
+          JOB_NAMES.MENTORSHIP_CLEANUP,
+          { bookingId: savedBooking.bookingId },
+          { delay: 20 * 60 * 1000 }, // 20 minutes
+        );
+      }
+    }
+
+    try {
       let paymentResult: {
         paymentId: string;
         providerResponse: PaymentInitiationResponse;

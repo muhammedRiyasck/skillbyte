@@ -65,6 +65,7 @@ export class PaymentReadRepository
           studentName: 1,
           studentEmail: 1,
           courseId: 1,
+          mentorshipBookingId: 1,
           amount: 1,
           currency: 1,
           status: 1,

@@ -1,6 +1,6 @@
 import type { IMentorshipBooking } from "../types/mentorshipTypes";
 import { format } from "date-fns";
-import { Calendar, Clock, Video, User, Timer, Wallet, Star, CheckCircle } from "lucide-react";
+import { Calendar, Clock, Video, User, Timer, Wallet, Star, CheckCircle, AlertCircle } from "lucide-react";
 import { BookingStatus } from "@shared/enums/BookingStatus";
 import { UserRole } from "@shared/enums/UserRole";
 import StarRating from "@features/review/components/StarRating";
@@ -147,6 +147,15 @@ export const BookingCard = ({
         <div className="mt-4 p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg flex items-center gap-3 text-indigo-700 dark:text-indigo-300 text-sm">
           <Video size={18} />
           <span className="font-medium">Video room is ready</span>
+        </div>
+      )}
+
+      {isPending && userRole === UserRole.INSTRUCTOR && (
+        <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg flex items-start gap-2 text-yellow-700 dark:text-yellow-300 text-xs">
+          <AlertCircle size={14} className="mt-0.5 shrink-0" />
+          <span>
+            <span className="font-bold">Awaiting Student Payment</span> — This session will be auto-confirmed once the student completes checkout.
+          </span>
         </div>
       )}
 

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getStudentPurchases } from '../../enrollment/services/EnrollmentService';
 import Spiner from '@shared/ui/Spiner';
-import { RefreshCw, ReceiptText, Calendar, CreditCard } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { RefreshCw, ReceiptText, Calendar, CreditCard, BookOpen, Users } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Pagination } from '@/shared/ui';
 import { PaymentStatus } from '@shared/enums/PaymentStatus';
 import { DateRange } from '@shared/enums/DateRange';
+import { ROUTES } from '@core/router/paths';
 
 interface Purchase {
   id: string;
@@ -22,6 +23,7 @@ interface Purchase {
 }
 
 const PurchaseHistory: React.FC = () => {
+  const navigate = useNavigate();
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -154,15 +156,30 @@ const PurchaseHistory: React.FC = () => {
                   <tr key={purchase.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-700/50 transition-colors">
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-4">
-                        <img
-                          src={purchase.productImage || '/placeholder-course.png'}
-                          alt=""
-                          className="w-12 h-12 rounded-xl object-cover shadow-sm bg-gray-100"
-                        />
+                        {purchase.mentorshipBookingId && !purchase.productImage ? (
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-sm shrink-0">
+                            <Users className="w-6 h-6 text-white" />
+                          </div>
+                        ) : (
+                          <img
+                            src={purchase.productImage || '/placeholder-course.png'}
+                            alt=""
+                            className="w-12 h-12 rounded-xl object-cover shadow-sm bg-gray-100"
+                          />
+                        )}
                         <div>
                           <div className="font-semibold text-gray-900 dark:text-white">
                             {purchase.productName}
                           </div>
+                          {purchase.mentorshipBookingId ? (
+                            <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-full border border-purple-100 dark:border-purple-500/20">
+                              <Users className="w-2.5 h-2.5" /> Mentorship
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full border border-blue-100 dark:border-blue-500/20">
+                              <BookOpen className="w-2.5 h-2.5" /> Course
+                            </span>
+                          )}
                         </div>
                       </div>
                     </td>
@@ -203,6 +220,14 @@ const PurchaseHistory: React.FC = () => {
                           Retry Payment
                         </Link>
                       )}
+                      {purchase.status === PaymentStatus.PENDING && purchase.mentorshipBookingId && (
+                        <button
+                          onClick={() => navigate(ROUTES.student.mentorship.bookings)}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg transition-colors cursor-pointer"
+                        >
+                          Continue Payment
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -215,11 +240,17 @@ const PurchaseHistory: React.FC = () => {
             {purchases.map((purchase) => (
               <div key={purchase.id} className="bg-white dark:bg-gray-800 rounded-3xl p-5 shadow-sm border border-gray-100 dark:border-gray-700">
                 <div className="flex items-start gap-4 mb-4">
-                  <img
-                    src={purchase.productImage || '/placeholder-course.png'}
-                    alt=""
-                    className="w-16 h-16 rounded-2xl object-cover"
-                  />
+                  {purchase.mentorshipBookingId && !purchase.productImage ? (
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-sm shrink-0">
+                      <Users className="w-8 h-8 text-white" />
+                    </div>
+                  ) : (
+                    <img
+                      src={purchase.productImage || '/placeholder-course.png'}
+                      alt=""
+                      className="w-16 h-16 rounded-2xl object-cover"
+                    />
+                  )}
                   <div className="flex-1">
                     <h4 className="font-bold text-gray-900 dark:text-white line-clamp-2">
                       {purchase.productName}
@@ -245,6 +276,16 @@ const PurchaseHistory: React.FC = () => {
                     >
                       Retry Payment
                     </Link>
+                  </div>
+                )}
+                {purchase.status === PaymentStatus.PENDING && purchase.mentorshipBookingId && (
+                  <div className="mt-4 pt-4 border-t border-gray-50 dark:border-gray-700 flex justify-end">
+                    <button
+                      onClick={() => navigate(ROUTES.student.mentorship.bookings)}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-xl transition-colors cursor-pointer w-full justify-center"
+                    >
+                      Continue Payment
+                    </button>
                   </div>
                 )}
               </div>

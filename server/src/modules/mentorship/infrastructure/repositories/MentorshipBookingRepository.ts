@@ -52,6 +52,18 @@ export class MentorshipBookingRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  async findByStudentIdAndSlotId(
+    studentId: string,
+    slotId: string,
+  ): Promise<MentorshipBooking | null> {
+    const doc = await this.model
+      .findOne({ studentId, slotId })
+      .populate('slotId')
+      .populate('instructorId', 'name profileImageUrl jobTitle')
+      .sort({ createdAt: -1 });
+    return doc ? this.toEntity(doc) : null;
+  }
+
   async findByInstructorId(
     instructorId: string,
     page: number = 1,
