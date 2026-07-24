@@ -144,6 +144,21 @@ export class StripeProvider implements IStripeProvider, IPaymentProvider {
     }
   }
 
+  async retrievePaymentIntentClientSecret(
+    paymentIntentId: string,
+  ): Promise<string | null> {
+    try {
+      const intent = await this.stripe.paymentIntents.retrieve(paymentIntentId);
+      return intent.client_secret ?? null;
+    } catch (error) {
+      console.warn(
+        `Could not retrieve PaymentIntent ${paymentIntentId}:`,
+        error,
+      );
+      return null;
+    }
+  }
+
   async validateBalance(
     amount: number,
     currency: string,

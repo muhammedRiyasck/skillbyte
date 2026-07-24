@@ -25,3 +25,9 @@ export const generateVideoRoom = async (bookingId: string): Promise<{ roomId: st
   const response = await api.get(`/mentorship/bookings/${bookingId}/video-room`);
   return response.data.data;
 };
+
+export const getResumePaymentSecret = async (bookingId: string): Promise<{ clientSecret: string }> => {
+  const response = await api.get(`/mentorship/bookings/${bookingId}/resume-payment`);
+  return response.data.data;
+};
+

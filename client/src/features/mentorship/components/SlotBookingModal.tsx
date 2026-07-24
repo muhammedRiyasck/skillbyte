@@ -14,6 +14,8 @@ interface SlotBookingModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  onBookingInitiated?: (bookingId: string) => void;
+  onPendingBookingCancelled?: (slotId: string) => void;
   slot: IMentorshipSlot;
 }
 
@@ -25,7 +27,7 @@ export type PendingBookingData = {
   bookingId: string;
 };
 
-export const SlotBookingModal = ({ isOpen, onClose, onSuccess, slot }: SlotBookingModalProps) => {
+export const SlotBookingModal = ({ isOpen, onClose, onSuccess, onBookingInitiated, onPendingBookingCancelled, slot }: SlotBookingModalProps) => {
   const [step, setStep] = useState<'details' | 'payment-select' | 'stripe-checkout' | 'pending-conflict'>('details');
   const [bookingResponse, setBookingResponse] = useState<BookSlotResponse | null>(null);
   const [pendingBooking, setPendingBooking] = useState<PendingBookingData | null>(null);
@@ -67,6 +69,8 @@ export const SlotBookingModal = ({ isOpen, onClose, onSuccess, slot }: SlotBooki
       
       toast.success("Your booking has been initiated. You can view it on the Bookings page.");
       setBookingResponse(response);
+      onBookingInitiated?.(response.bookingId);
+      
       if (provider === 'stripe') {
         setStep('stripe-checkout');
       } else if (provider === 'paypal' && response.paymentInfo.client_secret) {
@@ -212,6 +216,7 @@ export const SlotBookingModal = ({ isOpen, onClose, onSuccess, slot }: SlotBooki
                   await cancelBooking(pendingBooking.bookingId);
                   toast.success("Pending booking cancelled successfully.");
                   setStep('details');
+                  onPendingBookingCancelled?.(slot.slotId);
                   setPendingBooking(null);
                 } catch (error) {
                   const err = error as { response?: { data?: { message?: string } } };

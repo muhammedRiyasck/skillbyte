@@ -23,6 +23,7 @@ export interface IMentorshipSlotRepository
     tags?: string[];
     page?: number;
     limit?: number;
+    includeSlotId?: string;
   }): Promise<MentorshipSlot[]>;
 
   findByJobTitle(jobTitle: string): Promise<MentorshipSlot[]>;

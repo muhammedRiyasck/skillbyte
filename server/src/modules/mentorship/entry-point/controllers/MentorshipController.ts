@@ -14,6 +14,7 @@ import {
   IGetInstructorBookingsUseCase,
   IGenerateVideoRoomUseCase,
   IValidateVideoRoomAccessUseCase,
+  IGetResumePaymentUseCase,
 } from '../../application/interfaces/IBookingUseCases';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { HttpError } from '../../../../shared/types/HttpError';
@@ -36,6 +37,7 @@ export class MentorshipController {
     private _getInstructorBookingsUseCase: IGetInstructorBookingsUseCase,
     private _generateVideoRoomUseCase: IGenerateVideoRoomUseCase,
     private _validateVideoRoomAccessUseCase: IValidateVideoRoomAccessUseCase,
+    private _getResumePaymentUseCase: IGetResumePaymentUseCase,
   ) {}
 
   /**
@@ -187,7 +189,13 @@ export class MentorshipController {
       limit: limit ? Number(limit) : undefined,
     };
     // logger.info(`Fetching slots with filters: ${JSON.stringify(filters)}`);
-    const slots = await this._getAvailableSlotsUseCase.execute(filters);
+    const authenticatedReq = req as AuthenticatedRequest;
+    const studentId = authenticatedReq.user?.id;
+
+    const slots = await this._getAvailableSlotsUseCase.execute(
+      filters,
+      studentId,
+    );
     ApiResponseHelper.success(res, 'Available slots retrieved successfully', {
       slots,
     });
@@ -334,5 +342,30 @@ export class MentorshipController {
     });
 
     ApiResponseHelper.success(res, 'Video room access validated', result);
+  };
+
+  /**
+   * Returns the Stripe client_secret for a PENDING booking so the
+   * student can resume their interrupted Stripe checkout.
+   */
+  getResumePayment = async (req: Request, res: Response): Promise<void> => {
+    const authenticatedReq = req as AuthenticatedRequest;
+    const studentId = authenticatedReq.user.id;
+    const { bookingId } = req.params;
+
+    if (!bookingId) {
+      throw new HttpError('Booking ID is required', HttpStatusCode.BAD_REQUEST);
+    }
+
+    const result = await this._getResumePaymentUseCase.execute(
+      bookingId,
+      studentId,
+    );
+
+    ApiResponseHelper.success(
+      res,
+      'Payment secret retrieved successfully',
+      result,
+    );
   };
 }

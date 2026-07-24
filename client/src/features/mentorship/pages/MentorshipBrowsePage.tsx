@@ -1,5 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import Modal from "@shared/ui/Modal";
 import { toast } from "sonner";
+import { getResumePaymentSecret } from "../services/BookingServices";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import  { MentorshipCheckoutForm } from "../components/MentorshipCheckoutForm";
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 import { getAvailableSlots, getUniqueTags } from "../services/SlotServices";
 import type { IMentorshipSlot, SlotFilters } from "../types/mentorshipTypes";
 import { SlotCard } from "../components/SlotCard";
@@ -36,6 +43,11 @@ const MentorshipBrowsePage = () => {
   const [selectedSlot, setSelectedSlot] = useState<IMentorshipSlot | null>(
     null,
   );
+
+  // Resume payment state
+  const [resumeClientSecret, setResumeClientSecret] = useState<string | null>(null);
+  const [isResumingPayment, setIsResumingPayment] = useState(false);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -196,6 +208,23 @@ const MentorshipBrowsePage = () => {
   const handleBook = (slot: IMentorshipSlot) => {
     setSelectedSlot(slot);
     setIsModalOpen(true);
+  };
+
+  const handleResumePayment = async (slotId: string) => {
+    // Find the slot to get the pendingBookingId
+    const slotToResume = slots.find((s) => s.slotId === slotId);
+    if (!slotToResume || !slotToResume.pendingBookingId) return;
+
+    try {
+      setIsResumingPayment(true);
+      const { clientSecret } = await getResumePaymentSecret(slotToResume.pendingBookingId);
+      setResumeClientSecret(clientSecret);
+    } catch (error) {
+      console.error("Failed to resume payment", error);
+      toast.error("Failed to resume payment");
+    } finally {
+      setIsResumingPayment(false);
+    }
   };
 
   // Group slots by instructor
@@ -519,6 +548,7 @@ const MentorshipBrowsePage = () => {
                             key={slot.slotId}
                             slot={slot}
                             onBook={handleBook}
+                            onResumePayment={handleResumePayment}
                             variant="student"
                           />
                         );
@@ -553,8 +583,56 @@ const MentorshipBrowsePage = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           onSuccess={refreshSlots}
+          onBookingInitiated={(bookingId) => {
+            // Instantly update the UI so the button changes to "Continue Payment" without waiting for a refresh
+            setSlots((prevSlots) =>
+              prevSlots.map((s) => {
+                if (s.slotId === selectedSlot.slotId) {
+                  return { ...s, isPendingForUser: true, pendingBookingId: bookingId };
+                }
+                return s;
+              })
+            );
+          }}
+          onPendingBookingCancelled={(slotId) => {
+            // Instantly revert the slot back to available
+            setSlots((prevSlots) =>
+              prevSlots.map((s) => {
+                if (s.slotId === slotId) {
+                  return { ...s, isPendingForUser: false, pendingBookingId: undefined, status: SlotStatus.AVAILABLE };
+                }
+                return s;
+              })
+            );
+          }}
           slot={selectedSlot}
         />
+      )}
+
+      {/* Resume Payment Modal */}
+      {resumeClientSecret && (
+        <Modal
+          isOpen={!!resumeClientSecret}
+          onClose={() => setResumeClientSecret(null)}
+          title="Complete Payment"
+        >
+          <Elements stripe={stripePromise} options={{ clientSecret: resumeClientSecret }}>
+            <MentorshipCheckoutForm
+              onSuccess={() => {
+                toast.success("Payment successful! Your booking is confirmed.");
+                setResumeClientSecret(null);
+                refreshSlots();
+              }}
+            />
+          </Elements>
+        </Modal>
+      )}
+
+      {/* Loading Toast Overlay */}
+      {isResumingPayment && (
+        <div className="fixed bottom-4 right-4 z-50 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-lg text-sm">
+          Loading payment details...
+        </div>
       )}
     </div>
   );

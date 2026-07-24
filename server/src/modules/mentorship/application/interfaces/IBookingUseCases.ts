@@ -44,3 +44,10 @@ export interface IValidateVideoRoomAccessUseCase {
 export interface IAutoCompleteBookingsUseCase {
   execute(): Promise<void>;
 }
+
+export interface IGetResumePaymentUseCase {
+  execute(
+    bookingId: string,
+    studentId: string,
+  ): Promise<{ clientSecret: string }>;
+}

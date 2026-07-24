@@ -27,7 +27,10 @@ export interface IGetSlotsByJobTitleUseCase {
 }
 
 export interface IGetAvailableSlotsUseCase {
-  execute(filters?: SlotFiltersDto): Promise<SlotResponseDto[]>;
+  execute(
+    filters?: SlotFiltersDto,
+    studentId?: string,
+  ): Promise<SlotResponseDto[]>;
 }
 
 export interface IGetSlotByIdUseCase {

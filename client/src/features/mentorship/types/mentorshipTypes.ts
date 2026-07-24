@@ -19,6 +19,8 @@ export interface IMentorshipSlot {
     totalReviews?: number;
   };
   tags?: string[];
+  pendingBookingId?: string | undefined;
+  isPendingForUser?: boolean | undefined;
 }
 
 export interface IMentorshipBooking {

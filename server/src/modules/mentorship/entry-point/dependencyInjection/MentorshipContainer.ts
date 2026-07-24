@@ -16,6 +16,7 @@ import { GetInstructorBookingsUseCase } from '../../application/use-cases/GetIns
 import { GenerateVideoRoomUseCase } from '../../application/use-cases/GenerateVideoRoomUseCase';
 import { ValidateVideoRoomAccessUseCase } from '../../application/use-cases/ValidateVideoRoomAccessUseCase';
 import { AutoCompleteBookingsUseCase } from '../../application/use-cases/AutoCompleteBookingsUseCase';
+import { GetResumePaymentUseCase } from '../../application/use-cases/GetResumePaymentUseCase';
 import { initiatePaymentUc } from '../../../payment/entry-point/PaymentContainer';
 
 import { MentorshipFulfillmentService } from '../../application/services/MentorshipFulfillmentService';
@@ -50,7 +51,10 @@ const getInstructorSlotsUC = new GetInstructorSlotsUseCase(slotRepository);
 const updateSlotUC = new UpdateSlotUseCase(slotRepository);
 const deleteSlotUC = new DeleteSlotUseCase(slotRepository);
 const getSlotsByJobTitleUC = new GetSlotsByJobTitleUseCase(slotRepository);
-const getAvailableSlotsUC = new GetAvailableSlotsUseCase(slotRepository);
+const getAvailableSlotsUC = new GetAvailableSlotsUseCase(
+  slotRepository,
+  bookingRepository,
+);
 const getUniqueTagsUC = new GetUniqueTagsUseCase(slotRepository);
 const bookSlotUC = new BookSlotUseCase(
   slotRepository,
@@ -79,6 +83,11 @@ export const autoCompleteBookingsUC = new AutoCompleteBookingsUseCase(
   bookingRepository,
   cancelBookingUC,
 );
+const getResumePaymentUC = new GetResumePaymentUseCase(
+  bookingRepository,
+  paymentReadRepository,
+  stripeProvider,
+);
 
 // Fulfillment Service (Listens to Payment Events)
 new MentorshipFulfillmentService(bookingRepository, generateVideoRoomUC);
@@ -105,4 +114,5 @@ export const mentorshipController = new MentorshipController(
   getInstructorBookingsUC,
   generateVideoRoomUC,
   validateVideoRoomAccessUC,
+  getResumePaymentUC,
 );

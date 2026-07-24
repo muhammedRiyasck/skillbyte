@@ -25,4 +25,12 @@ export interface IStripeProvider {
    * complete the payment after their booking has been expired by the system.
    */
   cancelPaymentIntent(paymentIntentId: string): Promise<boolean>;
+
+  /**
+   * Retrieves the client_secret for an existing PaymentIntent so a student
+   * can resume an interrupted payment flow.
+   */
+  retrievePaymentIntentClientSecret(
+    paymentIntentId: string,
+  ): Promise<string | null>;
 }

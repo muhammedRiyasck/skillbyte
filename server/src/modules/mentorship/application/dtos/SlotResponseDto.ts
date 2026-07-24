@@ -20,4 +20,6 @@ export interface SlotResponseDto {
   };
   createdAt: Date;
   updatedAt: Date;
+  pendingBookingId?: string;
+  isPendingForUser?: boolean;
 }

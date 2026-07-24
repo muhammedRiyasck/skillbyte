@@ -34,4 +34,5 @@ export interface findAvailableSlotsType {
   tags?: {
     $in?: string[];
   };
+  $or?: Record<string, unknown>[];
 }

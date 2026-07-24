@@ -9,17 +9,21 @@ interface SlotCardProps {
     onEdit?: (slot: IMentorshipSlot) => void;
     onDelete?: (slotId: string) => void;
     onBook?: (slot: IMentorshipSlot) => void;
+    onResumePayment?: (slotId: string) => void;
     variant?: 'instructor' | 'student';
 }
 
-export const SlotCard = ({ slot, onEdit, onDelete, onBook, variant = 'instructor' }: SlotCardProps) => {
+export const SlotCard = ({ slot, onEdit, onDelete, onBook, onResumePayment, variant = 'instructor' }: SlotCardProps) => {
     const [showTags, setShowTags] = useState(false);
+    
+    // Treat as unavailable if booked, UNLESS it's pending for this specific user
     const isBooked = slot.status === SlotStatus.BOOKED;
-
+    const isPendingForUser = !!slot.isPendingForUser;
+    
     const startTime = new Date(slot.scheduledAt);
     const endTime = new Date(startTime.getTime() + slot.duration * 60000);
     const isExpired = new Date() > startTime;
-    const isUnavailable = isBooked || isExpired;
+    const isUnavailable = (isBooked && !isPendingForUser) || isExpired;
 
     return (
         <div className={`group relative flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl border transition-all duration-300 overflow-hidden ${isUnavailable
@@ -49,9 +53,11 @@ export const SlotCard = ({ slot, onEdit, onDelete, onBook, variant = 'instructor
                             </div>
                             <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${isUnavailable
                                     ? 'bg-gray-100 text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
-                                    : 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800'
+                                    : isPendingForUser
+                                        ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800'
+                                        : 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800'
                                 }`}>
-                                {isExpired ? 'EXPIRED' : slot.status}
+                                {isExpired ? 'EXPIRED' : isPendingForUser ? 'PENDING' : slot.status}
                             </span>
                         </div>
                     </div>
@@ -162,14 +168,23 @@ export const SlotCard = ({ slot, onEdit, onDelete, onBook, variant = 'instructor
                     </div>
                 </div>}
 
-                {variant === 'student' && !isUnavailable && onBook && (
-                    <button
-                        onClick={() => onBook(slot)}
-                        className="relative overflow-hidden cursor-pointer bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 active:scale-95 group/btn shrink-0"
-                    >
-                        <span className="relative ">Book Slot</span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite]" />
-                    </button>
+                {variant === 'student' && !isUnavailable && (
+                    isPendingForUser && onResumePayment ? (
+                        <button
+                            onClick={() => onResumePayment(slot.slotId!)}
+                            className="relative overflow-hidden cursor-pointer bg-yellow-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-yellow-600 transition-all shadow-lg shadow-yellow-500/20 active:scale-95 shrink-0"
+                        >
+                            Continue Payment
+                        </button>
+                    ) : onBook ? (
+                        <button
+                            onClick={() => onBook(slot)}
+                            className="relative overflow-hidden cursor-pointer bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 active:scale-95 group/btn shrink-0"
+                        >
+                            <span className="relative ">Book Slot</span>
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite]" />
+                        </button>
+                    ) : null
                 )}
             </div>
         </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { toast } from "sonner";
-import { getStudentBookings, cancelBooking, generateVideoRoom } from "../services/BookingServices";
+import { getStudentBookings, cancelBooking, generateVideoRoom, getResumePaymentSecret } from "../services/BookingServices";
 import { getMySessionRatings, type ISessionReview } from "../../review/services/ReviewService";
 import type { IMentorshipBooking, StudentBookingFilters } from "../types/mentorshipTypes";
 import { BookingCard } from "../components/BookingCard";
@@ -11,6 +11,11 @@ import Modal from "@shared/ui/Modal";
 import { BookingStatus } from "../../../shared/enums/BookingStatus";
 import { UserRole } from "../../../shared/enums/UserRole";
 import ReviewForm from "@features/review/components/ReviewForm";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import { MentorshipCheckoutForm } from "../components/MentorshipCheckoutForm";
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 const ITEMS_PER_PAGE = 10;
 
@@ -44,6 +49,10 @@ const StudentBookingsPage = () => {
     // Review Modal State
     const [isReviewOpen, setIsReviewOpen] = useState(false);
     const [bookingToReview, setBookingToReview] = useState<string | null>(null);
+
+    // Resume payment modal state
+    const [resumeClientSecret, setResumeClientSecret] = useState<string | null>(null);
+    const [isResumingPayment, setIsResumingPayment] = useState(false);
 
     const lastBookingElementRef = useCallback((node: HTMLDivElement | null) => {
         if (loading) return;
@@ -227,6 +236,18 @@ const StudentBookingsPage = () => {
         setIsReviewOpen(true);
     };
 
+    const handleResumePayment = async (bookingId: string) => {
+        try {
+            setIsResumingPayment(true);
+            const { clientSecret } = await getResumePaymentSecret(bookingId);
+            setResumeClientSecret(clientSecret);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsResumingPayment(false);
+        }
+    };
+
     const selectedBooking = bookings.find(b => b.bookingId === bookingToCancel);
 
     return (
@@ -313,6 +334,7 @@ const StudentBookingsPage = () => {
                                                 onCancel={handleCancelClick}
                                                 onJoinSession={handleJoinSession}
                                                 onRate={handleRateClick}
+                                                onResumePayment={handleResumePayment}
                                                 userRole={UserRole.STUDENT}
                                                 existingRating={userRatings[booking.bookingId]}
                                             />
@@ -326,6 +348,7 @@ const StudentBookingsPage = () => {
                                             onCancel={handleCancelClick}
                                             onJoinSession={handleJoinSession}
                                             onRate={handleRateClick}
+                                            onResumePayment={handleResumePayment}
                                             userRole={UserRole.STUDENT}
                                             existingRating={userRatings[booking.bookingId]}
                                         />
@@ -423,6 +446,31 @@ const StudentBookingsPage = () => {
                     )}
                 </div>
             </Modal>
+            {/* Resume Payment Modal */}
+            {resumeClientSecret && (
+                <Modal
+                    isOpen={!!resumeClientSecret}
+                    onClose={() => setResumeClientSecret(null)}
+                    title="Complete Payment"
+                >
+                    <Elements stripe={stripePromise} options={{ clientSecret: resumeClientSecret }}>
+                        <MentorshipCheckoutForm
+                            onSuccess={() => {
+                                toast.success("Booking confirmed!");
+                                setResumeClientSecret(null);
+                                refreshBookings();
+                            }}
+                        />
+                    </Elements>
+                </Modal>
+            )}
+
+            {/* Resume Loading Toast */}
+            {isResumingPayment && (
+                <div className="fixed bottom-4 right-4 z-50 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-lg text-sm">
+                    Loading payment details...
+                </div>
+            )}
         </div>
     );
 };

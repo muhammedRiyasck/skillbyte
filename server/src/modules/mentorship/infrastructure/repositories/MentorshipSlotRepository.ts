@@ -1,4 +1,4 @@
-import { PipelineStage } from 'mongoose';
+import mongoose, { PipelineStage } from 'mongoose';
 import { BaseRepository } from '../../../../shared/repositories/BaseRepository';
 import { IMentorshipSlotRepository } from '../../domain/IRepositories/IMentorshipSlotRepository';
 import {
@@ -104,6 +104,7 @@ export class MentorshipSlotRepository
     tags?: string[];
     page?: number;
     limit?: number;
+    includeSlotId?: string;
   }): Promise<MentorshipSlot[]> {
     const tomorrow = new Date();
     tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
@@ -113,9 +114,17 @@ export class MentorshipSlotRepository
 
     // 1. Base Match (Status and Date)
     const matchStage: findAvailableSlotsType = {
-      status: { $in: [SlotStatus.AVAILABLE] },
       scheduledAt: { $gte: tomorrow },
     };
+
+    if (filters?.includeSlotId) {
+      matchStage.$or = [
+        { status: { $in: [SlotStatus.AVAILABLE] } },
+        { _id: new mongoose.Types.ObjectId(filters.includeSlotId) },
+      ];
+    } else {
+      matchStage.status = { $in: [SlotStatus.AVAILABLE] };
+    }
 
     // 2. Specific Filters
     if (filters?.minPrice !== undefined || filters?.maxPrice !== undefined) {

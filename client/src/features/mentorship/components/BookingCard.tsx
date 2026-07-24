@@ -11,6 +11,7 @@ interface BookingCardProps {
   onJoinSession?: (bookingId: string) => void;
   onCancel?: (bookingId: string) => void;
   onRate?: (bookingId: string) => void;
+  onResumePayment?: (bookingId: string) => void;
   userRole: UserRole.INSTRUCTOR | UserRole.STUDENT;
   existingRating?: number | ISessionReview;
 }
@@ -20,6 +21,7 @@ export const BookingCard = ({
   onJoinSession,
   onCancel,
   onRate,
+  onResumePayment,
   userRole,
   existingRating,
 }: BookingCardProps) => {
@@ -165,6 +167,15 @@ export const BookingCard = ({
             className="px-4 cursor-pointer py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
           >
             Cancel
+          </button>
+        )}
+
+        {isPending && booking.amount > 0 && onResumePayment && (
+          <button
+            onClick={() => onResumePayment(booking.bookingId)}
+            className="flex-1 cursor-pointer flex items-center justify-center gap-2 bg-indigo-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition"
+          >
+            Complete Payment
           </button>
         )}
 

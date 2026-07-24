@@ -105,6 +105,14 @@ router.get(
   asyncHandler(mentorshipController.getInstructorBookings),
 );
 
+// Resume a pending payment (re-fetch client_secret for Stripe checkout)
+router.get(
+  '/bookings/:bookingId/resume-payment',
+  authenticate,
+  requireRole('student'),
+  asyncHandler(mentorshipController.getResumePayment),
+);
+
 // Generate/Get Video Room
 router.get(
   '/bookings/:bookingId/video-room',
