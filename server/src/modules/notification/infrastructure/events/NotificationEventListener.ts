@@ -25,7 +25,10 @@ import {
 import { ICreateNotificationUseCase } from '../../application/interfaces/ICreateNotificationUseCase';
 import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentReadRepository';
 import logger from '../../../../shared/utils/Logger';
-import { CancelledBy } from '../../../mentorship/domain/entities/MentorshipBooking';
+import {
+  CancelledBy,
+  BookingStatus,
+} from '../../../mentorship/domain/entities/MentorshipBooking';
 import { NotificationType } from '../../../../shared/enums/NotificationType';
 
 /**
@@ -196,6 +199,11 @@ export class NotificationEventListener {
   private async onBookingCancelled(payload: unknown) {
     const event = payload as MentorshipBookingCancelledEvent;
     try {
+      if (event.previousStatus === BookingStatus.PENDING) {
+        // No notification needed for cancellations of unpaid/pending bookings
+        return;
+      }
+
       if (event.cancelledBy === CancelledBy.STUDENT) {
         await this.createNotificationUseCase.execute({
           userId: event.instructorId,

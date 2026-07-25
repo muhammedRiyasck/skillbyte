@@ -27,4 +27,5 @@ export interface MentorshipBookingCancelledEvent {
   cancelledBy: 'student' | 'instructor';
   studentId: string; // Needed for notification
   instructorId: string; // Needed for notification
+  previousStatus?: string;
 }

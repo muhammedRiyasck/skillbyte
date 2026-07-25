@@ -129,6 +129,7 @@ export class CancelBookingUseCase implements ICancelBookingUseCase {
       cancelledBy,
       studentId: booking.studentId,
       instructorId: booking.instructorId,
+      previousStatus: booking.status,
     });
   }
 }
