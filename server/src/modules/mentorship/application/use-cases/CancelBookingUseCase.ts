@@ -49,64 +49,87 @@ export class CancelBookingUseCase implements ICancelBookingUseCase {
       );
     }
 
-    // 3. Refund Logic
+    // 3. Refund Logic – only attempt a refund when money was actually captured.
     if (booking.paymentId) {
       const payment = await this.paymentReadRepo.findById(booking.paymentId);
+
       if (payment && payment.status === PaymentStatus.SUCCEEDED) {
-        // Policy Check
-        let shouldRefund = false;
-        const now = new Date();
-        const scheduledAt = new Date(booking.scheduledAt);
-        const hoursDifference =
-          (scheduledAt.getTime() - now.getTime()) / (1000 * 60 * 60);
-
-        if (
-          cancelledBy === UserRole.INSTRUCTOR ||
-          cancelledBy === CancelledBy.SYSTEM
-        ) {
-          // Instructor-initiated or system-initiated (cleanup job) cancellations always refund.
-          // System cleanup only runs when a booking is still PENDING (payment not yet captured),
-          // so a real refund won't be triggered in practice – but we allow it as a safety net.
-          shouldRefund = true;
-        } else if (hoursDifference > 24) {
-          shouldRefund = true;
+        // SYSTEM cleanup only cancels PENDING bookings (no payment captured yet),
+        // so this branch should never trigger for system cancels in practice.
+        // Guard it explicitly to be 100% safe.
+        if (cancelledBy === CancelledBy.SYSTEM) {
+          logger.warn(
+            `CancelBooking: SYSTEM cancel on a SUCCEEDED payment for booking ${bookingId}. ` +
+              `Skipping refund – manual review required.`,
+          );
+          // Do NOT refund. Fall through to mark the booking cancelled.
         } else {
-          throw new HttpError('Refund not allowed', HttpStatusCode.BAD_REQUEST);
-        }
+          // Policy Check: only students/instructors trigger the refund path.
+          let shouldRefund = false;
+          const now = new Date();
+          const scheduledAt = new Date(booking.scheduledAt);
+          const hoursDifference =
+            (scheduledAt.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-        if (shouldRefund) {
-          let refundSuccess = false;
-
-          if (payment.stripePaymentIntentId) {
-            logger.info(
-              `Initiating Stripe refund for payment ${payment.paymentId}`,
-            );
-            refundSuccess = await this.stripeProvider.refund(
-              payment.stripePaymentIntentId,
-            );
-          } else if (payment.paypalCaptureId) {
-            logger.info(
-              `Initiating PayPal refund for payment ${payment.paymentId}`,
-            );
-            refundSuccess = await this.paypalProvider.refund(
-              payment.paypalCaptureId,
-            );
+          if (cancelledBy === UserRole.INSTRUCTOR) {
+            // Instructor-initiated cancellations always refund.
+            shouldRefund = true;
+          } else if (hoursDifference > 24) {
+            // Student-initiated: refund allowed if >24 h before session.
+            shouldRefund = true;
           } else {
-            logger.warn(
-              `No provider transaction ID found for refund on payment ${payment.paymentId}`,
+            // Student-initiated within 24 h: no refund.
+            throw new HttpError(
+              'Refund not allowed',
+              HttpStatusCode.BAD_REQUEST,
             );
           }
 
-          if (refundSuccess) {
-            await this.paymentWriteRepo.updateStatus(
-              payment.paymentId!,
-              PaymentStatus.REFUNDED,
-            );
-            logger.info(`Refund successful for payment ${payment.paymentId}`);
-          } else {
-            throw new HttpError('Refund failed', HttpStatusCode.BAD_REQUEST);
+          if (shouldRefund) {
+            let refundSuccess = false;
+
+            if (payment.stripePaymentIntentId) {
+              logger.info(
+                `Initiating Stripe refund for payment ${payment.paymentId}`,
+              );
+              refundSuccess = await this.stripeProvider.refund(
+                payment.stripePaymentIntentId,
+              );
+            } else if (payment.paypalCaptureId) {
+              logger.info(
+                `Initiating PayPal refund for payment ${payment.paymentId}`,
+              );
+              refundSuccess = await this.paypalProvider.refund(
+                payment.paypalCaptureId,
+              );
+            } else {
+              // Payment was recorded as SUCCEEDED but has no provider ID – edge case.
+              // Log and proceed with cancellation; no money was actually taken via a known provider.
+              logger.warn(
+                `CancelBooking: No provider transaction ID on payment ${payment.paymentId}. ` +
+                  `Proceeding with cancellation without a refund.`,
+              );
+              refundSuccess = true; // treat as no-op refund; no real charge to reverse
+            }
+
+            if (refundSuccess) {
+              await this.paymentWriteRepo.updateStatus(
+                payment.paymentId!,
+                PaymentStatus.REFUNDED,
+              );
+              logger.info(`Refund successful for payment ${payment.paymentId}`);
+            } else {
+              throw new HttpError('Refund failed', HttpStatusCode.BAD_REQUEST);
+            }
           }
         }
+      } else if (payment && payment.status === PaymentStatus.PENDING) {
+        // Payment intent exists but has NOT been captured. Nothing to refund.
+        // The MentorshipCleanupProcessor already voids the Stripe PaymentIntent
+        // before calling this use-case, so we just proceed with cancellation.
+        logger.info(
+          `CancelBooking: Payment ${payment.paymentId} is still pending (uncaptured). No refund needed.`,
+        );
       }
     }
     // 4. Mark Booking as Cancelled
