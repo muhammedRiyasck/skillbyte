@@ -27,7 +27,7 @@ export class PaymentWriteRepository
     status: string,
   ): Promise<IPayment | null> {
     const doc = await this.model.findOneAndUpdate(
-      { stripePaymentIntentId: paymentIntentId },
+      { stripePaymentIntentId: paymentIntentId, status: { $ne: status } },
       { status },
       { new: true },
     );
@@ -39,7 +39,7 @@ export class PaymentWriteRepository
     status: string,
   ): Promise<IPayment | null> {
     const doc = await this.model.findOneAndUpdate(
-      { paypalOrderId: orderId },
+      { paypalOrderId: orderId, status: { $ne: status } },
       { status },
       { new: true },
     );
