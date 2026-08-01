@@ -81,9 +81,9 @@ export class DashboardRepository implements IDashboardRepository {
               _id: null,
               total: { $sum: 1 },
               published: {
-                $sum: { $cond: [{ $eq: ['$status', 'PUBLISHED'] }, 1, 0] },
+                $sum: { $cond: [{ $eq: ['$status', 'list'] }, 1, 0] },
               },
-              draft: { $sum: { $cond: [{ $eq: ['$status', 'DRAFT'] }, 1, 0] } },
+              draft: { $sum: { $cond: [{ $eq: ['$status', 'draft'] }, 1, 0] } },
               blocked: {
                 $sum: { $cond: [{ $eq: ['$isBlocked', true] }, 1, 0] },
               },
@@ -236,7 +236,7 @@ export class DashboardRepository implements IDashboardRepository {
   async getCoursesAwaitingReview(): Promise<number> {
     return CourseModel.countDocuments({
       isBlocked: false,
-      status: 'PUBLISHED',
+      status: 'list',
     });
   }
 }
