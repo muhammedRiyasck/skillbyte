@@ -309,10 +309,8 @@ export class DashboardRepository implements IDashboardRepository {
   }
 
   async getCoursesAwaitingReview(): Promise<number> {
-    return CourseModel.countDocuments({
-      isBlocked: false,
-      status: 'list',
-    });
+    // Counts courses with draft status — instructors submit drafts for admin to review
+    return CourseModel.countDocuments({ status: 'draft' });
   }
 
   async getPendingReports(): Promise<number> {
