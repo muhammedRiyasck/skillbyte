@@ -8,6 +8,7 @@ import { BookOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import CourseRender from "../components/CourseRender";
 import { useSelector } from "react-redux";
+import { useSearchParams } from "react-router-dom";
 import type { RootState } from "@/core/store/Index";
 import { AdminCourseFilter } from "@shared/enums/AdminCourseFilter";
 
@@ -17,7 +18,12 @@ type CourseFilterOption = typeof options[number];
 const AdminCourses: React.FC = () => {
   const [page, setPage] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedStatus, setSelectedStatus] = useState<CourseFilterOption>(options[0]);
+  
+  const [searchParams] = useSearchParams();
+  const initialStatusParam = searchParams.get('status') as CourseFilterOption;
+  const initialStatus = options.includes(initialStatusParam) ? initialStatusParam : options[0];
+  
+  const [selectedStatus, setSelectedStatus] = useState<CourseFilterOption>(initialStatus);
   const email = useSelector((state: RootState) => state.auth.user?.email);
 
 

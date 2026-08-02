@@ -171,8 +171,12 @@ const AdminDashboard: React.FC = () => {
                                     <UserPlus className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <p className="font-black text-slate-900 dark:text-slate-200">Instructor Apps</p>
-                                    <p className="text-xs text-amber-600 font-bold">{data?.pendingActions?.instructorApplications || 0} waiting</p>
+                                    <p className="font-black text-slate-900 dark:text-slate-200">Instructor Applications</p>
+                                    {(data?.pendingActions?.instructorApplications || 0) > 0 ? (
+                                        <p className="text-xs text-amber-600 font-bold">{data?.pendingActions?.instructorApplications} waiting</p>
+                                    ) : (
+                                        <p className="text-xs text-slate-400 font-medium flex items-center gap-1">All clear</p>
+                                    )}
                                 </div>
                             </div>
                             <ChevronRight className="w-5 h-5 text-amber-300 group-hover:translate-x-1 transition-transform" />
@@ -185,20 +189,28 @@ const AdminDashboard: React.FC = () => {
                                 </div>
                                 <div>
                                     <p className="font-black text-slate-900 dark:text-slate-200">Payout Requests</p>
-                                    <p className="text-xs text-rose-600 font-bold">{data?.pendingActions?.pendingWithdrawals || 0} pending</p>
+                                    {(data?.pendingActions?.pendingWithdrawals || 0) > 0 ? (
+                                        <p className="text-xs text-rose-600 font-bold">{data?.pendingActions?.pendingWithdrawals} pending</p>
+                                    ) : (
+                                        <p className="text-xs text-slate-400 font-medium flex items-center gap-1">All clear</p>
+                                    )}
                                 </div>
                             </div>
                             <ChevronRight className="w-5 h-5 text-rose-300 group-hover:translate-x-1 transition-transform" />
                         </Link>
 
-                        <Link to={ROUTES.admin.courseManagement} className="flex items-center justify-between p-5 rounded-3xl bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/30 group hover:shadow-md transition-all">
+                        <Link to={`${ROUTES.admin.courseManagement}?status=Drafted Courses`} className="flex items-center justify-between p-5 rounded-3xl bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/30 group hover:shadow-md transition-all">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 bg-white dark:bg-slate-800 rounded-2xl shadow-sm text-indigo-600">
                                     <BookOpen className="w-6 h-6" />
                                 </div>
                                 <div>
                                     <p className="font-black text-slate-900 dark:text-slate-200">Course Reviews</p>
-                                    <p className="text-xs text-indigo-600 font-bold">{data?.pendingActions?.coursesAwaitingReview || 0} in queue</p>
+                                    {(data?.pendingActions?.coursesAwaitingReview || 0) > 0 ? (
+                                        <p className="text-xs text-indigo-600 font-bold">{data?.pendingActions?.coursesAwaitingReview} in queue</p>
+                                    ) : (
+                                        <p className="text-xs text-slate-400 font-medium flex items-center gap-1">All clear</p>
+                                    )}
                                 </div>
                             </div>
                             <ChevronRight className="w-5 h-5 text-indigo-300 group-hover:translate-x-1 transition-transform" />
