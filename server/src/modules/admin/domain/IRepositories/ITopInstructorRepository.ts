@@ -1,4 +1,5 @@
 export interface ITopInstructorData {
+  _id?: string;
   instructorId: string;
   name: string;
   profilePictureUrl: string | null;

@@ -253,6 +253,7 @@ export class DashboardRepository implements IDashboardRepository {
       .lean();
 
     return payments.map((p) => ({
+      _id: p._id.toString(),
       amount: p.amount,
       currency: p.currency,
       adminFee: p.adminFee,

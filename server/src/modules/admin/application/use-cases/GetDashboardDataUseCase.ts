@@ -71,7 +71,10 @@ export class GetDashboardDataUseCase implements IGetDashboardDataUseCase {
       stats,
       revenueTrend: filledRevenueTrend,
       recentPayments,
-      topInstructors,
+      topInstructors: topInstructors.map((inst) => ({
+        ...inst,
+        _id: inst._id as string,
+      })),
       categoryDistribution,
       platformHealth,
       pendingActions: {

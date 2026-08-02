@@ -22,6 +22,7 @@ export interface IAdminDashboardData {
     commission: number;
   }>;
   recentPayments: Array<{
+    _id: string;
     amount: number;
     currency: string;
     adminFee: number;
@@ -29,6 +30,7 @@ export interface IAdminDashboardData {
     studentName: string;
   }>;
   topInstructors: Array<{
+    _id: string;
     name: string;
     profilePictureUrl: string | null;
     totalEarnings: number;

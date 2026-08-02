@@ -38,6 +38,9 @@ export class TopInstructorRepository implements ITopInstructorRepository {
       },
     ]);
 
-    return instructors as unknown as ITopInstructorData[];
+    return instructors.map((inst) => ({
+      ...inst,
+      _id: inst._id.toString(),
+    })) as ITopInstructorData[];
   }
 }
