@@ -39,6 +39,7 @@ export interface IAdminDashboardData {
     instructorApplications: number;
     pendingWithdrawals: number;
     coursesAwaitingReview: number;
+    pendingReports: number;
   };
   categoryDistribution: Array<{
     category: string;

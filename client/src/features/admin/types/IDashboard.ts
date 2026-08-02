@@ -37,6 +37,7 @@ export interface AdminDashboardData {
         instructorApplications: number;
         pendingWithdrawals: number;
         coursesAwaitingReview: number;
+        pendingReports: number;
     };
     categoryDistribution: Array<{ category: string; count: number }>;
     platformHealth: {

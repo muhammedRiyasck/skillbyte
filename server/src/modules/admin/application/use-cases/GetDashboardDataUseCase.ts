@@ -24,6 +24,7 @@ export class GetDashboardDataUseCase implements IGetDashboardDataUseCase {
       categoryDistribution,
       platformHealth,
       coursesAwaitingReview,
+      pendingReports,
     ] = await Promise.all([
       this.dashboardRepository.getStats(),
       this.dashboardRepository.getRevenueTrend(twelveMonthsAgo),
@@ -32,6 +33,7 @@ export class GetDashboardDataUseCase implements IGetDashboardDataUseCase {
       this.dashboardRepository.getCategoryDistribution(),
       this.dashboardRepository.getPlatformHealth(),
       this.dashboardRepository.getCoursesAwaitingReview(),
+      this.dashboardRepository.getPendingReports(),
     ]);
 
     // Fill missing months for the 12-month rolling history
@@ -76,6 +78,7 @@ export class GetDashboardDataUseCase implements IGetDashboardDataUseCase {
         instructorApplications: stats.pendingInstructors,
         pendingWithdrawals: stats.pendingWithdrawals,
         coursesAwaitingReview,
+        pendingReports,
       },
     };
   }

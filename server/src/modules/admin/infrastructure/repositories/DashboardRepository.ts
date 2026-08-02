@@ -6,6 +6,7 @@ import { InstructorModel } from '../../../instructor/infrastructure/models/Instr
 import { CourseModel } from '../../../course/infrastructure/models/CourseModel';
 import { EnrollmentModel } from '../../../enrollment/infrastructure/models/EnrollmentModel';
 import { MentorshipBookingModel } from '../../../mentorship/infrastructure/models/MentorshipBookingModel';
+import { ReportModel } from '../../../report/infrastructure/models/ReportModel';
 import { BookingStatus } from '../../../mentorship/domain/entities/MentorshipBooking';
 import { IDashboardRepository } from '../../domain/IRepositories/IDashboardRepository';
 import { IAdminDashboardData } from '../../domain/interfaces/IDashboardData';
@@ -270,6 +271,7 @@ export class DashboardRepository implements IDashboardRepository {
           count: { $sum: 1 },
         },
       },
+      { $sort: { count: -1 } },
       { $project: { _id: 0, category: '$_id', count: 1 } },
     ]);
   }
@@ -311,5 +313,9 @@ export class DashboardRepository implements IDashboardRepository {
       isBlocked: false,
       status: 'list',
     });
+  }
+
+  async getPendingReports(): Promise<number> {
+    return ReportModel.countDocuments({ status: 'pending' });
   }
 }

@@ -12,4 +12,5 @@ export interface IDashboardRepository {
   >;
   getPlatformHealth(): Promise<IAdminDashboardData['platformHealth']>;
   getCoursesAwaitingReview(): Promise<number>;
+  getPendingReports(): Promise<number>;
 }
