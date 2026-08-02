@@ -139,7 +139,7 @@ export class DashboardRepository implements IDashboardRepository {
       { $match: { status: 'succeeded', createdAt: { $gte: since } } },
       {
         $group: {
-          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } },
           revenue: {
             $sum: {
               $cond: [
@@ -170,6 +170,79 @@ export class DashboardRepository implements IDashboardRepository {
         },
       },
     ]);
+  }
+
+  async getRevenueTrendByYear(
+    year: number,
+  ): Promise<IAdminDashboardData['revenueTrend']> {
+    const startDate = new Date(year, 0, 1); // Jan 1st of year
+    const endDate = new Date(year + 1, 0, 1); // Jan 1st of next year
+
+    const results = await PaymentModel.aggregate([
+      {
+        $match: {
+          status: 'succeeded',
+          createdAt: { $gte: startDate, $lt: endDate },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } },
+          revenue: {
+            $sum: {
+              $cond: [
+                { $eq: [{ $toUpper: '$currency' }, 'INR'] },
+                { $divide: ['$amount', this.exchangeRate] },
+                '$amount',
+              ],
+            },
+          },
+          commission: {
+            $sum: {
+              $cond: [
+                { $eq: [{ $toUpper: '$currency' }, 'INR'] },
+                { $divide: ['$adminFee', this.exchangeRate] },
+                '$adminFee',
+              ],
+            },
+          },
+        },
+      },
+      { $sort: { _id: 1 } },
+      {
+        $project: {
+          _id: 0,
+          date: '$_id',
+          revenue: { $round: ['$revenue', 2] },
+          commission: { $round: ['$commission', 2] },
+        },
+      },
+    ]);
+
+    // Fill all 12 months even if there's no data
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return months.map((monthName, idx) => {
+      const yearMonth = `${year}-${String(idx + 1).padStart(2, '0')}`;
+      const existing = results.find((r) => r.date === yearMonth);
+      return {
+        date: monthName,
+        revenue: existing ? existing.revenue : 0,
+        commission: existing ? existing.commission : 0,
+      };
+    });
   }
 
   async getRecentPayments(): Promise<IAdminDashboardData['recentPayments']> {

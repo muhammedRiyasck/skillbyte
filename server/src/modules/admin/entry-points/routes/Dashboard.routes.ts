@@ -14,4 +14,11 @@ router.get(
   asyncHandler(adminDashboardContainer.getDashboardData),
 );
 
+router.get(
+  '/revenue-trend',
+  authenticate,
+  requireRole(UserRole.ADMIN),
+  asyncHandler(adminDashboardContainer.getRevenueTrendByYear),
+);
+
 export default router;
