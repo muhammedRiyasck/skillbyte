@@ -53,6 +53,8 @@ export class GetPaginatedCoursesUseCase implements IGetPaginatedCoursesUseCase {
         status === CourseStatus.UNLIST
       ) {
         query.status = CourseStatus.UNLIST;
+      } else if (status === AdminCourseFilter.BLOCKED) {
+        query.isBlocked = true;
       } else {
         query.status = status;
       }

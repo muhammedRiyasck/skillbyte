@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Card from "@shared/shimmer/Card";
 import api from "@shared/utils/AxiosInstance";
@@ -12,7 +12,7 @@ import { useSearchParams } from "react-router-dom";
 import type { RootState } from "@/core/store/Index";
 import { AdminCourseFilter } from "@shared/enums/AdminCourseFilter";
 
-const options = ["All Courses", AdminCourseFilter.DRAFTED, AdminCourseFilter.LISTED, AdminCourseFilter.UNLISTED] as const;
+const options = ["All Courses", AdminCourseFilter.DRAFTED, AdminCourseFilter.LISTED, AdminCourseFilter.UNLISTED, AdminCourseFilter.BLOCKED] as const;
 type CourseFilterOption = typeof options[number];
 
 const AdminCourses: React.FC = () => {
@@ -24,6 +24,13 @@ const AdminCourses: React.FC = () => {
   const initialStatus = options.includes(initialStatusParam) ? initialStatusParam : options[0];
   
   const [selectedStatus, setSelectedStatus] = useState<CourseFilterOption>(initialStatus);
+  
+  useEffect(() => {
+    const statusParam = searchParams.get('status') as CourseFilterOption;
+    const resolved = statusParam && options.includes(statusParam) ? statusParam : options[0];
+    setSelectedStatus(resolved);
+  }, [searchParams]);
+
   const email = useSelector((state: RootState) => state.auth.user?.email);
 
 
