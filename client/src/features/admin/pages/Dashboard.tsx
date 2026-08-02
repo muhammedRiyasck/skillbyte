@@ -9,7 +9,9 @@ import {
     Clock,
     UserPlus,
     PieChart as PieChartIcon,
-    ChevronRight
+    ChevronRight,
+    AlertTriangle,
+    ShieldX
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -54,6 +56,15 @@ const AdminDashboard: React.FC = () => {
         hidden: { opacity: 0, y: 20 },
         visible: { opacity: 1, y: 0 }
     };
+
+    // Process category distribution: Top 5 + Others
+    const processedCategoryData = React.useMemo(() => {
+        const rawCategories = data?.categoryDistribution || [];
+        if (rawCategories.length <= 6) return rawCategories;
+        const top5 = rawCategories.slice(0, 5);
+        const othersCount = rawCategories.slice(5).reduce((sum, item) => sum + item.count, 0);
+        return [...top5, { category: 'Others', count: othersCount }];
+    }, [data?.categoryDistribution]);
 
     if (isLoading) {
         return (
@@ -199,21 +210,38 @@ const AdminDashboard: React.FC = () => {
                             <ChevronRight className="w-5 h-5 text-rose-300 group-hover:translate-x-1 transition-transform" />
                         </Link>
 
-                        <Link to={`${ROUTES.admin.courseManagement}?status=Drafted Courses`} className="flex items-center justify-between p-5 rounded-3xl bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/30 group hover:shadow-md transition-all">
+                        <Link to={`${ROUTES.admin.courseManagement}?status=${encodeURIComponent('Blocked Courses')}`} className="flex items-center justify-between p-5 rounded-3xl bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 group hover:shadow-md transition-all">
                             <div className="flex items-center gap-4">
-                                <div className="p-3 bg-white dark:bg-slate-800 rounded-2xl shadow-sm text-indigo-600">
-                                    <BookOpen className="w-6 h-6" />
+                                <div className="p-3 bg-white dark:bg-slate-800 rounded-2xl shadow-sm text-red-600">
+                                    <ShieldX className="w-6 h-6" />
                                 </div>
                                 <div>
-                                    <p className="font-black text-slate-900 dark:text-slate-200">Course Reviews</p>
-                                    {(data?.pendingActions?.coursesAwaitingReview || 0) > 0 ? (
-                                        <p className="text-xs text-indigo-600 font-bold">{data?.pendingActions?.coursesAwaitingReview} in queue</p>
+                                    <p className="font-black text-slate-900 dark:text-slate-200">Blocked Courses</p>
+                                    {(data?.stats?.blockedCourses || 0) > 0 ? (
+                                        <p className="text-xs text-red-600 font-bold">{data?.stats?.blockedCourses} blocked</p>
                                     ) : (
                                         <p className="text-xs text-slate-400 font-medium flex items-center gap-1">All clear</p>
                                     )}
                                 </div>
                             </div>
-                            <ChevronRight className="w-5 h-5 text-indigo-300 group-hover:translate-x-1 transition-transform" />
+                            <ChevronRight className="w-5 h-5 text-red-300 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+
+                        <Link to={ROUTES.admin.reportedContent} className="flex items-center justify-between p-5 rounded-3xl bg-orange-50 dark:bg-orange-900/10 border border-orange-100 dark:border-orange-900/30 group hover:shadow-md transition-all">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-white dark:bg-slate-800 rounded-2xl shadow-sm text-orange-600">
+                                    <AlertTriangle className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <p className="font-black text-slate-900 dark:text-slate-200">Content Moderation</p>
+                                    {(data?.pendingActions?.pendingReports || 0) > 0 ? (
+                                        <p className="text-xs text-orange-600 font-bold">{data?.pendingActions?.pendingReports} reports pending</p>
+                                    ) : (
+                                        <p className="text-xs text-slate-400 font-medium flex items-center gap-1">All clear</p>
+                                    )}
+                                </div>
+                            </div>
+                            <ChevronRight className="w-5 h-5 text-orange-300 group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </div>
                 </motion.div>
@@ -238,7 +266,7 @@ const AdminDashboard: React.FC = () => {
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
-                                        data={data?.categoryDistribution || []}
+                                        data={processedCategoryData}
                                         cx="50%"
                                         cy="50%"
                                         innerRadius={60}
@@ -247,7 +275,7 @@ const AdminDashboard: React.FC = () => {
                                         dataKey="count"
                                         nameKey="category"
                                     >
-                                        {(data?.categoryDistribution || []).map((_, index: number) => (
+                                        {processedCategoryData.map((_, index: number) => (
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
@@ -258,7 +286,7 @@ const AdminDashboard: React.FC = () => {
                             </ResponsiveContainer>
                         </div>
                         <div className="w-full md:w-1/2 grid grid-cols-1 gap-2 p-4">
-                            {(data?.categoryDistribution || []).slice(0, 6).map((item, idx: number) => (
+                            {processedCategoryData.map((item, idx: number) => (
                                 <div key={item.category} className="flex items-center justify-between border-b border-slate-50 dark:border-slate-700/50 pb-2 last:border-0">
                                     <div className="flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[idx % COLORS.length] }}></div>
