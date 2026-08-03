@@ -96,8 +96,8 @@ export const useInstructorDashboard = () => {
     const { data: earningsData } = useQuery<{ data: DashboardEarnings[]; totalCount: number; totalRevenue: number; totalProfit: number; trend: EarningsTrendPoint[] }>({
         queryKey: ['instructor-dashboard-earnings'],
         queryFn: () => getDashboardEarnings(),
-        staleTime: 5 * 60 * 1000,
-        refetchOnWindowFocus: false
+        staleTime: 0,
+        refetchOnWindowFocus: true
     });
 
     const { data: enrollmentData, isLoading: enrollmentLoading } = useQuery<{ data: DashboardCourse[]; totalCount: number; totalStudents: number }>({
@@ -124,8 +124,8 @@ export const useInstructorDashboard = () => {
     const { data: profileData, isLoading: profileLoading } = useQuery<InstructorProfile>({
         queryKey: ['instructor-profile'],
         queryFn: getInstructorProfile,
-        staleTime: 10 * 60 * 1000,
-        refetchOnWindowFocus: false
+        staleTime: 0,
+        refetchOnWindowFocus: true
     });
 
     const { data: withdrawalsData, isFetching: withdrawalsFetching, refetch: refetchWithdrawals } = useQuery<{ data: WithdrawalItem[]; pagination: { total: number; page: number; limit: number } }>({
