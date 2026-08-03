@@ -5,7 +5,7 @@ export class WithdrawalMapper {
   static toEntity(doc: IWithdrawalDocument): IWithdrawal {
     return {
       withdrawalId: (doc._id as { toString(): string }).toString(),
-      instructorId: doc.instructorId.toString(),
+      instructorId: doc.instructorId,
       amount: doc.amount,
       currency: doc.currency,
       status: doc.status,

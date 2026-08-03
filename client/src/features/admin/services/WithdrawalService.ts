@@ -18,6 +18,6 @@ export const processWithdrawal = async (withdrawalId: string, adminNotes?: strin
 };
 
 export const rejectWithdrawal = async (withdrawalId: string, adminNotes: string) => {
-    const response = await api.post(`/payment/withdrawals/${withdrawalId}/reject`, { adminNotes });
+    const response = await api.post(`/payment/withdrawals/${withdrawalId}/reject`, { reason: adminNotes });
     return response.data;
 };

@@ -127,8 +127,8 @@ const AdminWithdrawals: React.FC = () => {
         [rejectMutation, adminNotes]
     );
 
-    const withdrawals: Withdrawal[] = data?.data || [];
-    const totalCount = data?.pagination?.total || 0;
+    const withdrawals: Withdrawal[] = data?.data?.data || [];
+    const totalCount = data?.data?.pagination?.total || 0;
     const totalPages = Math.ceil(totalCount / limit);
 
     return (
