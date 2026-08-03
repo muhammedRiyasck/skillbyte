@@ -96,7 +96,7 @@ const Header = () => {
                   onClick={() => setIsOpen(false)}
                 >
                   <DollarSign size={20} className="text-teal-600 group-hover:scale-110 transition-transform" />
-                  <span className="font-medium">Withdrawals</span>
+                  <span className="font-medium">Withdrawal Management</span>
                 </Link>
 
                 <Link
