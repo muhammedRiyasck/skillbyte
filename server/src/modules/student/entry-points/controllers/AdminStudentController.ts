@@ -40,10 +40,9 @@ export class AdminStudentController {
    * Changes the account status (ACTIVE/BLOCKED) of a specific student.
    */
   changeStudentStatus = async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
     const dto: ChangeStudentStatusRequestDto = req.body;
 
-    await this._changeStudentStatusUseCase.execute(id, dto.status);
+    await this._changeStudentStatusUseCase.execute(dto.id, dto.status);
 
     ApiResponseHelper.success(
       res,

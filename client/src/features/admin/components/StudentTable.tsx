@@ -45,18 +45,15 @@ const StudentTable: React.FC<StudentTableProps> = ({
       await changeStudentStatus({ id, status });
     },
     onSuccess: (_, variables) => {
-      queryClient.setQueriesData({ queryKey: ["students"] }, (oldData: { students?: { data?: Student[]; meta?: unknown } } | undefined) => {
-        if (!oldData?.students?.data) return oldData;
+      queryClient.setQueriesData({ queryKey: ["students"] }, (oldData: { data?: Student[]; meta?: unknown } | undefined) => {
+        if (!oldData?.data) return oldData;
         return {
           ...oldData,
-          students: {
-            ...oldData.students,
-            data: oldData.students.data.map((student: Student) =>
-              student.id === variables.id
-                ? { ...student, accountStatus: variables.status }
-                : student
-            ),
-          },
+          data: oldData.data.map((student: Student) =>
+            student.id === variables.id
+              ? { ...student, accountStatus: variables.status }
+              : student
+          ),
         };
       });
       toast.success(`User ${variables.status === UserAccountStatus.ACTIVE ? "Unblocked" : "Blocked"} Successfully`);

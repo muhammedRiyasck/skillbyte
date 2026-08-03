@@ -17,6 +17,6 @@ export const deleteInstructor = async (id: string) => {
 };
 
 export const changeInstructorStatusRequest = async (playload: IReqestPlayload) => {
-  const response = await api.patch(`instructors/${playload.id}/status`, playload);
+  const response = await api.patch(`/instructors/${playload.id}/status`, playload);
   return response.data;
 };

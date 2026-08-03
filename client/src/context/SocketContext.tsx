@@ -3,6 +3,9 @@ import { io, Socket } from 'socket.io-client';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../core/store/Index';
 import api from '@shared/utils/AxiosInstance';
+import { store } from '@core/store/Index';
+import { clearUser } from '@features/auth/AuthSlice';
+import { toast } from 'sonner';
 
 interface SocketContextType {
   socket: Socket | null;
@@ -57,6 +60,16 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             console.error('Socket token refresh failed:', refreshError);
           }
         }
+      });
+
+      newSocket.on('account:blocked', async () => {
+        toast.error('Your account has been blocked by the administrator.');
+        try {
+          await api.post('/auth/logout');
+        } catch (err) {
+          console.error('Logout failed after account blocked', err);
+        }
+        store.dispatch(clearUser());
       });
 
       setSocket(newSocket);

@@ -16,12 +16,12 @@ const StudentManagement: React.FC = () => {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['students', page, search],
     queryFn: () =>
-      api.get(`/students/allStudents?page=${page}&limit=${ITEMS_PER_PAGE}&search=${search}`).then(r => r.data?.data),
+      api.get(`/students/allStudents?page=${page}&limit=${ITEMS_PER_PAGE}&search=${encodeURIComponent(search)}`).then(r => r.data?.data),
     staleTime: 0,
   });
 
-  const students = data?.students?.data || [];
-  const meta = data?.students?.meta;
+  const students = data?.data || [];
+  const meta = data?.meta;
 
 
   return (
