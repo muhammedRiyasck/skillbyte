@@ -182,6 +182,7 @@ export class CourseController {
       page: validatedQuery.page,
       limit: validatedQuery.limit,
       sort: validatedQuery.sort,
+      isBlocked: false,
     });
 
     // Check enrollment status for each course if user is a student

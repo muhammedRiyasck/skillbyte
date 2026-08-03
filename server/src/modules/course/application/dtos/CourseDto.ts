@@ -59,4 +59,5 @@ export interface GetCoursesQueryDto {
   page?: number;
   limit?: number;
   sort?: string;
+  isBlocked?: boolean;
 }

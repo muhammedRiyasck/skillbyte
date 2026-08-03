@@ -28,6 +28,7 @@ export class GetPaginatedCoursesUseCase implements IGetPaginatedCoursesUseCase {
       language,
       minPrice,
       maxPrice,
+      isBlocked,
     } = dto;
 
     const safePage = Number.isFinite(page) && page > 0 ? page : 1;
@@ -38,6 +39,10 @@ export class GetPaginatedCoursesUseCase implements IGetPaginatedCoursesUseCase {
     const query: Record<string, unknown> = {};
 
     if (instructorId) query.instructorId = instructorId;
+
+    if (isBlocked !== undefined) {
+      query.isBlocked = isBlocked;
+    }
 
     // Resolve status filter
     if (status) {
