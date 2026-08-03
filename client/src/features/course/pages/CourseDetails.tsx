@@ -91,7 +91,7 @@ const CourseDetails: React.FC = () => {
     queryKey: ['courseDetails', id, role],
     queryFn: () => getCourseDetails(id!),
     enabled: !!id,
-    staleTime: 5 * 60 * 1000,
+    staleTime: role === UserRole.STUDENT ? 0 : 5 * 60 * 1000,
   });
 
   // Check enrollment status for students
@@ -99,7 +99,7 @@ const CourseDetails: React.FC = () => {
     queryKey: ['enrollmentStatus', id, userId],
     queryFn: () => checkEnrollmentStatus(id!),
     enabled: !!id && role === UserRole.STUDENT,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
   });
 
   const course = courseData?.data;

@@ -62,7 +62,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     queryKey: ["lessonPlayUrl", id],
     queryFn: () => getLessonPlayUrl(id),
     enabled: !!id,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
   });
 
   const signedUrl = data?.data?.signedUrl;
