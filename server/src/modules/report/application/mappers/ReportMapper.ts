@@ -5,8 +5,9 @@ import { PendingReportsResponseDto } from '../dtos/PendingReportsResponseDto';
 export class ReportMapper {
   static toDto(entity: Report): ReportResponseDto {
     return {
-      id: entity._id!,
+      _id: entity._id!,
       studentId: entity.reportedBy,
+      studentInfo: entity.studentInfo,
       targetType: entity.targetType,
       targetId: entity.targetId,
       targetDetails: entity.targetDetails,

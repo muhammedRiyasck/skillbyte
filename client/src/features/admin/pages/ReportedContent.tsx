@@ -59,17 +59,9 @@ const ReportedContent: React.FC = () => {
 
   const dismissMutation = useMutation({
     mutationFn: dismissReport,
-    onSuccess: (_, reportId) => {
+    onSuccess: () => {
       toast.success('Report dismissed successfully');
-      // Optimistically update the cache for the current filter set
-      queryClient.setQueryData(['adminReports', filters], (oldData: {reports: IReport[], total: number}) => {
-        if (!oldData) return oldData;
-        return {
-          ...oldData,
-          total: oldData.total - 1,
-          reports: oldData.reports.filter((r: IReport) => r._id !== reportId)
-        };
-      });
+      queryClient.invalidateQueries({ queryKey: ['adminReports'] });
       setSelectedReport(null);
     },
     onError: () => toast.error('Failed to dismiss report')
@@ -77,17 +69,9 @@ const ReportedContent: React.FC = () => {
 
   const actionMutation = useMutation({
     mutationFn: actionReport,
-    onSuccess: (_, reportId) => {
+    onSuccess: () => {
       toast.success('Action applied successfully');
-      // Optimistically update the cache for the current filter set
-      queryClient.setQueryData(['adminReports', filters], (oldData: {reports: IReport[], total: number}) => {
-        if (!oldData) return oldData;
-        return {
-          ...oldData,
-          total: oldData.total - 1,
-          reports: oldData.reports.filter((r: IReport) => r._id !== reportId)
-        };
-      });
+      queryClient.invalidateQueries({ queryKey: ['adminReports'] });
       setSelectedReport(null);
     },
     onError: () => toast.error('Failed to apply action')

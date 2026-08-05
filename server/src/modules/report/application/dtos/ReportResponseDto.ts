@@ -1,6 +1,10 @@
 export interface ReportResponseDto {
-  id: string;
+  _id: string; // Map for frontend compatibility
   studentId: string;
+  studentInfo?: {
+    name?: string;
+    profilePictureUrl?: string;
+  };
   targetType: 'review' | 'course' | 'lesson';
   targetId: string;
   targetDetails?: {
