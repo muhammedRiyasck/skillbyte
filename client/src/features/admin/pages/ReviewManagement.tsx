@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAdminReviews, toggleHideReview, deleteReview, type AdminReviewFilters } from '../services/AdminReviewService';
-import type { AdminReviewListResult, IAdminReview } from '../types/IAdminReview';
 import { toast } from 'sonner';
 import { 
   MessageSquare, 
@@ -61,31 +60,16 @@ const ReviewManagement: React.FC = () => {
     mutationFn: ({ reviewId, hide }: { reviewId: string, hide: boolean }) => toggleHideReview(reviewId, hide),
     onSuccess: (_, variables) => {
       toast.success(`Review ${variables.hide ? 'hidden' : 'unhidden'} successfully`);
-      queryClient.setQueryData<AdminReviewListResult>(['adminReviews', filters], (oldData) => {
-        if (!oldData) return oldData;
-        return {
-          ...oldData,
-          reviews: oldData.reviews.map((r) => 
-            r.reviewId === variables.reviewId ? { ...r, isHidden: variables.hide } : (r as IAdminReview)
-          )
-        };
-      });
+      queryClient.invalidateQueries({ queryKey: ['adminReviews'] });
     },
     onError: () => toast.error('Failed to update review visibility')
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteReview,
-    onSuccess: (_, reviewId) => {
+    onSuccess: () => {
       toast.success('Review deleted permanently');
-      queryClient.setQueryData<AdminReviewListResult>(['adminReviews', filters], (oldData) => {
-        if (!oldData) return oldData;
-        return {
-          ...oldData,
-          total: oldData.total - 1,
-          reviews: oldData.reviews.filter((r) => r.reviewId !== reviewId)
-        };
-      });
+      queryClient.invalidateQueries({ queryKey: ['adminReviews'] });
       setDeleteId(null);
     },
     onError: () => toast.error('Failed to delete review')
@@ -312,11 +296,13 @@ const ReviewManagement: React.FC = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         {review.targetType === 'course' ? (
-                          <BookOpen size={14} className="text-blue-500" />
+                          <BookOpen size={14} className="text-blue-500 flex-shrink-0" />
                         ) : (
-                          <User size={14} className="text-purple-500" />
+                          <User size={14} className="text-purple-500 flex-shrink-0" />
                         )}
-                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300 capitalize">{review.targetType || 'Unknown'}</span>
+                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300 capitalize truncate" title={review.targetName || review.targetType}>
+                          {review.targetName || review.targetType || 'Unknown'}
+                        </span>
                       </div>
                       <p className="text-[10px] text-slate-500 mt-1 font-medium">ID: ...{(review.targetId || '').slice(-6)}</p>
                     </td>

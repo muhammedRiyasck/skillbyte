@@ -28,6 +28,7 @@ export class GetAllReviewsAdminUseCase implements IGetAllReviewsAdminUseCase {
       studentProfilePic: r.studentInfo?.profileImageUrl,
       targetType: r.targetType,
       targetId: r.targetId,
+      targetName: r.targetName,
       instructorId: r.instructorId,
       rating: r.rating,
       comment: r.comment,

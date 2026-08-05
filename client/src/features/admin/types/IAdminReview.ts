@@ -5,6 +5,7 @@ export interface IAdminReview {
   studentProfilePic?: string;
   targetType: 'course' | 'session';
   targetId: string;
+  targetName?: string;
   instructorId: string;
   rating: number;
   comment: string;
