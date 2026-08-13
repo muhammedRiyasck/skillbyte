@@ -37,6 +37,35 @@ export class ProcessWithdrawalUseCase implements IProcessWithdrawal {
       );
     }
 
+    // 1a. Double check instructor balance
+    const instructor = await this.instructorRepo.findById(
+      withdrawal.instructorId.toString(),
+    );
+    if (!instructor) {
+      await this.withdrawalRepo.updateStatus(
+        withdrawalId,
+        WithdrawalStatus.FAILED,
+        undefined,
+        'Instructor not found',
+      );
+      throw new HttpError('Instructor not found', HttpStatusCode.NOT_FOUND);
+    }
+
+    const availableBalance =
+      instructor.totalEarnings - instructor.withdrawnAmount;
+    if (withdrawal.amount > availableBalance) {
+      await this.withdrawalRepo.updateStatus(
+        withdrawalId,
+        WithdrawalStatus.FAILED,
+        undefined,
+        'Insufficient instructor balance at time of processing',
+      );
+      throw new HttpError(
+        'Instructor has insufficient balance for this withdrawal. Marked as FAILED.',
+        HttpStatusCode.BAD_REQUEST,
+      );
+    }
+
     // 1b. Emit event for real-time update
     eventBus.emit(WITHDRAWAL_EVENTS.WITHDRAWAL_PROCESSING, {
       withdrawalId,
@@ -87,18 +116,19 @@ export class ProcessWithdrawalUseCase implements IProcessWithdrawal {
         withdrawal.payoutDetails,
       );
 
-      // 4. Mark withdrawal as completed
+      // 4. Update instructor's withdrawnAmount atomically FIRST
+      // If this succeeds and the next step fails, the withdrawal is stuck in PROCESSING but balance is safe.
+      await this.instructorRepo.incrementWithdrawnAmount(
+        withdrawal.instructorId.toString(),
+        withdrawal.amount,
+      );
+
+      // 5. Mark withdrawal as completed
       await this.withdrawalRepo.updateStatus(
         withdrawalId,
         WithdrawalStatus.COMPLETED,
         transactionId,
         adminNotes,
-      );
-
-      // 4. Update instructor's withdrawnAmount atomically
-      await this.instructorRepo.incrementWithdrawnAmount(
-        withdrawal.instructorId.toString(),
-        withdrawal.amount,
       );
 
       // 5. Emit event for notifications and real-time updates

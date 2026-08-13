@@ -67,14 +67,22 @@ export class RequestWithdrawalUseCase implements IRequestWithdrawal {
     }
 
     // Create withdrawal request
-    const withdrawal = await this.withdrawalRepo.save({
-      instructorId: instructor.instructorId,
-      amount: Math.round(amount * 100) / 100,
-      currency: 'USD',
-      status: WithdrawalStatus.PENDING,
-      payoutMethod: 'STRIPE',
-      payoutDetails: instructor.stripeAccountId,
-    });
+    let withdrawal;
+    try {
+      withdrawal = await this.withdrawalRepo.save({
+        instructorId: instructor.instructorId,
+        amount: Math.round(amount * 100) / 100,
+        currency: 'USD',
+        status: WithdrawalStatus.PENDING,
+        payoutMethod: 'STRIPE',
+        payoutDetails: instructor.stripeAccountId,
+      });
+    } catch {
+      throw new HttpError(
+        'You already have a pending withdrawal request. Please wait for it to be processed before making another.',
+        HttpStatusCode.CONFLICT,
+      );
+    }
 
     return WithdrawalResponseMapper.toResponseDto(withdrawal);
   }

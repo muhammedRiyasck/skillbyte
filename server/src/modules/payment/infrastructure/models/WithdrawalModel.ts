@@ -39,6 +39,18 @@ const WithdrawalSchema = new Schema(
   { timestamps: true },
 );
 
+// Add partial unique index to prevent multiple pending/processing withdrawals per instructor
+WithdrawalSchema.index(
+  { instructorId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      status: { $in: [WithdrawalStatus.PENDING, WithdrawalStatus.PROCESSING] },
+    },
+    name: 'unique_pending_processing_withdrawal_per_instructor',
+  },
+);
+
 export const WithdrawalModel = mongoose.model<IWithdrawalDocument>(
   'Withdrawal',
   WithdrawalSchema,
