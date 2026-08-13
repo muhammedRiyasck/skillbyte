@@ -5,6 +5,7 @@ import { IGetInstructorEnrollmentsUseCase } from '../application/interfaces/IGet
 import { IUpdateLessonProgress } from '../application/interfaces/IUpdateLessonProgress';
 import { IGetStudentEnrollmentsUseCase } from '../application/interfaces/IGetStudentEnrollments';
 import { IInitiateEnrollmentPayment } from '../application/interfaces/IInitiateEnrollmentPayment';
+import { IEnrollFreeCourseUseCase } from '../application/interfaces/IEnrollFreeCourse';
 import { ApiResponseHelper } from '../../../shared/utils/ApiResponseHelper';
 import { EnrollmentStatus } from '../../../shared/enums/EnrollmentStatus';
 import { UpdateLessonProgressRequestDto } from '../application/dtos/UpdateLessonProgressRequestDto';
@@ -17,6 +18,7 @@ export class EnrollmentController {
     private _updateLessonProgressUc: IUpdateLessonProgress,
     private _getStudentEnrollmentsUc: IGetStudentEnrollmentsUseCase,
     private _initiateEnrollmentPaymentUc: IInitiateEnrollmentPayment,
+    private _enrollFreeCourseUc: IEnrollFreeCourseUseCase,
   ) {}
 
   checkEnrollmentStatus = async (
@@ -132,5 +134,27 @@ export class EnrollmentController {
     );
 
     ApiResponseHelper.success(res, 'Payment initiated', result);
+  };
+
+  enrollFreeCourse = async (req: Request, res: Response): Promise<void> => {
+    const { courseId } = req.body;
+    const userId = (req as AuthenticatedRequest).user.id;
+
+    if (!userId) {
+      ApiResponseHelper.unauthorized(res, 'Unauthorized');
+      return;
+    }
+
+    if (!courseId) {
+      ApiResponseHelper.badRequest(res, 'courseId is required');
+      return;
+    }
+
+    const result = await this._enrollFreeCourseUc.execute(userId, courseId);
+    ApiResponseHelper.success(
+      res,
+      'Enrolled in free course successfully',
+      result,
+    );
   };
 }

@@ -26,7 +26,7 @@ import {
 import { ROUTES } from '@/core/router/paths';
 import { getCourseDetails } from '../services/CourseDetails';
 import { blockLesson } from '../services/CourseLesson';
-import { checkEnrollmentStatus } from '@features/enrollment/services/EnrollmentService';
+import { checkEnrollmentStatus, enrollFreeCourse } from '@features/enrollment/services/EnrollmentService';
 import { issueCertificate } from '@/features/certificate/services/CertificateService';
 import LessonPlayer from '../components/LessonPlayer';
 import RatingSummary from '@features/review/components/RatingSummary';
@@ -127,11 +127,25 @@ const CourseDetails: React.FC = () => {
     setExpandedModules(newExpanded);
   };
 
-  const handleEnroll = () => {
+  const handleEnroll = async () => {
     if (!role) {
       navigate(ROUTES.auth.signIn);
       return;
     }
+
+    // If the course is free, enroll directly without going through payment
+    if (course && course.price === 0) {
+      try {
+        await enrollFreeCourse(id!);
+        toast.success('Successfully enrolled in this free course!');
+        queryClient.invalidateQueries({ queryKey: ['enrollmentStatus', id, userId] });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to enroll';
+        toast.error(message);
+      }
+      return;
+    }
+
     navigate(ROUTES.student.checkout.replace(':id', id!));
   };
 
@@ -370,11 +384,17 @@ const CourseDetails: React.FC = () => {
                     <div className="p-6">
                       <div className="flex items-center justify-between mb-4">
                         <div className="text-3xl font-bold text-gray-900">
-                          ₹{course.price.toLocaleString()}
+                          {course.price === 0 ? (
+                            <span className="text-green-600">Free</span>
+                          ) : (
+                            <>₹{course.price.toLocaleString()}</>
+                          )}
                         </div>
-                        <div className="text-sm text-gray-500 line-through">
-                          ₹{Math.round(course.price * 1.5)}
-                        </div>
+                        {course.price > 0 && (
+                          <div className="text-sm text-gray-500 line-through">
+                            ₹{Math.round(course.price * 1.5)}
+                          </div>
+                        )}
                       </div>
                       <div>
                         {(isEnrolled || role === UserRole.INSTRUCTOR || role === UserRole.ADMIN) ? (
@@ -445,9 +465,13 @@ const CourseDetails: React.FC = () => {
                         ) : (
                           <button
                             onClick={handleEnroll}
-                            className="w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white"
+                            className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 cursor-pointer ${
+                              course.price === 0
+                                ? 'bg-green-600 hover:bg-green-700 text-white'
+                                : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                            }`}
                           >
-                            Enroll Now
+                            {course.price === 0 ? 'Enroll for Free' : 'Enroll Now'}
                           </button>
                         )}
 

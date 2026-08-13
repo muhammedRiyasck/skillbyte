@@ -5,6 +5,11 @@ export const initiateEnrollmentPayment = async (id: string, provider: string) =>
   return response.data;
 };
 
+export const enrollFreeCourse = async (courseId: string) => {
+  const response = await api.post("/enrollment/enroll-free", { courseId });
+  return response.data;
+};
+
 export const capturePayPalPayment = async (orderId: string) => {
   const response = await api.post("/payment/capture-paypal", { orderId });
   return response.data;

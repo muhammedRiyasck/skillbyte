@@ -11,3 +11,7 @@ export const InitiatePaymentSchema = z.object({
   id: z.string().min(1, 'Course ID is required'),
   provider: z.enum(['stripe', 'paypal', 'razorpay']),
 });
+
+export const EnrollFreeCourseSchema = z.object({
+  courseId: z.string().min(1, 'Course ID is required'),
+});

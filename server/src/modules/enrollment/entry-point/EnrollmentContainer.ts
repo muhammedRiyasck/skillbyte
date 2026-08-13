@@ -7,6 +7,7 @@ import { UpdateLessonProgressUseCase } from '../application/use-cases/UpdateLess
 import { GetStudentEnrollmentsUseCase } from '../application/use-cases/GetStudentEnrollmentsUseCase';
 import { EnrollmentFulfillmentService } from '../application/services/EnrollmentFulfillmentService';
 import { InitiateEnrollmentPaymentUseCase } from '../application/use-cases/InitiateEnrollmentPaymentUseCase';
+import { EnrollFreeCourseUseCase } from '../application/use-cases/EnrollFreeCourseUseCase';
 import { initiatePaymentUc } from '../../payment/entry-point/PaymentContainer';
 import { LessonRepository } from '../../course/infrastructure/repositories/LessonRepository';
 import { CourseRepository } from '../../course/infrastructure/repositories/CourseRepository';
@@ -33,6 +34,11 @@ const initiateEnrollmentPaymentUc = new InitiateEnrollmentPaymentUseCase(
   enrollmentReadRepo,
   initiatePaymentUc,
 );
+const enrollFreeCourseUc = new EnrollFreeCourseUseCase(
+  enrollmentReadRepo,
+  enrollmentWriteRepo,
+  courseRepo,
+);
 
 // Initialize fulfillment service (listens to payment events)
 const enrollmentFulfillmentService = new EnrollmentFulfillmentService(
@@ -47,6 +53,7 @@ export const enrollmentController = new EnrollmentController(
   updateLessonProgressUc,
   getStudentEnrollmentsUc,
   initiateEnrollmentPaymentUc,
+  enrollFreeCourseUc,
 );
 
 // Export fulfillment service for initialization in app startup

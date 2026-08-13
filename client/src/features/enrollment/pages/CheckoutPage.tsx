@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
-import { initiateEnrollmentPayment } from '../services/EnrollmentService';
+import { initiateEnrollmentPayment, enrollFreeCourse } from '../services/EnrollmentService';
 import { CheckoutForm } from '../components/CheckoutForm';
 import { PayPalButton } from '../components/PayPalButton';
 import { toast } from 'sonner';
@@ -39,7 +39,22 @@ export const CheckoutPage: React.FC = () => {
             try {
                 // Only fetch course details initially
                 const courseData = await getCourseDetails(id);
-                setCourse(courseData.data);
+                const fetchedCourse = courseData.data;
+                setCourse(fetchedCourse);
+
+                // Guard: if course is free, enroll immediately and redirect
+                if (fetchedCourse && fetchedCourse.price === 0) {
+                    try {
+                        await enrollFreeCourse(id);
+                        toast.success('Successfully enrolled in this free course!');
+                    } catch (error) {
+                        const message = error instanceof Error ? error.message : 'Enrollment failed';
+                        // If already enrolled, still redirect gracefully
+                        toast.info(message);
+                    }
+                    navigate(ROUTES.course.details.replace(':id', id), { replace: true });
+                    return;
+                }
             } catch (error: unknown) {
                 console.error("Failed to initialize checkout", error);
             } finally {

@@ -7,6 +7,7 @@ import asyncHandler from '../../../../shared/utils/AsyncHandler';
 import {
   UpdateLessonProgressSchema,
   InitiatePaymentSchema,
+  EnrollFreeCourseSchema,
 } from '../validations/EnrollmentValidation';
 
 const router = express.Router();
@@ -46,6 +47,14 @@ router.post(
   authenticate,
   validateRequest(InitiatePaymentSchema),
   asyncHandler(enrollmentController.initiatePayment),
+);
+
+// Enroll in Free Course - Protected Route (bypasses payment)
+router.post(
+  '/enroll-free',
+  authenticate,
+  validateRequest(EnrollFreeCourseSchema),
+  asyncHandler(enrollmentController.enrollFreeCourse),
 );
 
 export default router;
