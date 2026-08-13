@@ -38,21 +38,10 @@ export class ModuleController {
     const validatedData = CreateModuleSchema.parse(authenticatedReq.body);
     const instructorId = authenticatedReq.user.id;
 
-    // Check ownership
-    const course = await this._courseRepo.findById(
-      validatedData.courseId || validatedData.id || '',
-    );
-    if (!course || course.instructorId !== instructorId) {
-      logger.warn(
-        `Unauthorized module creation attempt for course ${validatedData.courseId} by instructor ${instructorId}`,
-      );
-      throw new HttpError(
-        'You do not own this course.',
-        HttpStatusCode.UNAUTHORIZED,
-      );
-    }
-
-    const moduleEntity = ModuleMapper.toCreateEntity(validatedData);
+    const moduleEntity = ModuleMapper.toCreateEntity({
+      ...validatedData,
+      instructorId,
+    });
 
     const module = await this._createUseCase.execute(moduleEntity);
     logger.info(

@@ -27,6 +27,7 @@ export class UpdateLessonUseCase implements IUpdateLessonUseCase {
   /**
    * Executes the lesson update logic.
    * Validates the lesson exists, the module exists, and the instructor owns the course, then updates the lesson.
+   * Also validates ownership of the new module if moduleId is being changed.
    * @param lessonId - The ID of the lesson to update.
    * @param instructorId - The ID of the instructor making the update.
    * @param updates - The partial lesson data to update.
@@ -47,7 +48,7 @@ export class UpdateLessonUseCase implements IUpdateLessonUseCase {
       );
     }
 
-    // Find the module to ensure it exists
+    // Find the original module to ensure it exists
     const module = await this._moduleRepo.findById(lesson.moduleId.toString());
     if (!module) {
       throw new HttpError(
@@ -56,13 +57,36 @@ export class UpdateLessonUseCase implements IUpdateLessonUseCase {
       );
     }
 
-    // Find the course and check if the instructor owns it
+    // Find the original course and check if the instructor owns it
     const course = await this._courseRepo.findById(module.courseId);
     if (!course || course.instructorId !== instructorId) {
       throw new HttpError(
         ERROR_MESSAGES.UNAUTHORIZED_UPDATE_LESSON,
         HttpStatusCode.FORBIDDEN,
       );
+    }
+
+    // Guard: if moduleId is being changed, verify the instructor owns the NEW module's course too
+    if (
+      updates.moduleId &&
+      updates.moduleId.toString() !== lesson.moduleId.toString()
+    ) {
+      const newModule = await this._moduleRepo.findById(
+        updates.moduleId.toString(),
+      );
+      if (!newModule) {
+        throw new HttpError(
+          ERROR_MESSAGES.MODULE_NOT_FOUND,
+          HttpStatusCode.BAD_REQUEST,
+        );
+      }
+      const newCourse = await this._courseRepo.findById(newModule.courseId);
+      if (!newCourse || newCourse.instructorId !== instructorId) {
+        throw new HttpError(
+          ERROR_MESSAGES.UNAUTHORIZED_UPDATE_LESSON,
+          HttpStatusCode.FORBIDDEN,
+        );
+      }
     }
 
     // Update the lesson with the provided data

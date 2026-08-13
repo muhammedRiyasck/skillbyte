@@ -8,6 +8,7 @@ export interface CreateModuleDto {
   description?: string;
   order: number;
   lessons?: unknown[];
+  instructorId?: string; // Used for ownership validation inside the use case
 }
 
 export interface UpdateModuleDto {

@@ -11,6 +11,7 @@ export class ModuleMapper {
       description: dto.description || '',
       order: dto.order,
       lessons: dto.lessons || [],
+      instructorId: dto.instructorId,
     };
   }
 

@@ -7,6 +7,8 @@ import { CreateModuleDto, ModuleResponseDto } from '../dtos/ModuleDtos';
 import { eventBus } from '../../../../shared/services/event-bus/EventBus';
 import { COURSE_EVENTS } from '../../../../shared/services/event-bus/CourseEvents';
 import { ModuleMapper } from '../mappers/ModuleMapper';
+import { HttpError } from '../../../../shared/types/HttpError';
+import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 /**
  * Use case for creating a new module.
@@ -20,7 +22,7 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
    */
   constructor(
     private _moduleRepo: IModuleRepository,
-    private _courseRepo?: ICourseRepository,
+    private _courseRepo: ICourseRepository,
   ) {}
 
   /**
@@ -32,6 +34,17 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
    */
   async execute(dto: CreateModuleDto): Promise<ModuleResponseDto | null> {
     const courseId = (dto.courseId || dto.id) as string;
+
+    // Ownership check: ensure the instructor owns the course before creating a module
+    if (this._courseRepo && dto.instructorId) {
+      const course = await this._courseRepo.findById(courseId);
+      if (!course || course.instructorId !== dto.instructorId) {
+        throw new HttpError(
+          'You do not own this course.',
+          HttpStatusCode.FORBIDDEN,
+        );
+      }
+    }
 
     // Check if the provided moduleId is a valid MongoDB ObjectId
     const isObjectId =

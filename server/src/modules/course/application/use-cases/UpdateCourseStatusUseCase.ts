@@ -27,27 +27,33 @@ export class UpdateCourseStatusUseCase implements IUpdateCourseStatusUseCase {
         ERROR_MESSAGES.COURSE_NOT_FOUND,
         HttpStatusCode.NOT_FOUND,
       );
-    const modules = await this._moduleRepo.findModulesByCourseId(courseId);
-    if (!modules[0] || !modules[0].moduleId) {
-      throw new HttpError(
-        ERROR_MESSAGES.MODULE_SHOULD_BE_THERE,
-        HttpStatusCode.BAD_REQUEST,
-      );
-    }
 
-    const moduleIds = modules.map((m) => m.moduleId!.toString());
-    const lessons = await this._lesson.findByModuleId(moduleIds);
-    if (!lessons[0] || !lessons[0].lessonId) {
-      throw new HttpError(
-        ERROR_MESSAGES.LESSON_SHOULD_BE_THERE,
-        HttpStatusCode.BAD_REQUEST,
-      );
-    }
+    // Ownership check first — fail fast
     if (course.instructorId !== instructorId) {
       throw new HttpError(
         ERROR_MESSAGES.UNAUTHORIZED,
         HttpStatusCode.UNAUTHORIZED,
       );
+    }
+
+    // Content requirements only apply when publishing (listing) a course
+    if (status === CourseStatus.LIST) {
+      const modules = await this._moduleRepo.findModulesByCourseId(courseId);
+      if (!modules[0] || !modules[0].moduleId) {
+        throw new HttpError(
+          ERROR_MESSAGES.MODULE_SHOULD_BE_THERE,
+          HttpStatusCode.BAD_REQUEST,
+        );
+      }
+
+      const moduleIds = modules.map((m) => m.moduleId!.toString());
+      const lessons = await this._lesson.findByModuleId(moduleIds);
+      if (!lessons[0] || !lessons[0].lessonId) {
+        throw new HttpError(
+          ERROR_MESSAGES.LESSON_SHOULD_BE_THERE,
+          HttpStatusCode.BAD_REQUEST,
+        );
+      }
     }
 
     await this._courseRepo.updateStatus(courseId, status);
