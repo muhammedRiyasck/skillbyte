@@ -1,5 +1,5 @@
 import { IEnrollmentWriteRepository } from '../../domain/IRepositories/IEnrollmentWriteRepository';
-import { IUpdateLessonProgress } from '../interfaces/IUpdateLessonProgress';
+import { IUpdateLessonProgressUseCase } from '../interfaces/IUpdateLessonProgress';
 import { ILessonRepository } from '../../../course/domain/IRepositories/ILessonRepository';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
@@ -9,7 +9,7 @@ import { EnrollmentResponseDto } from '../dtos/EnrollmentResponseDto';
 import { UpdateLessonProgressRequestDto } from '../dtos/UpdateLessonProgressRequestDto';
 import logger from '../../../../shared/utils/Logger';
 
-export class UpdateLessonProgressUseCase implements IUpdateLessonProgress {
+export class UpdateLessonProgressUseCase implements IUpdateLessonProgressUseCase {
   constructor(
     private enrollmentWriteRepo: IEnrollmentWriteRepository,
     private lessonRepo: ILessonRepository,

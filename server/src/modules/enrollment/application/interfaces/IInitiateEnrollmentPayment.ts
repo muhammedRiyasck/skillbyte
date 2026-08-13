@@ -1,6 +1,6 @@
 import { InitiatedPaymentResponseDto } from '../dtos/InitiatedPaymentResponseDto';
 
-export interface IInitiateEnrollmentPayment {
+export interface IInitiateEnrollmentPaymentUseCase {
   execute(
     userId: string,
     courseId: string,

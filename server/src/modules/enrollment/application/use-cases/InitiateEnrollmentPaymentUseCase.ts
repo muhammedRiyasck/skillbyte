@@ -1,14 +1,14 @@
 import { IEnrollmentReadRepository } from '../../domain/IRepositories/IEnrollmentReadRepository';
 import { CourseModel } from '../../../course/infrastructure/models/CourseModel';
 import { StudentModel } from '../../../student/infrastructure/models/StudentModel';
-import { IInitiateEnrollmentPayment } from '../interfaces/IInitiateEnrollmentPayment';
+import { IInitiateEnrollmentPaymentUseCase } from '../interfaces/IInitiateEnrollmentPayment';
 import { InitiatePaymentUseCase } from '../../../payment/application/use-cases/InitiatePaymentUseCase';
 import { PaymentInitiationResponse } from '../../../../shared/services/payment/interfaces/IPaymentProvider';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 export class InitiateEnrollmentPaymentUseCase
-  implements IInitiateEnrollmentPayment
+  implements IInitiateEnrollmentPaymentUseCase
 {
   constructor(
     private _enrollmentReadRepo: IEnrollmentReadRepository,

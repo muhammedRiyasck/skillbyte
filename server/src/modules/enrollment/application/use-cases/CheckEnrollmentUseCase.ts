@@ -1,9 +1,9 @@
-import { ICheckEnrollment } from '../interfaces/ICheckEnrollment';
+import { ICheckEnrollmentUseCase } from '../interfaces/ICheckEnrollment';
 import { IEnrollmentReadRepository } from '../../domain/IRepositories/IEnrollmentReadRepository';
 import { EnrollmentMapper } from '../mappers/EnrollmentMapper';
 import { EnrollmentResponseDto } from '../dtos/EnrollmentResponseDto';
 
-export class CheckEnrollmentUseCase implements ICheckEnrollment {
+export class CheckEnrollmentUseCase implements ICheckEnrollmentUseCase {
   constructor(private enrollmentRepository: IEnrollmentReadRepository) {}
 
   async execute(

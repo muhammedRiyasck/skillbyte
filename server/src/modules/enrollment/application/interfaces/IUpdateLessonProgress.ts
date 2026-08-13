@@ -1,7 +1,7 @@
 import { EnrollmentResponseDto } from '../dtos/EnrollmentResponseDto';
 import { UpdateLessonProgressRequestDto } from '../dtos/UpdateLessonProgressRequestDto';
 
-export interface IUpdateLessonProgress {
+export interface IUpdateLessonProgressUseCase {
   execute(
     enrollmentId: string,
     lessonId: string,

@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '../../../shared/types/AuthenticatedRequestType';
-import { ICheckEnrollment } from '../application/interfaces/ICheckEnrollment';
+import { ICheckEnrollmentUseCase } from '../application/interfaces/ICheckEnrollment';
 import { IGetInstructorEnrollmentsUseCase } from '../application/interfaces/IGetInstructorEnrollments';
-import { IUpdateLessonProgress } from '../application/interfaces/IUpdateLessonProgress';
+import { IUpdateLessonProgressUseCase } from '../application/interfaces/IUpdateLessonProgress';
 import { IGetStudentEnrollmentsUseCase } from '../application/interfaces/IGetStudentEnrollments';
-import { IInitiateEnrollmentPayment } from '../application/interfaces/IInitiateEnrollmentPayment';
+import { IInitiateEnrollmentPaymentUseCase } from '../application/interfaces/IInitiateEnrollmentPayment';
 import { IEnrollFreeCourseUseCase } from '../application/interfaces/IEnrollFreeCourse';
 import { ApiResponseHelper } from '../../../shared/utils/ApiResponseHelper';
 import { EnrollmentStatus } from '../../../shared/enums/EnrollmentStatus';
@@ -13,11 +13,11 @@ import { InitiatePaymentRequestDto } from '../application/dtos/InitiatePaymentRe
 
 export class EnrollmentController {
   constructor(
-    private _checkEnrollmentUc: ICheckEnrollment,
+    private _checkEnrollmentUc: ICheckEnrollmentUseCase,
     private _getInstructorEnrollmentsUc: IGetInstructorEnrollmentsUseCase,
-    private _updateLessonProgressUc: IUpdateLessonProgress,
+    private _updateLessonProgressUc: IUpdateLessonProgressUseCase,
     private _getStudentEnrollmentsUc: IGetStudentEnrollmentsUseCase,
-    private _initiateEnrollmentPaymentUc: IInitiateEnrollmentPayment,
+    private _initiateEnrollmentPaymentUc: IInitiateEnrollmentPaymentUseCase,
     private _enrollFreeCourseUc: IEnrollFreeCourseUseCase,
   ) {}
 

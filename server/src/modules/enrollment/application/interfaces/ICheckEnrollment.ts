@@ -1,6 +1,6 @@
 import { EnrollmentResponseDto } from '../dtos/EnrollmentResponseDto';
 
-export interface ICheckEnrollment {
+export interface ICheckEnrollmentUseCase {
   execute(
     userId: string,
     courseId: string,
