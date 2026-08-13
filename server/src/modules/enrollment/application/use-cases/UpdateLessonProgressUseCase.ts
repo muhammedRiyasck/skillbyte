@@ -9,7 +9,9 @@ import { EnrollmentResponseDto } from '../dtos/EnrollmentResponseDto';
 import { UpdateLessonProgressRequestDto } from '../dtos/UpdateLessonProgressRequestDto';
 import logger from '../../../../shared/utils/Logger';
 
-export class UpdateLessonProgressUseCase implements IUpdateLessonProgressUseCase {
+export class UpdateLessonProgressUseCase
+  implements IUpdateLessonProgressUseCase
+{
   constructor(
     private enrollmentWriteRepo: IEnrollmentWriteRepository,
     private lessonRepo: ILessonRepository,
