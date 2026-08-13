@@ -4,7 +4,7 @@ import { WithdrawalStatus } from '../../domain/entities/Withdrawal';
 export interface WithdrawalResponseDto {
   _id: string; // Used by frontend as primary key
   withdrawalId: string;
-  instructorId: IInstructor; // Allow populated object
+  instructorId: IInstructor | string; // Allow populated object or string id
   amount: number;
   currency: string;
   status: WithdrawalStatus;
