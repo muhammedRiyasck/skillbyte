@@ -59,7 +59,6 @@ const CreateCourse = () => {
     watch,
     formState: { errors },
     setValue,
-    getValues,
     reset,
   } = useForm<FormData>({
     defaultValues: {
@@ -81,6 +80,8 @@ const CreateCourse = () => {
       const fieldErrors: Record<string, { type: string; message: string }> = {};
 
       Object.keys(validationErrors).forEach((key) => {
+        // In edit mode, thumbnail already exists on server — skip file validation
+        if (id && key === "thumbnailFile") return;
         if (!validationErrors["thumbnailFile"]?.success && thumbnail) {
           delete validationErrors["thumbnailFile"];
         }
@@ -137,11 +138,12 @@ const CreateCourse = () => {
         .then((courseData) => {
           const course = courseData.data;
           const category = Category.includes(course.category as CourseCategory) ? course.category as CourseCategory : CourseCategory.OTHER;
+          const customCategory = category === CourseCategory.OTHER ? course.category || "" : "";
           setThumbnail(course.thumbnailUrl || "");
           setValue("title", course.title || "");
           setValue("subText", course.subText || "");
           setValue("category", category || "");
-          if (category === CourseCategory.OTHER) setValue("customCategory", course.category || "");
+          setValue("customCategory", customCategory);
           setValue("courseLevel", course.courseLevel as CourseLevel || "");
           setValue("language", course.language || "");
           setValue("access", course.duration as CourseDuration || "");
@@ -150,15 +152,29 @@ const CreateCourse = () => {
           setValue("tags", course.tags || []);
           setValue("features", course.features || [""]);
           setValue("thumbnailUrl", course.thumbnailUrl || "");
-          // Store original data for reset
-          setOriginalData(getValues());
+          // Build originalData explicitly so Discard always resets to accurate server values
+          setOriginalData({
+            title: course.title || "",
+            subText: course.subText || "",
+            category: category || "",
+            customCategory,
+            courseLevel: course.courseLevel as CourseLevel || "",
+            language: course.language || "",
+            access: course.duration as CourseDuration || "",
+            price: course.price + "" || "",
+            description: course.description || "",
+            tags: course.tags || [],
+            features: course.features || [""],
+            thumbnailFile: null,
+            thumbnailUrl: course.thumbnailUrl || "",
+          });
           setIsEditing(false);
         })
         .catch((error) => {
           console.error("Failed to fetch course details:", error);
         });
     }
-  }, [location.state, setValue, getValues, id]);
+  }, [location.state, setValue, id]);
 
   const createCourse = useCreateCourse();
 
@@ -192,7 +208,10 @@ const CreateCourse = () => {
     if (!id) return;
     try {
       setSpining(true);
-      await updateBase(id, data);
+      // Strip thumbnailFile (File object) and thumbnailUrl — not part of the PATCH body
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { thumbnailFile: _file, thumbnailUrl: _url, ...updatePayload } = data;
+      await updateBase(id, updatePayload);
       if (croppedBlob && thumbnailFile) {
         await uploadThumbnail({
           id,

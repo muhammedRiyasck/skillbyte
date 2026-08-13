@@ -32,15 +32,25 @@ export class CourseMapper {
     };
   }
 
-  /** Maps the validated Zod update payload → a partial DTO for the use case */
   static toUpdateDto(data: UpdateBaseValidationType): UpdateCourseDto {
     const { access, customCategory, category, thumbnail, ...rest } = data;
-    return {
+    
+    const updateDto: UpdateCourseDto = {
       ...rest,
-      duration: access,
-      category: customCategory || category,
-      thumbnailUrl: thumbnail,
     };
+    
+    if (access !== undefined) updateDto.duration = access;
+    if (customCategory || category) updateDto.category = customCategory || category;
+    if (thumbnail !== undefined) updateDto.thumbnailUrl = thumbnail;
+
+    // Optional: strip any other undefined fields from rest
+    Object.keys(updateDto).forEach((key) => {
+      if (updateDto[key as keyof UpdateCourseDto] === undefined) {
+        delete updateDto[key as keyof UpdateCourseDto];
+      }
+    });
+
+    return updateDto;
   }
 
   /** Maps a domain Course entity → a response DTO (strips internal/infra fields) */
