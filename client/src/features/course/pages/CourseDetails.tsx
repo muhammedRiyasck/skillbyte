@@ -404,7 +404,7 @@ const CourseDetails: React.FC = () => {
                               Already Enrolled
                             </div>
 
-                            {course.isQuizEnabled && (function () {
+                            {role === UserRole.STUDENT && course.isQuizEnabled && (function () {
                               const progress = enrollmentData?.data?.enrollment?.progress ?? 0;
                               const isUnlocked = progress >= 99;
 
@@ -427,7 +427,7 @@ const CourseDetails: React.FC = () => {
                                       <span className="ml-auto text-[10px] bg-gray-300 dark:bg-gray-700 px-2 py-0.5 rounded-full font-bold">LOCKED</span>
                                     </div>
                                     <p className="text-xs text-black dark:text-gray-400 mb-3">
-                                      Reach 100% progress to unlock. You're at {Math.round(progress)}%.
+                                      Reach 99% progress to unlock. You're at {Math.round(progress)}%.
                                     </p>
                                     <div className="w-full bg-gray-200 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
                                       <div

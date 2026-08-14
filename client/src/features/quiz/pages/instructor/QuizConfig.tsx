@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { quizService } from '../../services/quizService';
 import type { IQuizConfig, QuestionType, QuizDifficulty } from '../../types/quiz.types';
 import Spiner from '@shared/ui/Spiner';
+import Modal from '@shared/ui/Modal';
 import { ArrowLeft, Settings, BrainCircuit, Plus, X } from 'lucide-react';
 
 const QuizConfig: React.FC = () => {
@@ -25,6 +26,8 @@ const QuizConfig: React.FC = () => {
   });
 
   const [topicInput, setTopicInput] = useState('');
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [pendingToggleState, setPendingToggleState] = useState<boolean | null>(null);
 
   const { data: config, isLoading } = useQuery({
     queryKey: ['quizConfig', courseId],
@@ -54,6 +57,33 @@ const QuizConfig: React.FC = () => {
       const err = error as { response?: { data?: { message?: string } } };
       const errorMessage = err.response?.data?.message || 'Failed to save configuration';
       toast.error(errorMessage);
+    },
+  });
+
+  const toggleMutation = useMutation({
+    mutationFn: (isEnabled: boolean) => {
+      const data = { isEnabled };
+      if (config?.configId) {
+        return quizService.updateConfig(courseId!, data);
+      }
+      // If no config exists, we must provide the minimum required fields for creation
+      // We will merge current formData so it passes validation (e.g. topics)
+      const submitData = { ...formData, isEnabled };
+      if (!submitData.topics || submitData.topics.length === 0) {
+          throw new Error('Please add at least one topic before enabling');
+      }
+      return quizService.createConfig({ ...submitData, courseId: courseId! });
+    },
+    onSuccess: ( variables) => {
+      toast.success(`Assessment ${variables ? 'enabled' : 'disabled'} successfully`);
+      queryClient.invalidateQueries({ queryKey: ['quizConfig', courseId] });
+    },
+    onError: (error: unknown) => {
+      const err = error as { response?: { data?: { message?: string } }; message?: string };
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to toggle status';
+      toast.error(errorMessage);
+      // Revert the local state if toggle failed
+      setFormData(prev => ({ ...prev, isEnabled: !prev.isEnabled }));
     },
   });
 
@@ -172,9 +202,13 @@ const QuizConfig: React.FC = () => {
                   type="checkbox"
                   className="sr-only peer"
                   checked={formData.isEnabled || false}
-                  onChange={(e) => setFormData({ ...formData, isEnabled: e.target.checked })}
+                  onChange={(e) => {
+                    setPendingToggleState(e.target.checked);
+                    setIsConfirmModalOpen(true);
+                  }}
+                  disabled={toggleMutation.isPending}
                 />
-                <div className="w-11 h-6 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                <div className={`w-11 h-6 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600 ${toggleMutation.isPending ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
               </label>
             </div>
 
@@ -338,7 +372,7 @@ const QuizConfig: React.FC = () => {
                 </div>
               </div>
 
-              {config?.hasCachedQuestions && formData.maxAttempts === 1 && (
+              {config?.hasCachedQuestions && (
                 <div className="p-5 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-400 rounded-2xl border border-amber-200 dark:border-amber-900/40 text-sm flex gap-3">
                   <div className="shrink-0 p-1 bg-amber-200 dark:bg-amber-800 rounded-full h-fit">
                     <Settings className="w-4 h-4" />
@@ -364,6 +398,31 @@ const QuizConfig: React.FC = () => {
           </form>
         </div>
       </div>
+
+      <Modal
+        isOpen={isConfirmModalOpen}
+        onClose={() => {
+          setIsConfirmModalOpen(false);
+          setPendingToggleState(null);
+        }}
+        title={pendingToggleState ? 'Enable Assessment?' : 'Disable Assessment?'}
+        onConfirm={() => {
+          if (pendingToggleState !== null) {
+            setFormData({ ...formData, isEnabled: pendingToggleState });
+            toggleMutation.mutate(pendingToggleState);
+          }
+          setIsConfirmModalOpen(false);
+          setPendingToggleState(null);
+        }}
+        confirmLabel="Confirm"
+        cancelLabel="Cancel"
+      >
+        <p className="text-gray-600 dark:text-gray-400">
+          {pendingToggleState 
+            ? 'Are you sure you want to enable the AI Final Quiz? Students who have completed 100% of the course will now be able to take it.'
+            : 'Are you sure you want to disable the AI Final Quiz? Students will no longer be able to access the assessment.'}
+        </p>
+      </Modal>
     </div>
   );
 };

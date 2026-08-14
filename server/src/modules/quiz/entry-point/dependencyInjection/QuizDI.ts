@@ -23,6 +23,8 @@ const courseRepository = new CourseRepository();
 
 const createQuizConfigUseCase = new CreateQuizConfigUseCase(
   quizConfigRepository,
+  aiQuizService,
+  courseRepository,
 );
 const updateQuizConfigUseCase = new UpdateQuizConfigUseCase(
   quizConfigRepository,
@@ -58,6 +60,8 @@ const getQuizAnalyticsUseCase = new GetQuizAnalyticsUseCase(
 const resetStudentAttemptsUseCase = new ResetStudentQuizAttemptsUseCase(
   quizAttemptRepository,
   quizConfigRepository,
+  enrollmentReadRepository,
+  enrollmentWriteRepository,
 );
 
 const quizController = new QuizController(

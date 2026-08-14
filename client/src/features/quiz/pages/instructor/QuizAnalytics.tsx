@@ -83,6 +83,7 @@ const QuizAnalytics: React.FC = () => {
 
   const totalPages = analytics?.totalPages || 0;
   const paginatedAttempts = analytics?.studentAttempts || [];
+  const passThreshold = analytics?.passPercentage ?? 60;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-12">
@@ -212,7 +213,7 @@ const QuizAnalytics: React.FC = () => {
                             {student.attemptsCount}
                           </td>
                           <td className="px-6 py-4 text-center">
-                            <span className={`text-lg font-black ${student.bestScore >= 60 ? 'text-green-600' : 'text-amber-600'}`}>
+                            <span className={`text-lg font-black ${student.bestScore >= passThreshold ? 'text-green-600' : 'text-amber-600'}`}>
                               {student.bestScore}%
                             </span>
                           </td>
@@ -263,7 +264,7 @@ const QuizAnalytics: React.FC = () => {
                                       <tr key={attempt.attemptNumber} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                         <td className="px-4 py-3 font-bold text-gray-900 dark:text-gray-200">Attempt #{attempt.attemptNumber}</td>
                                         <td className="px-4 py-3 text-center">
-                                          <span className={`font-black ${attempt.score >= 60 ? 'text-green-600' : 'text-red-600'}`}>{attempt.score}%</span>
+                                          <span className={`font-black ${attempt.score >= passThreshold ? 'text-green-600' : 'text-red-600'}`}>{attempt.score}%</span>
                                         </td>
                                         <td className="px-4 py-3 text-center">
                                           <span className="font-bold text-indigo-600 dark:text-indigo-400">{attempt.correctAnswersCount} / {attempt.totalQuestions}</span>

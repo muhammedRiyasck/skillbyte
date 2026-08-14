@@ -1,6 +1,9 @@
 import { IResetStudentQuizAttemptsUseCase } from '../interfaces/IResetStudentQuizAttemptsUseCase';
 import { IQuizAttemptRepository } from '../../domain/IRepositories/IQuizAttemptRepository';
 import { IQuizConfigRepository } from '../../domain/IRepositories/IQuizConfigRepository';
+import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentReadRepository';
+import { IEnrollmentWriteRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentWriteRepository';
+import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
@@ -10,6 +13,8 @@ export class ResetStudentQuizAttemptsUseCase
   constructor(
     private quizAttemptRepository: IQuizAttemptRepository,
     private quizConfigRepository: IQuizConfigRepository,
+    private enrollmentReadRepo: IEnrollmentReadRepository,
+    private enrollmentWriteRepo: IEnrollmentWriteRepository,
   ) {}
 
   async execute(
@@ -33,9 +38,26 @@ export class ResetStudentQuizAttemptsUseCase
       );
     }
 
+    // Delete all quiz attempts for this student
     await this.quizAttemptRepository.deleteAttemptsByCourseAndUser(
       courseId,
       studentId,
     );
+
+    // Revert the enrollment back to ENROLLED (progress 99%) so the student
+    // can actually retake the quiz. Without this, they remain COMPLETED even
+    // though all their attempts have been wiped.
+    const enrollment = await this.enrollmentReadRepo.findEnrollment(
+      studentId,
+      courseId,
+    );
+    if (enrollment?.enrollmentId) {
+      await this.enrollmentWriteRepo.updateProgress(
+        enrollment.enrollmentId,
+        99,
+        EnrollmentStatus.ACTIVE,
+        undefined,
+      );
+    }
   }
 }
