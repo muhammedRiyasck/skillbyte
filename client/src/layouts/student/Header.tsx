@@ -15,6 +15,7 @@ import { clearUser } from "@features/auth/AuthSlice";
 import { ROUTES } from "@/core/router/paths";
 import NotificationDropdown from "@features/notification/components/NotificationDropdown";
 import { useChat } from "@features/chat/hooks/useChat";
+import StudentProfileModal from "@features/student/components/StudentProfileModal";
 
 const Header = () => {
   const user = useSelector((store: RootState) => store.auth.user);
@@ -27,6 +28,7 @@ const Header = () => {
   };
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   return (
     <>
       {user ? (
@@ -120,7 +122,18 @@ const Header = () => {
             <div className="flex gap-4">
               <div className="hidden md:flex items-center gap-4 text-xl">
                 <NotificationDropdown />
-                <Link to="#">👤</Link>
+                <button
+                  id="student-profile-avatar-btn"
+                  onClick={() => setIsProfileOpen(true)}
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden hover:opacity-80 transition-opacity cursor-pointer"
+                  title="View Profile"
+                >
+                  {user && user.profilePicture ? (
+                    <img src={user.profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <span>👤</span>
+                  )}
+                </button>
                 <p className="text-lg mr-2">{user && user.name}</p>
               </div>
               <button
@@ -243,14 +256,14 @@ const Header = () => {
                       <Bell size={20} className="text-orange-600 group-hover:scale-110 transition-transform" />
                       <span className="font-medium">Notifications</span>
                     </NavLink>
-                    <Link
-                      to="#"
-                      className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm"
-                      onClick={() => setIsOpen(false)}
+                    <button
+                      onClick={() => { setIsProfileOpen(true); setIsOpen(false); }}
+                      id="student-profile-mobile-btn"
+                      className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm"
                     >
                       <User size={20} className="text-teal-600 group-hover:scale-110 transition-transform" />
                       <span className="font-medium">Profile</span>
-                    </Link>
+                    </button>
                     <NavLink
                       to={ROUTES.home.about}
                       className={({ isActive }) =>
@@ -298,6 +311,8 @@ const Header = () => {
       ) : (
         <AuthHeader />
       )}
+      {/* Student Profile Modal — rendered outside header flow to avoid stacking issues */}
+      <StudentProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
     </>
   );
 };

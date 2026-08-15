@@ -1,1 +1,1 @@
-export { default as StudentDashboard } from './pages/Dashboard';
+export { default as PurchaseHistory } from './pages/PurchaseHistory';

@@ -59,4 +59,15 @@ export class StudentRepository
   async changeStatus(id: string, status: 'active' | 'blocked'): Promise<void> {
     await this.model.findByIdAndUpdate(id, { accountStatus: status });
   }
+
+  async updateProfile(
+    id: string,
+    updates: Partial<Pick<Student, 'name' | 'profilePictureUrl'>>,
+  ): Promise<void> {
+    const doc: Record<string, unknown> = {};
+    if (updates.name !== undefined) doc.name = updates.name;
+    if (updates.profilePictureUrl !== undefined)
+      doc.profilePictureUrl = updates.profilePictureUrl;
+    await this.model.findByIdAndUpdate(id, doc);
+  }
 }
