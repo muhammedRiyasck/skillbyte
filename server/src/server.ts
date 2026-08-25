@@ -1,5 +1,5 @@
 import http from 'http';
-import app from './App';
+import app from './app';
 import { SocketService } from './shared/services/socket/SocketService';
 import { VideoSignalingService } from './shared/services/video-signaling/VideoSignalingService';
 
