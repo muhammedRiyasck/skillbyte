@@ -1,0 +1,7 @@
+node_modules
+dist
+logs
+temp-transcode
+uploads
+.env
+.DS_Store

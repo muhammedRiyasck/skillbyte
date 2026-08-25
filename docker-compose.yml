@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  client:
+    build:
+      context: ./client
+      args:
+        - VITE_API_URL=/api/v1
+        - VITE_API_BASE_URL=http://localhost:4000
+        - VITE_APP_URL=http://localhost:5173
+        - VITE_STRIPE_PUBLIC_KEY=pk_test_51SayDeBOdyFM88PF0wCPD4Zau1AggrDigB3Hi3xDfgvOL4ur2QFAcFsp1nS0Tm22x9LO436YvtRxEYVdW3QJPSfa00RBGKeOVO
+        - VITE_PAYPAL_CLIENT_ID=AXZ5CfC0G-z0IhJHOI2tYsXLMuCHAg5SqYeCfsIa8GE4R_cPANwqWW3FuZDIaC7sW9uc3vqpou6q_ZBW
+    ports:
+      - "5173:80"
+    depends_on:
+      - server
+    restart: unless-stopped
+
+  server:
+    build:
+      context: ./server
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./server/.env
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/skillbyte
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - mongodb
+      - redis
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+  redis_data:
