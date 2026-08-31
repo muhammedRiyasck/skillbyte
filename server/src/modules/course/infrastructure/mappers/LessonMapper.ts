@@ -16,6 +16,8 @@ export class LessonMapper {
       doc.isFreePreview,
       doc.isPublished,
       doc.isBlocked,
+      doc.isProcessing,
+      doc.hlsUrl,
       doc._id.toString(),
       doc.createdAt,
       doc.updatedAt,

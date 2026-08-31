@@ -9,6 +9,7 @@ export interface UploadOptions {
 export interface IStorageService {
   upload(filePath: string, options: UploadOptions): Promise<string>;
   delete(identifier: string): Promise<void>;
+  deleteFolder(prefix: string): Promise<void>;
   getSignedUrl(identifier: string, expiresIn?: number): Promise<string>;
   generateUploadUrl(
     fileName: string,

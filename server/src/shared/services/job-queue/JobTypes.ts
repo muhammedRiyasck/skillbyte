@@ -19,6 +19,7 @@ export const JOB_NAMES = {
   MENTORSHIP_CLEANUP: 'mentorship-cleanup',
   MENTORSHIP_AUTO_COMPLETE: 'mentorship-auto-complete',
   REFRESH_TOP_INSTRUCTORS: 'refresh-top-instructors',
+  VIDEO_TRANSCODE: 'video-transcode',
 } as const;
 
 export const QUEUE_NAMES = {
@@ -26,6 +27,7 @@ export const QUEUE_NAMES = {
   EMAIL: 'email',
   CLEANUP: 'cleanup',
   MENTORSHIP: 'mentorship',
+  COURSE: 'course',
 } as const;
 
 export interface MentorshipCleanupJobData {

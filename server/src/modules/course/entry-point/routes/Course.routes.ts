@@ -124,6 +124,7 @@ router.get(
   requireRole('student', 'instructor', 'admin'),
   asyncHandler(lessonController.getLessonPlayUrl),
 );
+router.get('/lesson/:id/hls/:file', asyncHandler(lessonController.streamHls));
 router.patch(
   '/lesson/:id',
   authenticate,

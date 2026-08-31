@@ -1,4 +1,5 @@
 import { jobQueueService } from './JobQueueService';
+import { VideoTranscodeProcessor } from './processors/VideoTranscodeProcessor';
 import { ResumeUploadProcessor } from './processors/ResumeUploadProcessor';
 import { EmailProcessor } from './processors/EmailProcessor';
 import { InstructorRepository } from '../../../modules/instructor/infrastructure/repositories/InstructorRepository';
@@ -57,6 +58,13 @@ export class JobQueueInitializer {
           repeat: { cron: '*/30 * * * *' },
           jobId: 'mentorship-auto-complete-singleton', // Ensure only one instance exists
         },
+      );
+      // Register Video Transcode Processor
+      jobQueueService.processJob(
+        QUEUE_NAMES.COURSE,
+        JOB_NAMES.VIDEO_TRANSCODE,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (job) => VideoTranscodeProcessor.process(job as any),
       );
 
       const topInstructorRepository = new TopInstructorRepository();

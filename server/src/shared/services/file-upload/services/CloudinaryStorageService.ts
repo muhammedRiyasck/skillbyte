@@ -44,6 +44,15 @@ export class CloudinaryStorageService implements IStorageService {
     }
   }
 
+  async deleteFolder(prefix: string): Promise<void> {
+    // Cloudinary isn't currently used for HLS video storage, so we can just log this.
+    // If needed in the future, we would use cloudinary.api.delete_resources_by_prefix
+    // followed by cloudinary.api.delete_folder.
+    logger.info(
+      `deleteFolder called for Cloudinary with prefix ${prefix}, skipping.`,
+    );
+  }
+
   async getSignedUrl(publicId: string): Promise<string> {
     // Cloudinary serves direct URLs for public assets,
     // now, returning the secure URL for a public asset.

@@ -17,6 +17,8 @@ export class LessonMapper {
       isFreePreview: dto.isFreePreview || false,
       isBlocked: false,
       isPublished: dto.isPublished ?? true,
+      isProcessing: true,
+      hlsUrl: undefined,
     };
   }
 
@@ -34,6 +36,8 @@ export class LessonMapper {
       isFreePreview: lesson.isFreePreview,
       isPublished: lesson.isPublished,
       isBlocked: lesson.isBlocked,
+      isProcessing: lesson.isProcessing,
+      hlsUrl: lesson.hlsUrl,
       createdAt: lesson.createdAt,
       updatedAt: lesson.updatedAt,
     };

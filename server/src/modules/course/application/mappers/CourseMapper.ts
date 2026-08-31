@@ -34,13 +34,14 @@ export class CourseMapper {
 
   static toUpdateDto(data: UpdateBaseValidationType): UpdateCourseDto {
     const { access, customCategory, category, thumbnail, ...rest } = data;
-    
+
     const updateDto: UpdateCourseDto = {
       ...rest,
     };
-    
+
     if (access !== undefined) updateDto.duration = access;
-    if (customCategory || category) updateDto.category = customCategory || category;
+    if (customCategory || category)
+      updateDto.category = customCategory || category;
     if (thumbnail !== undefined) updateDto.thumbnailUrl = thumbnail;
 
     // Optional: strip any other undefined fields from rest

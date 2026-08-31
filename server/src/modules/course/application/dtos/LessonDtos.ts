@@ -28,6 +28,8 @@ export interface LessonResponseDto {
   isFreePreview: boolean;
   isPublished: boolean;
   isBlocked: boolean;
+  isProcessing: boolean;
+  hlsUrl?: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

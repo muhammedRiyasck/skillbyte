@@ -13,6 +13,8 @@ export class Lesson {
     public isFreePreview: boolean = false,
     public isPublished: boolean = false,
     public isBlocked: boolean = false,
+    public isProcessing: boolean = false,
+    public hlsUrl?: string,
     public lessonId?: string,
     public createdAt?: Date,
     public updatedAt?: Date,

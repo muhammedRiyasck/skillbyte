@@ -70,5 +70,11 @@ export class DeleteLessonUseCase implements IDeleteLessonUseCase {
         console.error(`Cloud cleanup failed for lesson ${lessonId}:`, error);
       });
     }
+
+    // Also clean up all generated HLS segments and playlists for this lesson
+    const hlsPrefix = `lessons/${lessonId}/hls`;
+    this._storageService.deleteFolder(hlsPrefix).catch((error) => {
+      console.error(`HLS folder cleanup failed for lesson ${lessonId}:`, error);
+    });
   }
 }

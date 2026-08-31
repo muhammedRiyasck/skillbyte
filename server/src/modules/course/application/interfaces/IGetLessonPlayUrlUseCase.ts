@@ -5,5 +5,5 @@ export interface IGetLessonPlayUrlUseCase {
     userId: string,
     lessonId: string,
     role: UserRole,
-  ): Promise<{ signedUrl: string }>;
+  ): Promise<{ isProcessing?: boolean; hlsUrl?: string; signedUrl?: string }>;
 }

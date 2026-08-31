@@ -105,7 +105,8 @@ export default function LessonItem({ lesson, id, moduleId, order, setModules }: 
       setErrors(validationErrors);
       if (Object.keys(validationErrors).length === 0 && videoFile) {
         setUploadStared(true);
-        const { signedUrl } = await getPresignedUrl(videoFile!);
+        setUploadProgress(0);
+        const { signedUrl } = await getPresignedUrl(videoFile);
         await uploadFile(signedUrl, videoFile, setUploadProgress);
         const response = await createLesson({
           id: lesson.id,
@@ -122,8 +123,11 @@ export default function LessonItem({ lesson, id, moduleId, order, setModules }: 
         toast.success(response.message);
       }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "An unknown error occurred";
-      throw message;
+      const message = error instanceof Error ? error.message : "Upload failed. Please try again.";
+      console.error("Lesson upload failed", error);
+      setUploadStared(false);
+      setUploadProgress(0);
+      toast.error(message);
     }
   };
   React.useEffect(() => {
@@ -305,7 +309,7 @@ export default function LessonItem({ lesson, id, moduleId, order, setModules }: 
               Delete🗑️
             </button>
             {/^\d{13,}$/.test(lesson.id) && (
-              <button onClick={handleUpload} className="cursor-pointer border p-2 rounded-lg my-4">
+              <button type="button" onClick={handleUpload} className="cursor-pointer border p-2 rounded-lg my-4">
                 Upload&#129093;
               </button>
             )}

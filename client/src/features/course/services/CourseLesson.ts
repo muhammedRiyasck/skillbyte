@@ -5,7 +5,11 @@ import type { LessonType } from "../types/ILesson";
 
 export const getPresignedUrl = async (file: File): Promise<Record<string, string>> => {
 
-  const response = await api.post("/course/presign", { fileName: file.name });
+  // The content type must match the one used to sign the direct-to-storage upload.
+  const response = await api.post("/course/presign", {
+    fileName: file.name,
+    contentType: file.type || "application/octet-stream",
+  });
   const { signedUrl, publicUrl } = response.data.data;
   return { signedUrl, publicUrl };
 

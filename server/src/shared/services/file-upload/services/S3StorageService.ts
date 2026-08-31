@@ -2,6 +2,8 @@ import {
   PutObjectCommand,
   GetObjectCommand,
   DeleteObjectCommand,
+  ListObjectsV2Command,
+  DeleteObjectsCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { s3 } from '../../../config/backblaze/S3Client';
@@ -71,6 +73,70 @@ export class S3StorageService implements IStorageService {
     } catch (err) {
       // Log the error but don't rethrow — deletion failures should not block DB operations
       logger.error('S3 delete error (non-blocking):', err);
+    }
+  }
+
+  async deleteFolder(prefix: string): Promise<void> {
+    if (!prefix) return;
+    try {
+      // 1. List all objects with this prefix
+      const listCommand = new ListObjectsV2Command({
+        Bucket: this.bucket,
+        Prefix: prefix,
+      });
+      const listedObjects = await s3.send(listCommand);
+
+      if (!listedObjects.Contents || listedObjects.Contents.length === 0) {
+        return; // Nothing to delete
+      }
+
+      // 2. Format them for DeleteObjectsCommand
+      const deleteParams = {
+        Bucket: this.bucket,
+        Delete: {
+          Objects: listedObjects.Contents.map(({ Key }) => ({ Key })),
+          Quiet: true,
+        },
+      };
+
+      // 3. Delete them all in bulk
+      const deleteCommand = new DeleteObjectsCommand(deleteParams);
+      await s3.send(deleteCommand);
+
+      logger.info(
+        `S3 folder deleted: ${prefix} (${listedObjects.Contents.length} objects)`,
+      );
+
+      // 4. If the list was truncated (more than 1000 objects), recursively delete the rest
+      if (listedObjects.IsTruncated) {
+        await this.deleteFolder(prefix);
+      }
+    } catch (err) {
+      logger.error(`S3 deleteFolder error for prefix ${prefix}:`, err);
+    }
+  }
+
+  async download(key: string, destinationPath: string): Promise<void> {
+    try {
+      const command = new GetObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+      });
+      const response = await s3.send(command);
+      if (!response.Body) {
+        throw new Error('S3 response body is empty');
+      }
+
+      await fs.writeFile(
+        destinationPath,
+        await response.Body.transformToByteArray(),
+      );
+    } catch (err) {
+      logger.error('S3 download error:', err);
+      throw new HttpError(
+        ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 

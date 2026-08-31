@@ -13,6 +13,8 @@ export interface ILessonDoc extends Document {
   isFreePreview: boolean;
   isPublished: boolean;
   isBlocked: boolean;
+  isProcessing: boolean;
+  hlsUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -34,6 +36,8 @@ const LessonSchema = new mongoose.Schema(
     isFreePreview: { type: Boolean, default: false },
     isPublished: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },
+    isProcessing: { type: Boolean, default: false },
+    hlsUrl: { type: String },
   },
   { timestamps: true },
 );

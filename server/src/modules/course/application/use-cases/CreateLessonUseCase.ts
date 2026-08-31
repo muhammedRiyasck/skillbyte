@@ -10,6 +10,11 @@ import { eventBus } from '../../../../shared/services/event-bus/EventBus';
 import { COURSE_EVENTS } from '../../../../shared/services/event-bus/CourseEvents';
 import { LessonMapper } from '../mappers/LessonMapper';
 import { LessonResponseDto } from '../dtos/LessonDtos';
+import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
+import {
+  JOB_NAMES,
+  QUEUE_NAMES,
+} from '../../../../shared/services/job-queue/JobTypes';
 
 type WithInstructorId<T> = T & { instructorId: string };
 
@@ -73,6 +78,8 @@ export class CreateLessonUseCase implements ICreateLessonUseCase {
       dto.resources,
       dto.isFreePreview || false,
       dto.isPublished || false,
+      dto.isBlocked || false,
+      dto.contentType === 'video' ? true : false,
     );
 
     const savedLesson = await this._lessonRepo.create(lesson);
@@ -84,6 +91,13 @@ export class CreateLessonUseCase implements ICreateLessonUseCase {
       lessonTitle: dto.title,
       instructorId: dto.instructorId,
     });
+
+    if (savedLesson.contentType === 'video' && savedLesson.lessonId) {
+      jobQueueService.addJob(QUEUE_NAMES.COURSE, JOB_NAMES.VIDEO_TRANSCODE, {
+        lessonId: savedLesson.lessonId,
+        sourceKey: savedLesson.fileName,
+      });
+    }
 
     return LessonMapper.toResponse(savedLesson);
   }

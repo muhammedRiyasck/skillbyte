@@ -10,6 +10,7 @@ import { submitReport } from '@features/review/services/ReviewService';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/core/store/Index';
 import { UserRole } from '@shared/enums/UserRole';
+import HlsPlayer from './HlsPlayer';
 
 interface LessonPlayerProps {
   id: string;
@@ -35,15 +36,24 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
   const [isSlowConnection, setIsSlowConnection] = useState(false);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const hideControlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const role = useSelector((state: RootState) => state.auth.user?.role);
 
   const queryClient = useQueryClient();
   const lastSavedTime = useRef(0);
+  const isSaving = useRef(false);
+  // Refs mirroring state so event handlers (beforeunload, visibilitychange)
+  // can read the latest values synchronously without stale closures.
+  const currentTimeRef = useRef(0);
+  const durationRef = useRef(0);
 
   const saveProgress = async (time: number, total: number, completed: boolean) => {
     if (!enrollmentId) return;
+    // Guard: skip if a save request is already in flight
+    if (isSaving.current) return;
     try {
+      isSaving.current = true;
       lastSavedTime.current = time;
       await updateLessonProgress(enrollmentId, {
         lessonId: id,
@@ -51,10 +61,30 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
         totalDuration: total,
         isCompleted: completed,
       });
-      // Invalidate the enrollment query to trigger a refetch of progress
-      queryClient.invalidateQueries({ queryKey: ["enrollment"] });
+      // Only refetch enrollment data when the lesson is marked complete,
+      // not on every intermediate 5-second heartbeat save.
+      if (completed) {
+        queryClient.invalidateQueries({ queryKey: ["enrollment"] });
+      }
     } catch (err) {
-      console.error("Failed to save progress", err);
+      console.warn("Progress save failed, retrying in 2s…", err);
+      // One automatic retry after a short delay — fire-and-forget so it
+      // doesn't block playback. Show a toast only if the retry also fails.
+      setTimeout(async () => {
+        try {
+          await updateLessonProgress(enrollmentId, {
+            lessonId: id,
+            lastWatchedSecond: time,
+            totalDuration: total,
+            isCompleted: completed,
+          });
+        } catch (retryErr) {
+          console.error("Progress save retry also failed", retryErr);
+          toast.error("Couldn't save your progress. Check your connection.");
+        }
+      }, 2000);
+    } finally {
+      isSaving.current = false;
     }
   };
 
@@ -62,10 +92,18 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     queryKey: ["lessonPlayUrl", id],
     queryFn: () => getLessonPlayUrl(id),
     enabled: !!id,
-    staleTime: 0,
+    // Signed URLs are valid for hours — avoid re-fetching on every render.
+    // Still refetch when processing, and when the cache expires after 5 min.
+    staleTime: 5 * 60 * 1000,
+    refetchInterval: (query) => {
+      // If it's still processing, refetch every 10 seconds to check if it's done
+      return query.state.data?.data?.isProcessing ? 10000 : false;
+    }
   });
 
   const signedUrl = data?.data?.signedUrl;
+  const hlsUrl = data?.data?.hlsUrl;
+  const isProcessing = data?.data?.isProcessing;
 
   // Reset state when lessonId changes
   useEffect(() => {
@@ -83,12 +121,18 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
 
   // Handle online/offline status
   useEffect(() => {
-    window.addEventListener("online", () => setIsOffline(false));
-    window.addEventListener("offline", () => setIsOffline(true));
+    // Named handlers are required so removeEventListener can match the exact
+    // same function reference — inline arrows would create new functions each
+    // time and the listeners would never actually be removed (memory leak).
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
-      window.removeEventListener("online", () => setIsOffline(false));
-      window.removeEventListener("offline", () => setIsOffline(true));
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, []);
 
@@ -112,6 +156,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
 
     const time = video.currentTime;
     setCurrentTime(time);
+    currentTimeRef.current = time;
 
     // Sync progress every 5 seconds or if it's the end
     if (enrollmentId && Math.abs(time - lastSavedTime.current) > 5) {
@@ -126,6 +171,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
   const handleLoadedMetadata = () => {
     if (videoRef.current) {
       setDuration(videoRef.current.duration);
+      durationRef.current = videoRef.current.duration;
 
       // Seek to initial progress if provided and not yet done
       if (initialProgress > 0 && !initialSeekDone.current) {
@@ -151,10 +197,11 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     setBuffering(false);
   };
 
-  const handleEnded = () => {
+  const handleEnded = (endedDuration?: number) => {
     setIsPlaying(false);
-    if (enrollmentId && videoRef.current) {
-      saveProgress(videoRef.current.duration, videoRef.current.duration, true);
+    if (enrollmentId) {
+      const finalDuration = endedDuration ?? videoRef.current?.duration ?? duration;
+      saveProgress(finalDuration, finalDuration, true);
     }
   };
 
@@ -167,11 +214,51 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
 
-  let hideControlsTimeout: NodeJS.Timeout;
+  // Save progress when the user hides the tab, navigates away, or closes the browser.
+  // These events fire synchronously so we use sendBeacon (fire-and-forget) for
+  // beforeunload, and the normal async saveProgress for visibilitychange.
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        const time = currentTimeRef.current;
+        const total = durationRef.current;
+        if (enrollmentId && time > 0 && Math.abs(time - lastSavedTime.current) > 1) {
+          saveProgress(time, total, false);
+        }
+      }
+    };
+
+    const handleBeforeUnload = () => {
+      const time = currentTimeRef.current;
+      const total = durationRef.current;
+      if (!enrollmentId || time <= 0) return;
+      // sendBeacon keeps the request alive even as the page tears down.
+      const payload = JSON.stringify({
+        lessonId: id,
+        lastWatchedSecond: time,
+        totalDuration: total,
+        isCompleted: false,
+      });
+      navigator.sendBeacon(
+        `/api/enrollment/${enrollmentId}/lesson-progress`,
+        new Blob([payload], { type: 'application/json' })
+      );
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enrollmentId, id]);
+
   const handleMouseMove = () => {
     setShowControls(true);
-    clearTimeout(hideControlsTimeout);
-    hideControlsTimeout = setTimeout(() => {
+    if (hideControlsTimeoutRef.current) clearTimeout(hideControlsTimeoutRef.current);
+    hideControlsTimeoutRef.current = setTimeout(() => {
       if (isPlaying) setShowControls(false);
     }, 3000);
   };
@@ -317,6 +404,25 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     );
   }
 
+  if (isProcessing) {
+    return (
+      <div className="w-full h-96 bg-gray-900 flex flex-col items-center justify-center rounded-xl relative">
+        <Loader2 className="w-12 h-12 animate-spin text-indigo-500 mb-4" />
+        <h3 className="text-xl text-white font-semibold mb-2">Processing Video</h3>
+        <p className="text-gray-400 text-center max-w-md px-4">
+          This lesson is currently being transcoded to provide high-quality adaptive streaming. 
+          Please check back in a few minutes.
+        </p>
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+        >
+          <X className="w-6 h-6" />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-black rounded-xl overflow-hidden shadow-2xl">
       {/* Header bar (optional) */}
@@ -350,21 +456,108 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
         tabIndex={0}
         onKeyDown={handleKeyDown}
       >
-        {/* Video Element */}
-        <video
-          ref={videoRef}
-          src={signedUrl}
-          className="w-full h-full"
-          onClick={togglePlayPause}
-          autoPlay
-          onPlay={() => setIsPlaying(true)}
-          onTimeUpdate={handleTimeUpdate}
-          onLoadedMetadata={handleLoadedMetadata}
-          onDurationChange={handleLoadedMetadata}
-          onWaiting={handleWaiting}
-          onCanPlay={handleCanPlay}
-          onEnded={handleEnded}
-        />
+        {hlsUrl ? (
+          <HlsPlayer
+            src={hlsUrl}
+            initialTime={initialProgress}
+            onTimeUpdate={(time, dur) => {
+              setCurrentTime(time);
+              setDuration(dur);
+              // Keep refs in sync so visibilitychange/beforeunload handlers
+              // have the latest values without stale closures.
+              currentTimeRef.current = time;
+              durationRef.current = dur;
+              if (enrollmentId && Math.abs(time - lastSavedTime.current) > 5) {
+                saveProgress(time, dur, false);
+              }
+            }}
+            onEnded={handleEnded}
+            onResumed={() => {
+              toast.custom(() => (
+                <div className="text-black dark:bg-gray-800 dark:text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                  <Play className="w-5 h-5" />
+                  <span>Resumed from your last watched.</span>
+                </div>
+              ), {
+                duration: 3000,
+              });
+            }}
+          />
+        ) : (
+          <>
+            {/* Fallback Native Video Element for older MP4s */}
+            <video
+              ref={videoRef}
+              src={signedUrl}
+              className="w-full h-full"
+              onClick={togglePlayPause}
+              autoPlay
+              onPlay={() => setIsPlaying(true)}
+              onTimeUpdate={handleTimeUpdate}
+              onLoadedMetadata={handleLoadedMetadata}
+              onDurationChange={handleLoadedMetadata}
+              onWaiting={handleWaiting}
+              onCanPlay={handleCanPlay}
+              onEnded={() => handleEnded()}
+            />
+
+            {/* Controls Overlay (Only for native video) */}
+            <div
+              className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-4 transition-opacity duration-300 ${showControls ? "opacity-100" : "opacity-0"
+                }`}
+            >
+              {/* Progress Bar */}
+              <input
+                type="range"
+                min="0"
+                max={duration || 0}
+                value={currentTime}
+                onChange={handleSeek}
+                className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer mb-4"
+                style={{
+                  background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${(currentTime / duration) * 100}%, #4b5563 ${(currentTime / duration) * 100
+                    }%, #4b5563 100%)`,
+                }}
+              />
+
+              {/* Control Buttons */}
+              <div className="flex items-center justify-between text-white">
+                <div className="flex items-center gap-4">
+                  {/* Play/Pause */}
+                  <button onClick={togglePlayPause} className="hover:text-indigo-400 transition-colors cursor-pointer">
+                    {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8" />}
+                  </button>
+
+                  {/* Volume */}
+                  <div className="flex items-center gap-2">
+                    <button onClick={toggleMute} className="hover:text-indigo-400 transition-colors cursor-pointer ">
+                      {isMuted || volume === 0 ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+                    </button>
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.1"
+                      value={volume}
+                      onChange={handleVolumeChange}
+                      className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
+                    />
+                  </div>
+
+                  {/* Time */}
+                  <span className="text-sm">
+                    {formatTime(currentTime)} / {formatTime(duration)}
+                  </span>
+                </div>
+
+                {/* Fullscreen */}
+                <button onClick={toggleFullscreen} className="hover:text-indigo-400 transition-colors  cursor-pointer">
+                  {isFullscreen ? <Minimize className="w-6 h-6" /> : <Maximize className="w-6 h-6" />}
+                </button>
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Offline Indicator */}
         {isOffline && (
@@ -378,7 +571,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
         )}
 
         {/* Buffering Indicator */}
-        {buffering && !isOffline && (
+        {buffering && !isOffline && !hlsUrl && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50 pointer-events-none z-10">
             <Loader2 className="w-16 h-16 animate-spin text-white mb-4" />
             {isSlowConnection && (
@@ -389,62 +582,6 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
             )}
           </div>
         )}
-
-        {/* Controls Overlay */}
-        <div
-          className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/80 to-transparent p-4 transition-opacity duration-300 ${showControls ? "opacity-100" : "opacity-0"
-            }`}
-        >
-          {/* Progress Bar */}
-          <input
-            type="range"
-            min="0"
-            max={duration || 0}
-            value={currentTime}
-            onChange={handleSeek}
-            className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer mb-4"
-            style={{
-              background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${(currentTime / duration) * 100}%, #4b5563 ${(currentTime / duration) * 100
-                }%, #4b5563 100%)`,
-            }}
-          />
-
-          {/* Control Buttons */}
-          <div className="flex items-center justify-between text-white">
-            <div className="flex items-center gap-4">
-              {/* Play/Pause */}
-              <button onClick={togglePlayPause} className="hover:text-indigo-400 transition-colors cursor-pointer">
-                {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8" />}
-              </button>
-
-              {/* Volume */}
-              <div className="flex items-center gap-2">
-                <button onClick={toggleMute} className="hover:text-indigo-400 transition-colors cursor-pointer ">
-                  {isMuted || volume === 0 ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
-                </button>
-                <input
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  value={volume}
-                  onChange={handleVolumeChange}
-                  className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
-                />
-              </div>
-
-              {/* Time */}
-              <span className="text-sm">
-                {formatTime(currentTime)} / {formatTime(duration)}
-              </span>
-            </div>
-
-            {/* Fullscreen */}
-            <button onClick={toggleFullscreen} className="hover:text-indigo-400 transition-colors  cursor-pointer">
-              {isFullscreen ? <Minimize className="w-6 h-6" /> : <Maximize className="w-6 h-6" />}
-            </button>
-          </div>
-        </div>
       </div>
 
       <ReportModal

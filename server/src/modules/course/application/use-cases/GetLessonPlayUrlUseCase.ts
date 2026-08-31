@@ -20,7 +20,7 @@ export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
     userId: string,
     lessonId: string,
     role: UserRole,
-  ): Promise<{ signedUrl: string }> {
+  ): Promise<{ isProcessing?: boolean; hlsUrl?: string; signedUrl?: string }> {
     const lesson = await this._lessonRepo.findById(lessonId);
     if (!lesson) {
       throw new HttpError(
@@ -70,7 +70,23 @@ export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
       }
     }
 
+    if (lesson.isProcessing) {
+      return { isProcessing: true };
+    }
+
+    if (lesson.hlsUrl) {
+      const baseUrl = process.env.BASE_URL?.replace(/\/$/, '');
+      if (!baseUrl) {
+        throw new Error('BASE_URL must be configured to stream HLS media');
+      }
+
+      return {
+        isProcessing: false,
+        hlsUrl: `${baseUrl}/api/v1/course/lesson/${lessonId}/hls/master.m3u8`,
+      };
+    }
+
     const signedUrl = await this._storageService.getSignedUrl(lesson.fileName);
-    return { signedUrl };
+    return { isProcessing: false, signedUrl };
   }
 }
