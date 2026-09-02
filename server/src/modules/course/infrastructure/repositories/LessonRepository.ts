@@ -37,6 +37,7 @@ export class LessonRepository
       isFreePreview: lesson.isFreePreview,
       isPublished: lesson.isPublished,
       isBlocked: lesson.isBlocked,
+      isProcessing: lesson.isProcessing,
     });
 
     return this.toEntity(doc);

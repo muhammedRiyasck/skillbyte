@@ -1,5 +1,7 @@
 import mongoose, { Document, Types } from 'mongoose';
 
+export type TranscodePhase = 'downloaded' | 'transcoded' | 'uploaded' | 'done';
+
 export interface ILessonDoc extends Document {
   _id: Types.ObjectId;
   moduleId: Types.ObjectId;
@@ -14,6 +16,10 @@ export interface ILessonDoc extends Document {
   isPublished: boolean;
   isBlocked: boolean;
   isProcessing: boolean;
+  /** Tracks the last successfully completed phase of the transcode pipeline. */
+  transcodePhase?: TranscodePhase;
+  /** Stores the last error message if transcoding failed, for debugging. */
+  transcodeError?: string;
   hlsUrl?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -37,6 +43,11 @@ const LessonSchema = new mongoose.Schema(
     isPublished: { type: Boolean, default: false },
     isBlocked: { type: Boolean, default: false },
     isProcessing: { type: Boolean, default: false },
+    transcodePhase: {
+      type: String,
+      enum: ['downloaded', 'transcoded', 'uploaded', 'done'],
+    },
+    transcodeError: { type: String },
     hlsUrl: { type: String },
   },
   { timestamps: true },

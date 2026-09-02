@@ -93,10 +93,21 @@ export class CreateLessonUseCase implements ICreateLessonUseCase {
     });
 
     if (savedLesson.contentType === 'video' && savedLesson.lessonId) {
-      jobQueueService.addJob(QUEUE_NAMES.COURSE, JOB_NAMES.VIDEO_TRANSCODE, {
-        lessonId: savedLesson.lessonId,
-        sourceKey: savedLesson.fileName,
-      });
+      jobQueueService.addJob(
+        QUEUE_NAMES.COURSE,
+        JOB_NAMES.VIDEO_TRANSCODE,
+        {
+          lessonId: savedLesson.lessonId,
+          sourceKey: savedLesson.fileName,
+        },
+        {
+          // Video jobs are network-heavy — give more attempts and longer
+          // backoff between full job-level retries (operation-level withRetry
+          // handles the fast micro-retries within each attempt).
+          attempts: 5,
+          backoff: { type: 'exponential', delay: 5000 }, // 5s → 10s → 20s → 40s
+        },
+      );
     }
 
     return LessonMapper.toResponse(savedLesson);

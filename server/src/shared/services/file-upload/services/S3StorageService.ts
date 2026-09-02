@@ -4,6 +4,7 @@ import {
   DeleteObjectCommand,
   ListObjectsV2Command,
   DeleteObjectsCommand,
+  HeadObjectCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { s3 } from '../../../config/backblaze/S3Client';
@@ -127,10 +128,12 @@ export class S3StorageService implements IStorageService {
         throw new Error('S3 response body is empty');
       }
 
-      await fs.writeFile(
-        destinationPath,
-        await response.Body.transformToByteArray(),
-      );
+      const { pipeline } = await import('stream/promises');
+      const { createWriteStream } = await import('fs');
+
+      const writeStream = createWriteStream(destinationPath);
+      // response.Body is a Readable stream in Node.js
+      await pipeline(response.Body as ReadableStream, writeStream);
     } catch (err) {
       logger.error('S3 download error:', err);
       throw new HttpError(
@@ -153,6 +156,25 @@ export class S3StorageService implements IStorageService {
         ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
         HttpStatusCode.INTERNAL_SERVER_ERROR,
       );
+    }
+  }
+
+  async fileExists(key: string): Promise<boolean> {
+    if (!key) return false;
+    try {
+      const command = new HeadObjectCommand({
+        Bucket: this.bucket,
+        Key: key,
+      });
+      await s3.send(command);
+      return true; // File exists if no error is thrown
+    } catch (err) {
+      if ((err as { name: string }).name === 'NotFound') {
+        return false;
+      }
+      logger.error(`S3 fileExists error for key ${key}:`, err);
+      // Fallback to false on other errors so we don't break pipelines, but log it
+      return false;
     }
   }
 

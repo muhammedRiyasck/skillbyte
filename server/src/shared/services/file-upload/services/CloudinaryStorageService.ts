@@ -66,6 +66,15 @@ export class CloudinaryStorageService implements IStorageService {
     );
   }
 
+  async fileExists(_key: string): Promise<boolean> {
+    // Cloudinary is used for images/profiles, not for HLS video storage.
+    // This method is only needed by S3StorageService for the transcode pipeline.
+    throw new HttpError(
+      'fileExists is not implemented for Cloudinary',
+      HttpStatusCode.INTERNAL_SERVER_ERROR,
+    );
+  }
+
   getIdentifierFromUrl(url: string): string {
     const match = url.match(/\/upload\/v\d+\/(.*?)(\.\w+)?$/);
     if (match) {

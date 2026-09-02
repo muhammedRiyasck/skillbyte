@@ -11,6 +11,7 @@ export interface IStorageService {
   delete(identifier: string): Promise<void>;
   deleteFolder(prefix: string): Promise<void>;
   getSignedUrl(identifier: string, expiresIn?: number): Promise<string>;
+  fileExists(identifier: string): Promise<boolean>;
   generateUploadUrl(
     fileName: string,
     contentType?: string,

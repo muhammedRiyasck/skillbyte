@@ -1,4 +1,5 @@
 import { S3Client, PutBucketCorsCommand } from '@aws-sdk/client-s3';
+import { NodeHttpHandler } from '@smithy/node-http-handler';
 
 export const s3 = new S3Client({
   endpoint: `https://${process.env.B2_S3_ENDPOINT}`,
@@ -8,6 +9,16 @@ export const s3 = new S3Client({
     accessKeyId: process.env.B2_S3_KEY_ID!,
     secretAccessKey: process.env.B2_S3_SECRET!,
   },
+  requestHandler: new NodeHttpHandler({
+    /**
+     * Poor-connection hardening:
+     * - connectionTimeout: abort if TCP handshake takes > 10s (dead server / routing issue)
+     * - socketTimeout: abort if no data received for 60s mid-transfer (stalled connection)
+     * Without these, the SDK can silently hang indefinitely on a dead socket.
+     */
+    connectionTimeout: 10_000, // 10 seconds to establish TCP connection
+    socketTimeout: 60_000, // 60 seconds of inactivity before aborting
+  }),
 });
 
 export async function updateCors() {
