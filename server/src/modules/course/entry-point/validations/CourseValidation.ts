@@ -6,7 +6,7 @@ import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
 export const CreateBaseSchema = z.object({
   title: z.string().min(1, 'Title is required'),
-  thumbnail: z.string().nullable().default(null),
+  thumbnail: z.string().nullable().optional(),
   subText: z.string(),
   category: z.nativeEnum(CourseCategory).optional(),
   customCategory: z.string().optional(),
