@@ -15,7 +15,7 @@ RUN npm run build
 FROM node:18-alpine
 
 # Install FFmpeg for video processing
-RUN apk add --no-cache ffmpeg
+RUN apk update && apk add --no-cache ffmpeg
 
 WORKDIR /app
 
