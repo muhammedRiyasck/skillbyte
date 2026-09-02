@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { IGenerateVideoRoomUseCase } from '../interfaces/IBookingUseCases';
 import { IMentorshipBookingRepository } from '../../domain/IRepositories/IMentorshipBookingRepository';
 import logger from '../../../../shared/utils/Logger';
@@ -34,9 +35,7 @@ export class GenerateVideoRoomUseCase implements IGenerateVideoRoomUseCase {
 
     // Generate unique room ID
     // Format: skillbyte-mentorship-<bookingId>-<tokening>
-    const uniqueToken = crypto
-      .getRandomValues(new Uint32Array(1))[0]
-      .toString(36);
+    const uniqueToken = crypto.randomBytes(4).toString('hex');
     const roomId = `skillbyte-mentorship-${bookingId}-${uniqueToken}`;
     const roomUrl = `/video-call/${roomId}`; // Internal app route
 
