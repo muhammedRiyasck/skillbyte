@@ -72,6 +72,16 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         store.dispatch(clearUser());
       });
 
+      newSocket.on('account:suspended', async () => {
+        toast.error('Your account has been suspended by the administrator.');
+        try {
+          await api.post('/auth/logout');
+        } catch (err) {
+          console.error('Logout failed after account suspended', err);
+        }
+        store.dispatch(clearUser());
+      });
+
       setSocket(newSocket);
 
       return () => {

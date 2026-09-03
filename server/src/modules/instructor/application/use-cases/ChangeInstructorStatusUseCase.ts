@@ -11,6 +11,7 @@ import {
 import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
+import { SocketService } from '../../../../shared/services/socket/SocketService';
 
 /**
  * Use case for changing an instructor's status (activate or suspend).
@@ -44,6 +45,12 @@ export class ChangeInstructorStatusUseCase
     const instructor = await this._instructorRepo.findById(id);
     if (!instructor) {
       throw new HttpError(ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND, 404);
+    }
+
+    if (status === InstructorAccountStatus.SUSPENDED) {
+      SocketService.getInstance().emitToUser(id, 'account:suspended', {
+        message: 'Your account has been suspended by the administrator.',
+      });
     }
 
     const template =
