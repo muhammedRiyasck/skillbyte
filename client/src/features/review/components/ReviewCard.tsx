@@ -135,14 +135,22 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
 
       return { previousReviews };
     },
-    onError: (_err, _variables, context) => {
+    onError: (_err, variables, context) => {
       if (context?.previousReviews) {
         queryClient.setQueriesData({ queryKey: ['instructor-reviews'] }, context.previousReviews);
       }
-      toast.error('Failed to submit reply');
+      if (variables.reply === '') {
+        toast.error('Failed to delete reply');
+      } else {
+        toast.error('Failed to submit reply');
+      }
     },
-    onSuccess: () => {
-      toast.success('Reply submitted successfully');
+    onSuccess: (_data, variables) => {
+      if (variables.reply === '') {
+        toast.success('Reply deleted successfully');
+      } else {
+        toast.success('Reply submitted successfully');
+      }
       setIsReplying(false);
       setReplyText('');
     },

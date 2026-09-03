@@ -24,9 +24,15 @@ export class ReplyToReviewUseCase implements IReplyToReviewUseCase {
       );
     }
 
-    await this.reviewRepository.updateReview(reviewId, {
-      instructorReply: reply || undefined,
-      repliedAt: reply ? new Date() : undefined,
-    });
+    if (reply) {
+      await this.reviewRepository.updateReview(reviewId, {
+        instructorReply: reply,
+        repliedAt: new Date(),
+      });
+    } else {
+      await this.reviewRepository.updateReview(reviewId, {
+        $unset: { instructorReply: 1, repliedAt: 1 }
+      } as any);
+    }
   }
 }
