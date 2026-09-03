@@ -2,6 +2,7 @@ import { IReviewRepository } from '../../domain/IRepositories/IReviewRepository'
 import { IReplyToReviewUseCase } from '../interfaces/IReplyToReviewUseCase';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { Review } from '../../domain/entities/Review';
 
 export class ReplyToReviewUseCase implements IReplyToReviewUseCase {
   constructor(private reviewRepository: IReviewRepository) {}
@@ -31,8 +32,8 @@ export class ReplyToReviewUseCase implements IReplyToReviewUseCase {
       });
     } else {
       await this.reviewRepository.updateReview(reviewId, {
-        $unset: { instructorReply: 1, repliedAt: 1 }
-      } as any);
+        $unset: { instructorReply: 1, repliedAt: 1 },
+      } as unknown as Partial<Review>);
     }
   }
 }
