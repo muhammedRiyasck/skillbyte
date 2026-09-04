@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import fs from 'fs/promises';
 import { ICreateBaseUseCase } from '../../application/interfaces/ICreateBaseUseCase';
 import { IGetCourseUseCase } from '../../application/interfaces/IGetCourseDetailsUseCase';
 import { IUpdateBaseUseCase } from '../../application/interfaces/IUpdateBaseUseCase';
@@ -7,6 +6,7 @@ import { IDeleteCourseUseCase } from '../../application/interfaces/IDeleteCourse
 import { IUpdateCourseStatusUseCase } from '../../application/interfaces/IUpdateCourseStatusUseCase';
 import { IGetPaginatedCoursesUseCase } from '../../application/interfaces/IGetPaginatedCoursesUseCase';
 import { IBlockCourseUseCase } from '../../application/interfaces/IBlockCourseUseCase';
+import { IUploadCourseThumbnailUseCase } from '../../application/interfaces/IUploadCourseThumbnailUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { HttpError } from '../../../../shared/types/HttpError';
 import logger from '../../../../shared/utils/Logger';
@@ -21,11 +21,7 @@ import {
 } from '../validations/CourseValidation';
 import { CourseMapper } from '../../application/mappers/CourseMapper';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
-import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentReadRepository';
 import { GetCategories } from '../../application/use-cases/GetCategoriesUseCase';
-import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
-import { IEnrollment } from '../../../enrollment/domain/entities/Enrollment';
-import { UserRole } from '../../../../shared/enums/UserRole';
 import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
 export class CourseController {
@@ -36,10 +32,9 @@ export class CourseController {
     private _deleteCourseUseCase: IDeleteCourseUseCase,
     private _updateCourseStatusUseCase: IUpdateCourseStatusUseCase,
     private _getPaginatedCoursesUseCase: IGetPaginatedCoursesUseCase,
-    private _enrollmentRepository: IEnrollmentReadRepository,
     private _getCategoriesUseCase: GetCategories,
     private _blockCourseUseCase: IBlockCourseUseCase,
-    private _storageService: IStorageService,
+    private _uploadThumbnailUseCase: IUploadCourseThumbnailUseCase,
   ) {}
 
   createBase = async (req: Request, res: Response): Promise<void> => {
@@ -76,37 +71,18 @@ export class CourseController {
         HttpStatusCode.BAD_REQUEST,
       );
     }
-    if (authenticatedReq.file.size > 2 * 1024 * 1024) {
-      logger.warn('Thumbnail size exceeds 2MB');
-      throw new HttpError(
-        ERROR_MESSAGES.THUMBNAIL_SIZE_EXCEEDED,
-        HttpStatusCode.BAD_REQUEST,
-      );
-    }
-    if (!authenticatedReq.file.mimetype.startsWith('image/')) {
-      throw new HttpError(
-        ERROR_MESSAGES.ONLY_IMAGE_FILES_ALLOWED,
-        HttpStatusCode.BAD_REQUEST,
-      );
-    }
 
-    const url = await this._storageService.upload(authenticatedReq.file.path, {
-      folder: 'skillbyte/thumbnails',
-      resourceType: 'image',
-      publicId: `thumbnail_${id}`,
-      overwrite: true,
+    const result = await this._uploadThumbnailUseCase.execute({
+      courseId: id,
+      instructorId: authenticatedReq.user.id,
+      filePath: authenticatedReq.file.path,
+      mimeType: authenticatedReq.file.mimetype,
+      fileSize: authenticatedReq.file.size,
     });
 
-    await this._updateBaseUseCase.execute(id, authenticatedReq.user.id, {
-      thumbnailUrl: url,
+    ApiResponseHelper.success(res, 'Course Base Created Successfully', {
+      id: result.id,
     });
-    ApiResponseHelper.success(res, 'Course Base Created Successfully', { id });
-
-    try {
-      await fs.unlink(authenticatedReq.file.path);
-    } catch (unlinkError) {
-      logger.error('Error deleting local file:', unlinkError);
-    }
   };
 
   updateBase = async (req: Request, res: Response): Promise<void> => {
@@ -183,37 +159,9 @@ export class CourseController {
       limit: validatedQuery.limit,
       sort: validatedQuery.sort,
       isBlocked: false,
+      userId: authenticatedReq.user?.id,
+      userRole: authenticatedReq.user?.role,
     });
-
-    // Check enrollment status for each course if user is a student
-    if (
-      authenticatedReq.user &&
-      authenticatedReq.user.role === UserRole.STUDENT &&
-      courses?.data
-    ) {
-      const userId = authenticatedReq.user.id;
-      const courseIds = courses.data
-        .map((c) => c.id)
-        .filter((id): id is string => !!id);
-      const enrollments =
-        await this._enrollmentRepository.findEnrollmentsForUser(
-          userId,
-          courseIds,
-        );
-      const enrolledSet = new Set(
-        enrollments.map((e: IEnrollment) => e.courseId.toString()),
-      );
-
-      const withEnrollment = courses.data.map((c) => ({
-        ...c,
-        isEnrolled: enrolledSet.has(c.id || ''),
-      }));
-
-      ApiResponseHelper.success(res, 'Courses retrieved successfully', {
-        courses: { ...courses, data: withEnrollment },
-      });
-      return;
-    }
 
     ApiResponseHelper.success(res, 'Courses retrieved successfully', {
       courses,

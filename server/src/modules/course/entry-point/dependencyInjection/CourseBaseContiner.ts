@@ -13,6 +13,7 @@ import { UpdateCourseStatusUseCase } from '../../application/use-cases/UpdateCou
 import { GetPaginatedCoursesUseCase } from '../../application/use-cases/GetPaginatedCoursesUseCase';
 import { GetCategories } from '../../application/use-cases/GetCategoriesUseCase';
 import { BlockCourseUseCase } from '../../application/use-cases/BlockCourseUseCase';
+import { UploadCourseThumbnailUseCase } from '../../application/use-cases/UploadCourseThumbnailUseCase';
 import { CloudinaryStorageService } from '../../../../shared/services/file-upload/services/CloudinaryStorageService';
 import { quizConfigRepository } from '../../../quiz/entry-point/dependencyInjection/QuizDI';
 
@@ -42,7 +43,10 @@ const updateCourseStatusUC = new UpdateCourseStatusUseCase(
   lessonRepository,
 );
 
-const getPaginatedCoursesUC = new GetPaginatedCoursesUseCase(courseRepository);
+const getPaginatedCoursesUC = new GetPaginatedCoursesUseCase(
+  courseRepository,
+  enrollmentRepository,
+);
 
 const deleteCourseUC = new DeleteCourseUseCase(
   courseRepository,
@@ -53,6 +57,10 @@ const deleteCourseUC = new DeleteCourseUseCase(
 
 const getCategoriesUC = new GetCategories(courseRepository);
 const blockCourseUC = new BlockCourseUseCase(courseRepository);
+const uploadThumbnailUC = new UploadCourseThumbnailUseCase(
+  courseRepository,
+  storageService,
+);
 
 export const courseController = new CourseController(
   createCourseUC,
@@ -61,8 +69,7 @@ export const courseController = new CourseController(
   deleteCourseUC,
   updateCourseStatusUC,
   getPaginatedCoursesUC,
-  enrollmentRepository,
   getCategoriesUC,
   blockCourseUC,
-  storageService,
+  uploadThumbnailUC,
 );

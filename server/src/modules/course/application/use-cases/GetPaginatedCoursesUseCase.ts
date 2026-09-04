@@ -1,17 +1,23 @@
 import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
+import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentReadRepository';
 import { IGetPaginatedCoursesUseCase } from '../interfaces/IGetPaginatedCoursesUseCase';
 import { CourseMapper } from '../mappers/CourseMapper';
 import { GetCoursesQueryDto } from '../dtos/CourseDto';
 import { PaginatedCourseResponseDto } from '../dtos/CourseResponseDto';
 import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 import { AdminCourseFilter } from '../../../../shared/enums/AdminCourseFilter';
+import { UserRole } from '../../../../shared/enums/UserRole';
+import { IEnrollment } from '../../../enrollment/domain/entities/Enrollment';
 
 /**
  * Use case for retrieving paginated courses with optional filters and sorting.
- * The query-building (filter/sort logic) now lives here instead of in the controller.
+ * The query-building (filter/sort logic) and enrollment status enrichment lives here.
  */
 export class GetPaginatedCoursesUseCase implements IGetPaginatedCoursesUseCase {
-  constructor(private _courseRepo: ICourseRepository) {}
+  constructor(
+    private _courseRepo: ICourseRepository,
+    private _enrollmentRepo?: IEnrollmentReadRepository,
+  ) {}
 
   async execute(
     dto: GetCoursesQueryDto,
@@ -29,6 +35,8 @@ export class GetPaginatedCoursesUseCase implements IGetPaginatedCoursesUseCase {
       minPrice,
       maxPrice,
       isBlocked,
+      userId,
+      userRole,
     } = dto;
 
     const safePage = Number.isFinite(page) && page > 0 ? page : 1;
@@ -102,9 +110,34 @@ export class GetPaginatedCoursesUseCase implements IGetPaginatedCoursesUseCase {
     );
 
     const totalPages = Math.ceil(total / safeLimit);
+    let courseDtos = data.map((c) => CourseMapper.toResponseDto(c));
+
+    // Check enrollment status for each course if user is a student
+    if (
+      userId &&
+      userRole === UserRole.STUDENT &&
+      this._enrollmentRepo &&
+      courseDtos.length > 0
+    ) {
+      const courseIds = courseDtos
+        .map((c) => c.id)
+        .filter((id): id is string => !!id);
+      const enrollments = await this._enrollmentRepo.findEnrollmentsForUser(
+        userId,
+        courseIds,
+      );
+      const enrolledSet = new Set(
+        enrollments.map((e: IEnrollment) => e.courseId.toString()),
+      );
+
+      courseDtos = courseDtos.map((c) => ({
+        ...c,
+        isEnrolled: enrolledSet.has(c.id || ''),
+      }));
+    }
 
     return {
-      data: data.map((c) => CourseMapper.toResponseDto(c)),
+      data: courseDtos,
       meta: {
         page: safePage,
         limit: safeLimit,

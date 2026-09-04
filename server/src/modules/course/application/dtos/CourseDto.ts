@@ -60,4 +60,6 @@ export interface GetCoursesQueryDto {
   limit?: number;
   sort?: string;
   isBlocked?: boolean;
+  userId?: string;
+  userRole?: string;
 }
