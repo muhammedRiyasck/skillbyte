@@ -6,6 +6,7 @@ import { IModuleRepository } from '../../domain/IRepositories/IModuleRepository'
 import { IEnrollmentReadRepository } from '../../../enrollment/domain/IRepositories/IEnrollmentReadRepository';
 import { IGetLessonPlayUrlUseCase } from '../interfaces/IGetLessonPlayUrlUseCase';
 import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
+import { IStreamLessonHlsUseCase } from '../interfaces/IStreamLessonHlsUseCase';
 import { UserRole } from '../../../../shared/enums/UserRole';
 
 export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
@@ -14,6 +15,7 @@ export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
     private _moduleRepo: IModuleRepository,
     private _enrollmentRepo: IEnrollmentReadRepository,
     private _storageService: IStorageService,
+    private _streamHlsUseCase?: IStreamLessonHlsUseCase,
   ) {}
 
   async execute(
@@ -78,6 +80,11 @@ export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
       const baseUrl = process.env.BASE_URL?.replace(/\/$/, '');
       if (!baseUrl) {
         throw new Error('BASE_URL must be configured to stream HLS media');
+      }
+
+      // Pre-warm cache for master and 144p segments
+      if (this._streamHlsUseCase) {
+        this._streamHlsUseCase.prewarm(lessonId);
       }
 
       return {
