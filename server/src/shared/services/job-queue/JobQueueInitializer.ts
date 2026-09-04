@@ -20,6 +20,8 @@ import { JOB_NAMES, QUEUE_NAMES } from './JobTypes';
 import { TopInstructorProcessor } from './processors/TopInstructorProcessor';
 import { RefreshTopInstructorsUseCase } from '../../../modules/admin/application/use-cases/RefreshTopInstructorsUseCase';
 import { TopInstructorRepository } from '../../../modules/admin/infrastructure/repositories/TopInstructorRepository';
+import { eventBus } from '../event-bus/EventBus';
+import { COURSE_EVENTS, LessonCreatedEvent } from '../event-bus/CourseEvents';
 
 /**
  * Initializes job queue processors and services
@@ -66,6 +68,24 @@ export class JobQueueInitializer {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (job) => VideoTranscodeProcessor.process(job as any),
       );
+
+      // Listen for lesson creation to enqueue transcoding jobs
+      eventBus.on(COURSE_EVENTS.LESSON_CREATED, (event: LessonCreatedEvent) => {
+        if (event.contentType === 'video' && event.lessonId && event.fileName) {
+          jobQueueService.addJob(
+            QUEUE_NAMES.COURSE,
+            JOB_NAMES.VIDEO_TRANSCODE,
+            {
+              lessonId: event.lessonId,
+              sourceKey: event.fileName,
+            },
+            {
+              attempts: 5,
+              backoff: { type: 'exponential', delay: 5000 },
+            },
+          );
+        }
+      });
 
       const topInstructorRepository = new TopInstructorRepository();
       const refreshTopInstructorsUseCase = new RefreshTopInstructorsUseCase(

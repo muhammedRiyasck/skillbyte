@@ -9,8 +9,11 @@ export const COURSE_EVENTS = {
 export interface LessonCreatedEvent {
   courseId: string;
   courseTitle: string;
+  lessonId?: string;
   lessonTitle: string;
   instructorId: string;
+  contentType?: string;
+  fileName?: string;
 }
 
 export interface ModuleCreatedEvent {
