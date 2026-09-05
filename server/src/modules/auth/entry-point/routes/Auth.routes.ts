@@ -3,7 +3,11 @@ const router = Router();
 
 import { GoogleController } from '../controllers/Google.controller';
 import { authenticate } from '../../../../shared/middlewares/AuthMiddleware';
-import { commonAuthController } from '../dependencyInjection/CommonAuthContainer';
+import {
+  authController,
+  tokenController,
+  passwordRecoveryController,
+} from '../dependencyInjection/CommonAuthContainer';
 import { facebookController } from '../controllers/Facebook.controller';
 
 import { CustomLimit } from '../../../../shared/utils/RateLimiter';
@@ -21,9 +25,9 @@ router.post(
   CustomLimit(10, 'login'),
   validateRequest(LoginSchema),
   requireRole('student', 'instructor'),
-  asyncHandler(commonAuthController.login),
+  asyncHandler(authController.login),
 );
-router.get('/me', authenticate, asyncHandler(commonAuthController.amILoggedIn));
+router.get('/me', authenticate, asyncHandler(authController.amILoggedIn));
 
 // OAuth routes
 router.get('/google', GoogleController.googleAuth);
@@ -32,25 +36,25 @@ router.get('/facebook', facebookController.facebookAuth);
 router.get('/facebook/callback', facebookController.facebookCallback);
 
 // Token and password management routes
-router.get('/refresh-token', commonAuthController.refreshToken);
+router.get('/refresh-token', tokenController.refreshToken);
 router.post(
   '/resend-otp',
   CustomLimit(10, 'resend OTP'),
   validateRequest(ResendOtpSchema),
-  asyncHandler(commonAuthController.resendOtp),
+  asyncHandler(passwordRecoveryController.resendOtp),
 );
 router.post(
   '/forgot-password',
   CustomLimit(10, 'forgot password'),
   validateRequest(ForgotPasswordSchema),
-  asyncHandler(commonAuthController.forgotPassword),
+  asyncHandler(passwordRecoveryController.forgotPassword),
 );
 router.post(
   '/reset-password',
   CustomLimit(10, 'reset password'),
   validateRequest(ResetPasswordSchema),
-  asyncHandler(commonAuthController.resetPassword),
+  asyncHandler(passwordRecoveryController.resetPassword),
 );
-router.post('/logout', commonAuthController.logout);
+router.post('/logout', authController.logout);
 
 export default router;

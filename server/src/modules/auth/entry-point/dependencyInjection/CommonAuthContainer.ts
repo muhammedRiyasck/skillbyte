@@ -45,6 +45,24 @@ const amILoggedLoginUc = new AmILoggedInUseCase(
   adminRepo,
 );
 
+import { AuthController } from '../controllers/AuthController';
+import { TokenController } from '../controllers/TokenController';
+import { PasswordRecoveryController } from '../controllers/PasswordRecoveryController';
+
+export const authController = new AuthController(
+  studentLoginUC,
+  instructorLoginUC,
+  amILoggedLoginUc,
+);
+
+export const tokenController = new TokenController(accessTokenUC);
+
+export const passwordRecoveryController = new PasswordRecoveryController(
+  resendOtpUC,
+  forgotPasswordUc,
+  resetPasswordUc,
+);
+
 export const commonAuthController = new CommonAuthController(
   studentLoginUC,
   instructorLoginUC,
