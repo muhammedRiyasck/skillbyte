@@ -1,5 +1,9 @@
 import { Router } from 'express';
-import { mentorshipController } from '../dependencyInjection/MentorshipContainer';
+import {
+  mentorshipSlotController,
+  mentorshipBookingController,
+  mentorshipVideoController,
+} from '../dependencyInjection/MentorshipContainer';
 import { authenticate } from '../../../../shared/middlewares/AuthMiddleware';
 import { requireRole } from '../../../../shared/middlewares/RequireRole';
 import { validateRequest } from '../../../../shared/middlewares/validateRequest';
@@ -12,7 +16,7 @@ import {
 
 const router = Router();
 
-// ==================== Instructor Routes ====================
+// ==================== Instructor Slot Routes ====================
 
 // Create a new mentorship slot
 router.post(
@@ -20,7 +24,7 @@ router.post(
   authenticate,
   requireRole('instructor'),
   validateRequest(createSlotSchema),
-  asyncHandler(mentorshipController.createSlot),
+  asyncHandler(mentorshipSlotController.createSlot),
 );
 
 // Get all slots for the authenticated instructor
@@ -28,7 +32,7 @@ router.get(
   '/slots/instructor',
   authenticate,
   requireRole('instructor'),
-  asyncHandler(mentorshipController.getInstructorSlots),
+  asyncHandler(mentorshipSlotController.getInstructorSlots),
 );
 
 // Update a mentorship slot
@@ -37,7 +41,7 @@ router.put(
   authenticate,
   requireRole('instructor'),
   validateRequest(updateSlotSchema),
-  asyncHandler(mentorshipController.updateSlot),
+  asyncHandler(mentorshipSlotController.updateSlot),
 );
 
 // Delete a mentorship slot
@@ -45,17 +49,17 @@ router.delete(
   '/slots/:slotId',
   authenticate,
   requireRole('instructor'),
-  asyncHandler(mentorshipController.deleteSlot),
+  asyncHandler(mentorshipSlotController.deleteSlot),
 );
 
-// ==================== Student Routes ====================
+// ==================== Student Slot Routes ====================
 
 // Get available slots with optional filters
 router.get(
   '/slots/tags',
   authenticate,
   requireRole('student'),
-  asyncHandler(mentorshipController.getUniqueTags),
+  asyncHandler(mentorshipSlotController.getUniqueTags),
 );
 
 // Get all available slots (with optional filters)
@@ -63,7 +67,7 @@ router.get(
   '/slots',
   authenticate,
   requireRole('student'),
-  asyncHandler(mentorshipController.getAvailableSlots),
+  asyncHandler(mentorshipSlotController.getAvailableSlots),
 );
 
 // Get available slots by job title
@@ -71,8 +75,10 @@ router.get(
   '/slots/job-title/:jobTitle',
   authenticate,
   requireRole('student'),
-  asyncHandler(mentorshipController.getSlotsByJobTitle),
+  asyncHandler(mentorshipSlotController.getSlotsByJobTitle),
 );
+
+// ==================== Booking Routes ====================
 
 // Book a mentorship slot
 router.post(
@@ -80,13 +86,13 @@ router.post(
   authenticate,
   requireRole('student'),
   validateRequest(bookSlotSchema),
-  asyncHandler(mentorshipController.bookSlot),
+  asyncHandler(mentorshipBookingController.bookSlot),
 );
 
 router.post(
   '/bookings/:bookingId/cancel',
   authenticate,
-  asyncHandler(mentorshipController.cancelBooking),
+  asyncHandler(mentorshipBookingController.cancelBooking),
 );
 
 // Get Student Bookings
@@ -94,7 +100,7 @@ router.get(
   '/bookings/student',
   authenticate,
   requireRole('student'),
-  asyncHandler(mentorshipController.getStudentBookings),
+  asyncHandler(mentorshipBookingController.getStudentBookings),
 );
 
 // Get Instructor Bookings
@@ -102,7 +108,7 @@ router.get(
   '/bookings/instructor',
   authenticate,
   requireRole('instructor'),
-  asyncHandler(mentorshipController.getInstructorBookings),
+  asyncHandler(mentorshipBookingController.getInstructorBookings),
 );
 
 // Resume a pending payment (re-fetch client_secret for Stripe checkout)
@@ -110,21 +116,23 @@ router.get(
   '/bookings/:bookingId/resume-payment',
   authenticate,
   requireRole('student'),
-  asyncHandler(mentorshipController.getResumePayment),
+  asyncHandler(mentorshipBookingController.getResumePayment),
 );
+
+// ==================== Video Room Routes ====================
 
 // Generate/Get Video Room
 router.get(
   '/bookings/:bookingId/video-room',
   authenticate,
-  asyncHandler(mentorshipController.generateVideoRoom),
+  asyncHandler(mentorshipVideoController.generateVideoRoom),
 );
 
 // Validate Video Room Access
 router.post(
   '/video-room/:roomId/validate',
   authenticate,
-  asyncHandler(mentorshipController.validateVideoRoomAccess),
+  asyncHandler(mentorshipVideoController.validateVideoRoomAccess),
 );
 
 export default router;

@@ -1,5 +1,8 @@
 import { Router } from 'express';
-import { quizController } from '../dependencyInjection/QuizDI';
+import {
+  quizConfigController,
+  quizAttemptController,
+} from '../dependencyInjection/QuizDI';
 import { requireRole } from '../../../../shared/middlewares/RequireRole';
 import { authenticate } from '../../../../shared/middlewares/AuthMiddleware';
 import { CustomLimit } from '../../../../shared/utils/RateLimiter';
@@ -20,7 +23,7 @@ router.post(
   authenticate,
   requireInstructor,
   validateRequest(QuizConfigSchema),
-  quizController.createConfig,
+  quizConfigController.createConfig,
 );
 
 router.put(
@@ -28,14 +31,14 @@ router.put(
   authenticate,
   requireInstructor,
   validateRequest(UpdateQuizConfigSchema),
-  quizController.updateConfig,
+  quizConfigController.updateConfig,
 );
 
 router.get(
   '/config/:courseId',
   authenticate,
   requireRole('instructor', 'student'),
-  quizController.getConfig,
+  quizConfigController.getConfig,
 );
 
 // Analytics Route (Instructor Only)
@@ -43,14 +46,14 @@ router.get(
   '/analytics/:courseId',
   authenticate,
   requireInstructor,
-  quizController.getAnalytics,
+  quizConfigController.getAnalytics,
 );
 
 router.delete(
   '/course/:courseId/attempts/:userId',
   authenticate,
   requireInstructor,
-  quizController.resetStudentAttempts,
+  quizConfigController.resetStudentAttempts,
 );
 
 // Student Routes
@@ -59,7 +62,7 @@ router.post(
   authenticate,
   requireStudent,
   CustomLimit(60, 'starting a quiz'), // Limit generation attempts
-  quizController.startAttempt,
+  quizAttemptController.startAttempt,
 );
 
 router.post(
@@ -67,21 +70,21 @@ router.post(
   authenticate,
   requireStudent,
   validateRequest(SubmitQuizAttemptSchema),
-  quizController.submitAttempt,
+  quizAttemptController.submitAttempt,
 );
 
 router.get(
   '/result/:courseId',
   authenticate,
   requireStudent,
-  quizController.getResult,
+  quizAttemptController.getResult,
 );
 
 router.get(
   '/attempts/:courseId',
   authenticate,
   requireStudent,
-  quizController.getAllAttempts,
+  quizAttemptController.getAllAttempts,
 );
 
 export default router;

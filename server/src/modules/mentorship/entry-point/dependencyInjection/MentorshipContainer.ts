@@ -27,6 +27,7 @@ import { PaymentReadRepository } from '../../../payment/infrastructure/repositor
 import { PaymentWriteRepository } from '../../../payment/infrastructure/repositories/PaymentWriteRepository';
 import { StripeProvider } from '../../../../shared/services/payment/StripeProvider';
 import { PayPalProvider } from '../../../../shared/services/payment/PayPalProvider';
+import { StudentRepository } from '../../../student/infrastructure/repositories/StudentRepository';
 
 // Repositories
 const slotRepository = new MentorshipSlotRepository();
@@ -34,6 +35,7 @@ const bookingRepository = new MentorshipBookingRepository();
 const instructorRepository = new InstructorRepository();
 const paymentReadRepository = new PaymentReadRepository();
 const paymentWriteRepository = new PaymentWriteRepository();
+const studentRepository = new StudentRepository();
 
 // Providers
 const stripeProvider = new StripeProvider();
@@ -61,6 +63,7 @@ const bookSlotUC = new BookSlotUseCase(
   bookingRepository,
   initiatePaymentUc,
   generateVideoRoomUC,
+  studentRepository,
 );
 export const cancelBookingUC = new CancelBookingUseCase(
   bookingRepository,
@@ -99,7 +102,35 @@ export {
   paymentReadRepository,
 };
 
-// Controller
+import { MentorshipSlotController } from '../controllers/MentorshipSlotController';
+import { MentorshipBookingController } from '../controllers/MentorshipBookingController';
+import { MentorshipVideoController } from '../controllers/MentorshipVideoController';
+
+// Focused Controllers (SRP compliant)
+export const mentorshipSlotController = new MentorshipSlotController(
+  createSlotUC,
+  getInstructorSlotsUC,
+  updateSlotUC,
+  deleteSlotUC,
+  getSlotsByJobTitleUC,
+  getAvailableSlotsUC,
+  getUniqueTagsUC,
+);
+
+export const mentorshipBookingController = new MentorshipBookingController(
+  bookSlotUC,
+  cancelBookingUC,
+  getStudentBookingsUC,
+  getInstructorBookingsUC,
+  getResumePaymentUC,
+);
+
+export const mentorshipVideoController = new MentorshipVideoController(
+  generateVideoRoomUC,
+  validateVideoRoomAccessUC,
+);
+
+// Backward-compatible facade controller
 export const mentorshipController = new MentorshipController(
   createSlotUC,
   getInstructorSlotsUC,

@@ -64,6 +64,24 @@ const resetStudentAttemptsUseCase = new ResetStudentQuizAttemptsUseCase(
   enrollmentWriteRepository,
 );
 
+import { QuizConfigController } from '../controllers/QuizConfigController';
+import { QuizAttemptController } from '../controllers/QuizAttemptController';
+
+const quizConfigController = new QuizConfigController(
+  createQuizConfigUseCase,
+  updateQuizConfigUseCase,
+  getQuizConfigUseCase,
+  getQuizAnalyticsUseCase,
+  resetStudentAttemptsUseCase,
+);
+
+const quizAttemptController = new QuizAttemptController(
+  startQuizAttemptUseCase,
+  submitQuizAttemptUseCase,
+  getQuizResultUseCase,
+  getAllQuizAttemptsUseCase,
+);
+
 const quizController = new QuizController(
   createQuizConfigUseCase,
   updateQuizConfigUseCase,
@@ -76,4 +94,9 @@ const quizController = new QuizController(
   resetStudentAttemptsUseCase,
 );
 
-export { quizController, quizConfigRepository };
+export {
+  quizController,
+  quizConfigController,
+  quizAttemptController,
+  quizConfigRepository,
+};
