@@ -33,15 +33,13 @@ export function registerInstructorJobs(): void {
   // Subscribe to domain event → enqueue resume-upload job
   eventBus.on(
     INSTRUCTOR_EVENTS.RESUME_UPLOAD_REQUESTED,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (event: any) => {
-      const typedEvent = event as ResumeUploadRequestedEvent;
+    (event: ResumeUploadRequestedEvent) => {
       jobQueueService
         .addJob(QUEUE_NAMES.INSTRUCTOR_REGISTRATION, JOB_NAMES.RESUME_UPLOAD, {
-          instructorId: typedEvent.instructorId,
-          filePath: typedEvent.filePath,
-          originalName: typedEvent.originalName,
-          email: typedEvent.email,
+          instructorId: event.instructorId,
+          filePath: event.filePath,
+          originalName: event.originalName,
+          email: event.email,
         })
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         .catch((err: any) =>

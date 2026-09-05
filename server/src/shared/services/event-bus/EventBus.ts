@@ -22,6 +22,10 @@ import {
   WITHDRAWAL_EVENTS,
   WithdrawalProcessedEvent,
 } from './WithdrawalEvents';
+import {
+  INSTRUCTOR_EVENTS,
+  ResumeUploadRequestedEvent,
+} from './InstructorEvents';
 
 // Centralized type mapping for all application events
 export interface AppEvents {
@@ -43,6 +47,7 @@ export interface AppEvents {
   [WITHDRAWAL_EVENTS.WITHDRAWAL_REVERSED]: WithdrawalProcessedEvent;
   [WITHDRAWAL_EVENTS.INSTRUCTOR_STRIPE_VERIFIED]: { instructorId: string };
   [WITHDRAWAL_EVENTS.INSTRUCTOR_STRIPE_RESTRICTED]: { instructorId: string };
+  [INSTRUCTOR_EVENTS.RESUME_UPLOAD_REQUESTED]: ResumeUploadRequestedEvent;
 }
 
 export class EventBus {
