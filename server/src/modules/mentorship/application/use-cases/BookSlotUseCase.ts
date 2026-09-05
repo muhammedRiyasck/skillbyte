@@ -13,14 +13,12 @@ import { IMentorshipSlotRepository } from '../../domain/IRepositories/IMentorshi
 import { IMentorshipBookingRepository } from '../../domain/IRepositories/IMentorshipBookingRepository';
 import { IInitiatePayment } from '../../../payment/application/interfaces/IInitiatePayment';
 import { IGenerateVideoRoomUseCase } from '../interfaces/IBookingUseCases';
-import { StudentModel } from '../../../student/infrastructure/models/StudentModel';
+import { IStudentRepository } from '../../../student/domain/IRepositories/IStudentRepository';
 import { eventBus } from '../../../../shared/services/event-bus/EventBus';
-import { MENTORSHIP_EVENTS } from '../../../../shared/services/event-bus/MentorshipEvents';
-import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
 import {
-  QUEUE_NAMES,
-  JOB_NAMES,
-} from '../../../../shared/services/job-queue/JobTypes';
+  MENTORSHIP_EVENTS,
+  MentorshipBookingCreatedPendingEvent,
+} from '../../../../shared/services/event-bus/MentorshipEvents';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
@@ -30,6 +28,7 @@ export class BookSlotUseCase implements IBookSlotUseCase {
     private bookingRepo: IMentorshipBookingRepository,
     private initiatePaymentUc: IInitiatePayment,
     private generateVideoRoomUc: IGenerateVideoRoomUseCase,
+    private studentRepo: IStudentRepository,
   ) {}
 
   async execute(dto: BookSlotDto): Promise<{
@@ -70,7 +69,7 @@ export class BookSlotUseCase implements IBookSlotUseCase {
     const instructorId = slot.instructorId;
 
     // 2. Fetch student details (for payment metadata)
-    const student = await StudentModel.findById(studentId);
+    const student = await this.studentRepo.findById(studentId);
     if (!student) {
       throw new HttpError('Student not found', HttpStatusCode.NOT_FOUND);
     }
@@ -160,14 +159,13 @@ export class BookSlotUseCase implements IBookSlotUseCase {
 
       savedBooking = await this.bookingRepo.save(newBooking);
 
-      // Schedule Cleanup Job (Expire after 20 minutes if not confirmed)
+      // Schedule cleanup job via event bus (decoupled from job queue)
       if (!isFree && savedBooking.bookingId) {
-        await jobQueueService.addJob(
-          QUEUE_NAMES.MENTORSHIP,
-          JOB_NAMES.MENTORSHIP_CLEANUP,
-          { bookingId: savedBooking.bookingId },
-          { delay: 20 * 60 * 1000 }, // 20 minutes
-        );
+        const pendingEvent: MentorshipBookingCreatedPendingEvent = {
+          bookingId: savedBooking.bookingId,
+          delayMs: 20 * 60 * 1000, // 20 minutes
+        };
+        eventBus.emit(MENTORSHIP_EVENTS.BOOKING_CREATED_PENDING, pendingEvent);
       }
     }
 
@@ -207,13 +205,15 @@ export class BookSlotUseCase implements IBookSlotUseCase {
           savedBooking.paymentId = paymentResult.paymentId;
         }
 
-        // Schedule Cleanup Job (Expire after 20 minutes if not confirmed)
+        // Schedule cleanup job via event bus (decoupled from job queue)
         if (savedBooking.bookingId) {
-          await jobQueueService.addJob(
-            QUEUE_NAMES.MENTORSHIP,
-            JOB_NAMES.MENTORSHIP_CLEANUP,
-            { bookingId: savedBooking.bookingId },
-            { delay: 20 * 60 * 1000 }, // 20 minutes
+          const pendingEvent: MentorshipBookingCreatedPendingEvent = {
+            bookingId: savedBooking.bookingId,
+            delayMs: 20 * 60 * 1000,
+          };
+          eventBus.emit(
+            MENTORSHIP_EVENTS.BOOKING_CREATED_PENDING,
+            pendingEvent,
           );
         }
       } else {

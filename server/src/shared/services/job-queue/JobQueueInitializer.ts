@@ -22,7 +22,6 @@ import { RefreshTopInstructorsUseCase } from '../../../modules/admin/application
 import { TopInstructorRepository } from '../../../modules/admin/infrastructure/repositories/TopInstructorRepository';
 import { eventBus } from '../event-bus/EventBus';
 import { COURSE_EVENTS, LessonCreatedEvent } from '../event-bus/CourseEvents';
-
 /**
  * Initializes job queue processors and services
  */
