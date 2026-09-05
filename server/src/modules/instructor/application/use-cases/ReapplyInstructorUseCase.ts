@@ -5,13 +5,9 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
-import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
+import { eventBus } from '../../../../shared/services/event-bus/EventBus';
+import { INSTRUCTOR_EVENTS } from '../../../../shared/services/event-bus/InstructorEvents';
 import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
-import {
-  JOB_NAMES,
-  QUEUE_NAMES,
-  ResumeUploadJobData,
-} from '../../../../shared/services/job-queue/JobTypes';
 import bcrypt from 'bcryptjs';
 
 export class ReapplyInstructorUseCase implements IReapplyInstructorUseCase {
@@ -86,18 +82,12 @@ export class ReapplyInstructorUseCase implements IReapplyInstructorUseCase {
         }
       }
 
-      const resumeUploadData: ResumeUploadJobData = {
+      eventBus.emit(INSTRUCTOR_EVENTS.RESUME_UPLOAD_REQUESTED, {
         instructorId: instructor.instructorId!,
         filePath: resumeFile.path,
         originalName: resumeFile.originalname,
         email: instructor.email,
-      };
-
-      await jobQueueService.addJob(
-        QUEUE_NAMES.INSTRUCTOR_REGISTRATION,
-        JOB_NAMES.RESUME_UPLOAD,
-        resumeUploadData,
-      );
+      });
     }
   }
 }

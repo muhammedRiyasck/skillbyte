@@ -6,12 +6,8 @@ import { IRegisterInstructorUseCase } from '../interfaces/IRegisterInstructorUse
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { HttpError } from '../../../../shared/types/HttpError';
 
-import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
-import {
-  JOB_NAMES,
-  QUEUE_NAMES,
-  ResumeUploadJobData,
-} from '../../../../shared/services/job-queue/JobTypes';
+import { eventBus } from '../../../../shared/services/event-bus/EventBus';
+import { INSTRUCTOR_EVENTS } from '../../../../shared/services/event-bus/InstructorEvents';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { TempInstructorData } from '../../../../shared/services/otp/interfaces/ITempInstructorData ';
 import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
@@ -95,22 +91,16 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
 
     const savedInstructor = await this._instructorRepo.save(instructor);
 
-    // Queue resume upload if file exists
+    // Emit event for background resume upload if file exists
     if (dto.resumeFile) {
-      const file = dto.resumeFile as Express.Multer.File;
+      const file = dto.resumeFile as { path: string; originalname: string };
 
-      const resumeUploadData: ResumeUploadJobData = {
+      eventBus.emit(INSTRUCTOR_EVENTS.RESUME_UPLOAD_REQUESTED, {
         instructorId: savedInstructor.instructorId || '',
         filePath: file.path,
         originalName: file.originalname,
         email: dto.email,
-      };
-
-      await jobQueueService.addJob(
-        QUEUE_NAMES.INSTRUCTOR_REGISTRATION,
-        JOB_NAMES.RESUME_UPLOAD,
-        resumeUploadData,
-      );
+      });
     }
   }
 }
