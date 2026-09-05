@@ -56,7 +56,11 @@ const reportReviewUC = new ReportReviewUseCase(reviewRepository);
 
 const getMySessionRatingsUC = new GetMySessionRatingsUseCase(reviewRepository);
 
-const getAllReviewsAdminUC = new GetAllReviewsAdminUseCase(reviewRepository);
+const getAllReviewsAdminUC = new GetAllReviewsAdminUseCase(
+  reviewRepository,
+  courseRepository,
+  bookingRepository,
+);
 const adminToggleHideReviewUseCase = new AdminToggleHideReviewUseCase(
   reviewRepository,
 );

@@ -8,8 +8,6 @@ import { Review } from '../../domain/entities/Review';
 import { ReviewModel, IReviewDoc } from '../models/ReviewModel';
 import { ReviewMapper } from '../mappers/ReviewMapper';
 import mongoose from 'mongoose';
-import { CourseModel } from '../../../course/infrastructure/models/CourseModel';
-import { MentorshipBookingModel } from '../../../mentorship/infrastructure/models/MentorshipBookingModel';
 
 export class ReviewRepository
   extends BaseRepository<Review, IReviewDoc>
@@ -88,8 +86,6 @@ export class ReviewRepository
       .sort(sort as { [key: string]: mongoose.SortOrder })
       .skip(skip)
       .limit(limit);
-
-    await this._populateTargetNames(docs);
 
     return docs.map((doc) => this.toEntity(doc));
   }
@@ -319,8 +315,6 @@ export class ReviewRepository
       .skip(skip)
       .limit(limit);
 
-    await this._populateTargetNames(docs);
-
     return docs.map((doc) => this.toEntity(doc));
   }
 
@@ -355,56 +349,5 @@ export class ReviewRepository
       query.comment = { $regex: filters.search.trim(), $options: 'i' };
     }
     return query;
-  }
-
-  private async _populateTargetNames(
-    docs: IReviewDoc[],
-  ): Promise<IReviewDoc[]> {
-    if (docs.length === 0) return docs;
-
-    const courseIds = docs
-      .filter((d) => d.targetType === 'course')
-      .map((d) => d.targetId);
-    const bookingIds = docs
-      .filter((d) => d.targetType === 'session')
-      .map((d) => d.targetId);
-
-    const [courses, bookings] = await Promise.all([
-      courseIds.length > 0
-        ? CourseModel.find({ _id: { $in: courseIds } }).select('title')
-        : Promise.resolve([]),
-      bookingIds.length > 0
-        ? MentorshipBookingModel.find({ _id: { $in: bookingIds } }).select(
-            'scheduledAt',
-          )
-        : Promise.resolve([]),
-    ]);
-
-    const courseMap = new Map<string, string>(
-      (courses as Array<{ _id: mongoose.Types.ObjectId; title: string }>).map(
-        (c) => [c._id.toString(), c.title],
-      ),
-    );
-    const bookingMap = new Map<string, string>(
-      (
-        bookings as Array<{ _id: mongoose.Types.ObjectId; scheduledAt: Date }>
-      ).map((b) => [
-        b._id.toString(),
-        `Session on ${b.scheduledAt.toLocaleDateString()}`,
-      ]),
-    );
-
-    docs.forEach((doc) => {
-      const targetIdStr = doc.targetId.toString();
-      if (doc.targetType === 'course') {
-        (doc as IReviewDoc & { targetName?: string }).targetName =
-          courseMap.get(targetIdStr);
-      } else if (doc.targetType === 'session') {
-        (doc as IReviewDoc & { targetName?: string }).targetName =
-          bookingMap.get(targetIdStr);
-      }
-    });
-
-    return docs;
   }
 }
