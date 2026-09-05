@@ -12,6 +12,11 @@ import {
   stripeProvider,
   paymentReadRepository,
 } from './MentorshipContainer';
+import { eventBus } from '../../../../shared/services/event-bus/EventBus';
+import {
+  MENTORSHIP_EVENTS,
+  MentorshipBookingCreatedPendingEvent,
+} from '../../../../shared/services/event-bus/MentorshipEvents';
 import logger from '../../../../shared/utils/Logger';
 
 /**
@@ -32,6 +37,27 @@ export function registerMentorshipJobs(): void {
   );
 
   new MentorshipAutoCompleteProcessor(autoCompleteBookingsUC);
+
+  // Subscribe to pending booking creation → schedule cleanup job after timeout
+  eventBus.on(
+    MENTORSHIP_EVENTS.BOOKING_CREATED_PENDING,
+    (event: MentorshipBookingCreatedPendingEvent) => {
+      jobQueueService
+        .addJob(
+          QUEUE_NAMES.MENTORSHIP,
+          JOB_NAMES.MENTORSHIP_CLEANUP,
+          { bookingId: event.bookingId },
+          { delay: event.delayMs },
+        )
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .catch((err: any) =>
+          logger.error(
+            `Failed to enqueue mentorship cleanup job for booking ${event.bookingId}:`,
+            err,
+          ),
+        );
+    },
+  );
 
   // Schedule recurring auto-completion (every 30 minutes)
   jobQueueService

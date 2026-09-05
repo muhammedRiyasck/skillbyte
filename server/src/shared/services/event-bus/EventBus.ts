@@ -9,6 +9,7 @@ import {
   MentorshipBookingCreatedEvent,
   MentorshipBookingConfirmedEvent,
   MentorshipBookingCancelledEvent,
+  MentorshipBookingCreatedPendingEvent,
 } from './MentorshipEvents';
 import {
   COURSE_EVENTS,
@@ -33,6 +34,7 @@ export interface AppEvents {
   [PAYMENT_EVENTS.PAYMENT_SUCCEEDED]: PaymentSucceededEvent;
   [PAYMENT_EVENTS.PAYMENT_FAILED]: PaymentFailedEvent;
   [MENTORSHIP_EVENTS.BOOKING_CREATED]: MentorshipBookingCreatedEvent;
+  [MENTORSHIP_EVENTS.BOOKING_CREATED_PENDING]: MentorshipBookingCreatedPendingEvent;
   [MENTORSHIP_EVENTS.BOOKING_CONFIRMED]: MentorshipBookingConfirmedEvent;
   [MENTORSHIP_EVENTS.BOOKING_CANCELLED]: MentorshipBookingCancelledEvent;
   [COURSE_EVENTS.LESSON_CREATED]: LessonCreatedEvent;

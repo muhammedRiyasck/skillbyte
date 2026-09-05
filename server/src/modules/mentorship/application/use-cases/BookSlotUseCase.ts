@@ -158,15 +158,6 @@ export class BookSlotUseCase implements IBookSlotUseCase {
       );
 
       savedBooking = await this.bookingRepo.save(newBooking);
-
-      // Schedule cleanup job via event bus (decoupled from job queue)
-      if (!isFree && savedBooking.bookingId) {
-        const pendingEvent: MentorshipBookingCreatedPendingEvent = {
-          bookingId: savedBooking.bookingId,
-          delayMs: 20 * 60 * 1000, // 20 minutes
-        };
-        eventBus.emit(MENTORSHIP_EVENTS.BOOKING_CREATED_PENDING, pendingEvent);
-      }
     }
 
     try {
