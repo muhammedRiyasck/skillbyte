@@ -1,29 +1,18 @@
 import { jobQueueService } from './JobQueueService';
-import { VideoTranscodeProcessor } from './processors/VideoTranscodeProcessor';
-import { ResumeUploadProcessor } from './processors/ResumeUploadProcessor';
-import { EmailProcessor } from './processors/EmailProcessor';
-import { InstructorRepository } from '../../../modules/instructor/infrastructure/repositories/InstructorRepository';
 import logger from '../../utils/Logger';
-import { DeleteDeclinedInstructorProcessor } from './processors/DeleteDeclinedInstructorProcessor';
-import { S3StorageService } from '../file-upload/services/S3StorageService';
-import { MentorshipCleanupProcessor } from './processors/MentorshipCleanupProcessor';
-import { MentorshipAutoCompleteProcessor } from './processors/MentorshipAutoCompleteProcessor';
-import {
-  bookingRepository,
-  cancelBookingUC,
-  autoCompleteBookingsUC,
-  stripeProvider,
-  paymentReadRepository,
-} from '../../../modules/mentorship/entry-point/dependencyInjection/MentorshipContainer';
-import { NodeMailerService } from '../mail/NodeMailerService';
-import { JOB_NAMES, QUEUE_NAMES } from './JobTypes';
-import { TopInstructorProcessor } from './processors/TopInstructorProcessor';
-import { RefreshTopInstructorsUseCase } from '../../../modules/admin/application/use-cases/RefreshTopInstructorsUseCase';
-import { TopInstructorRepository } from '../../../modules/admin/infrastructure/repositories/TopInstructorRepository';
-import { eventBus } from '../event-bus/EventBus';
-import { COURSE_EVENTS, LessonCreatedEvent } from '../event-bus/CourseEvents';
+import { registerInstructorJobs } from '../../../modules/instructor/entry-point/dependencyInjection/InstructorJobRegistrar';
+import { registerMentorshipJobs } from '../../../modules/mentorship/entry-point/dependencyInjection/MentorshipJobRegistrar';
+import { registerAdminJobs } from '../../../modules/admin/entry-points/dependencyInjection/AdminJobRegistrar';
+import { registerCourseJobs } from '../../../modules/course/entry-point/dependencyInjection/CourseJobRegistrar';
+
 /**
- * Initializes job queue processors and services
+ * Thin bootstrap orchestrator for all background job queues.
+ *
+ * Each domain module is responsible for registering its own processors,
+ * recurring jobs, and event-bus subscriptions via its own `*JobRegistrar`
+ * function. This class simply calls each registrar in order and is therefore
+ * Open for extension (add a new registrar import + call) and Closed for
+ * modification (no domain-specific logic lives here).
  */
 export class JobQueueInitializer {
   private static _initialized = false;
@@ -35,84 +24,15 @@ export class JobQueueInitializer {
     }
 
     try {
-      // Initialize processors
-      const instructorRepo = new InstructorRepository();
-      const s3StorageService = new S3StorageService();
-      const nodeMailer = new NodeMailerService();
-      new ResumeUploadProcessor(instructorRepo, s3StorageService);
-      new EmailProcessor(nodeMailer);
-      new DeleteDeclinedInstructorProcessor(instructorRepo, s3StorageService);
-      new MentorshipCleanupProcessor(
-        bookingRepository,
-        cancelBookingUC,
-        paymentReadRepository,
-        stripeProvider,
-      );
-      new MentorshipAutoCompleteProcessor(autoCompleteBookingsUC);
-
-      // Schedule repeatable job for auto-completion (every 30 minutes)
-      jobQueueService.addJob(
-        QUEUE_NAMES.MENTORSHIP,
-        JOB_NAMES.MENTORSHIP_AUTO_COMPLETE,
-        {},
-        {
-          repeat: { cron: '*/30 * * * *' },
-          jobId: 'mentorship-auto-complete-singleton', // Ensure only one instance exists
-        },
-      );
-      // Register Video Transcode Processor
-      jobQueueService.processJob(
-        QUEUE_NAMES.COURSE,
-        JOB_NAMES.VIDEO_TRANSCODE,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (job) => VideoTranscodeProcessor.process(job as any),
-      );
-
-      // Listen for lesson creation to enqueue transcoding jobs
-      eventBus.on(COURSE_EVENTS.LESSON_CREATED, (event: LessonCreatedEvent) => {
-        if (event.contentType === 'video' && event.lessonId && event.fileName) {
-          jobQueueService.addJob(
-            QUEUE_NAMES.COURSE,
-            JOB_NAMES.VIDEO_TRANSCODE,
-            {
-              lessonId: event.lessonId,
-              sourceKey: event.fileName,
-            },
-            {
-              attempts: 5,
-              backoff: { type: 'exponential', delay: 5000 },
-            },
-          );
-        }
-      });
-
-      const topInstructorRepository = new TopInstructorRepository();
-      const refreshTopInstructorsUseCase = new RefreshTopInstructorsUseCase(
-        instructorRepo,
-        topInstructorRepository,
-      );
-      new TopInstructorProcessor(refreshTopInstructorsUseCase);
-
-      // Schedule repeatable job to refresh top instructors (every 1 hour)
-      jobQueueService.addJob(
-        QUEUE_NAMES.CLEANUP,
-        JOB_NAMES.REFRESH_TOP_INSTRUCTORS,
-        {},
-        {
-          repeat: { cron: '0 * * * *' }, // Run at minute 0 of every hour
-          jobId: 'refresh-top-instructors-singleton',
-        },
-      );
-
-      // Execute immediately on startup to seed the capped collection
-      refreshTopInstructorsUseCase.execute().catch((err) => {
-        logger.error('Failed to seed top instructors on startup:', err);
-      });
+      registerInstructorJobs();
+      registerMentorshipJobs();
+      registerAdminJobs();
+      registerCourseJobs();
 
       logger.info('Job queue processors initialized successfully');
       this._initialized = true;
     } catch (error) {
-      logger.info('Failed to initialize job queue processors:', error);
+      logger.error('Failed to initialize job queue processors:', error);
       throw error;
     }
   }

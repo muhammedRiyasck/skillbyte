@@ -55,6 +55,24 @@ export class JobQueueService {
   }
 
   /**
+   * Registers a repeatable (cron) job for the given queue.
+   * Modules should call this during their own bootstrapping so that
+   * JobQueueInitializer does not need to know about domain-specific schedules.
+   */
+  async registerRecurringJob<T>(
+    queueName: string,
+    jobName: string,
+    cronExpression: string,
+    data: T,
+    jobId: string,
+  ): Promise<void> {
+    await this.addJob<T>(queueName, jobName, data, {
+      repeat: { cron: cronExpression },
+      jobId,
+    });
+  }
+
+  /**
    * Closes all queues
    */
   async closeAll(): Promise<void> {
