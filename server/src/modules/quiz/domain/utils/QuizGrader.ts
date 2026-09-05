@@ -1,7 +1,25 @@
 import { QuizQuestion } from '../entities/QuizQuestion';
 import { StudentAnswer } from '../entities/StudentAnswer';
+import { IQuestionGradingStrategy } from '../strategies/IQuestionGradingStrategy';
+import { McqGradingStrategy } from '../strategies/McqGradingStrategy';
+import { TrueFalseGradingStrategy } from '../strategies/TrueFalseGradingStrategy';
 
 export class QuizGrader {
+  private static strategies: Map<string, IQuestionGradingStrategy> = new Map([
+    ['mcq', new McqGradingStrategy()],
+    ['true_false', new TrueFalseGradingStrategy()],
+  ]);
+
+  /**
+   * Registers a new grading strategy for a question type (enables OCP extension).
+   */
+  static registerStrategy(
+    type: string,
+    strategy: IQuestionGradingStrategy,
+  ): void {
+    this.strategies.set(type, strategy);
+  }
+
   /**
    * Grades a single student answer against the corresponding quiz question.
    *
@@ -12,23 +30,12 @@ export class QuizGrader {
   static gradeAnswer(question: QuizQuestion, answer: StudentAnswer): boolean {
     if (question.type !== answer.type) return false;
 
-    switch (question.type) {
-      case 'mcq':
-        if (answer.type === 'mcq') {
-          return question.correctOptionIndex === answer.selectedOptionIndex;
-        }
-        return false;
-      case 'true_false':
-        if (answer.type === 'true_false') {
-          return question.correctAnswer === answer.selectedAnswer;
-        }
-        return false;
-      case 'short_answer':
-      case 'essay':
-        // Phase 2 implementation for manual/AI grading
-        return false;
-      default:
-        return false;
+    const strategy = this.strategies.get(question.type);
+    if (!strategy) {
+      // Questions without an automated grading strategy (e.g. short_answer, essay) return false
+      return false;
     }
+
+    return strategy.grade(question, answer);
   }
 }
