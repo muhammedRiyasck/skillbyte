@@ -12,11 +12,14 @@ import { initiatePaymentUc } from '../../payment/entry-point/PaymentContainer';
 import { LessonRepository } from '../../course/infrastructure/repositories/LessonRepository';
 import { CourseRepository } from '../../course/infrastructure/repositories/CourseRepository';
 
+import { StudentRepository } from '../../student/infrastructure/repositories/StudentRepository';
+
 // Initialize repositories
 const enrollmentReadRepo = new EnrollmentReadRepository();
 const enrollmentWriteRepo = new EnrollmentWriteRepository();
 const lessonRepo = new LessonRepository();
 const courseRepo = new CourseRepository();
+const studentRepo = new StudentRepository();
 
 // Initialize use cases with split repository interfaces
 const checkEnrollmentUc = new CheckEnrollmentUseCase(enrollmentReadRepo);
@@ -32,6 +35,8 @@ const getStudentEnrollmentsUc = new GetStudentEnrollmentsUseCase(
 );
 const initiateEnrollmentPaymentUc = new InitiateEnrollmentPaymentUseCase(
   enrollmentReadRepo,
+  courseRepo,
+  studentRepo,
   initiatePaymentUc,
 );
 const enrollFreeCourseUc = new EnrollFreeCourseUseCase(

@@ -1,18 +1,21 @@
 import { IEnrollmentReadRepository } from '../../domain/IRepositories/IEnrollmentReadRepository';
-import { CourseModel } from '../../../course/infrastructure/models/CourseModel';
-import { StudentModel } from '../../../student/infrastructure/models/StudentModel';
+import { ICourseRepository } from '../../../course/domain/IRepositories/ICourseRepository';
+import { IStudentRepository } from '../../../student/domain/IRepositories/IStudentRepository';
 import { IInitiateEnrollmentPaymentUseCase } from '../interfaces/IInitiateEnrollmentPayment';
-import { InitiatePaymentUseCase } from '../../../payment/application/use-cases/InitiatePaymentUseCase';
+import { IInitiatePayment } from '../../../payment/application/interfaces/IInitiatePayment';
 import { PaymentInitiationResponse } from '../../../../shared/services/payment/interfaces/IPaymentProvider';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
+import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
 export class InitiateEnrollmentPaymentUseCase
   implements IInitiateEnrollmentPaymentUseCase
 {
   constructor(
     private _enrollmentReadRepo: IEnrollmentReadRepository,
-    private _initiatePaymentUc: InitiatePaymentUseCase,
+    private _courseRepo: ICourseRepository,
+    private _studentRepo: IStudentRepository,
+    private _initiatePaymentUc: IInitiatePayment,
   ) {}
 
   async execute(
@@ -23,21 +26,21 @@ export class InitiateEnrollmentPaymentUseCase
     providerResponse: PaymentInitiationResponse;
     paymentId: string;
   }> {
-    // 1. Fetch course details
-    const course = await CourseModel.findById(courseId);
+    // 1. Fetch course details via repository interface
+    const course = await this._courseRepo.findById(courseId);
     if (!course) {
       throw new HttpError('Course not found', HttpStatusCode.NOT_FOUND);
     }
 
-    if (course.status !== 'list' || course.isBlocked) {
+    if (course.status !== CourseStatus.LIST || course.isBlocked) {
       throw new HttpError(
         'This course is currently unavailable for enrollment',
         HttpStatusCode.BAD_REQUEST,
       );
     }
 
-    // 1.1 Fetch student details
-    const student = await StudentModel.findById(userId);
+    // 1.1 Fetch student details via repository interface
+    const student = await this._studentRepo.findById(userId);
     if (!student) {
       throw new HttpError('Student not found', HttpStatusCode.NOT_FOUND);
     }
@@ -54,7 +57,7 @@ export class InitiateEnrollmentPaymentUseCase
       );
     }
 
-    // 3. Initiate payment via Payment Module
+    // 3. Initiate payment via Payment Module abstraction
     return await this._initiatePaymentUc.execute({
       userId,
       courseId,
