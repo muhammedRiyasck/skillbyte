@@ -3,18 +3,15 @@ import {
   ReportFilterOptions,
 } from '../../domain/IRepositories/IReportRepository';
 import { IGetPendingReportsUseCase } from '../interfaces/IGetPendingReportsUseCase';
-import { ICourseRepository } from '../../../course/domain/IRepositories/ICourseRepository';
-import { ILessonRepository } from '../../../course/domain/IRepositories/ILessonRepository';
-import { IReviewRepository } from '../../../review/domain/IRepositories/IReviewRepository';
+import { TargetDetailStrategyRegistry } from '../strategies/TargetDetailStrategyRegistry';
+import { TargetDetails } from '../strategies/ITargetDetailStrategy';
 import { ReportMapper } from '../mappers/ReportMapper';
 import { PendingReportsResponseDto } from '../dtos/PendingReportsResponseDto';
 
 export class GetPendingReportsUseCase implements IGetPendingReportsUseCase {
   constructor(
     private reportRepository: IReportRepository,
-    private courseRepository: ICourseRepository,
-    private lessonRepository: ILessonRepository,
-    private reviewRepository: IReviewRepository,
+    private targetDetailRegistry: TargetDetailStrategyRegistry,
   ) {}
 
   async execute(
@@ -25,29 +22,13 @@ export class GetPendingReportsUseCase implements IGetPendingReportsUseCase {
 
     const enrichedReports = await Promise.all(
       reports.map(async (report) => {
-        const targetDetails: {
-          title?: string;
-          comment?: string;
-          rating?: number;
-        } = {};
+        let targetDetails: TargetDetails = {};
         try {
-          if (report.targetType === 'course') {
-            const course = await this.courseRepository.findById(
-              report.targetId,
-            );
-            if (course) targetDetails.title = course.title;
-          } else if (report.targetType === 'lesson') {
-            const lesson = await this.lessonRepository.findById(
-              report.targetId,
-            );
-            if (lesson) targetDetails.title = lesson.title;
-          } else if (report.targetType === 'review') {
-            const review = await this.reviewRepository.findById(
-              report.targetId,
-            );
-            if (review) {
-              targetDetails.comment = review.comment;
-              targetDetails.rating = review.rating;
+          const strategy = this.targetDetailRegistry.get(report.targetType);
+          if (strategy) {
+            const details = await strategy.fetchDetails(report.targetId);
+            if (details) {
+              targetDetails = details;
             }
           }
         } catch (e) {

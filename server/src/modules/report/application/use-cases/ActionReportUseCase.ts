@@ -1,41 +1,36 @@
 import { IReportRepository } from '../../domain/IRepositories/IReportRepository';
 import { IActionReportUseCase } from '../interfaces/IActionReportUseCase';
-import { ICourseRepository } from '../../../course/domain/IRepositories/ICourseRepository';
-import { ILessonRepository } from '../../../course/domain/IRepositories/ILessonRepository';
-import { IReviewRepository } from '../../../review/domain/IRepositories/IReviewRepository';
+import { ReportActionStrategyRegistry } from '../strategies/ReportActionStrategyRegistry';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 export class ActionReportUseCase implements IActionReportUseCase {
   constructor(
     private reportRepository: IReportRepository,
-    private courseRepository: ICourseRepository,
-    private lessonRepository: ILessonRepository,
-    private reviewRepository: IReviewRepository,
+    private actionStrategyRegistry: ReportActionStrategyRegistry,
   ) {}
 
   async execute(reportId: string): Promise<void> {
     const report = await this.reportRepository.findById(reportId);
-    if (!report)
+    if (!report) {
       throw new HttpError('Report not found', HttpStatusCode.NOT_FOUND);
-    if (report.status !== 'pending')
+    }
+    if (report.status !== 'pending') {
       throw new HttpError(
         'Report is already processed',
         HttpStatusCode.BAD_REQUEST,
       );
-
-    if (report.targetType === 'course') {
-      await this.courseRepository.blockCourse(report.targetId, true);
-    } else if (report.targetType === 'lesson') {
-      await this.lessonRepository.updateLessonById(report.targetId, {
-        isBlocked: true,
-      });
-    } else if (report.targetType === 'review') {
-      await this.reviewRepository.hideReview(report.targetId);
-      // Soft-deleting the review resolves all pending reports for it.
-      await this.reportRepository.deleteManyByTarget('review', report.targetId);
     }
 
+    const strategy = this.actionStrategyRegistry.get(report.targetType);
+    if (!strategy) {
+      throw new HttpError(
+        `No action handler configured for report target type: ${report.targetType}`,
+        HttpStatusCode.BAD_REQUEST,
+      );
+    }
+
+    await strategy.executeAction(report.targetId);
     await this.reportRepository.updateStatus(reportId, 'actioned');
   }
 }
