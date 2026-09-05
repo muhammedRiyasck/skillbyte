@@ -38,6 +38,17 @@ export class StripeProvider implements IStripeProvider, IPaymentProvider {
     };
   }
 
+  normalizeAmount(amount: number, currency: string) {
+    return {
+      chargeAmount: amount,
+      chargeCurrency: currency,
+    };
+  }
+
+  mapProviderTransactionId(responseId: string): Record<string, string> {
+    return { stripePaymentIntentId: responseId };
+  }
+
   constructEvent(
     payload: string | Buffer,
     header: string,

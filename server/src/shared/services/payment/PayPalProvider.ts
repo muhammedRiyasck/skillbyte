@@ -84,6 +84,27 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
     };
   }
 
+  normalizeAmount(amount: number, currency: string) {
+    if (currency === 'INR') {
+      const exchangeRate = 83; // 1 USD = 83 INR
+      const convertedAmount = Math.round((amount / exchangeRate) * 100) / 100;
+      return {
+        chargeAmount: convertedAmount,
+        chargeCurrency: 'USD',
+        convertedAmount,
+        convertedCurrency: 'USD',
+      };
+    }
+    return {
+      chargeAmount: amount,
+      chargeCurrency: currency,
+    };
+  }
+
+  mapProviderTransactionId(responseId: string): Record<string, string> {
+    return { paypalOrderId: responseId };
+  }
+
   async createOrder(
     amount: number,
     currency: string = 'USD',

@@ -3,12 +3,23 @@ export interface PaymentInitiationResponse {
   client_secret?: string;
 }
 
+export interface NormalizedPaymentAmount {
+  chargeAmount: number;
+  chargeCurrency: string;
+  convertedAmount?: number;
+  convertedCurrency?: string;
+}
+
 export interface IPaymentProvider {
   initiate(
     amount: number,
     currency: string,
     metadata: Record<string, string>,
   ): Promise<PaymentInitiationResponse>;
+
+  normalizeAmount(amount: number, currency: string): NormalizedPaymentAmount;
+
+  mapProviderTransactionId(responseId: string): Record<string, string>;
 
   refund(paymentId: string): Promise<boolean>;
 

@@ -69,18 +69,9 @@ export class InitiatePaymentUseCase implements IInitiatePayment {
     // 1. Get provider from factory
     const provider = this.paymentProviderFactory.getProvider(providerName);
 
-    // 2. Handle currency conversion for PayPal (assuming Course price is in INR)
-    const isPayPal = providerName.toLowerCase() === 'paypal';
-    let amountToCharge = amount;
-    let convertedAmount: number | undefined;
-    let chargeCurrency = currency;
-
-    if (isPayPal && currency === 'INR') {
-      const exchangeRate = 83; // 1 USD = 83 INR (Fixed rate for simplicity)
-      convertedAmount = Math.round((amount / exchangeRate) * 100) / 100;
-      amountToCharge = convertedAmount;
-      chargeCurrency = 'USD';
-    }
+    // 2. Normalize amount and currency via provider strategy
+    const { chargeAmount, chargeCurrency, convertedAmount, convertedCurrency } =
+      provider.normalizeAmount(amount, currency);
 
     // 3. Initiate payment with provider
     const metadata: Record<string, string> = { userId };
@@ -101,7 +92,7 @@ export class InitiatePaymentUseCase implements IInitiatePayment {
       currency === 'INR' ? Math.round(amount * 0.2) : amount * 0.2; // Round for INR to prevent fractional drift
 
     const providerResponse = await provider.initiate(
-      amountToCharge,
+      chargeAmount,
       chargeCurrency,
       metadata,
     );
@@ -125,15 +116,9 @@ export class InitiatePaymentUseCase implements IInitiatePayment {
       studentName,
       studentEmail,
       convertedAmount,
-      convertedCurrency: convertedAmount ? 'USD' : undefined,
+      convertedCurrency,
+      ...provider.mapProviderTransactionId(providerResponse.id),
     };
-
-    // Handle provider-specific IDs
-    if (providerName.toLowerCase() === 'stripe') {
-      paymentData.stripePaymentIntentId = providerResponse.id;
-    } else if (providerName.toLowerCase() === 'paypal') {
-      paymentData.paypalOrderId = providerResponse.id;
-    }
 
     let payment;
     if (pendingPayment && pendingPayment.paymentId) {
