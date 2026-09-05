@@ -9,6 +9,7 @@ import {
 import logger from '../../utils/Logger';
 import { HttpError } from '../../types/HttpError';
 import { HttpStatusCode } from '../../enums/HttpStatusCodes';
+import { CurrencyConverter } from '../../utils/CurrencyConverter';
 
 interface PayPalLink {
   href: string;
@@ -86,7 +87,7 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
 
   normalizeAmount(amount: number, currency: string) {
     if (currency === 'INR') {
-      const exchangeRate = 83; // 1 USD = 83 INR
+      const exchangeRate = CurrencyConverter.USD_TO_INR_RATE;
       const convertedAmount = Math.round((amount / exchangeRate) * 100) / 100;
       return {
         chargeAmount: convertedAmount,

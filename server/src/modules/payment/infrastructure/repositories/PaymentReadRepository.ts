@@ -6,6 +6,7 @@ import { InstructorEarningsTrendPointDto } from '../../application/dtos/Instruct
 import { PaymentModel } from '../models/PaymentModel';
 import { IPaymentDocument } from '../types/IPaymentDocument';
 import { PaymentMapper } from '../mappers/PaymentMapper';
+import { CurrencyConverter } from '../../../../shared/utils/CurrencyConverter';
 
 export class PaymentReadRepository
   extends BaseRepository<IPayment, IPaymentDocument>
@@ -168,14 +169,19 @@ export class PaymentReadRepository
           usdAmount: {
             $cond: {
               if: { $eq: [{ $toUpper: '$currency' }, 'INR'] },
-              then: { $divide: ['$amount', 83] },
+              then: { $divide: ['$amount', CurrencyConverter.USD_TO_INR_RATE] },
               else: '$amount',
             },
           },
           usdInstructorAmount: {
             $cond: {
               if: { $eq: [{ $toUpper: '$currency' }, 'INR'] },
-              then: { $divide: ['$instructorAmount', 83] },
+              then: {
+                $divide: [
+                  '$instructorAmount',
+                  CurrencyConverter.USD_TO_INR_RATE,
+                ],
+              },
               else: '$instructorAmount',
             },
           },

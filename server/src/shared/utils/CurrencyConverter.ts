@@ -3,7 +3,9 @@ export class CurrencyConverter {
    * Fixed exchange rate for sandbox testing.
    * 1 USD = 83 INR
    */
-  private static readonly INR_TO_USD_RATE = 1 / 83;
+  public static readonly USD_TO_INR_RATE = 83;
+  private static readonly INR_TO_USD_RATE =
+    1 / CurrencyConverter.USD_TO_INR_RATE;
 
   /**
    * Converts an amount from a source currency to USD ($).

@@ -10,9 +10,10 @@ import { ReportModel } from '../../../report/infrastructure/models/ReportModel';
 import { BookingStatus } from '../../../mentorship/domain/entities/MentorshipBooking';
 import { IDashboardRepository } from '../../domain/IRepositories/IDashboardRepository';
 import { IAdminDashboardData } from '../../domain/interfaces/IDashboardData';
+import { CurrencyConverter } from '../../../../shared/utils/CurrencyConverter';
 
 export class DashboardRepository implements IDashboardRepository {
-  private readonly exchangeRate = 83;
+  private readonly exchangeRate = CurrencyConverter.USD_TO_INR_RATE;
 
   async getStats(): Promise<IAdminDashboardData['stats']> {
     const [payments, students, instructors, courses, withdrawals] =
