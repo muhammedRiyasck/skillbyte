@@ -11,9 +11,7 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { IChatNotifier } from '../interfaces/IChatNotifier';
 import { ConversationResponseMapper } from '../mappers/ConversationResponseMapper';
 import { ConversationResponseDto } from '../dtos/ConversationResponseDto';
-import { IStudentRepository } from '../../../student/domain/IRepositories/IStudentRepository';
-import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
-import { ICourseRepository } from '../../../course/domain/IRepositories/ICourseRepository';
+import { IConversationPopulationService } from '../services/ConversationPopulationService';
 
 export class CreateConversationUseCase implements ICreateConversationUseCase {
   constructor(
@@ -21,9 +19,7 @@ export class CreateConversationUseCase implements ICreateConversationUseCase {
     private conversationWriteRepository: IConversationWriteRepository,
     private enrollmentReadRepository: IEnrollmentReadRepository,
     private chatNotifier: IChatNotifier,
-    private studentRepository: IStudentRepository,
-    private instructorRepository: IInstructorRepository,
-    private courseRepository: ICourseRepository,
+    private populationService: IConversationPopulationService,
   ) {}
 
   async execute(
@@ -58,7 +54,7 @@ export class CreateConversationUseCase implements ICreateConversationUseCase {
 
     if (existingConversation) {
       const populatedConversation =
-        await this.populateConversation(existingConversation);
+        await this.populationService.populateOne(existingConversation);
       return ConversationResponseMapper.toDto(populatedConversation);
     }
 
@@ -85,46 +81,8 @@ export class CreateConversationUseCase implements ICreateConversationUseCase {
       saved.conversationId!,
     );
 
-    const populatedConversation = await this.populateConversation(saved);
+    const populatedConversation =
+      await this.populationService.populateOne(saved);
     return ConversationResponseMapper.toDto(populatedConversation);
-  }
-
-  private async populateConversation(
-    conversation: IConversation,
-  ): Promise<IConversation> {
-    const [student, instructor, course] = await Promise.all([
-      this.studentRepository.findById(conversation.studentId),
-      this.instructorRepository.findById(conversation.instructorId),
-      this.courseRepository.findById(conversation.courseId),
-    ]);
-
-    return {
-      ...conversation,
-      student: student
-        ? {
-            id: student.studentId!,
-            name: student.name,
-            email: student.email,
-            profilePicture: student.profilePictureUrl || undefined,
-          }
-        : null,
-      instructor: instructor
-        ? {
-            id: instructor.instructorId!,
-            name: instructor.name,
-            email: instructor.email,
-            profilePicture: instructor.profilePictureUrl || undefined,
-            jobTitle: instructor.jobTitle,
-            experience: String(instructor.experience),
-          }
-        : null,
-      course: course
-        ? {
-            id: course.courseId!,
-            title: course.title,
-            thumbnail: course.thumbnailUrl || undefined,
-          }
-        : null,
-    };
   }
 }

@@ -15,6 +15,7 @@ import { CourseRepository } from '../../../course/infrastructure/repositories/Co
 import { NotificationRepository } from '../../../notification/infrastructure/repositories/NotificationRepository';
 import { CreateNotificationUseCase } from '../../../notification/application/use-cases/CreateNotificationUseCase';
 import { SocketChatNotifier } from '../../infrastructure/services/SocketChatNotifier';
+import { ConversationPopulationService } from '../../application/services/ConversationPopulationService';
 
 // Repositories
 const conversationReadRepository = new ConversationReadRepository();
@@ -26,6 +27,12 @@ const studentRepository = new StudentRepository();
 const instructorRepository = new InstructorRepository();
 const courseRepository = new CourseRepository();
 
+const conversationPopulationService = new ConversationPopulationService(
+  studentRepository,
+  instructorRepository,
+  courseRepository,
+);
+
 // Notifier
 const chatNotifier = new SocketChatNotifier();
 
@@ -34,9 +41,7 @@ const createConversationUseCase = new CreateConversationUseCase(
   conversationWriteRepository,
   enrollmentReadRepository,
   chatNotifier,
-  studentRepository,
-  instructorRepository,
-  courseRepository,
+  conversationPopulationService,
 );
 
 const notificationRepository = new NotificationRepository();
@@ -54,9 +59,7 @@ const sendMessageUseCase = new SendMessageUseCase(
 
 const getConversationsUseCase = new GetConversationsUseCase(
   conversationReadRepository,
-  studentRepository,
-  instructorRepository,
-  courseRepository,
+  conversationPopulationService,
 );
 
 const getMessagesUseCase = new GetMessagesUseCase(
