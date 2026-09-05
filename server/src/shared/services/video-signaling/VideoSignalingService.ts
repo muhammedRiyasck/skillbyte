@@ -1,24 +1,12 @@
 import { Server, Socket } from 'socket.io';
 import logger from '../../utils/Logger';
 import { IVideoSignalingService } from './IVideoSignalingService';
+import { VideoRoomManager, VideoRoomParticipant } from './VideoRoomManager';
 
-export interface VideoRoomParticipant {
-  userId: string;
-  socketId: string;
-  bookingId: string;
-  name: string;
-  profileImage?: string;
-  isAudioEnabled: boolean;
-  isVideoEnabled: boolean;
-}
-
-interface VideoRoom {
-  roomId: string;
-  participants: Map<string, VideoRoomParticipant>;
-}
+export { VideoRoomParticipant } from './VideoRoomManager';
 
 export class VideoSignalingService implements IVideoSignalingService {
-  private videoRooms: Map<string, VideoRoom> = new Map();
+  constructor(private roomManager: VideoRoomManager = new VideoRoomManager()) {}
 
   public registerHandlers(io: Server, socket: Socket): void {
     // User joins video room
@@ -39,21 +27,9 @@ export class VideoSignalingService implements IVideoSignalingService {
       }) => {
         logger.info(`User ${userId} joining video room ${roomId}`);
 
-        // Join socket room
         socket.join(`video:${roomId}`);
 
-        // Get or create video room
-        let room = this.videoRooms.get(roomId);
-        if (!room) {
-          room = {
-            roomId,
-            participants: new Map(),
-          };
-          this.videoRooms.set(roomId, room);
-        }
-
-        // Add participant
-        room.participants.set(userId, {
+        this.roomManager.addParticipant(roomId, {
           userId,
           socketId: socket.id,
           bookingId,
@@ -63,11 +39,12 @@ export class VideoSignalingService implements IVideoSignalingService {
           isVideoEnabled: true,
         });
 
-        // Notify other participants
-        const otherParticipants = Array.from(room.participants.values()).filter(
-          (p) => p.userId !== userId,
+        const otherParticipants = this.roomManager.getOtherParticipants(
+          roomId,
+          userId,
         );
 
+        // Notify other participants
         socket.to(`video:${roomId}`).emit('video:user-joined', {
           userId,
           name,
@@ -94,7 +71,7 @@ export class VideoSignalingService implements IVideoSignalingService {
         });
 
         logger.info(
-          `User ${userId} joined video room ${roomId}, total participants: ${room.participants.size}`,
+          `User ${userId} joined video room ${roomId}, total participants: ${this.roomManager.getRoom(roomId)?.participants.size}`,
         );
       },
     );
@@ -119,7 +96,7 @@ export class VideoSignalingService implements IVideoSignalingService {
         offer: RTCSessionDescriptionInit;
         to: string;
       }) => {
-        const room = this.videoRooms.get(roomId);
+        const room = this.roomManager.getRoom(roomId);
         if (!room) {
           logger.warn(`❌ Room ${roomId} not found for offer`);
           return;
@@ -127,7 +104,7 @@ export class VideoSignalingService implements IVideoSignalingService {
 
         const targetParticipant = room.participants.get(to);
         if (targetParticipant) {
-          const fromUserId = this.getUserIdBySocketId(socket.id, room);
+          const fromUserId = this.getUserIdBySocketId(socket.id, roomId);
           logger.info(
             `📤 Forwarding offer in room ${roomId} from ${fromUserId} to ${to}`,
           );
@@ -155,7 +132,7 @@ export class VideoSignalingService implements IVideoSignalingService {
         answer: RTCSessionDescriptionInit;
         to: string;
       }) => {
-        const room = this.videoRooms.get(roomId);
+        const room = this.roomManager.getRoom(roomId);
         if (!room) {
           logger.warn(`❌ Room ${roomId} not found for answer`);
           return;
@@ -163,7 +140,7 @@ export class VideoSignalingService implements IVideoSignalingService {
 
         const targetParticipant = room.participants.get(to);
         if (targetParticipant) {
-          const fromUserId = this.getUserIdBySocketId(socket.id, room);
+          const fromUserId = this.getUserIdBySocketId(socket.id, roomId);
           logger.info(
             `📤 Forwarding answer in room ${roomId} from ${fromUserId} to ${to}`,
           );
@@ -191,14 +168,12 @@ export class VideoSignalingService implements IVideoSignalingService {
         candidate: RTCIceCandidateInit;
         to: string;
       }) => {
-        const room = this.videoRooms.get(roomId);
-        if (!room) {
-          return;
-        }
+        const room = this.roomManager.getRoom(roomId);
+        if (!room) return;
 
         const targetParticipant = room.participants.get(to);
         if (targetParticipant) {
-          const fromUserId = this.getUserIdBySocketId(socket.id, room);
+          const fromUserId = this.getUserIdBySocketId(socket.id, roomId);
           logger.info(
             `🧊 Forwarding ICE candidate in room ${roomId} from ${fromUserId} to ${to}`,
           );
@@ -222,12 +197,12 @@ export class VideoSignalingService implements IVideoSignalingService {
         userId: string;
         enabled: boolean;
       }) => {
-        const room = this.videoRooms.get(roomId);
-        if (!room) return;
-
-        const participant = room.participants.get(userId);
-        if (participant) {
-          participant.isAudioEnabled = enabled;
+        const updated = this.roomManager.setAudioEnabled(
+          roomId,
+          userId,
+          enabled,
+        );
+        if (updated) {
           socket.to(`video:${roomId}`).emit('video:peer-audio-toggled', {
             userId,
             enabled,
@@ -248,12 +223,12 @@ export class VideoSignalingService implements IVideoSignalingService {
         userId: string;
         enabled: boolean;
       }) => {
-        const room = this.videoRooms.get(roomId);
-        if (!room) return;
-
-        const participant = room.participants.get(userId);
-        if (participant) {
-          participant.isVideoEnabled = enabled;
+        const updated = this.roomManager.setVideoEnabled(
+          roomId,
+          userId,
+          enabled,
+        );
+        if (updated) {
           socket.to(`video:${roomId}`).emit('video:peer-video-toggled', {
             userId,
             enabled,
@@ -262,16 +237,9 @@ export class VideoSignalingService implements IVideoSignalingService {
       },
     );
 
-    // Handle disconnect
+    // Socket disconnects
     socket.on('disconnect', () => {
-      logger.info(`Socket ${socket.id} disconnected, cleaning up video rooms`);
-      // Find and remove user from all video rooms
-      this.videoRooms.forEach((room, roomId) => {
-        const userId = this.getUserIdBySocketId(socket.id, room);
-        if (userId) {
-          this.handleUserLeaveRoom(socket, roomId, userId);
-        }
-      });
+      this.handleSocketDisconnect(socket);
     });
   }
 
@@ -280,41 +248,57 @@ export class VideoSignalingService implements IVideoSignalingService {
     roomId: string,
     userId: string,
   ): void {
-    const room = this.videoRooms.get(roomId);
-    if (!room) return;
-
     logger.info(`User ${userId} leaving video room ${roomId}`);
 
-    // Remove participant
-    room.participants.delete(userId);
+    const { remainingCount } = this.roomManager.removeParticipant(
+      roomId,
+      userId,
+    );
 
-    // Leave socket room
     socket.leave(`video:${roomId}`);
+    socket.to(`video:${roomId}`).emit('video:user-left', {
+      userId,
+    });
 
-    // Notify others
-    socket.to(`video:${roomId}`).emit('video:user-left', { userId });
+    logger.info(
+      `User ${userId} left room ${roomId}, remaining participants: ${remainingCount}`,
+    );
+  }
 
-    // Clean up empty rooms
-    if (room.participants.size === 0) {
-      this.videoRooms.delete(roomId);
-      logger.info(`Video room ${roomId} deleted (empty)`);
+  private handleSocketDisconnect(socket: Socket): void {
+    const { roomId, participant, remainingCount } =
+      this.roomManager.removeParticipantBySocketId(socket.id);
+
+    if (roomId && participant) {
+      socket.to(`video:${roomId}`).emit('video:user-left', {
+        userId: participant.userId,
+      });
+
+      logger.info(
+        `User ${participant.userId} disconnected from room ${roomId}, remaining: ${remainingCount}`,
+      );
     }
   }
 
-  private getUserIdBySocketId(
-    socketId: string,
-    room: VideoRoom,
-  ): string | null {
+  private getUserIdBySocketId(socketId: string, roomId: string): string {
+    const room = this.roomManager.getRoom(roomId);
+    if (!room) return 'unknown';
+
     for (const [userId, participant] of room.participants.entries()) {
       if (participant.socketId === socketId) {
         return userId;
       }
     }
-    return null;
+    return 'unknown';
   }
 
+  /**
+   * Returns all participants currently in a given video room.
+   * Delegates to VideoRoomManager (SRP: state lives in the manager).
+   */
   public getRoomParticipants(roomId: string): VideoRoomParticipant[] {
-    const room = this.videoRooms.get(roomId);
-    return room ? Array.from(room.participants.values()) : [];
+    const room = this.roomManager.getRoom(roomId);
+    if (!room) return [];
+    return Array.from(room.participants.values());
   }
 }
