@@ -22,7 +22,7 @@ import {
 } from './modules/auth/entry-point/dependencyInjection/CommonAuthContainer';
 
 configurePassport(studentRepo, instructorRepo);
-import { paymentController } from './modules/payment/entry-point/PaymentContainer';
+import { paymentWebhookController } from './modules/payment/entry-point/PaymentContainer';
 
 const app = express();
 app.use(helmet());
@@ -44,7 +44,7 @@ app.post(
   express.raw({ type: 'application/json' }),
   async (req, res) => {
     logger.info('RAW WEBHOOK REACHED: /api/v1/payment/stripe-webhook');
-    await paymentController.handleStripeWebhook(req, res);
+    await paymentWebhookController.handleStripeWebhook(req, res);
   },
 );
 

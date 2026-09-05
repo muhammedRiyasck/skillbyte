@@ -6,6 +6,8 @@ import { HandleStripeWebhookUseCase } from '../application/use-cases/HandleStrip
 import { CapturePayPalPaymentUseCase } from '../application/use-cases/CapturePayPalPaymentUseCase';
 import { InitiatePaymentUseCase } from '../application/use-cases/InitiatePaymentUseCase';
 import { PaymentController } from './controller/PaymentController';
+import { PaymentWebhookController } from './controller/PaymentWebhookController';
+import { InstructorEarningsController } from './controller/InstructorEarningsController';
 import { StripeProvider } from '../../../shared/services/payment/StripeProvider';
 import { PayPalProvider } from '../../../shared/services/payment/PayPalProvider';
 import { PaymentProviderFactory } from '../../../shared/services/payment/PaymentProviderFactory';
@@ -67,9 +69,18 @@ export const withdrawalController = new WithdrawalController(
   withdrawalRepo,
 );
 
-export const paymentController = new PaymentController(
-  getUserPurchasesUc,
-  getInstructorEarningsUc,
+// ── Focused SRP Controllers ────────────────────────────────────────────────────
+
+/** Handles student purchase history. */
+export const paymentController = new PaymentController(getUserPurchasesUc);
+
+/** Handles Stripe webhook ingress and PayPal capture. */
+export const paymentWebhookController = new PaymentWebhookController(
   handleStripeWebhookUc,
   capturePayPalPaymentUc,
+);
+
+/** Handles instructor earnings and payout analytics. */
+export const instructorEarningsController = new InstructorEarningsController(
+  getInstructorEarningsUc,
 );

@@ -2,55 +2,18 @@ import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { IGetUserPurchases } from '../../application/interfaces/IGetUserPurchases';
-import { IGetInstructorEarnings } from '../../application/interfaces/IGetInstructorEarnings';
-import { IHandleStripeWebhook } from '../../application/interfaces/IHandleStripeWebhook';
-import { ICapturePayPalPayment } from '../../application/interfaces/ICapturePayPalPayment';
-import { PaymentMapper } from '../../application/mappers/PaymentMapper';
 import { DateRange } from '../../../../shared/enums/DateRange';
 import { PaymentStatus } from '../../../../shared/enums/PaymentStatus';
 
+/**
+ * Controller for student payment history (purchase listing).
+ * SRP: Only reason to change is if the student purchase history API contract changes.
+ *
+ * @see PaymentWebhookController – for Stripe webhook and PayPal capture
+ * @see InstructorEarningsController – for instructor earnings analytics
+ */
 export class PaymentController {
-  constructor(
-    private _getUserPurchasesUc: IGetUserPurchases,
-    private _getInstructorEarningsUc: IGetInstructorEarnings,
-    private _handleStripeWebhookUc: IHandleStripeWebhook,
-    private _capturePayPalPaymentUc: ICapturePayPalPayment,
-  ) {}
-
-  handleStripeWebhook = async (req: Request, res: Response): Promise<void> => {
-    const sig = req.headers['stripe-signature'];
-    const payload = req.body;
-
-    if (!sig) {
-      ApiResponseHelper.badRequest(res, 'Webhook Error: Missing signature');
-      return;
-    }
-
-    await this._handleStripeWebhookUc.execute(sig as string, payload);
-    ApiResponseHelper.success(res, 'Webhook received', { received: true });
-  };
-
-  capturePayPalPayment = async (req: Request, res: Response): Promise<void> => {
-    const { orderId } = req.body;
-
-    if (!orderId) {
-      ApiResponseHelper.badRequest(res, 'Order ID is required');
-      return;
-    }
-
-    const result = await this._capturePayPalPaymentUc.execute(orderId);
-
-    if (result.success && result.payment) {
-      ApiResponseHelper.success(res, 'Payment captured successfully', {
-        ...result,
-        payment: PaymentMapper.toResponse(result.payment),
-      });
-    } else if (result.success) {
-      ApiResponseHelper.success(res, 'Payment captured successfully', result);
-    } else {
-      ApiResponseHelper.badRequest(res, 'Payment capture failed');
-    }
-  };
+  constructor(private _getUserPurchasesUc: IGetUserPurchases) {}
 
   getUserPurchases = async (req: Request, res: Response): Promise<void> => {
     const userId = (req as AuthenticatedRequest).user.id;
@@ -73,36 +36,5 @@ export class PaymentController {
     });
 
     ApiResponseHelper.success(res, 'Purchases fetched', result);
-  };
-
-  getInstructorEarnings = async (
-    req: Request,
-    res: Response,
-  ): Promise<void> => {
-    const instructorId = (req as AuthenticatedRequest).user.id;
-    if (!instructorId) {
-      ApiResponseHelper.unauthorized(res, 'Unauthorized');
-      return;
-    }
-
-    const page = Number(req.query.page) || 1;
-    const limit = Number(req.query.limit) || 10;
-    const trendDays = Math.min(
-      Math.max(Number(req.query.trendDays) || 0, 0),
-      90,
-    );
-    const search = (req.query.search as string) || undefined;
-    const filter = (req.query.filter as string) || undefined;
-
-    const result = await this._getInstructorEarningsUc.execute({
-      instructorId,
-      page,
-      limit,
-      trendDays,
-      search,
-      filter,
-    });
-
-    ApiResponseHelper.success(res, 'Earnings fetched', result);
   };
 }

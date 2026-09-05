@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { paymentController, withdrawalController } from './PaymentContainer';
+import {
+  paymentController,
+  paymentWebhookController,
+  instructorEarningsController,
+  withdrawalController,
+} from './PaymentContainer';
 import { authenticate } from '../../../shared/middlewares/AuthMiddleware';
 import { requireRole } from '../../../shared/middlewares/RequireRole';
 import { validateRequest } from '../../../shared/middlewares/validateRequest';
@@ -15,18 +20,25 @@ const router = Router();
 
 router.use(authenticate);
 
+// ── Payment Provider Routes (Webhook / Capture) ───────────────────────────────
+
 // PayPal capture route
 router.post(
   '/capture-paypal',
   validateRequest(CapturePayPalPaymentSchema),
-  asyncHandler(paymentController.capturePayPalPayment),
+  asyncHandler(paymentWebhookController.capturePayPalPayment),
 );
 
-// Student routes
+// ── Student Routes ────────────────────────────────────────────────────────────
+
 router.get('/purchases', asyncHandler(paymentController.getUserPurchases));
 
-// Instructor routes
-router.get('/earnings', asyncHandler(paymentController.getInstructorEarnings));
+// ── Instructor Routes ─────────────────────────────────────────────────────────
+
+router.get(
+  '/earnings',
+  asyncHandler(instructorEarningsController.getInstructorEarnings),
+);
 
 // Instructor withdrawal routes
 router.get(
@@ -40,7 +52,8 @@ router.post(
   asyncHandler(withdrawalController.requestWithdrawal),
 );
 
-// Admin withdrawal routes
+// ── Admin Routes ──────────────────────────────────────────────────────────────
+
 router.get(
   '/withdrawals/all',
   requireRole('admin'),
