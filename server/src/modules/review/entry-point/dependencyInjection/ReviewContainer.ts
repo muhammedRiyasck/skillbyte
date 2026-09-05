@@ -66,6 +66,9 @@ const getInstructorReviewsUseCase = new GetInstructorReviewsUseCase(
   reviewRepository,
 );
 
+import { InstructorReviewController } from '../controllers/InstructorReviewController';
+import { AdminReviewController } from '../controllers/AdminReviewController';
+
 export const reviewController = new ReviewController(
   submitReviewUC,
   updateReviewUC,
@@ -75,11 +78,17 @@ export const reviewController = new ReviewController(
   toggleHelpfulReviewUC,
   reportReviewUC,
   getMySessionRatingsUC,
+);
+
+export const instructorReviewController = new InstructorReviewController(
+  replyToReviewUseCase,
+  getInstructorReviewsUseCase,
+);
+
+export const adminReviewController = new AdminReviewController(
   getAllReviewsAdminUC,
   adminToggleHideReviewUseCase,
   adminDeleteReviewUseCase,
-  replyToReviewUseCase,
-  getInstructorReviewsUseCase,
 );
 
 export { reviewRepository };

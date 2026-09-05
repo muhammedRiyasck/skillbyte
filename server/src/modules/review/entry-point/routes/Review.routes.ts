@@ -1,5 +1,9 @@
 import { Router } from 'express';
-import { reviewController } from '../dependencyInjection/ReviewContainer';
+import {
+  reviewController,
+  instructorReviewController,
+  adminReviewController,
+} from '../dependencyInjection/ReviewContainer';
 import { authenticate } from '../../../../shared/middlewares/AuthMiddleware';
 import { requireRole } from '../../../../shared/middlewares/RequireRole';
 import asyncHandler from '../../../../shared/utils/AsyncHandler';
@@ -18,7 +22,7 @@ router.get(
   '/admin',
   authenticate,
   requireRole('admin'),
-  asyncHandler(reviewController.getAllReviewsAdmin),
+  asyncHandler(adminReviewController.getAllReviewsAdmin),
 );
 
 router.patch(
@@ -26,14 +30,14 @@ router.patch(
   authenticate,
   requireRole('admin'),
   validateRequest(AdminToggleHideSchema),
-  asyncHandler(reviewController.adminToggleHideReview),
+  asyncHandler(adminReviewController.adminToggleHideReview),
 );
 
 router.delete(
   '/admin/:reviewId',
   authenticate,
   requireRole('admin'),
-  asyncHandler(reviewController.adminDeleteReview),
+  asyncHandler(adminReviewController.adminDeleteReview),
 );
 
 // ── Student routes ────────────────────────────────────────────────────────────
@@ -72,7 +76,7 @@ router.get(
   '/instructor/my-reviews',
   authenticate,
   requireRole('instructor'),
-  asyncHandler(reviewController.getInstructorReviews),
+  asyncHandler(instructorReviewController.getInstructorReviews),
 );
 
 router.post(
@@ -80,7 +84,7 @@ router.post(
   authenticate,
   requireRole('instructor'),
   validateRequest(ReplyToReviewSchema),
-  asyncHandler(reviewController.replyToReview),
+  asyncHandler(instructorReviewController.replyToReview),
 );
 
 // ── Shared authenticated routes ───────────────────────────────────────────────
