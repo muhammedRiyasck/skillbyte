@@ -1,6 +1,7 @@
 import { IAdminRepository } from '../../domain/IRepositories/IAdminRepository';
 import { LoginAdminRequestDto } from '../dtos/AdminRequestDto';
-import bcrypt from 'bcryptjs';
+import { IPasswordHasher } from '../../../../shared/services/password-hasher/IPasswordHasher';
+import { passwordHasher } from '../../../../shared/services/password-hasher/BcryptPasswordHasher';
 import { generateAccessToken } from '../../../../shared/utils/AccessToken';
 import { generateRefreshToken } from '../../../../shared/utils/RefreshToken';
 import { ILoginAdminUseCase } from '../interfaces/ILoginAdminUseCase';
@@ -19,8 +20,12 @@ export class LoginAdminUseCase implements ILoginAdminUseCase {
   /**
    * Constructs the LoginAdminUseCase with the required repository.
    * @param adminRepo - The admin repository interface.
+   * @param _passwordHasher - Abstraction for password hashing.
    */
-  constructor(private _adminRepo: IAdminRepository) {}
+  constructor(
+    private _adminRepo: IAdminRepository,
+    private _passwordHasher: IPasswordHasher = passwordHasher,
+  ) {}
 
   /**
    * Executes the admin login logic.
@@ -35,7 +40,10 @@ export class LoginAdminUseCase implements ILoginAdminUseCase {
     const passwordHash = admin
       ? admin.passwordHash
       : '$2b$10$dummyhashplaceholder';
-    const isMatch = await bcrypt.compare(dto.password, passwordHash);
+    const isMatch = await this._passwordHasher.compare(
+      dto.password,
+      passwordHash,
+    );
 
     if (!admin || !isMatch) {
       throw new HttpError(

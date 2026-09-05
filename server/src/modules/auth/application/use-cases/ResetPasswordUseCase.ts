@@ -1,5 +1,4 @@
 import redis from '../../../../shared/utils/Redis';
-import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { IStudentRepository } from '../../../student/domain/IRepositories/IStudentRepository';
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
@@ -11,6 +10,8 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 import { IMailerService } from '../../../../shared/services/mail/IMailerService';
 import { UserRole } from '../../../../shared/enums/UserRole';
+import { IPasswordHasher } from '../../../../shared/services/password-hasher/IPasswordHasher';
+import { passwordHasher } from '../../../../shared/services/password-hasher/BcryptPasswordHasher';
 
 import { ResetPasswordRequestDto } from '../dtos/ResetPasswordRequestDto';
 
@@ -23,11 +24,14 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
    * Constructs the ResetPasswordUseCase.
    * @param studentRepo - Repository for student operations.
    * @param instructorRepo - Repository for instructor operations.
+   * @param _nodeMailerService - Mailer service.
+   * @param _passwordHasher - Abstraction for password hashing.
    */
   constructor(
     private readonly _studentRepo: IStudentRepository,
     private readonly _instructorRepo: IInstructorRepository,
     private readonly _nodeMailerService: IMailerService,
+    private readonly _passwordHasher: IPasswordHasher = passwordHasher,
   ) {}
 
   /**
@@ -53,7 +57,7 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
       );
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await this._passwordHasher.hash(password);
 
     const repository =
       role === UserRole.STUDENT ? this._studentRepo : this._instructorRepo;

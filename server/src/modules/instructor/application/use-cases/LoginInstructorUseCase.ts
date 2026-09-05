@@ -2,7 +2,8 @@ import { generateRefreshToken } from '../../../../shared/utils/RefreshToken';
 import { generateAccessToken } from '../../../../shared/utils/AccessToken';
 import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRepository';
 import { InstructorResponseDto } from '../dtos/InstructorResponseDto';
-import bcrypt from 'bcryptjs';
+import { IPasswordHasher } from '../../../../shared/services/password-hasher/IPasswordHasher';
+import { passwordHasher } from '../../../../shared/services/password-hasher/BcryptPasswordHasher';
 import { ILoginInstructorUseCase } from '../interfaces/ILoginInstructorUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
@@ -18,7 +19,10 @@ import { InstructorMapper } from '../mappers/InstructorMapper';
 import { LoginRequestDto } from '../../../auth/application/dtos/LoginRequestDto';
 
 export class LoginInstructorUseCase implements ILoginInstructorUseCase {
-  constructor(private _instructorRepo: IInstructorRepository) {}
+  constructor(
+    private _instructorRepo: IInstructorRepository,
+    private _passwordHasher: IPasswordHasher = passwordHasher,
+  ) {}
 
   async execute(dto: LoginRequestDto): Promise<{
     user: InstructorResponseDto;
@@ -38,7 +42,7 @@ export class LoginInstructorUseCase implements ILoginInstructorUseCase {
     const passwordHash = instructor
       ? instructor.passwordHash
       : '$2b$10$dummyhashplaceholder';
-    const isMatch = await bcrypt.compare(password, passwordHash);
+    const isMatch = await this._passwordHasher.compare(password, passwordHash);
 
     if (!instructor || !isMatch) {
       throw new HttpError(

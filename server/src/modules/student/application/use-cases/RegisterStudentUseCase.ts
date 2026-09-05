@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import { IStudentRepository } from '../../domain/IRepositories/IStudentRepository';
 import { IOtpService } from '../../../../shared/services/otp/interfaces/IOtpService';
 import { TempInstructorData } from '../../../../shared/services/otp/interfaces/ITempInstructorData ';
@@ -9,6 +8,8 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { StudentRegistrationSchema } from '../../../../shared/validations/StudentValidation';
+import { IPasswordHasher } from '../../../../shared/services/password-hasher/IPasswordHasher';
+import { passwordHasher } from '../../../../shared/services/password-hasher/BcryptPasswordHasher';
 
 export class RegisterStudentUseCase implements IRegisterStudentUseCase {
   constructor(
@@ -16,6 +17,7 @@ export class RegisterStudentUseCase implements IRegisterStudentUseCase {
     private readonly _otpService: IOtpService<
       TempInstructorData | TempStudentData
     >,
+    private readonly _passwordHasher: IPasswordHasher = passwordHasher,
   ) {}
 
   /**
@@ -74,9 +76,8 @@ export class RegisterStudentUseCase implements IRegisterStudentUseCase {
       );
     }
 
-    const hashedPassword = await bcrypt.hash(
+    const hashedPassword = await this._passwordHasher.hash(
       validationResult.data.password,
-      10,
     );
 
     const student = new Student(

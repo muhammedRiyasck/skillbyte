@@ -8,12 +8,14 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { eventBus } from '../../../../shared/services/event-bus/EventBus';
 import { INSTRUCTOR_EVENTS } from '../../../../shared/services/event-bus/InstructorEvents';
 import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
-import bcrypt from 'bcryptjs';
+import { IPasswordHasher } from '../../../../shared/services/password-hasher/IPasswordHasher';
+import { passwordHasher } from '../../../../shared/services/password-hasher/BcryptPasswordHasher';
 
 export class ReapplyInstructorUseCase implements IReapplyInstructorUseCase {
   constructor(
     private readonly _instructorRepo: IInstructorRepository,
     private readonly _storageService: IStorageService,
+    private readonly _passwordHasher: IPasswordHasher = passwordHasher,
   ) {}
 
   async execute(
@@ -53,9 +55,8 @@ export class ReapplyInstructorUseCase implements IReapplyInstructorUseCase {
       updatesWithPassword.password &&
       updatesWithPassword.password.trim().length > 0
     ) {
-      updatedData.passwordHash = await bcrypt.hash(
+      updatedData.passwordHash = await this._passwordHasher.hash(
         updatesWithPassword.password,
-        10,
       );
     }
     // Remove plain password field from payload to prevent DB issues

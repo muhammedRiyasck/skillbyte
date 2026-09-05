@@ -1,7 +1,8 @@
 import { generateRefreshToken } from '../../../../shared/utils/RefreshToken';
 import { generateAccessToken } from '../../../../shared/utils/AccessToken';
 import { IStudentRepository } from '../../domain/IRepositories/IStudentRepository';
-import bcrypt from 'bcryptjs';
+import { IPasswordHasher } from '../../../../shared/services/password-hasher/IPasswordHasher';
+import { passwordHasher } from '../../../../shared/services/password-hasher/BcryptPasswordHasher';
 import { ILoginStudentUseCase } from '../interfaces/ILoginStudentUseCase';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
@@ -16,7 +17,10 @@ import { StudentResponseDto } from '../dtos/StudentResponseDto';
 import { LoginRequestDto } from '../../../auth/application/dtos/LoginRequestDto';
 
 export class LoginStudentUseCase implements ILoginStudentUseCase {
-  constructor(private _studentRepo: IStudentRepository) {}
+  constructor(
+    private _studentRepo: IStudentRepository,
+    private _passwordHasher: IPasswordHasher = passwordHasher,
+  ) {}
 
   async execute(dto: LoginRequestDto): Promise<{
     user: StudentResponseDto;
@@ -34,7 +38,7 @@ export class LoginStudentUseCase implements ILoginStudentUseCase {
     const passwordHash = student
       ? student.passwordHash
       : '$2b$10$dummyhashplaceholder';
-    const isMatch = await bcrypt.compare(password, passwordHash);
+    const isMatch = await this._passwordHasher.compare(password, passwordHash);
 
     if (!student || !isMatch) {
       throw new HttpError(

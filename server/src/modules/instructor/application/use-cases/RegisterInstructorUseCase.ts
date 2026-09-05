@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRepository';
 import { Instructor } from '../../domain/entities/Instructor';
 import { IOtpService } from '../../../../shared/services/otp/interfaces/IOtpService';
@@ -11,6 +10,8 @@ import { INSTRUCTOR_EVENTS } from '../../../../shared/services/event-bus/Instruc
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { TempInstructorData } from '../../../../shared/services/otp/interfaces/ITempInstructorData ';
 import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
+import { IPasswordHasher } from '../../../../shared/services/password-hasher/IPasswordHasher';
+import { passwordHasher } from '../../../../shared/services/password-hasher/BcryptPasswordHasher';
 
 /**
  * Use case for registering a new instructor.
@@ -21,10 +22,12 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
    * Constructs the RegisterInstructorUseCase.
    * @param _instructorRepo - The instructor repository for data operations.
    * @param otpService - The OTP service for verification.
+   * @param _passwordHasher - Abstraction for password hashing.
    */
   constructor(
     private readonly _instructorRepo: IInstructorRepository,
     private readonly _otpService: IOtpService<TempInstructorData>,
+    private readonly _passwordHasher: IPasswordHasher = passwordHasher,
   ) {}
 
   /**
@@ -59,7 +62,7 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
         HttpStatusCode.BAD_REQUEST,
       );
     }
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const hashedPassword = await this._passwordHasher.hash(dto.password);
     const instructor = new Instructor(
       dto.fullName,
       dto.email,
