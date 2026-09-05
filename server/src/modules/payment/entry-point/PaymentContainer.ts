@@ -17,7 +17,15 @@ import { WithdrawalRepository } from '../infrastructure/repositories/WithdrawalR
 import { RequestWithdrawalUseCase } from '../application/use-cases/RequestWithdrawalUseCase';
 import { ProcessWithdrawalUseCase } from '../application/use-cases/ProcessWithdrawalUseCase';
 import { RejectWithdrawalUseCase } from '../application/use-cases/RejectWithdrawalUseCase';
+import { RefundPaymentUseCase } from '../application/use-cases/RefundPaymentUseCase';
 import { WithdrawalController } from './controller/WithdrawalController';
+
+import { StripeWebhookRegistry } from '../application/strategies/webhook/StripeWebhookRegistry';
+import { PaymentIntentSucceededHandler } from '../application/strategies/webhook/PaymentIntentSucceededHandler';
+import { PaymentIntentFailedHandler } from '../application/strategies/webhook/PaymentIntentFailedHandler';
+import { PayoutFailedHandler } from '../application/strategies/webhook/PayoutFailedHandler';
+import { TransferReversedHandler } from '../application/strategies/webhook/TransferReversedHandler';
+import { StripeAccountUpdatedHandler } from '../application/strategies/webhook/StripeAccountUpdatedHandler';
 
 const paymentReadRepo = new PaymentReadRepository();
 const paymentWriteRepo = new PaymentWriteRepository();
@@ -29,15 +37,27 @@ const paymentProviderFactory = new PaymentProviderFactory();
 paymentProviderFactory.registerProvider('stripe', stripeProvider);
 paymentProviderFactory.registerProvider('paypal', paypalProvider);
 
+const stripeWebhookRegistry = new StripeWebhookRegistry();
+stripeWebhookRegistry.register(
+  new PaymentIntentSucceededHandler(paymentWriteRepo),
+);
+stripeWebhookRegistry.register(
+  new PaymentIntentFailedHandler(paymentWriteRepo),
+);
+stripeWebhookRegistry.register(new PayoutFailedHandler());
+stripeWebhookRegistry.register(
+  new TransferReversedHandler(withdrawalRepo, instructorRepo),
+);
+stripeWebhookRegistry.register(new StripeAccountUpdatedHandler(instructorRepo));
+
 const getUserPurchasesUc = new GetUserPurchasesUseCase(paymentReadRepo);
 const getInstructorEarningsUc = new GetInstructorEarningsUseCase(
   paymentReadRepo,
 );
+
 const handleStripeWebhookUc = new HandleStripeWebhookUseCase(
-  paymentWriteRepo,
   stripeProvider,
-  withdrawalRepo,
-  instructorRepo,
+  stripeWebhookRegistry,
 );
 const capturePayPalPaymentUc = new CapturePayPalPaymentUseCase(
   paymentWriteRepo,
@@ -58,9 +78,17 @@ const processWithdrawalUc = new ProcessWithdrawalUseCase(
   instructorRepo,
   paymentProviderFactory,
 );
+
 const rejectWithdrawalUc = new RejectWithdrawalUseCase(withdrawalRepo);
 
-export { initiatePaymentUc };
+const refundPaymentUc = new RefundPaymentUseCase(
+  paymentReadRepo,
+  paymentWriteRepo,
+  stripeProvider,
+  paypalProvider,
+);
+
+export { initiatePaymentUc, refundPaymentUc };
 
 export const withdrawalController = new WithdrawalController(
   requestWithdrawalUc,

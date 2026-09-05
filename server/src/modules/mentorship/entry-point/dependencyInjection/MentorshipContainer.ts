@@ -17,16 +17,17 @@ import { GenerateVideoRoomUseCase } from '../../application/use-cases/GenerateVi
 import { ValidateVideoRoomAccessUseCase } from '../../application/use-cases/ValidateVideoRoomAccessUseCase';
 import { AutoCompleteBookingsUseCase } from '../../application/use-cases/AutoCompleteBookingsUseCase';
 import { GetResumePaymentUseCase } from '../../application/use-cases/GetResumePaymentUseCase';
-import { initiatePaymentUc } from '../../../payment/entry-point/PaymentContainer';
+import {
+  initiatePaymentUc,
+  refundPaymentUc,
+} from '../../../payment/entry-point/PaymentContainer';
 
 import { MentorshipFulfillmentService } from '../../application/services/MentorshipFulfillmentService';
 import { MentorshipSocketService } from '../../infrastructure/services/MentorshipSocketService';
 
 import { InstructorRepository } from '../../../instructor/infrastructure/repositories/InstructorRepository';
 import { PaymentReadRepository } from '../../../payment/infrastructure/repositories/PaymentReadRepository';
-import { PaymentWriteRepository } from '../../../payment/infrastructure/repositories/PaymentWriteRepository';
 import { StripeProvider } from '../../../../shared/services/payment/StripeProvider';
-import { PayPalProvider } from '../../../../shared/services/payment/PayPalProvider';
 import { StudentRepository } from '../../../student/infrastructure/repositories/StudentRepository';
 
 // Repositories
@@ -34,12 +35,10 @@ const slotRepository = new MentorshipSlotRepository();
 const bookingRepository = new MentorshipBookingRepository();
 const instructorRepository = new InstructorRepository();
 const paymentReadRepository = new PaymentReadRepository();
-const paymentWriteRepository = new PaymentWriteRepository();
 const studentRepository = new StudentRepository();
 
 // Providers
 const stripeProvider = new StripeProvider();
-const paypalProvider = new PayPalProvider();
 
 new MentorshipSocketService();
 
@@ -69,9 +68,7 @@ export const cancelBookingUC = new CancelBookingUseCase(
   bookingRepository,
   slotRepository,
   paymentReadRepository,
-  paymentWriteRepository,
-  stripeProvider,
-  paypalProvider,
+  refundPaymentUc,
 );
 export const getStudentBookingsUC = new GetStudentBookingsUseCase(
   bookingRepository,
