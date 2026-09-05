@@ -1,6 +1,8 @@
 import { InstructorProfileController } from '../controllers/InstructorProfileController';
 import { GetInstructorProfileUseCase } from '../../application/use-cases/GetInstructorProfileUseCase';
 import { UpdateInstructorProfileUseCase } from '../../application/use-cases/UpdateInstructorProfileUseCase';
+import { UploadInstructorAvatarUseCase } from '../../application/use-cases/UploadInstructorAvatarUseCase';
+import { RemoveInstructorAvatarUseCase } from '../../application/use-cases/RemoveInstructorAvatarUseCase';
 import { InstructorRepository } from '../../infrastructure/repositories/InstructorRepository';
 import { CloudinaryStorageService } from '../../../../shared/services/file-upload/services/CloudinaryStorageService';
 import { StripeProvider } from '../../../../shared/services/payment/StripeProvider';
@@ -29,11 +31,20 @@ const syncStripeAccountStatusUseCase = new SyncStripeAccountStatusUseCase(
   instructorRepository,
   stripeProvider,
 );
+const uploadInstructorAvatarUseCase = new UploadInstructorAvatarUseCase(
+  instructorRepository,
+  storageService,
+);
+const removeInstructorAvatarUseCase = new RemoveInstructorAvatarUseCase(
+  instructorRepository,
+  storageService,
+);
 
 export const instructorProfileController = new InstructorProfileController(
   getInstructorProfileUseCase,
   updateInstructorProfileUseCase,
   createStripeOnboardingLinkUseCase,
   syncStripeAccountStatusUseCase,
-  storageService,
+  uploadInstructorAvatarUseCase,
+  removeInstructorAvatarUseCase,
 );

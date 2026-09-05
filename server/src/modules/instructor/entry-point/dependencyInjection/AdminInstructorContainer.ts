@@ -3,12 +3,14 @@ import { AdminInstructorController } from '../controllers/AdminInstructorControl
 import { ListInstructorsUseCase } from '../../application/use-cases/ListInstructorsUseCase';
 import { ApproveInstructorUseCase } from '../../application/use-cases/ApproveInstructorUseCase';
 import { DeclineInstructorUseCase } from '../../application/use-cases/DeclineInstructorUseCase';
-
 import { InstructorRepository } from '../../infrastructure/repositories/InstructorRepository';
 import { ChangeInstructorStatusUseCase } from '../../application/use-cases/ChangeInstructorStatusUseCase';
 import { DeleteInstructorUseCase } from '../../application/use-cases/DeleteInstructorUseCase';
+import { StreamInstructorResumeUseCase } from '../../application/use-cases/StreamInstructorResumeUseCase';
 import { S3StorageService } from '../../../../shared/services/file-upload/services/S3StorageService';
+
 const instructorRepo = new InstructorRepository();
+const storageService = new S3StorageService();
 
 const listInstructorUC = new ListInstructorsUseCase(instructorRepo);
 const approveUC = new ApproveInstructorUseCase(instructorRepo);
@@ -16,8 +18,11 @@ const declineUC = new DeclineInstructorUseCase(instructorRepo);
 const changeInstructorStatusUC = new ChangeInstructorStatusUseCase(
   instructorRepo,
 );
-const storageService = new S3StorageService();
 const deleteInstructorUC = new DeleteInstructorUseCase(
+  instructorRepo,
+  storageService,
+);
+const streamResumeUC = new StreamInstructorResumeUseCase(
   instructorRepo,
   storageService,
 );
@@ -28,5 +33,5 @@ export const adminInstructorController = new AdminInstructorController(
   declineUC,
   changeInstructorStatusUC,
   deleteInstructorUC,
-  storageService,
+  streamResumeUC,
 );

@@ -3,18 +3,19 @@ import { IGetInstructorProfileUseCase } from '../../application/interfaces/IGetI
 import { IUpdateInstructorProfileUseCase } from '../../application/interfaces/IUpdateInstructorProfileUseCase';
 import { CreateStripeOnboardingLinkUseCase } from '../../application/use-cases/CreateStripeOnboardingLinkUseCase';
 import { ISyncStripeAccountStatusUseCase } from '../../application/interfaces/ISyncStripeAccountStatusUseCase';
+import { IUploadInstructorAvatarUseCase } from '../../application/interfaces/IUploadInstructorAvatarUseCase';
+import { IRemoveInstructorAvatarUseCase } from '../../application/interfaces/IRemoveInstructorAvatarUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { InstructorMapper } from '../../application/mappers/InstructorMapper';
-import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 import { InstructorProfileUpdateRequestDto } from '../../application/dtos/InstructorRequestDto';
 
 /**
  * Controller for instructor profile operations.
- * Handles retrieving, updating, and managing profile images for instructors.
+ * Pure HTTP routing layer delegating all business logic to focused use cases.
  */
 export class InstructorProfileController {
   constructor(
@@ -22,7 +23,8 @@ export class InstructorProfileController {
     private readonly _updateInstructorProfileUseCase: IUpdateInstructorProfileUseCase,
     private readonly _createStripeOnboardingLinkUseCase: CreateStripeOnboardingLinkUseCase,
     private readonly _syncStripeStatusUseCase: ISyncStripeAccountStatusUseCase,
-    private readonly _storageService: IStorageService,
+    private readonly _uploadAvatarUc: IUploadInstructorAvatarUseCase,
+    private readonly _removeAvatarUc: IRemoveInstructorAvatarUseCase,
   ) {}
 
   getProfile = async (req: Request, res: Response): Promise<void> => {
@@ -64,28 +66,7 @@ export class InstructorProfileController {
       );
     }
 
-    const instructor =
-      await this._getInstructorProfileUseCase.execute(instructorId);
-    if (instructor && instructor.profilePicture) {
-      try {
-        const oldPicId = this._storageService.getIdentifierFromUrl(
-          instructor.profilePicture,
-        );
-        await this._storageService.delete(oldPicId);
-      } catch (error) {
-        console.error(
-          'Failed to delete old profile picture from cloud:',
-          error,
-        );
-      }
-    }
-
-    const url = await this._storageService.upload(file.path, {
-      folder: 'instructor-profiles',
-    });
-    await this._updateInstructorProfileUseCase.execute(instructorId, {
-      profilePictureUrl: url,
-    });
+    const url = await this._uploadAvatarUc.execute(instructorId, file.path);
     ApiResponseHelper.success(res, 'Profile image uploaded successfully', {
       url,
     });
@@ -94,28 +75,7 @@ export class InstructorProfileController {
   removeProfileImage = async (req: Request, res: Response): Promise<void> => {
     const authenticatedRequest = req as AuthenticatedRequest;
     const instructorId = authenticatedRequest.user.id;
-    const instructor =
-      await this._getInstructorProfileUseCase.execute(instructorId);
-    if (!instructor) {
-      throw new HttpError(
-        ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND,
-        HttpStatusCode.NOT_FOUND,
-      );
-    }
-
-    if (instructor.profilePicture) {
-      try {
-        const publicId = this._storageService.getIdentifierFromUrl(
-          instructor.profilePicture,
-        );
-        await this._storageService.delete(publicId);
-      } catch (error) {
-        console.error('Failed to delete image from cloud:', error);
-      }
-      await this._updateInstructorProfileUseCase.execute(instructorId, {
-        profilePictureUrl: null,
-      });
-    }
+    await this._removeAvatarUc.execute(instructorId);
     ApiResponseHelper.success(res, 'Profile image removed');
   };
 

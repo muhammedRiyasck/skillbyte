@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import { IGetStudentProfileUseCase } from '../../application/interfaces/IGetStudentProfileUseCase';
 import { IUpdateStudentProfileUseCase } from '../../application/interfaces/IUpdateStudentProfileUseCase';
-import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
+import { IUploadStudentAvatarUseCase } from '../../application/interfaces/IUploadStudentAvatarUseCase';
+import { IRemoveStudentAvatarUseCase } from '../../application/interfaces/IRemoveStudentAvatarUseCase';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
@@ -10,13 +11,14 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 
 /**
  * Controller for student profile operations.
- * Handles retrieving, updating, and managing profile images for students.
+ * Pure HTTP routing layer delegating all business logic to focused use cases.
  */
 export class StudentProfileController {
   constructor(
     private readonly _getProfileUc: IGetStudentProfileUseCase,
     private readonly _updateProfileUc: IUpdateStudentProfileUseCase,
-    private readonly _storageService: IStorageService,
+    private readonly _uploadAvatarUc: IUploadStudentAvatarUseCase,
+    private readonly _removeAvatarUc: IRemoveStudentAvatarUseCase,
   ) {}
 
   getProfile = async (req: Request, res: Response): Promise<void> => {
@@ -47,26 +49,7 @@ export class StudentProfileController {
       );
     }
 
-    // Delete old image from Cloudinary if one exists
-    const student = await this._getProfileUc.execute(studentId);
-    if (student?.profilePicture) {
-      try {
-        const oldPicId = this._storageService.getIdentifierFromUrl(
-          student.profilePicture,
-        );
-        await this._storageService.delete(oldPicId);
-      } catch (error) {
-        console.error(
-          'Failed to delete old profile picture from cloud:',
-          error,
-        );
-      }
-    }
-
-    const url = await this._storageService.upload(file.path, {
-      folder: 'student-profiles',
-    });
-    await this._updateProfileUc.execute(studentId, { profilePictureUrl: url });
+    const url = await this._uploadAvatarUc.execute(studentId, file.path);
     ApiResponseHelper.success(res, 'Profile image uploaded successfully', {
       url,
     });
@@ -74,24 +57,7 @@ export class StudentProfileController {
 
   removeProfileImage = async (req: Request, res: Response): Promise<void> => {
     const studentId = (req as AuthenticatedRequest).user.id;
-    const student = await this._getProfileUc.execute(studentId);
-    if (!student) {
-      throw new HttpError('Student not found', HttpStatusCode.NOT_FOUND);
-    }
-
-    if (student.profilePicture) {
-      try {
-        const publicId = this._storageService.getIdentifierFromUrl(
-          student.profilePicture,
-        );
-        await this._storageService.delete(publicId);
-      } catch (error) {
-        console.error('Failed to delete image from cloud:', error);
-      }
-      await this._updateProfileUc.execute(studentId, {
-        profilePictureUrl: null,
-      });
-    }
+    await this._removeAvatarUc.execute(studentId);
     ApiResponseHelper.success(res, 'Profile image removed');
   };
 }

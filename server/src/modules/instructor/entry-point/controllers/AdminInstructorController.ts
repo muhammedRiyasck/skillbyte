@@ -1,17 +1,13 @@
 import { Request, Response } from 'express';
-import { Readable } from 'node:stream';
 import { IlistInstructorsUC } from '../../application/interfaces/IlistInstructorsUseCase';
 import { IApproveInstructorUseCase } from '../../application/interfaces/IApproveInstructorUseCase';
 import { IDeclineInstructorUseCase } from '../../application/interfaces/IDeclineInstructorUseCase';
 import { IChangeInstructorStatusUseCase } from '../../application/interfaces/IChangeInstructorStatusUseCase';
-import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { IDeleteInstructorUseCase } from '../../application/interfaces/IDeleteInstructorUseCase';
+import { IStreamInstructorResumeUseCase } from '../../application/interfaces/IStreamInstructorResumeUseCase';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
-import { HttpError } from '../../../../shared/types/HttpError';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
-import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { AdminInstructorMapper } from '../../application/mappers/AdminInstructorMapper';
-import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 import {
   AdminInstructorPaginationRequestDto,
   ApproveInstructorRequestDto,
@@ -21,7 +17,7 @@ import {
 
 /**
  * Controller for admin operations on instructors.
- * Handles listing, approving, declining, status changes, and deletion of instructors.
+ * Handles listing, approving, declining, status changes, deletion, and resume streaming.
  */
 export class AdminInstructorController {
   constructor(
@@ -30,7 +26,7 @@ export class AdminInstructorController {
     private _declineUC: IDeclineInstructorUseCase,
     private _changeStatusUC: IChangeInstructorStatusUseCase,
     private _deleteInstructorUC: IDeleteInstructorUseCase,
-    private _storageService: IStorageService,
+    private _streamResumeUC: IStreamInstructorResumeUseCase,
   ) {}
 
   getInstructors = async (req: Request, res: Response): Promise<void> => {
@@ -93,47 +89,10 @@ export class AdminInstructorController {
 
   getInstructorResume = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
+    const { stream, contentType } = await this._streamResumeUC.execute(id);
 
-    const instructors = await this._listInstructorsUC.execute(
-      { _id: id },
-      1,
-      1,
-      {},
-    );
-    if (!instructors || !instructors.data || instructors.data.length === 0) {
-      throw new HttpError(
-        ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND,
-        HttpStatusCode.NOT_FOUND,
-      );
-    }
-
-    const instructor = instructors.data[0];
-    if (!instructor.resumeUrl) {
-      throw new HttpError(
-        ERROR_MESSAGES.RESUME_NOT_FOUND,
-        HttpStatusCode.NOT_FOUND,
-      );
-    }
-
-    const fileKey = instructor.resumeUrl;
-    const freshSignedUrl = await this._storageService.getSignedUrl(fileKey);
-    const fileResponse = await fetch(freshSignedUrl);
-
-    if (!fileResponse.ok)
-      throw new HttpError(
-        'Failed to fetch file from Backblaze',
-        HttpStatusCode.INTERNAL_SERVER_ERROR,
-      );
-
-    res.setHeader(
-      'Content-Type',
-      fileResponse.headers.get('content-type') || 'application/pdf',
-    );
+    res.setHeader('Content-Type', contentType);
     res.setHeader('Content-Disposition', 'inline');
-
-    const nodeStream = Readable.fromWeb(
-      fileResponse.body as import('stream/web').ReadableStream,
-    );
-    nodeStream.pipe(res);
+    stream.pipe(res);
   };
 }
