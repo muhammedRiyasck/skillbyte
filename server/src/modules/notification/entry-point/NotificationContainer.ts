@@ -5,8 +5,12 @@ import { MarkAllNotificationsAsReadUseCase } from '../application/use-cases/Mark
 import { CreateNotificationUseCase } from '../application/use-cases/CreateNotificationUseCase';
 import { NotificationRepository } from '../infrastructure/repositories/NotificationRepository';
 import { NotificationController } from './NotificationController';
-import { NotificationEventListener } from '../infrastructure/events/NotificationEventListener';
 import { EnrollmentReadRepository } from '../../enrollment/infrastructure/repositories/EnrollmentReadRepository';
+
+import { MentorshipNotificationListener } from '../infrastructure/events/listeners/MentorshipNotificationListener';
+import { PaymentNotificationListener } from '../infrastructure/events/listeners/PaymentNotificationListener';
+import { CourseNotificationListener } from '../infrastructure/events/listeners/CourseNotificationListener';
+import { WithdrawalNotificationListener } from '../infrastructure/events/listeners/WithdrawalNotificationListener';
 
 const notificationRepo = new NotificationRepository();
 const enrollmentReadRepo = new EnrollmentReadRepository();
@@ -25,8 +29,11 @@ const markAllNotificationsAsReadUC = new MarkAllNotificationsAsReadUseCase(
 );
 const createNotificationUC = new CreateNotificationUseCase(notificationRepo);
 
-// It listens to domain events and creates persisted + real-time notifications
-new NotificationEventListener(createNotificationUC, enrollmentReadRepo);
+// Domain-specific notification listeners (SRP compliant)
+new MentorshipNotificationListener(createNotificationUC);
+new PaymentNotificationListener(createNotificationUC);
+new CourseNotificationListener(createNotificationUC, enrollmentReadRepo);
+new WithdrawalNotificationListener(createNotificationUC);
 
 export const notificationContainer = new NotificationController(
   getUserNotificationsUC,
