@@ -4,6 +4,7 @@ import { registerInstructorJobs } from '../../../modules/instructor/entry-point/
 import { registerMentorshipJobs } from '../../../modules/mentorship/entry-point/dependencyInjection/MentorshipJobRegistrar';
 import { registerAdminJobs } from '../../../modules/admin/entry-points/dependencyInjection/AdminJobRegistrar';
 import { registerCourseJobs } from '../../../modules/course/entry-point/dependencyInjection/CourseJobRegistrar';
+import { registerSharedJobs } from './SharedJobRegistrar';
 
 /**
  * Thin bootstrap orchestrator for all background job queues.
@@ -24,6 +25,7 @@ export class JobQueueInitializer {
     }
 
     try {
+      registerSharedJobs();
       registerInstructorJobs();
       registerMentorshipJobs();
       registerAdminJobs();
