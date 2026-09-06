@@ -26,31 +26,9 @@ export class ConversationPopulationService
 
     return {
       ...conversation,
-      student: student
-        ? {
-            id: student.studentId!,
-            name: student.name,
-            email: student.email,
-            profilePicture: student.profilePictureUrl || undefined,
-          }
-        : null,
-      instructor: instructor
-        ? {
-            id: instructor.instructorId!,
-            name: instructor.name,
-            email: instructor.email,
-            profilePicture: instructor.profilePictureUrl || undefined,
-            jobTitle: instructor.jobTitle,
-            experience: String(instructor.experience),
-          }
-        : null,
-      course: course
-        ? {
-            id: course.courseId!,
-            title: course.title,
-            thumbnail: course.thumbnailUrl || undefined,
-          }
-        : null,
+      student: this.mapStudent(student),
+      instructor: this.mapInstructor(instructor),
+      course: this.mapCourse(course),
     };
   }
 
@@ -75,39 +53,55 @@ export class ConversationPopulationService
     );
     const coursesById = new Map(courses.map((c) => [c.courseId, c]));
 
-    return conversations.map((conversation) => {
-      const student = studentsById.get(conversation.studentId);
-      const instructor = instructorsById.get(conversation.instructorId);
-      const course = coursesById.get(conversation.courseId);
+    return conversations.map((conversation) => ({
+      ...conversation,
+      student: this.mapStudent(studentsById.get(conversation.studentId)),
+      instructor: this.mapInstructor(
+        instructorsById.get(conversation.instructorId),
+      ),
+      course: this.mapCourse(coursesById.get(conversation.courseId)),
+    }));
+  }
 
-      return {
-        ...conversation,
-        student: student
-          ? {
-              id: student.studentId!,
-              name: student.name,
-              email: student.email,
-              profilePicture: student.profilePictureUrl || undefined,
-            }
-          : null,
-        instructor: instructor
-          ? {
-              id: instructor.instructorId!,
-              name: instructor.name,
-              email: instructor.email,
-              profilePicture: instructor.profilePictureUrl || undefined,
-              jobTitle: instructor.jobTitle,
-              experience: String(instructor.experience),
-            }
-          : null,
-        course: course
-          ? {
-              id: course.courseId!,
-              title: course.title,
-              thumbnail: course.thumbnailUrl || undefined,
-            }
-          : null,
-      };
-    });
+  private mapStudent(
+    student: Awaited<ReturnType<IStudentRepository['findById']>> | undefined,
+  ) {
+    return student
+      ? {
+          id: student.studentId!,
+          name: student.name,
+          email: student.email,
+          profilePicture: student.profilePictureUrl || undefined,
+        }
+      : null;
+  }
+
+  private mapInstructor(
+    instructor:
+      | Awaited<ReturnType<IInstructorRepository['findById']>>
+      | undefined,
+  ) {
+    return instructor
+      ? {
+          id: instructor.instructorId!,
+          name: instructor.name,
+          email: instructor.email,
+          profilePicture: instructor.profilePictureUrl || undefined,
+          jobTitle: instructor.jobTitle,
+          experience: String(instructor.experience),
+        }
+      : null;
+  }
+
+  private mapCourse(
+    course: Awaited<ReturnType<ICourseRepository['findById']>> | undefined,
+  ) {
+    return course
+      ? {
+          id: course.courseId!,
+          title: course.title,
+          thumbnail: course.thumbnailUrl || undefined,
+        }
+      : null;
   }
 }
