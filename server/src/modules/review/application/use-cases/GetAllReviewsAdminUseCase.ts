@@ -31,49 +31,48 @@ export class GetAllReviewsAdminUseCase implements IGetAllReviewsAdminUseCase {
     const courseMap = new Map<string, string>();
     const sessionMap = new Map<string, string>();
 
-    if (this.courseRepository) {
-      const courseIds = [
-        ...new Set(
-          reviews
-            .filter((r) => r.targetType === 'course')
-            .map((r) => r.targetId.toString()),
-        ),
-      ];
-      await Promise.all(
-        courseIds.map(async (id) => {
-          try {
-            const course = await this.courseRepository!.findById(id);
-            if (course) courseMap.set(id, course.title);
-          } catch {
-            // Ignore single target lookup errors
-          }
-        }),
-      );
+    const courseIds = this.courseRepository
+      ? [
+          ...new Set(
+            reviews
+              .filter((r) => r.targetType === 'course')
+              .map((r) => r.targetId.toString()),
+          ),
+        ]
+      : [];
+
+    const bookingIds = this.bookingRepository
+      ? [
+          ...new Set(
+            reviews
+              .filter((r) => r.targetType === 'session')
+              .map((r) => r.targetId.toString()),
+          ),
+        ]
+      : [];
+
+    const [courses, bookings] = await Promise.all([
+      courseIds.length && this.courseRepository
+        ? this.courseRepository.findByIds(courseIds).catch(() => [])
+        : Promise.resolve([]),
+      bookingIds.length && this.bookingRepository
+        ? this.bookingRepository.findByIds(bookingIds).catch(() => [])
+        : Promise.resolve([]),
+    ]);
+
+    for (const course of courses) {
+      if (course.courseId) {
+        courseMap.set(course.courseId.toString(), course.title);
+      }
     }
 
-    if (this.bookingRepository) {
-      const bookingIds = [
-        ...new Set(
-          reviews
-            .filter((r) => r.targetType === 'session')
-            .map((r) => r.targetId.toString()),
-        ),
-      ];
-      await Promise.all(
-        bookingIds.map(async (id) => {
-          try {
-            const booking = await this.bookingRepository!.findById(id);
-            if (booking && booking.scheduledAt) {
-              sessionMap.set(
-                id,
-                `Session on ${new Date(booking.scheduledAt).toLocaleDateString()}`,
-              );
-            }
-          } catch {
-            // Ignore single target lookup errors
-          }
-        }),
-      );
+    for (const booking of bookings) {
+      if (booking.bookingId && booking.scheduledAt) {
+        sessionMap.set(
+          booking.bookingId.toString(),
+          `Session on ${new Date(booking.scheduledAt).toLocaleDateString()}`,
+        );
+      }
     }
 
     const dtos: AdminReviewDto[] = reviews.map((r) => {
