@@ -30,7 +30,6 @@ import {
 
 // Centralized type mapping for all application events
 export interface AppEvents {
-  [key: string]: unknown;
   [PAYMENT_EVENTS.PAYMENT_SUCCEEDED]: PaymentSucceededEvent;
   [PAYMENT_EVENTS.PAYMENT_FAILED]: PaymentFailedEvent;
   [MENTORSHIP_EVENTS.BOOKING_CREATED]: MentorshipBookingCreatedEvent;
