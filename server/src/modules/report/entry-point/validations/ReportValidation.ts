@@ -6,3 +6,11 @@ export const SubmitReportSchema = z.object({
   reason: z.string().min(3).max(100),
   description: z.string().max(1000).optional(),
 });
+
+/** Instructors can only report student reviews */
+export const InstructorSubmitReportSchema = z.object({
+  targetType: z.literal('review'),
+  targetId: z.string().min(1),
+  reason: z.string().min(3).max(100),
+  description: z.string().max(1000).optional(),
+});

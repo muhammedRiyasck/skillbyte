@@ -5,7 +5,10 @@ import { requireRole } from '../../../../shared/middlewares/RequireRole';
 import { UserRole } from '../../../../shared/enums/UserRole';
 import asyncHandler from '../../../../shared/utils/AsyncHandler';
 import { validateRequest } from '../../../../shared/middlewares/validateRequest';
-import { SubmitReportSchema } from '../validations/ReportValidation';
+import {
+  SubmitReportSchema,
+  InstructorSubmitReportSchema,
+} from '../validations/ReportValidation';
 
 const router = Router();
 
@@ -15,6 +18,15 @@ router.post(
   authenticate,
   requireRole(UserRole.STUDENT),
   validateRequest(SubmitReportSchema),
+  asyncHandler(reportController.submitReport),
+);
+
+// Instructor facing route (instructors can only report reviews)
+router.post(
+  '/instructor',
+  authenticate,
+  requireRole(UserRole.INSTRUCTOR),
+  validateRequest(InstructorSubmitReportSchema),
   asyncHandler(reportController.submitReport),
 );
 

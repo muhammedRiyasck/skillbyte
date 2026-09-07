@@ -306,9 +306,10 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
 
     document.addEventListener('keydown', handleKeyDown);
 
+    const capturedTimer = timeUpdateTimer.current;
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
-      if (timeUpdateTimer.current) clearTimeout(timeUpdateTimer.current);
+      if (capturedTimer) clearTimeout(capturedTimer);
       qualityLevels?.off('addqualitylevel', updateQualities);
       qualityLevels?.off('change', handleQualityChange);
       if (playerRef.current && !playerRef.current.isDisposed()) {
@@ -318,6 +319,7 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src]); // Re-initialize when src changes
+
 
   // Also respond if initialTime arrives or updates after mount
   useEffect(() => {

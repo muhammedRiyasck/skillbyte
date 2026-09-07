@@ -90,6 +90,19 @@ export const submitReport = async (
   });
 };
 
+export const submitInstructorReport = async (
+  targetId: string,
+  reason: string,
+  description?: string
+): Promise<void> => {
+  await api.post(`/reports/instructor`, {
+    targetType: 'review',
+    targetId,
+    reason,
+    description
+  });
+};
+
 export interface ISessionReview {
   rating: number;
   comment?: string;

@@ -8,6 +8,8 @@ export class ReportMapper {
       _id: entity._id!,
       studentId: entity.reportedBy,
       studentInfo: entity.studentInfo,
+      reporterRole: entity.reporterRole,
+      instructorInfo: entity.instructorInfo,
       targetType: entity.targetType,
       targetId: entity.targetId,
       targetDetails: entity.targetDetails,

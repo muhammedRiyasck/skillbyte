@@ -3,7 +3,7 @@ import type { IReview, ReviewResponse } from '../types/reviewTypes';
 import StarRating from './StarRating';
 import { formatDistanceToNow } from 'date-fns';
 import { ThumbsUp, MoreVertical, Flag, Trash2, Edit } from 'lucide-react';
-import { toggleHelpful, submitReport, deleteReview } from '../services/ReviewService';
+import { toggleHelpful, submitReport, deleteReview, submitInstructorReport } from '../services/ReviewService';
 import { toast } from 'sonner';
 import { useQueryClient, useMutation, type InfiniteData } from '@tanstack/react-query';
 import ReportModal from '@/shared/components/ReportModal';
@@ -22,6 +22,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
   const [isHelpfulLoading, setIsHelpfulLoading] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isInstructorReportModalOpen, setIsInstructorReportModalOpen] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [imgError, setImgError] = useState(false);
@@ -58,6 +59,16 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
       toast.error('Failed to update helpful status');
     } finally {
       setIsHelpfulLoading(false);
+    }
+  };
+
+  const handleInstructorReportSubmit = async (reason: string, description: string) => {
+    try {
+      await submitInstructorReport(review.reviewId, reason, description);
+      toast.success('Review reported to administrators');
+    } catch {
+      toast.error('Failed to report review');
+      throw new Error('Failed to report');
     }
   };
 
@@ -241,6 +252,13 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
                         <Trash2 className="w-4 h-4" /> Delete
                     </button>
                     </>
+                ) : isInstructorViewing ? (
+                    <button 
+                        onClick={() => { setShowMenu(false); setIsInstructorReportModalOpen(true); }}
+                        className="w-full text-left cursor-pointer px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 flex items-center gap-2"
+                    >
+                    <Flag className="w-4 h-4" /> Report Review
+                    </button>
                 ) : (
                     <button 
                         onClick={() => { setShowMenu(false); setIsReportModalOpen(true); }}
@@ -377,6 +395,13 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}
         onSubmit={handleReportSubmit}
+        targetName={review.comment}
+        targetType="review"
+      />
+      <ReportModal
+        isOpen={isInstructorReportModalOpen}
+        onClose={() => setIsInstructorReportModalOpen(false)}
+        onSubmit={handleInstructorReportSubmit}
         targetName={review.comment}
         targetType="review"
       />

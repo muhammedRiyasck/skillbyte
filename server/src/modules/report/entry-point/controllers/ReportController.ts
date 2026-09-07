@@ -17,16 +17,21 @@ export class ReportController {
 
   submitReport = async (req: Request, res: Response) => {
     const authReq = req as AuthenticatedRequest;
-    const studentId = authReq.user.id;
+    const reporterId = authReq.user.id;
+    const role = authReq.user.role as string;
+    const reporterRole: 'student' | 'instructor' =
+      role === 'instructor' ? 'instructor' : 'student';
+
     const { targetType, targetId, reason, description } =
       req.body as SubmitReportRequestDto;
 
     const report = await this.submitReportUseCase.execute(
-      studentId,
+      reporterId,
       targetType,
       targetId,
       reason,
       description,
+      reporterRole,
     );
 
     ApiResponseHelper.created(res, 'Report submitted successfully', {
@@ -50,6 +55,10 @@ export class ReportController {
       req.query.targetType === 'all'
         ? undefined
         : (req.query.targetType as 'review' | 'course' | 'lesson' | undefined);
+    const reporterRole =
+      req.query.reporterRole === 'all'
+        ? undefined
+        : (req.query.reporterRole as 'student' | 'instructor' | undefined);
     const reason = req.query.reason as string | undefined;
     const dateFrom = req.query.dateFrom as string | undefined;
     const dateTo = req.query.dateTo as string | undefined;
@@ -61,6 +70,7 @@ export class ReportController {
     const data = await this.getPendingReportsUseCase.execute({
       status,
       targetType,
+      reporterRole,
       reason,
       dateFrom,
       dateTo,

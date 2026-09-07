@@ -10,14 +10,15 @@ export class SubmitReportUseCase implements ISubmitReportUseCase {
   constructor(private reportRepository: IReportRepository) {}
 
   async execute(
-    studentId: string,
+    reporterId: string,
     targetType: 'review' | 'course' | 'lesson',
     targetId: string,
     reason: string,
     description?: string,
+    reporterRole: 'student' | 'instructor' = 'student',
   ): Promise<ReportResponseDto> {
     const hasReported = await this.reportRepository.hasUserReportedTarget(
-      studentId,
+      reporterId,
       targetType,
       targetId,
     );
@@ -29,11 +30,18 @@ export class SubmitReportUseCase implements ISubmitReportUseCase {
     }
 
     const report = new Report(
-      studentId,
+      reporterId,
       targetType,
       targetId,
       reason,
       description,
+      'pending',
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      reporterRole,
     );
 
     const savedReport = await this.reportRepository.save(report);

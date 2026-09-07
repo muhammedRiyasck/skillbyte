@@ -1,6 +1,6 @@
 export class Report {
   constructor(
-    public reportedBy: string, // Student ID
+    public reportedBy: string, // Student or Instructor ID
     public targetType: 'review' | 'course' | 'lesson',
     public targetId: string,
     public reason: string,
@@ -15,5 +15,7 @@ export class Report {
       comment?: string; // For review
       rating?: number; // For review
     },
+    public reporterRole: 'student' | 'instructor' = 'student',
+    public instructorInfo?: { name: string; profilePictureUrl?: string },
   ) {}
 }

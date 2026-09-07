@@ -6,12 +6,17 @@ export class ReportMapper {
     doc: IReportDoc,
     studentInfo?: {
       name: string;
-      profilePictureUrl: string;
+      profilePictureUrl?: string;
     },
     targetDetails?: {
-      title: string;
-      comment: string;
-      rating: number;
+      title?: string;
+      comment?: string;
+      rating?: number;
+    },
+    reporterRole: 'student' | 'instructor' = 'student',
+    instructorInfo?: {
+      name: string;
+      profilePictureUrl?: string;
     },
   ): Report {
     return new Report(
@@ -26,6 +31,8 @@ export class ReportMapper {
       doc.updatedAt,
       studentInfo,
       targetDetails,
+      reporterRole,
+      instructorInfo,
     );
   }
 }

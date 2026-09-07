@@ -6,6 +6,7 @@ export interface ReportFilters {
   limit?: number;
   status?: 'pending' | 'dismissed' | 'actioned' | 'all';
   targetType?: 'review' | 'course' | 'lesson' | 'all';
+  reporterRole?: 'student' | 'instructor' | 'all';
   reason?: string;
   dateFrom?: string;
   dateTo?: string;
@@ -21,6 +22,7 @@ export const getReports = async (filters: ReportFilters = {}): Promise<ReportRes
 
   if (filters.status && filters.status !== 'all') params.status = filters.status;
   if (filters.targetType && filters.targetType !== 'all') params.targetType = filters.targetType;
+  if (filters.reporterRole && filters.reporterRole !== 'all') params.reporterRole = filters.reporterRole;
   if (filters.reason?.trim()) params.reason = filters.reason.trim();
   if (filters.dateFrom) params.dateFrom = filters.dateFrom;
   if (filters.dateTo) params.dateTo = filters.dateTo;

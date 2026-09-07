@@ -5,6 +5,11 @@ export interface ReportResponseDto {
     name?: string;
     profilePictureUrl?: string;
   };
+  reporterRole: 'student' | 'instructor';
+  instructorInfo?: {
+    name?: string;
+    profilePictureUrl?: string;
+  };
   targetType: 'review' | 'course' | 'lesson';
   targetId: string;
   targetDetails?: {

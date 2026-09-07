@@ -18,18 +18,24 @@ import {
   X,
   SortAsc,
   SortDesc,
-  Eye
+  Eye,
+  GraduationCap,
+  User
 } from 'lucide-react';
 import { AdminConfirmModal, Pagination } from '@/shared/ui';
 import type { IReport } from '../types/IReport';
 
+type ReporterTab = 'all' | 'student' | 'instructor';
+
 const ReportedContent: React.FC = () => {
   const queryClient = useQueryClient();
+  const [activeTab, setActiveTab] = useState<ReporterTab>('all');
   const [filters, setFilters] = useState<ReportFilters>({
     page: 1,
     limit: 12,
     status: 'pending',
     targetType: 'all',
+    reporterRole: 'all',
     reason: '',
     sortBy: 'createdAt',
     sortOrder: 'desc',
@@ -43,6 +49,16 @@ const ReportedContent: React.FC = () => {
   useEffect(()=>{
     window.scrollTo({ top: 0, behavior: 'smooth' });
   },[filters.page]) 
+
+  // Sync tab to reporterRole filter
+  const handleTabChange = (tab: ReporterTab) => {
+    setActiveTab(tab);
+    setFilters(prev => ({
+      ...prev,
+      reporterRole: tab === 'all' ? 'all' : tab,
+      page: 1,
+    }));
+  };
 
   // Debounce: only update filters.reason 500ms after the user stops typing
   useEffect(() => {
@@ -101,6 +117,7 @@ const ReportedContent: React.FC = () => {
       limit: 12,
       status: 'pending',
       targetType: 'all',
+      reporterRole: activeTab === 'all' ? 'all' : activeTab,
       reason: '',
       sortBy: 'createdAt',
       sortOrder: 'desc',
@@ -125,6 +142,52 @@ const ReportedContent: React.FC = () => {
     }
   };
 
+  const renderReporterCard = (report: IReport) => {
+    const isInstructor = report.reporterRole === 'instructor';
+    const info = isInstructor ? report.instructorInfo : report.studentInfo;
+    const name = info?.name || (isInstructor ? 'Unknown Instructor' : 'Anonymous');
+    const avatar = info?.profilePictureUrl;
+    const label = isInstructor ? 'Reported by Instructor' : 'Reported By';
+    const avatarBg = isInstructor
+      ? 'bg-gradient-to-br from-purple-500 to-indigo-600'
+      : 'bg-gradient-to-br from-indigo-500 to-purple-600';
+    const nameBadgeBg = isInstructor
+      ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+      : '';
+
+    return (
+      <div className="flex items-center gap-3">
+        <div className="relative w-10 h-10">
+          {avatar ? (
+            <img 
+              src={avatar} 
+              alt="" 
+              className="w-10 h-10 rounded-xl object-cover ring-2 ring-white dark:ring-gray-800"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = 'none';
+                const fallback = (e.target as HTMLImageElement).nextElementSibling as HTMLElement;
+                if (fallback) fallback.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <div 
+            className={`w-10 h-10 rounded-xl ${avatarBg} flex items-center justify-center text-white text-sm font-black shadow-lg`}
+            style={{ display: avatar ? 'none' : 'flex' }}
+          >
+            {isInstructor ? <GraduationCap size={18} /> : (name?.charAt(0) || 'U')}
+          </div>
+          <div className={`absolute -bottom-1 -right-1 w-4 h-4 ${isInstructor ? 'bg-purple-500' : 'bg-green-500'} border-2 border-white dark:border-gray-800 rounded-full`} />
+        </div>
+        <div>
+          <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none mb-1">{label}</p>
+          <p className={`text-sm font-bold ${nameBadgeBg} ${isInstructor ? 'px-2 py-0.5 rounded-full' : 'text-gray-800 dark:text-gray-100'}`}>
+            {name}
+          </p>
+        </div>
+      </div>
+    );
+  };
+
   if (isError) {
     return (
       <div className="p-6 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex flex-col justify-center items-center">
@@ -141,10 +204,16 @@ const ReportedContent: React.FC = () => {
   const totalReports = data?.total || 0;
   const totalPages = Math.ceil(totalReports / (filters.limit || 12));
 
+  const tabs: { key: ReporterTab; label: string; icon: React.ReactNode; color: string }[] = [
+    { key: 'all', label: 'All Reports', icon: <Shield size={16} />, color: 'indigo' },
+    { key: 'student', label: 'Student Reports', icon: <User size={16} />, color: 'green' },
+    { key: 'instructor', label: 'Instructor Reports', icon: <GraduationCap size={16} />, color: 'purple' },
+  ];
+
   return (
     <div className="p-6 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
           <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3">
             <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-500/30">
@@ -179,6 +248,34 @@ const ReportedContent: React.FC = () => {
             <RefreshCw className={`w-5 h-5 ${isLoading ? 'animate-spin' : ''}`} />
           </button>
         </div>
+      </div>
+
+      {/* Reporter Role Tabs */}
+      <div className="flex gap-2 mb-6">
+        {tabs.map(tab => {
+          const isActive = activeTab === tab.key;
+          const colorMap: Record<string, string> = {
+            indigo: isActive
+              ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-500/20'
+              : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-indigo-400',
+            green: isActive
+              ? 'bg-green-600 text-white border-green-600 shadow-lg shadow-green-500/20'
+              : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-green-400',
+            purple: isActive
+              ? 'bg-purple-600 text-white border-purple-600 shadow-lg shadow-purple-500/20'
+              : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:border-purple-400',
+          };
+          return (
+            <button
+              key={tab.key}
+              onClick={() => handleTabChange(tab.key)}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm border transition-all duration-200 cursor-pointer ${colorMap[tab.color]}`}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Advanced Filter Panel */}
@@ -304,6 +401,19 @@ const ReportedContent: React.FC = () => {
           <div className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 rounded-full text-xs font-bold uppercase tracking-wider">
             {totalReports} Total Reports Found
           </div>
+          {activeTab !== 'all' && (
+            <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
+              activeTab === 'instructor'
+                ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-900/50'
+                : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900/50'
+            }`}>
+              {activeTab === 'instructor' ? (
+                <span className="flex items-center gap-1"><GraduationCap size={12} /> Instructor Feedback</span>
+              ) : (
+                <span className="flex items-center gap-1"><User size={12} /> Student Feedback</span>
+              )}
+            </div>
+          )}
           {filters.status !== 'all' && (
             <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${getStatusColor(filters.status!)}`}>
               Showing: {filters.status}
@@ -329,7 +439,7 @@ const ReportedContent: React.FC = () => {
           </div>
           <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-3">All Caught Up!</h2>
           <p className="text-gray-500 dark:text-gray-400 text-lg leading-relaxed">
-            There are no reports matching your current filter criteria. You've handled everything perfectly!
+            There are no {activeTab !== 'all' ? `${activeTab} ` : ''}reports matching your current filter criteria.
           </p>
           <button 
             onClick={clearFilters}
@@ -343,12 +453,24 @@ const ReportedContent: React.FC = () => {
           {reports.map((report) => (
             <div 
               key={report._id} 
-              className="group bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col transition-all duration-500 hover:-translate-y-2 relative"
+              className={`group bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl border overflow-hidden flex flex-col transition-all duration-500 hover:-translate-y-2 relative ${
+                report.reporterRole === 'instructor'
+                  ? 'border-purple-100 dark:border-purple-900/30 hover:border-purple-200 dark:hover:border-purple-800'
+                  : 'border-gray-100 dark:border-gray-700'
+              }`}
             >
               {/* Report Badge Overlay */}
               <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border z-10 ${getStatusColor(report.status)}`}>
                 {report.status}
               </div>
+
+              {/* Reporter Role Banner */}
+              {report.reporterRole === 'instructor' && (
+                <div className="bg-purple-50 dark:bg-purple-900/20 border-b border-purple-100 dark:border-purple-800/30 px-4 py-1.5 flex items-center gap-1.5">
+                  <GraduationCap size={12} className="text-purple-600 dark:text-purple-400" />
+                  <span className="text-[10px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest">Reported by Instructor</span>
+                </div>
+              )}
 
               {/* Card Header */}
               <div className="p-6 pb-2">
@@ -419,34 +541,9 @@ const ReportedContent: React.FC = () => {
                   )}
                 </div>
 
+                {/* Reporter Info */}
                 <div className="flex items-center justify-between pt-2 border-t border-gray-50 dark:border-gray-700">
-                  <div className="flex items-center gap-3">
-                    <div className="relative w-10 h-10">
-                      {report.studentInfo?.profilePictureUrl ? (
-                        <img 
-                          src={report.studentInfo.profilePictureUrl} 
-                          alt="" 
-                          className="w-10 h-10 rounded-xl object-cover ring-2 ring-white dark:ring-gray-800"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                            const fallback = (e.target as HTMLImageElement).nextElementSibling as HTMLElement;
-                            if (fallback) fallback.style.display = 'flex';
-                          }}
-                        />
-                      ) : null}
-                      <div 
-                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-black shadow-lg"
-                        style={{ display: report.studentInfo?.profilePictureUrl ? 'none' : 'flex' }}
-                      >
-                        {report.studentInfo?.name?.charAt(0) || 'U'}
-                      </div>
-                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full" />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none mb-1">Reported By</p>
-                      <p className="text-sm font-bold text-gray-800 dark:text-gray-100">{report.studentInfo?.name || 'Anonymous'}</p>
-                    </div>
-                  </div>
+                  {renderReporterCard(report)}
                   <div className="text-right">
                     <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest leading-none mb-1">Date</p>
                     <p className="text-sm font-bold text-gray-600 dark:text-gray-300">

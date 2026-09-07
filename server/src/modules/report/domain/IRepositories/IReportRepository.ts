@@ -4,6 +4,7 @@ import { Report } from '../entities/Report';
 export interface ReportFilterOptions {
   status?: 'pending' | 'dismissed' | 'actioned';
   targetType?: 'review' | 'course' | 'lesson';
+  reporterRole?: 'student' | 'instructor';
   reason?: string;
   dateFrom?: string;
   dateTo?: string;
