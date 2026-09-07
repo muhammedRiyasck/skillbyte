@@ -280,8 +280,9 @@ export class MentorshipSlotRepository
     instructorId: string,
     startTime: Date,
     endTime: Date,
+    excludeSlotId?: string,
   ): Promise<boolean> {
-    const docs = await this.model.find({
+    const filter: Record<string, unknown> = {
       instructorId,
       status: { $in: [SlotStatus.AVAILABLE, SlotStatus.BOOKED] },
       $expr: {
@@ -295,7 +296,13 @@ export class MentorshipSlotRepository
           },
         ],
       },
-    });
+    };
+
+    if (excludeSlotId) {
+      filter._id = { $ne: new mongoose.Types.ObjectId(excludeSlotId) };
+    }
+
+    const docs = await this.model.find(filter);
     return docs.length > 0;
   }
 

@@ -13,6 +13,7 @@ import {
   createRecurringSlotSchema,
   updateSlotSchema,
   bookSlotSchema,
+  rescheduleBookingSchema,
 } from '../validations/MentorshipValidation';
 
 const router = Router();
@@ -127,6 +128,15 @@ router.get(
   authenticate,
   requireRole('instructor'),
   asyncHandler(mentorshipBookingController.getInstructorBookings),
+);
+
+// Reschedule a booking (instructor only)
+router.patch(
+  '/bookings/:bookingId/reschedule',
+  authenticate,
+  requireRole('instructor'),
+  validateRequest(rescheduleBookingSchema),
+  asyncHandler(mentorshipBookingController.rescheduleBooking),
 );
 
 // Resume a pending payment (re-fetch client_secret for Stripe checkout)

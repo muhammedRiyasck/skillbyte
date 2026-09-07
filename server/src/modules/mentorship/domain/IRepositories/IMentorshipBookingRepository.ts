@@ -59,4 +59,11 @@ export interface IMentorshipBookingRepository
   findStalePendingBookings(now: Date): Promise<MentorshipBooking[]>;
 
   findConfirmedPastSessions(timeThreshold: Date): Promise<MentorshipBooking[]>;
+
+  updateScheduledAt(
+    bookingId: string,
+    scheduledAt: Date,
+  ): Promise<MentorshipBooking | null>;
+
+  findByIdPopulated(bookingId: string): Promise<MentorshipBooking | null>;
 }

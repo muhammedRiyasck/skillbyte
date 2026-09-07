@@ -4,6 +4,7 @@ import {
   GetStudentBookingsDto,
   GetInstructorBookingsDto,
   ValidateVideoRoomAccessDto,
+  RescheduleBookingDto,
 } from '../dtos/BookingDto';
 import { BookingResponseDto } from '../dtos/BookingResponseDto';
 import { PaymentInitiationResponse } from '../../../../shared/services/payment/interfaces/IPaymentProvider';
@@ -50,4 +51,8 @@ export interface IGetResumePaymentUseCase {
     bookingId: string,
     studentId: string,
   ): Promise<{ clientSecret: string }>;
+}
+
+export interface IRescheduleBookingUseCase {
+  execute(dto: RescheduleBookingDto): Promise<BookingResponseDto>;
 }

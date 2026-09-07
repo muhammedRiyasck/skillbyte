@@ -39,5 +39,11 @@ export class MentorshipBooking {
       duration: number;
       title: string;
     },
+    public instructorDetails?: {
+      name: string;
+      email?: string;
+      jobTitle?: string;
+      profileImageUrl?: string;
+    },
   ) {}
 }

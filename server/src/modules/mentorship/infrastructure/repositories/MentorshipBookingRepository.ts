@@ -203,4 +203,33 @@ export class MentorshipBookingRepository
 
     return docs.map((doc) => this.toEntity(doc));
   }
+
+  async updateScheduledAt(
+    bookingId: string,
+    scheduledAt: Date,
+  ): Promise<MentorshipBooking | null> {
+    const doc = await this.model
+      .findByIdAndUpdate(
+        bookingId,
+        { $set: { scheduledAt, updatedAt: new Date() } },
+        { new: true },
+      )
+      .populate('slotId')
+      .populate('studentId', 'name email profileImageUrl')
+      .populate('instructorId', 'name email profileImageUrl jobTitle');
+
+    return doc ? this.toEntity(doc) : null;
+  }
+
+  async findByIdPopulated(
+    bookingId: string,
+  ): Promise<MentorshipBooking | null> {
+    const doc = await this.model
+      .findById(bookingId)
+      .populate('slotId')
+      .populate('studentId', 'name email profileImageUrl')
+      .populate('instructorId', 'name email profileImageUrl jobTitle');
+
+    return doc ? this.toEntity(doc) : null;
+  }
 }

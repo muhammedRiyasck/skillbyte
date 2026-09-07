@@ -10,6 +10,7 @@ interface BookingCardProps {
   booking: IMentorshipBooking;
   onJoinSession?: (bookingId: string) => void;
   onCancel?: (bookingId: string) => void;
+  onReschedule?: (booking: IMentorshipBooking) => void;
   onRate?: (bookingId: string) => void;
   onResumePayment?: (bookingId: string) => void;
   userRole: UserRole.INSTRUCTOR | UserRole.STUDENT;
@@ -20,6 +21,7 @@ export const BookingCard = ({
   booking,
   onJoinSession,
   onCancel,
+  onReschedule,
   onRate,
   onResumePayment,
   userRole,
@@ -167,6 +169,16 @@ export const BookingCard = ({
             className="flex-1 cursor-pointer bg-indigo-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition flex items-center justify-center gap-2"
           >
             <Video size={16} /> Join Session
+          </button>
+        )}
+
+        {isConfirmed && userRole === UserRole.INSTRUCTOR && onReschedule && (
+          <button
+            onClick={() => onReschedule(booking)}
+            className="px-3 cursor-pointer py-2 border border-indigo-300 dark:border-indigo-600 rounded-lg text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition flex items-center justify-center gap-1.5"
+            title="Reschedule this session"
+          >
+            <Calendar size={15} /> Reschedule
           </button>
         )}
 

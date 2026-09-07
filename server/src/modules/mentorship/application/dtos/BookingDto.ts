@@ -31,3 +31,10 @@ export interface ValidateVideoRoomAccessDto {
   userId: string;
   userRole: 'student' | 'instructor';
 }
+
+export interface RescheduleBookingDto {
+  bookingId: string;
+  instructorId: string;
+  newScheduledAt: Date;
+  reason?: string;
+}

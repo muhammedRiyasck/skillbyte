@@ -95,3 +95,10 @@ export const bookSlotSchema = z.object({
     z.enum(['stripe', 'paypal', 'razorpay', 'free']).optional(),
   ),
 });
+
+export const rescheduleBookingSchema = z.object({
+  newScheduledAt: z.coerce.date().refine((date) => date > new Date(), {
+    message: 'New scheduled date must be in the future',
+  }),
+  reason: z.string().max(500).optional(),
+});

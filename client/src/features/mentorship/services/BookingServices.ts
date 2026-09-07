@@ -31,3 +31,14 @@ export const getResumePaymentSecret = async (bookingId: string): Promise<{ clien
   return response.data.data;
 };
 
+export const rescheduleBooking = async (
+  bookingId: string,
+  data: { newScheduledAt: Date | string; reason?: string | undefined },
+): Promise<IMentorshipBooking> => {
+  const response = await api.patch(
+    `/mentorship/bookings/${bookingId}/reschedule`,
+    data,
+  );
+  return response.data.data.booking;
+};
+

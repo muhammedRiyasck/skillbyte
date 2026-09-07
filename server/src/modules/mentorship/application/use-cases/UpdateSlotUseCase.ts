@@ -35,13 +35,38 @@ export class UpdateSlotUseCase implements IUpdateSlotUseCase {
       );
     }
 
+    const newScheduledAt = data.scheduledAt
+      ? new Date(data.scheduledAt)
+      : existingSlot.scheduledAt;
+    const newDuration = data.duration ?? existingSlot.duration;
+
     // If updating scheduledAt, validate it's in the future
     if (data.scheduledAt) {
       const now = new Date();
-      if (new Date(data.scheduledAt) <= now) {
+      if (newScheduledAt <= now) {
         throw new HttpError(
           'Scheduled time must be in the future',
           HttpStatusCode.BAD_REQUEST,
+        );
+      }
+    }
+
+    // Check for conflicting slots if time or duration has changed
+    if (data.scheduledAt || data.duration) {
+      const newEndTime = new Date(
+        newScheduledAt.getTime() + newDuration * 60000,
+      );
+      const hasConflict = await this._slotRepo.hasOverlappingSlot(
+        existingSlot.instructorId,
+        newScheduledAt,
+        newEndTime,
+        slotId,
+      );
+
+      if (hasConflict) {
+        throw new HttpError(
+          'You already have an active slot scheduled during this time period.',
+          HttpStatusCode.CONFLICT,
         );
       }
     }

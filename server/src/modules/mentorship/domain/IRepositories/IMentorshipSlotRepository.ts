@@ -42,6 +42,7 @@ export interface IMentorshipSlotRepository
     instructorId: string,
     startTime: Date,
     endTime: Date,
+    excludeSlotId?: string,
   ): Promise<boolean>;
 
   saveMany(entities: MentorshipSlot[]): Promise<MentorshipSlot[]>;

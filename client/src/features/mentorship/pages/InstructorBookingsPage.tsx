@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { ChevronLeft, ChevronRight, Filter, RefreshCw, Calendar } from "lucide-react";
-import { getInstructorBookings, cancelBooking, generateVideoRoom } from "../services/BookingServices";
+import { getInstructorBookings, cancelBooking, generateVideoRoom, rescheduleBooking } from "../services/BookingServices";
 import type { IMentorshipBooking, InstructorBookingFilters } from "../types/mentorshipTypes";
 import { BookingCard } from "../components/BookingCard";
 import Modal from "@shared/ui/Modal";
@@ -26,6 +26,13 @@ const InstructorBookingsPage = () => {
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
     const [isCancelling, setIsCancelling] = useState(false);
+
+    // Reschedule Modal State
+    const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
+    const [bookingToReschedule, setBookingToReschedule] = useState<IMentorshipBooking | null>(null);
+    const [newDateTime, setNewDateTime] = useState('');
+    const [rescheduleReason, setRescheduleReason] = useState('');
+    const [isRescheduling, setIsRescheduling] = useState(false);
 
     const fetchBookings = useCallback(async () => {
         try {
@@ -88,6 +95,58 @@ const InstructorBookingsPage = () => {
         } finally {
             setIsCancelling(false);
             setBookingToCancel(null);
+        }
+    };
+
+    const toLocalISOString = (date: Date) => {
+        const pad = (n: number) => n.toString().padStart(2, '0');
+        const year = date.getFullYear();
+        const month = pad(date.getMonth() + 1);
+        const day = pad(date.getDate());
+        const hours = pad(date.getHours());
+        const minutes = pad(date.getMinutes());
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    };
+
+    const handleRescheduleClick = (booking: IMentorshipBooking) => {
+        setBookingToReschedule(booking);
+        const currentScheduled = new Date(booking.scheduledAt);
+        const defaultDate = currentScheduled > new Date()
+            ? currentScheduled
+            : new Date(Date.now() + 60 * 60 * 1000);
+        setNewDateTime(toLocalISOString(defaultDate));
+        setRescheduleReason('');
+        setIsRescheduleOpen(true);
+    };
+
+    const confirmReschedule = async () => {
+        if (!bookingToReschedule || !newDateTime) return;
+        const selectedDate = new Date(newDateTime);
+        if (isNaN(selectedDate.getTime()) || selectedDate <= new Date()) {
+            toast.error("Please choose a valid future date and time.");
+            return;
+        }
+
+        try {
+            setIsRescheduling(true);
+            const trimmedReason = rescheduleReason.trim();
+            const updated = await rescheduleBooking(bookingToReschedule.bookingId, {
+                newScheduledAt: selectedDate.toISOString(),
+                reason: trimmedReason ? trimmedReason : undefined,
+            });
+            toast.success("Session rescheduled and student notified via email.");
+            setBookings(prev =>
+                prev.map(b =>
+                    b.bookingId === updated.bookingId
+                        ? { ...b, scheduledAt: updated.scheduledAt }
+                        : b
+                )
+            );
+            setIsRescheduleOpen(false);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsRescheduling(false);
         }
     };
 
@@ -182,6 +241,7 @@ const InstructorBookingsPage = () => {
                                 key={booking.bookingId}
                                 booking={booking}
                                 onCancel={handleCancelClick}
+                                onReschedule={handleRescheduleClick}
                                 onJoinSession={handleJoinSession}
                                 userRole={UserRole.INSTRUCTOR}
                             />
@@ -252,6 +312,72 @@ const InstructorBookingsPage = () => {
                     <p className="text-xs text-gray-500">
                         This action cannot be undone.
                     </p>
+                </div>
+            </Modal>
+
+            <Modal
+                isOpen={isRescheduleOpen}
+                onClose={() => !isRescheduling && setIsRescheduleOpen(false)}
+                title="Reschedule Mentorship Session"
+                onConfirm={confirmReschedule}
+                confirmLabel={isRescheduling ? "Rescheduling..." : "Confirm Reschedule"}
+                cancelLabel="Keep Current Time"
+            >
+                <div className="space-y-4">
+                    {bookingToReschedule && (
+                        <div className="p-3.5 bg-gray-50 dark:bg-gray-850 rounded-xl border border-gray-200 dark:border-gray-700 text-sm">
+                            <p className="font-semibold text-gray-900 dark:text-white">
+                                {typeof bookingToReschedule.slotId === 'object' && bookingToReschedule.slotId?.title
+                                    ? bookingToReschedule.slotId.title
+                                    : 'Mentorship Session'}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                Student: <span className="font-medium text-gray-700 dark:text-gray-200">
+                                    {typeof bookingToReschedule.studentId === 'object' ? bookingToReschedule.studentId.name : 'Student'}
+                                </span>
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                Current scheduled time: <span className="font-medium text-gray-700 dark:text-gray-200">
+                                    {new Date(bookingToReschedule.scheduledAt).toLocaleString()}
+                                </span>
+                            </p>
+                        </div>
+                    )}
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            New Date & Time <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="datetime-local"
+                            value={newDateTime}
+                            min={toLocalISOString(new Date(Date.now() + 5 * 60 * 1000))}
+                            onChange={(e) => setNewDateTime(e.target.value)}
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm"
+                            required
+                        />
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            Must not conflict with any of your other active slots or booked sessions.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Reason / Note for Student <span className="text-xs text-gray-400 font-normal">(Optional)</span>
+                        </label>
+                        <textarea
+                            value={rescheduleReason}
+                            onChange={(e) => setRescheduleReason(e.target.value)}
+                            rows={3}
+                            placeholder="Explain why this session is being rescheduled..."
+                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 text-sm resize-none"
+                        />
+                    </div>
+
+                    <div className="p-3 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/50 rounded-lg text-xs text-indigo-700 dark:text-indigo-300 flex items-center gap-2">
+                        <Calendar className="w-4 h-4 shrink-0" />
+                        <span>An email notification with the updated schedule and join links will be automatically sent to the student.</span>
+                    </div>
                 </div>
             </Modal>
         </div>

@@ -5,6 +5,7 @@ import {
   IGetStudentBookingsUseCase,
   IGetInstructorBookingsUseCase,
   IGetResumePaymentUseCase,
+  IRescheduleBookingUseCase,
 } from '../../application/interfaces/IBookingUseCases';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { HttpError } from '../../../../shared/types/HttpError';
@@ -18,6 +19,7 @@ export class MentorshipBookingController {
     private _getStudentBookingsUseCase: IGetStudentBookingsUseCase,
     private _getInstructorBookingsUseCase: IGetInstructorBookingsUseCase,
     private _getResumePaymentUseCase: IGetResumePaymentUseCase,
+    private _rescheduleBookingUseCase: IRescheduleBookingUseCase,
   ) {}
 
   /**
@@ -136,6 +138,33 @@ export class MentorshipBookingController {
       res,
       'Payment secret retrieved successfully',
       result,
+    );
+  };
+
+  /**
+   * Reschedules a confirmed mentorship booking (instructor only).
+   */
+  rescheduleBooking = async (req: Request, res: Response): Promise<void> => {
+    const authenticatedReq = req as AuthenticatedRequest;
+    const instructorId = authenticatedReq.user.id;
+    const { bookingId } = req.params;
+    const { newScheduledAt, reason } = req.body;
+
+    if (!bookingId) {
+      throw new HttpError('Booking ID is required', HttpStatusCode.BAD_REQUEST);
+    }
+
+    const booking = await this._rescheduleBookingUseCase.execute({
+      bookingId,
+      instructorId,
+      newScheduledAt: new Date(newScheduledAt),
+      reason,
+    });
+
+    ApiResponseHelper.success(
+      res,
+      'Mentorship session rescheduled successfully',
+      { booking },
     );
   };
 }

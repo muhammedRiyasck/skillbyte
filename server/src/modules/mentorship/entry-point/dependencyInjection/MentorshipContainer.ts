@@ -19,6 +19,7 @@ import { GenerateVideoRoomUseCase } from '../../application/use-cases/GenerateVi
 import { ValidateVideoRoomAccessUseCase } from '../../application/use-cases/ValidateVideoRoomAccessUseCase';
 import { AutoCompleteBookingsUseCase } from '../../application/use-cases/AutoCompleteBookingsUseCase';
 import { GetResumePaymentUseCase } from '../../application/use-cases/GetResumePaymentUseCase';
+import { RescheduleBookingUseCase } from '../../application/use-cases/RescheduleBookingUseCase';
 import {
   initiatePaymentUc,
   refundPaymentUc,
@@ -95,6 +96,10 @@ const getResumePaymentUC = new GetResumePaymentUseCase(
   paymentReadRepository,
   stripeProvider,
 );
+const rescheduleBookingUC = new RescheduleBookingUseCase(
+  bookingRepository,
+  slotRepository,
+);
 
 // Fulfillment Service (Listens to Payment Events)
 new MentorshipFulfillmentService(bookingRepository, generateVideoRoomUC);
@@ -129,6 +134,7 @@ export const mentorshipBookingController = new MentorshipBookingController(
   getStudentBookingsUC,
   getInstructorBookingsUC,
   getResumePaymentUC,
+  rescheduleBookingUC,
 );
 
 export const mentorshipVideoController = new MentorshipVideoController(

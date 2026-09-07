@@ -69,6 +69,25 @@ export class MentorshipMapper {
       };
     }
 
+    if (
+      doc.instructorId &&
+      typeof doc.instructorId === 'object' &&
+      'name' in doc.instructorId
+    ) {
+      const instructor = doc.instructorId as unknown as {
+        name: string;
+        email?: string;
+        profileImageUrl?: string;
+        jobTitle?: string;
+      };
+      entity.instructorDetails = {
+        name: instructor.name,
+        email: instructor.email,
+        profileImageUrl: instructor.profileImageUrl,
+        jobTitle: instructor.jobTitle,
+      };
+    }
+
     return entity;
   }
 

@@ -136,6 +136,11 @@ export interface UpdateBookingStatusRequest {
   status: BookingStatus;
 }
 
+export interface RescheduleBookingRequest {
+  newScheduledAt: Date | string;
+  reason?: string | undefined;
+}
+
 export interface InstructorBookingFilters {
   page?: number;
   limit?: number;
