@@ -1,3 +1,5 @@
+import { RecurrenceRule } from '../../domain/entities/MentorshipSlot';
+
 export interface SlotResponseDto {
   slotId: string;
   instructorId: string;
@@ -11,6 +13,9 @@ export interface SlotResponseDto {
   jobTitle: string;
   tags: string[];
   timezone: string;
+  isRecurring?: boolean;
+  recurrenceGroupId?: string;
+  recurrenceRule?: RecurrenceRule;
   instructorDetails?: {
     name: string;
     profilePictureUrl?: string;
@@ -22,4 +27,11 @@ export interface SlotResponseDto {
   updatedAt: Date;
   pendingBookingId?: string;
   isPendingForUser?: boolean;
+}
+
+export interface CreateRecurringSlotResponseDto {
+  recurrenceGroupId: string;
+  createdCount: number;
+  skippedCount: number;
+  slots: SlotResponseDto[];
 }

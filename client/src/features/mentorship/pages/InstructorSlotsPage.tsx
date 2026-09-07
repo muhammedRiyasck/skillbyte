@@ -4,8 +4,21 @@ import { toast } from "sonner";
 import { SlotList } from "../components/SlotList";
 import { SlotForm } from "../components/SlotForm";
 import Modal from "@shared/ui/Modal";
-import type { CreateSlotRequest, IMentorshipSlot, UpdateSlotRequest, InstructorSlotFilters } from "../types/mentorshipTypes";
-import { createSlot, getInstructorSlots, updateSlot, deleteSlot } from "../services/SlotServices";
+import type {
+    CreateSlotRequest,
+    CreateRecurringSlotRequest,
+    IMentorshipSlot,
+    UpdateSlotRequest,
+    InstructorSlotFilters,
+} from "../types/mentorshipTypes";
+import {
+    createSlot,
+    createRecurringSlots,
+    getInstructorSlots,
+    updateSlot,
+    deleteSlot,
+    deleteRecurringSlots,
+} from "../services/SlotServices";
 import { SlotStatus } from "../../../shared/enums/SlotStatus";
 
 const InstructorSlotsPage = () => {
@@ -17,7 +30,8 @@ const InstructorSlotsPage = () => {
 
     // Delete Confirmation State
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [slotToDelete, setSlotToDelete] = useState<string | null>(null);
+    const [slotToDelete, setSlotToDelete] = useState<IMentorshipSlot | null>(null);
+    const [deleteScope, setDeleteScope] = useState<'single' | 'series'>('single');
     const [isDeleting, setIsDeleting] = useState(false);
 
     // Filter & Pagination State
@@ -60,8 +74,10 @@ const InstructorSlotsPage = () => {
         setIsModalOpen(true);
     };
 
-    const handleDeleteClick = (slotId: string) => {
-        setSlotToDelete(slotId);
+    const handleDeleteClick = (slotId: string, slot?: IMentorshipSlot) => {
+        const target = slot || slots.find(s => s.slotId === slotId) || null;
+        setSlotToDelete(target);
+        setDeleteScope('single');
         setIsDeleteModalOpen(true);
     };
 
@@ -69,12 +85,29 @@ const InstructorSlotsPage = () => {
         if (!slotToDelete) return;
         try {
             setIsDeleting(true);
-            await deleteSlot(slotToDelete);
-            toast.success("Slot deleted");
-            setSlots(prev => prev.filter(s => s.slotId !== slotToDelete));
+            if (deleteScope === 'series' && slotToDelete.recurrenceGroupId) {
+                const result = await deleteRecurringSlots(slotToDelete.recurrenceGroupId, true);
+                toast.success(`Deleted ${result.deletedCount} upcoming slots in the series`);
+                setSlots(prev => prev.filter(s => {
+                    if (
+                        s.recurrenceGroupId === slotToDelete.recurrenceGroupId &&
+                        new Date(s.scheduledAt) > new Date() &&
+                        s.status === SlotStatus.AVAILABLE
+                    ) {
+                        return false;
+                    }
+                    return true;
+                }));
+            } else {
+                await deleteSlot(slotToDelete.slotId);
+                toast.success("Slot deleted");
+                setSlots(prev => prev.filter(s => s.slotId !== slotToDelete.slotId));
+            }
             setIsDeleteModalOpen(false);
-        } catch (error) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
             console.error("Failed to delete slot", error);
+            toast.error(error.response?.data?.message || "Failed to delete slot");
         } finally {
             setIsDeleting(false);
             setSlotToDelete(null);
@@ -105,6 +138,28 @@ const InstructorSlotsPage = () => {
             setIsModalOpen(false);
         } catch (error) {
             console.error(error);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleRecurringSubmit = async (data: CreateRecurringSlotRequest) => {
+        try {
+            setIsSaving(true);
+            const result = await createRecurringSlots(data);
+            if (result.skippedCount > 0) {
+                toast.success(
+                    `Created ${result.createdCount} recurring slots (${result.skippedCount} conflicting dates skipped).`
+                );
+            } else {
+                toast.success(`Successfully created ${result.createdCount} recurring slots`);
+            }
+            await fetchSlots();
+            setIsModalOpen(false);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            console.error("Failed to create recurring slots", error);
+            toast.error(error.response?.data?.message || "Failed to create recurring slots");
         } finally {
             setIsSaving(false);
         }
@@ -266,6 +321,7 @@ const InstructorSlotsPage = () => {
                             }
                         } : {})}
                         onSubmit={handleSubmit}
+                        onSubmitRecurring={handleRecurringSubmit}
                         isLoading={isSaving}
                     />
                 </Modal>
@@ -274,14 +330,53 @@ const InstructorSlotsPage = () => {
                 <Modal
                     isOpen={isDeleteModalOpen}
                     onClose={() => !isDeleting && setIsDeleteModalOpen(false)}
-                    title="Delete Mentorship Slot"
+                    title={slotToDelete?.isRecurring ? "Delete Mentorship Slot" : "Delete Mentorship Slot"}
                     onConfirm={confirmDelete}
-                    confirmLabel={isDeleting ? "Deleting..." : "Yes, Delete"}
+                    confirmLabel={isDeleting ? "Deleting..." : deleteScope === 'series' ? "Delete Series" : "Yes, Delete"}
                     cancelLabel="Cancel"
                 >
-                    <p className="text-gray-600 dark:text-gray-400">
-                        Are you sure you want to delete this mentorship slot? This action cannot be undone and will prevent future bookings for this time.
-                    </p>
+                    {slotToDelete?.isRecurring && slotToDelete?.recurrenceGroupId ? (
+                        <div className="space-y-4">
+                            <p className="text-gray-600 dark:text-gray-400 text-sm">
+                                This slot is part of a recurring series. How would you like to delete it?
+                            </p>
+                            <div className="space-y-2">
+                                <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${deleteScope === 'single' ? 'border-indigo-500 bg-indigo-50/60 dark:bg-indigo-950/30' : 'border-gray-200 dark:border-gray-700'}`}>
+                                    <input
+                                        type="radio"
+                                        name="deleteScope"
+                                        value="single"
+                                        checked={deleteScope === 'single'}
+                                        onChange={() => setDeleteScope('single')}
+                                        className="mt-0.5 text-indigo-600 focus:ring-indigo-500"
+                                    />
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-900 dark:text-white">Delete only this slot</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">Other occurrences in this recurring series will remain intact.</p>
+                                    </div>
+                                </label>
+
+                                <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-all ${deleteScope === 'series' ? 'border-red-500 bg-red-50/60 dark:bg-red-950/30' : 'border-gray-200 dark:border-gray-700'}`}>
+                                    <input
+                                        type="radio"
+                                        name="deleteScope"
+                                        value="series"
+                                        checked={deleteScope === 'series'}
+                                        onChange={() => setDeleteScope('series')}
+                                        className="mt-0.5 text-red-600 focus:ring-red-500"
+                                    />
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-900 dark:text-white">Delete all upcoming unbooked slots in this series</p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">Past slots and already-booked sessions will be safely preserved.</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    ) : (
+                        <p className="text-gray-600 dark:text-gray-400 text-sm">
+                            Are you sure you want to delete this mentorship slot? This action cannot be undone and will prevent future bookings for this time.
+                        </p>
+                    )}
                 </Modal>
             </div>
         </div>

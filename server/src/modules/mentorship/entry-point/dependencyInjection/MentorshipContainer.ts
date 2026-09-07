@@ -1,9 +1,11 @@
 import { MentorshipController } from '../controllers/MentorshipController';
 import { MentorshipSlotRepository } from '../../infrastructure/repositories/MentorshipSlotRepository';
 import { CreateSlotUseCase } from '../../application/use-cases/CreateSlotUseCase';
+import { CreateRecurringSlotsUseCase } from '../../application/use-cases/CreateRecurringSlotsUseCase';
 import { GetInstructorSlotsUseCase } from '../../application/use-cases/GetInstructorSlotsUseCase';
 import { UpdateSlotUseCase } from '../../application/use-cases/UpdateSlotUseCase';
 import { DeleteSlotUseCase } from '../../application/use-cases/DeleteSlotUseCase';
+import { DeleteRecurringSlotsUseCase } from '../../application/use-cases/DeleteRecurringSlotsUseCase';
 import { GetSlotsByJobTitleUseCase } from '../../application/use-cases/GetSlotsByJobTitleUseCase';
 import { GetAvailableSlotsUseCase } from '../../application/use-cases/GetAvailableSlotsUseCase';
 
@@ -48,9 +50,14 @@ const createSlotUC = new CreateSlotUseCase(
   slotRepository,
   instructorRepository,
 );
+const createRecurringSlotsUC = new CreateRecurringSlotsUseCase(
+  slotRepository,
+  instructorRepository,
+);
 const getInstructorSlotsUC = new GetInstructorSlotsUseCase(slotRepository);
 const updateSlotUC = new UpdateSlotUseCase(slotRepository);
 const deleteSlotUC = new DeleteSlotUseCase(slotRepository);
+const deleteRecurringSlotsUC = new DeleteRecurringSlotsUseCase(slotRepository);
 const getSlotsByJobTitleUC = new GetSlotsByJobTitleUseCase(slotRepository);
 const getAvailableSlotsUC = new GetAvailableSlotsUseCase(
   slotRepository,
@@ -112,6 +119,8 @@ export const mentorshipSlotController = new MentorshipSlotController(
   getSlotsByJobTitleUC,
   getAvailableSlotsUC,
   getUniqueTagsUC,
+  createRecurringSlotsUC,
+  deleteRecurringSlotsUC,
 );
 
 export const mentorshipBookingController = new MentorshipBookingController(

@@ -40,6 +40,9 @@ export class MentorshipSlotRepository
       jobTitle: entity.jobTitle,
       tags: entity.tags,
       timezone: entity.timezone,
+      isRecurring: entity.isRecurring ?? false,
+      recurrenceGroupId: entity.recurrenceGroupId,
+      recurrenceRule: entity.recurrenceRule,
       updatedAt: new Date(),
     };
 
@@ -294,5 +297,61 @@ export class MentorshipSlotRepository
       },
     });
     return docs.length > 0;
+  }
+
+  async saveMany(entities: MentorshipSlot[]): Promise<MentorshipSlot[]> {
+    if (entities.length === 0) return [];
+    const docsToInsert = entities.map((entity) => ({
+      instructorId: entity.instructorId,
+      title: entity.title,
+      description: entity.description,
+      duration: entity.duration,
+      price: entity.price,
+      currency: entity.currency,
+      scheduledAt: entity.scheduledAt,
+      status: entity.status,
+      maxBookings: entity.maxBookings,
+      currentBookings: entity.currentBookings,
+      jobTitle: entity.jobTitle,
+      tags: entity.tags,
+      timezone: entity.timezone,
+      isRecurring: entity.isRecurring ?? false,
+      recurrenceGroupId: entity.recurrenceGroupId,
+      recurrenceRule: entity.recurrenceRule,
+      createdAt: entity.createdAt || new Date(),
+      updatedAt: entity.updatedAt || new Date(),
+    }));
+
+    const insertedDocs = await this.model.insertMany(docsToInsert);
+    return (insertedDocs as unknown as IMentorshipSlotDoc[]).map((doc) =>
+      this.toEntity(doc),
+    );
+  }
+
+  async deleteByRecurrenceGroupId(
+    recurrenceGroupId: string,
+    instructorId: string,
+    onlyUpcoming: boolean = true,
+  ): Promise<{ deletedCount: number }> {
+    const filter: Record<string, unknown> = {
+      recurrenceGroupId,
+      instructorId,
+      status: SlotStatus.AVAILABLE,
+      currentBookings: 0,
+    };
+    if (onlyUpcoming) {
+      filter.scheduledAt = { $gt: new Date() };
+    }
+    const result = await this.model.deleteMany(filter);
+    return { deletedCount: result.deletedCount || 0 };
+  }
+
+  async findByRecurrenceGroupId(
+    recurrenceGroupId: string,
+  ): Promise<MentorshipSlot[]> {
+    const docs = await this.model
+      .find({ recurrenceGroupId })
+      .sort({ scheduledAt: 1 });
+    return docs.map((doc) => this.toEntity(doc));
   }
 }

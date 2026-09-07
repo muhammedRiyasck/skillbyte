@@ -28,6 +28,15 @@ const MentorshipSlotSchema = new mongoose.Schema(
     jobTitle: { type: String, required: true },
     tags: [{ type: String }],
     timezone: { type: String, default: 'UTC' },
+    isRecurring: { type: Boolean, default: false },
+    recurrenceGroupId: { type: String, index: true },
+    recurrenceRule: {
+      frequency: { type: String, enum: ['daily', 'weekly'] },
+      daysOfWeek: [{ type: Number }],
+      startDate: { type: Date },
+      endDate: { type: Date },
+      time: { type: String },
+    },
   },
   { timestamps: true },
 );
@@ -37,6 +46,8 @@ MentorshipSlotSchema.index({ instructorId: 1 });
 MentorshipSlotSchema.index({ status: 1, scheduledAt: 1 });
 MentorshipSlotSchema.index({ jobTitle: 1, status: 1 });
 MentorshipSlotSchema.index({ scheduledAt: 1 });
+MentorshipSlotSchema.index({ recurrenceGroupId: 1 });
+MentorshipSlotSchema.index({ instructorId: 1, recurrenceGroupId: 1 });
 
 export const MentorshipSlotModel = mongoose.model<IMentorshipSlotDoc>(
   'MentorshipSlot',

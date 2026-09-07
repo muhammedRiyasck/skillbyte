@@ -5,6 +5,14 @@ export enum SlotStatus {
   CANCELLED = 'cancelled',
 }
 
+export interface RecurrenceRule {
+  frequency: 'daily' | 'weekly';
+  daysOfWeek?: number[]; // 0 = Sun, 1 = Mon, ..., 6 = Sat
+  startDate: Date;
+  endDate: Date;
+  time: string; // HH:mm format
+}
+
 export class MentorshipSlot {
   constructor(
     public instructorId: string,
@@ -30,5 +38,8 @@ export class MentorshipSlot {
     },
     public createdAt: Date = new Date(),
     public updatedAt: Date = new Date(),
+    public isRecurring: boolean = false,
+    public recurrenceGroupId?: string,
+    public recurrenceRule?: RecurrenceRule,
   ) {}
 }

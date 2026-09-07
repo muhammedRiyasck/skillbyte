@@ -88,6 +88,12 @@ export class MentorshipMapper {
       doc.tags,
       doc.timezone,
       doc._id.toString(),
+      undefined,
+      doc.createdAt,
+      doc.updatedAt,
+      doc.isRecurring ?? false,
+      doc.recurrenceGroupId,
+      doc.recurrenceRule,
     );
 
     // populated instructor details

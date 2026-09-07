@@ -11,6 +11,26 @@ export interface CreateSlotDto {
   timezone?: string;
 }
 
+export interface CreateRecurringSlotDto {
+  instructorId: string;
+  title: string;
+  description: string;
+  duration: 30 | 45 | 60 | 90;
+  price: number;
+  currency?: string;
+  jobTitle?: string;
+  tags?: string[];
+  timezone?: string;
+  timezoneOffset?: number; // client timezone offset in minutes, e.g. -330
+  recurrence: {
+    frequency: 'daily' | 'weekly';
+    daysOfWeek?: number[];
+    startDate: Date;
+    endDate: Date;
+    time: string; // HH:mm format
+  };
+}
+
 export interface UpdateSlotDto {
   title?: string;
   description?: string;

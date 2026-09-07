@@ -1,6 +1,14 @@
 import { BookingStatus, CancelledBy } from "@shared/enums/BookingStatus";
 import { SlotStatus } from "@shared/enums/SlotStatus";
 
+export interface RecurrenceRule {
+  frequency: 'daily' | 'weekly';
+  daysOfWeek?: number[];
+  startDate: string | Date;
+  endDate: string | Date;
+  time: string;
+}
+
 export interface IMentorshipSlot {
   slotId: string;
   instructorId: string;
@@ -21,6 +29,34 @@ export interface IMentorshipSlot {
   tags?: string[];
   pendingBookingId?: string | undefined;
   isPendingForUser?: boolean | undefined;
+  isRecurring?: boolean;
+  recurrenceGroupId?: string;
+  recurrenceRule?: RecurrenceRule;
+}
+
+export interface CreateRecurringSlotRequest {
+  title: string;
+  description: string;
+  duration: number;
+  price: number;
+  currency?: string;
+  tags?: string[];
+  timezone?: string;
+  timezoneOffset?: number;
+  recurrence: {
+    frequency: 'daily' | 'weekly';
+    daysOfWeek?: number[];
+    startDate: string | Date;
+    endDate: string | Date;
+    time: string;
+  };
+}
+
+export interface CreateRecurringSlotResponse {
+  recurrenceGroupId: string;
+  createdCount: number;
+  skippedCount: number;
+  slots: IMentorshipSlot[];
 }
 
 export interface IMentorshipBooking {

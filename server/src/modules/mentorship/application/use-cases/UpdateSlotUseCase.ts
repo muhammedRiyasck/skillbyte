@@ -65,6 +65,9 @@ export class UpdateSlotUseCase implements IUpdateSlotUseCase {
       existingSlot.instructorDetails,
       existingSlot.createdAt,
       new Date(),
+      existingSlot.isRecurring,
+      existingSlot.recurrenceGroupId,
+      existingSlot.recurrenceRule,
     );
 
     const saved = await this._slotRepo.save(updatedSlot);

@@ -1,11 +1,37 @@
 import api from "@shared/utils/AxiosInstance";
-import type { CreateSlotRequest, UpdateSlotRequest, IMentorshipSlot, SlotFilters, InstructorSlotFilters } from "../types/mentorshipTypes";
+import type {
+  CreateSlotRequest,
+  CreateRecurringSlotRequest,
+  CreateRecurringSlotResponse,
+  UpdateSlotRequest,
+  IMentorshipSlot,
+  SlotFilters,
+  InstructorSlotFilters,
+} from "../types/mentorshipTypes";
 
 // ==================== Slots ====================
 
 export const createSlot = async (data: CreateSlotRequest): Promise<IMentorshipSlot> => {
   const response = await api.post('/mentorship/slots', data);
   return response.data.data.slot;
+};
+
+export const createRecurringSlots = async (
+  data: CreateRecurringSlotRequest,
+): Promise<CreateRecurringSlotResponse> => {
+  const response = await api.post('/mentorship/slots/recurring', data);
+  return response.data.data;
+};
+
+export const deleteRecurringSlots = async (
+  recurrenceGroupId: string,
+  onlyUpcoming: boolean = true,
+): Promise<{ deletedCount: number }> => {
+  const response = await api.delete(
+    `/mentorship/slots/recurring/${recurrenceGroupId}`,
+    { params: { onlyUpcoming } },
+  );
+  return response.data.data;
 };
 
 export const getInstructorSlots = async (filters: InstructorSlotFilters = {}): Promise<IMentorshipSlot[]> => {

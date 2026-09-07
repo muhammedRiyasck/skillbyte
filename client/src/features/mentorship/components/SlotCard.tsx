@@ -1,13 +1,13 @@
 import type { IMentorshipSlot } from "../types/mentorshipTypes";
 import { format } from "date-fns";
-import { Calendar, Clock, Video, Trash2, Edit, IndianRupee, Info, Tag, ChevronDown, ChevronUp } from "lucide-react";
+import { Calendar, Clock, Video, Trash2, Edit, IndianRupee, Info, Tag, ChevronDown, ChevronUp, Repeat } from "lucide-react";
 import { useState } from "react";
 import { SlotStatus } from "@shared/enums/SlotStatus";
 
 interface SlotCardProps {
     slot: IMentorshipSlot;
     onEdit?: (slot: IMentorshipSlot) => void;
-    onDelete?: (slotId: string) => void;
+    onDelete?: (slotId: string, slot?: IMentorshipSlot) => void;
     onBook?: (slot: IMentorshipSlot) => void;
     onResumePayment?: (slotId: string) => void;
     variant?: 'instructor' | 'student';
@@ -59,6 +59,15 @@ export const SlotCard = ({ slot, onEdit, onDelete, onBook, onResumePayment, vari
                                 }`}>
                                 {isExpired ? 'EXPIRED' : isPendingForUser ? 'PENDING' : slot.status}
                             </span>
+                            {slot.isRecurring && (
+                                <span
+                                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800"
+                                    title={`Recurring slot (${slot.recurrenceRule?.frequency || 'series'})`}
+                                >
+                                    <Repeat size={10} />
+                                    Recurring
+                                </span>
+                            )}
                         </div>
                     </div>
 
@@ -76,7 +85,7 @@ export const SlotCard = ({ slot, onEdit, onDelete, onBook, onResumePayment, vari
                             )}
                             {!isBooked && (
                                 <button
-                                    onClick={() => onDelete(slot.slotId)}
+                                    onClick={() => onDelete(slot.slotId, slot)}
                                     className="p-2 cursor-pointer text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/40 rounded-lg transition-colors"
                                     title="Delete Slot"
                                 >

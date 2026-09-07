@@ -10,6 +10,7 @@ import { validateRequest } from '../../../../shared/middlewares/validateRequest'
 import asyncHandler from '../../../../shared/utils/AsyncHandler';
 import {
   createSlotSchema,
+  createRecurringSlotSchema,
   updateSlotSchema,
   bookSlotSchema,
 } from '../validations/MentorshipValidation';
@@ -25,6 +26,23 @@ router.post(
   requireRole('instructor'),
   validateRequest(createSlotSchema),
   asyncHandler(mentorshipSlotController.createSlot),
+);
+
+// Create recurring mentorship slots
+router.post(
+  '/slots/recurring',
+  authenticate,
+  requireRole('instructor'),
+  validateRequest(createRecurringSlotSchema),
+  asyncHandler(mentorshipSlotController.createRecurringSlots),
+);
+
+// Delete recurring mentorship slots by recurrence group ID
+router.delete(
+  '/slots/recurring/:recurrenceGroupId',
+  authenticate,
+  requireRole('instructor'),
+  asyncHandler(mentorshipSlotController.deleteRecurringSlots),
 );
 
 // Get all slots for the authenticated instructor

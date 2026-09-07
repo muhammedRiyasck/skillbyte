@@ -1,5 +1,8 @@
 import { Document, Types } from 'mongoose';
-import { SlotStatus } from '../../domain/entities/MentorshipSlot';
+import {
+  SlotStatus,
+  RecurrenceRule,
+} from '../../domain/entities/MentorshipSlot';
 export interface IMentorshipSlotDoc extends Document {
   _id: Types.ObjectId;
   instructorId: string;
@@ -15,6 +18,9 @@ export interface IMentorshipSlotDoc extends Document {
   jobTitle: string;
   tags: string[];
   timezone: string;
+  isRecurring: boolean;
+  recurrenceGroupId?: string;
+  recurrenceRule?: RecurrenceRule;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -4,7 +4,7 @@ import { SlotCard } from "./SlotCard";
 interface SlotListProps {
   slots: IMentorshipSlot[];
   onEdit: (slot: IMentorshipSlot) => void;
-  onDelete: (slotId: string) => void;
+  onDelete: (slotId: string, slot?: IMentorshipSlot) => void;
 }
 
 export const SlotList = ({ slots, onEdit, onDelete }: SlotListProps) => {

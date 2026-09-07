@@ -43,4 +43,14 @@ export interface IMentorshipSlotRepository
     startTime: Date,
     endTime: Date,
   ): Promise<boolean>;
+
+  saveMany(entities: MentorshipSlot[]): Promise<MentorshipSlot[]>;
+
+  deleteByRecurrenceGroupId(
+    recurrenceGroupId: string,
+    instructorId: string,
+    onlyUpcoming?: boolean,
+  ): Promise<{ deletedCount: number }>;
+
+  findByRecurrenceGroupId(recurrenceGroupId: string): Promise<MentorshipSlot[]>;
 }

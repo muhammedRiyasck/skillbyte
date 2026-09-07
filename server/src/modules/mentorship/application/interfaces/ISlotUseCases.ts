@@ -1,13 +1,21 @@
 import {
   CreateSlotDto,
+  CreateRecurringSlotDto,
   UpdateSlotRequestDto,
   SlotFiltersDto,
   GetInstructorSlotsDto,
 } from '../dtos/SlotDto';
-import { SlotResponseDto } from '../dtos/SlotResponseDto';
+import {
+  SlotResponseDto,
+  CreateRecurringSlotResponseDto,
+} from '../dtos/SlotResponseDto';
 
 export interface ICreateSlotUseCase {
   execute(dto: CreateSlotDto): Promise<SlotResponseDto>;
+}
+
+export interface ICreateRecurringSlotsUseCase {
+  execute(dto: CreateRecurringSlotDto): Promise<CreateRecurringSlotResponseDto>;
 }
 
 export interface IGetInstructorSlotsUseCase {
@@ -20,6 +28,14 @@ export interface IUpdateSlotUseCase {
 
 export interface IDeleteSlotUseCase {
   execute(slotId: string): Promise<void>;
+}
+
+export interface IDeleteRecurringSlotsUseCase {
+  execute(
+    recurrenceGroupId: string,
+    instructorId: string,
+    onlyUpcoming?: boolean,
+  ): Promise<{ deletedCount: number }>;
 }
 
 export interface IGetSlotsByJobTitleUseCase {

@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { SlotStatus } from '../../domain/entities/MentorshipSlot';
 import {
   ICreateSlotUseCase,
+  ICreateRecurringSlotsUseCase,
+  IDeleteRecurringSlotsUseCase,
   IGetInstructorSlotsUseCase,
   IUpdateSlotUseCase,
   IDeleteSlotUseCase,
@@ -24,6 +26,8 @@ export class MentorshipSlotController {
     private _getSlotsByJobTitleUseCase: IGetSlotsByJobTitleUseCase,
     private _getAvailableSlotsUseCase: IGetAvailableSlotsUseCase,
     private _getUniqueTagsUseCase: IGetUniqueTagsUseCase,
+    private _createRecurringSlotsUseCase?: ICreateRecurringSlotsUseCase,
+    private _deleteRecurringSlotsUseCase?: IDeleteRecurringSlotsUseCase,
   ) {}
 
   /**
@@ -44,6 +48,71 @@ export class MentorshipSlotController {
     ApiResponseHelper.created(res, 'Mentorship slot created successfully', {
       slot,
     });
+  };
+
+  /**
+   * Creates recurring mentorship slots for an instructor.
+   */
+  createRecurringSlots = async (req: Request, res: Response): Promise<void> => {
+    if (!this._createRecurringSlotsUseCase) {
+      throw new HttpError(
+        'Create recurring slots use case not initialized',
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const authenticatedReq = req as AuthenticatedRequest;
+    const instructorId = authenticatedReq.user.id;
+
+    logger.info(
+      `Create recurring slots attempt from instructor: ${instructorId}`,
+    );
+    const dto = {
+      ...authenticatedReq.body,
+      instructorId,
+    };
+    const result = await this._createRecurringSlotsUseCase.execute(dto);
+
+    logger.info(
+      `Recurring slots created: ${result.createdCount} created, ${result.skippedCount} skipped for group ${result.recurrenceGroupId}`,
+    );
+    ApiResponseHelper.created(
+      res,
+      'Recurring mentorship slots created successfully',
+      result,
+    );
+  };
+
+  /**
+   * Deletes unbooked slots in a recurring series.
+   */
+  deleteRecurringSlots = async (req: Request, res: Response): Promise<void> => {
+    if (!this._deleteRecurringSlotsUseCase) {
+      throw new HttpError(
+        'Delete recurring slots use case not initialized',
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const authenticatedReq = req as AuthenticatedRequest;
+    const instructorId = authenticatedReq.user.id;
+    const { recurrenceGroupId } = req.params;
+    const onlyUpcoming = req.query.onlyUpcoming !== 'false';
+
+    logger.info(
+      `Delete recurring slots group ${recurrenceGroupId} from instructor: ${instructorId}`,
+    );
+    const result = await this._deleteRecurringSlotsUseCase.execute(
+      recurrenceGroupId,
+      instructorId,
+      onlyUpcoming,
+    );
+
+    ApiResponseHelper.success(
+      res,
+      'Recurring mentorship slots deleted successfully',
+      result,
+    );
   };
 
   /**

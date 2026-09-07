@@ -19,6 +19,9 @@ export class SlotResponseMapper {
       instructorDetails: slot.instructorDetails,
       createdAt: slot.createdAt,
       updatedAt: slot.updatedAt,
+      isRecurring: slot.isRecurring,
+      recurrenceGroupId: slot.recurrenceGroupId,
+      recurrenceRule: slot.recurrenceRule,
     };
   }
 }
