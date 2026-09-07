@@ -43,6 +43,8 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
   const queryClient = useQueryClient();
   const lastSavedTime = useRef(0);
   const isSaving = useRef(false);
+  const pendingSave = useRef<{ time: number; total: number; completed: boolean } | null>(null);
+  const hasCompleted = useRef(false);
   // Refs mirroring state so event handlers (beforeunload, visibilitychange)
   // can read the latest values synchronously without stale closures.
   const currentTimeRef = useRef(0);
@@ -50,34 +52,53 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
 
   const saveProgress = async (time: number, total: number, completed: boolean) => {
     if (!enrollmentId) return;
-    // Guard: skip if a save request is already in flight
-    if (isSaving.current) return;
+
+    if (completed) {
+      hasCompleted.current = true;
+    }
+
+    // If a save request is already in flight, queue this request so it's not lost
+    if (isSaving.current) {
+      pendingSave.current = {
+        time,
+        total,
+        completed: completed || (pendingSave.current?.completed ?? false),
+      };
+      return;
+    }
+
     try {
       isSaving.current = true;
       lastSavedTime.current = time;
+      const isDone = completed || hasCompleted.current;
       await updateLessonProgress(enrollmentId, {
         lessonId: id,
         lastWatchedSecond: time,
-        totalDuration: total,
-        isCompleted: completed,
+        totalDuration: total || 0,
+        isCompleted: isDone,
       });
-      // Only refetch enrollment data when the lesson is marked complete,
-      // not on every intermediate 5-second heartbeat save.
-      if (completed) {
-        queryClient.invalidateQueries({ queryKey: ["enrollment"] });
+
+      // Refetch enrollment data when the lesson is marked complete
+      if (isDone) {
+        queryClient.invalidateQueries({ queryKey: ["enrollmentStatus"] });
+        queryClient.invalidateQueries({ queryKey: ["enrolled-courses"] });
       }
     } catch (err) {
       console.warn("Progress save failed, retrying in 2s…", err);
-      // One automatic retry after a short delay — fire-and-forget so it
-      // doesn't block playback. Show a toast only if the retry also fails.
+      // One automatic retry after a short delay
       setTimeout(async () => {
         try {
+          const isDone = completed || hasCompleted.current;
           await updateLessonProgress(enrollmentId, {
             lessonId: id,
             lastWatchedSecond: time,
-            totalDuration: total,
-            isCompleted: completed,
+            totalDuration: total || 0,
+            isCompleted: isDone,
           });
+          if (isDone) {
+            queryClient.invalidateQueries({ queryKey: ["enrollmentStatus"] });
+            queryClient.invalidateQueries({ queryKey: ["enrolled-courses"] });
+          }
         } catch (retryErr) {
           console.error("Progress save retry also failed", retryErr);
           toast.error("Couldn't save your progress. Check your connection.");
@@ -85,6 +106,12 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
       }, 2000);
     } finally {
       isSaving.current = false;
+      // Process queued save if one was requested during in-flight save
+      if (pendingSave.current) {
+        const next = pendingSave.current;
+        pendingSave.current = null;
+        saveProgress(next.time, next.total, next.completed);
+      }
     }
   };
 
@@ -113,11 +140,14 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     setBuffering(false);
     setIsSlowConnection(false);
     initialSeekDone.current = false; // Reset seek flag
+    lastSavedTime.current = 0;
+    hasCompleted.current = false;
+    pendingSave.current = null;
 
     if (videoRef.current) {
       videoRef.current.load();
     }
-  }, [id, initialProgress]);
+  }, [id]);
 
   // Handle online/offline status
   useEffect(() => {
@@ -155,12 +185,20 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     if (!video) return;
 
     const time = video.currentTime;
+    const dur = video.duration || durationRef.current || 0;
     setCurrentTime(time);
     currentTimeRef.current = time;
+    if (dur > 0) {
+      durationRef.current = dur;
+    }
 
-    // Sync progress every 5 seconds or if it's the end
-    if (enrollmentId && Math.abs(time - lastSavedTime.current) > 5) {
-      saveProgress(time, video.duration, false);
+    // Check near-completion threshold (95% watched or within 1s of end)
+    const isNearEnd = dur > 0 && (time / dur >= 0.95 || time >= dur - 1);
+    if (isNearEnd && !hasCompleted.current) {
+      hasCompleted.current = true;
+      saveProgress(time, dur, true);
+    } else if (enrollmentId && Math.abs(time - lastSavedTime.current) > 5) {
+      saveProgress(time, dur, hasCompleted.current);
     } else if (!enrollmentId) {
       if (Math.abs(time % 5) < 0.3 && time > 1) {
         console.warn("Cannot save progress: No enrollmentId provided");
@@ -199,6 +237,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
 
   const handleEnded = (endedDuration?: number) => {
     setIsPlaying(false);
+    hasCompleted.current = true;
     if (enrollmentId) {
       const finalDuration = endedDuration ?? videoRef.current?.duration ?? duration;
       saveProgress(finalDuration, finalDuration, true);
@@ -223,7 +262,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
         const time = currentTimeRef.current;
         const total = durationRef.current;
         if (enrollmentId && time > 0 && Math.abs(time - lastSavedTime.current) > 1) {
-          saveProgress(time, total, false);
+          saveProgress(time, total, hasCompleted.current);
         }
       }
     };
@@ -232,15 +271,16 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
       const time = currentTimeRef.current;
       const total = durationRef.current;
       if (!enrollmentId || time <= 0) return;
+      const apiUrl = import.meta.env.VITE_API_URL || '/api/v1';
       // sendBeacon keeps the request alive even as the page tears down.
       const payload = JSON.stringify({
         lessonId: id,
         lastWatchedSecond: time,
-        totalDuration: total,
-        isCompleted: false,
+        totalDuration: total || 0,
+        isCompleted: hasCompleted.current,
       });
       navigator.sendBeacon(
-        `/api/enrollment/${enrollmentId}/lesson-progress`,
+        `${apiUrl}/enrollment/${enrollmentId}/lesson-progress`,
         new Blob([payload], { type: 'application/json' })
       );
     };
@@ -251,6 +291,23 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('beforeunload', handleBeforeUnload);
+
+      // Save progress on player unmount (e.g. user clicked Close Player or switched lessons)
+      const time = currentTimeRef.current;
+      const total = durationRef.current;
+      if (enrollmentId && time > 0) {
+        updateLessonProgress(enrollmentId, {
+          lessonId: id,
+          lastWatchedSecond: time,
+          totalDuration: total || 0,
+          isCompleted: hasCompleted.current,
+        }).then(() => {
+          queryClient.invalidateQueries({ queryKey: ["enrollmentStatus"] });
+          queryClient.invalidateQueries({ queryKey: ["enrolled-courses"] });
+        }).catch((err) => {
+          console.warn("Unmount progress save error", err);
+        });
+      }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enrollmentId, id]);
@@ -467,8 +524,13 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
               // have the latest values without stale closures.
               currentTimeRef.current = time;
               durationRef.current = dur;
-              if (enrollmentId && Math.abs(time - lastSavedTime.current) > 5) {
-                saveProgress(time, dur, false);
+
+              const isNearEnd = dur > 0 && (time / dur >= 0.95 || time >= dur - 1);
+              if (isNearEnd && !hasCompleted.current) {
+                hasCompleted.current = true;
+                saveProgress(time, dur, true);
+              } else if (enrollmentId && Math.abs(time - lastSavedTime.current) > 5) {
+                saveProgress(time, dur, hasCompleted.current);
               }
             }}
             onEnded={handleEnded}

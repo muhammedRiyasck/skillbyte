@@ -579,18 +579,29 @@ const CourseDetails: React.FC = () => {
                                     </span>
                                   )}
                                   <span>{formatDuration(lesson.duration || 0)}</span>
-                                  {role === UserRole.STUDENT && (lesson.isFreePreview || isEnrolled) && (
-                                    <button
-                                      onClick={() => {
-                                        setCurrentLessonId(lesson.id);
-                                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                                      }}
-                                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2"
-                                    >
-                                      <Play className="w-4 h-4" />
-                                      {(enrollmentData?.data?.enrollment?.lessonProgress?.find((p: { lessonId: string; lastWatchedSecond: number }) => p.lessonId === lesson.id)?.lastWatchedSecond || 0) > 0 ? 'Resume' : 'Watch'}
-                                    </button>
-                                  )}
+                                  {role === UserRole.STUDENT && (lesson.isFreePreview || isEnrolled) && (() => {
+                                    const lessonProg = enrollmentData?.data?.enrollment?.lessonProgress?.find(
+                                      (p: { lessonId: string; lastWatchedSecond: number; isCompleted?: boolean }) => p.lessonId === lesson.id
+                                    );
+                                    const label = lessonProg?.isCompleted
+                                      ? 'Replay'
+                                      : (lessonProg?.lastWatchedSecond || 0) > 0
+                                        ? 'Resume'
+                                        : 'Watch';
+
+                                    return (
+                                      <button
+                                        onClick={() => {
+                                          setCurrentLessonId(lesson.id);
+                                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        }}
+                                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2"
+                                      >
+                                        <Play className="w-4 h-4" />
+                                        {label}
+                                      </button>
+                                    );
+                                  })()}
                                   {role === UserRole.ADMIN && (
                                     <ToggleSwitch
                                       checked={blockedLessons.has(lesson.id)}
@@ -603,7 +614,11 @@ const CourseDetails: React.FC = () => {
                               {/* Progress Bar for Enrolled Students */}
                               {role === UserRole.STUDENT && isEnrolled && (function () {
                                 const prog = enrollmentData?.data?.enrollment?.lessonProgress?.find((p: { lessonId: string; lastWatchedSecond: number; totalDuration: number; isCompleted: boolean }) => p.lessonId === lesson.id);
-                                const pct = prog ? Math.min(100, Math.max(0, (prog.lastWatchedSecond / (prog.totalDuration || lesson.duration || 1)) * 100)) : 0;
+                                const pct = prog
+                                  ? prog.isCompleted
+                                    ? 100
+                                    : Math.min(100, Math.max(0, (prog.lastWatchedSecond / (prog.totalDuration || lesson.duration || 1)) * 100))
+                                  : 0;
                                 // Only show progress bar if there is some progress or it's completed
                                 if (!prog && pct === 0) return null;
 

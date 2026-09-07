@@ -186,41 +186,58 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
     };
     qualityLevels?.on('change', handleQualityChange);
 
-    player.on('loadedmetadata', () => {
-      updateQualities();
-      if (initialTime > 0 && !initialSeekDone.current) {
-        player.currentTime(initialTime);
-        initialSeekDone.current = true;
-        // Wait for the seek to finish before removing the initial loading state
-        player.one('seeked', () => {
+    const attemptSeek = (targetTime: number) => {
+      if (!playerRef.current || playerRef.current.isDisposed() || initialSeekDone.current || targetTime <= 0) return;
+      const dur = playerRef.current.duration() || 0;
+      const seekTarget = dur > 0 && isFinite(dur) ? Math.min(targetTime, Math.max(0, dur - 1)) : targetTime;
+      if (seekTarget > 0) {
+        try {
+          playerRef.current.currentTime(seekTarget);
+          initialSeekDone.current = true;
           setIsInitialLoading(false);
           if (onResumed) onResumed();
-        });
+        } catch (e) {
+          console.warn('Initial seek failed:', e);
+          setIsInitialLoading(false);
+        }
       }
+    };
+
+    const emitTimeUpdate = () => {
+      if (!onTimeUpdate || !playerRef.current || playerRef.current.isDisposed()) return;
+      const currentTime = playerRef.current.currentTime() || 0;
+      const duration = playerRef.current.duration() || 0;
+      onTimeUpdate(currentTime, duration);
+    };
+
+    player.on('loadedmetadata', () => {
+      updateQualities();
+      attemptSeek(initialTime);
+    });
+
+    player.on('canplay', () => {
+      attemptSeek(initialTime);
+      setIsInitialLoading(false);
     });
 
     // Show a subtle seeking indicator so the user knows something is happening.
     player.on('seeking', () => setIsSeeking(true));
-    player.on('seeked', () => setIsSeeking(false));
+    player.on('seeked', () => {
+      setIsSeeking(false);
+      emitTimeUpdate();
+    });
     player.on('waiting', () => setIsSeeking(true));
     player.on('playing', () => setIsSeeking(false));
 
-    // Poll segment-metadata on every timeupdate (~4x/sec).
-    // readCurrentSegmentQuality reads activeCues[0] at the CURRENT playhead position,
-    // which is the cue for the segment being decoded right now – fully accurate.
+    // Poll segment-metadata and emit timeupdate directly so progress is tracked live during playback
     player.on('timeupdate', () => {
       readCurrentSegmentQuality();
-      if (!onTimeUpdate) return;
-      if (timeUpdateTimer.current) clearTimeout(timeUpdateTimer.current);
-      timeUpdateTimer.current = setTimeout(() => {
-        const currentTime = player.currentTime() || 0;
-        const duration = player.duration() || 0;
-        onTimeUpdate(currentTime, duration);
-      }, 500);
+      emitTimeUpdate();
     });
 
+    player.on('pause', emitTimeUpdate);
+
     player.on('ended', () => {
-      if (timeUpdateTimer.current) clearTimeout(timeUpdateTimer.current);
       if (onEnded) {
         onEnded(player.duration() || 0);
       }
@@ -301,6 +318,28 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src]); // Re-initialize when src changes
+
+  // Also respond if initialTime arrives or updates after mount
+  useEffect(() => {
+    if (initialTime > 0 && !initialSeekDone.current && playerRef.current) {
+      const p = playerRef.current;
+      if (!p.isDisposed() && p.readyState() >= 1) {
+        const dur = p.duration() || 0;
+        const seekTarget = dur > 0 && isFinite(dur) ? Math.min(initialTime, Math.max(0, dur - 1)) : initialTime;
+        if (seekTarget > 0) {
+          try {
+            p.currentTime(seekTarget);
+            initialSeekDone.current = true;
+            setIsInitialLoading(false);
+            if (onResumed) onResumed();
+          } catch (e) {
+            console.warn('Async initial seek failed:', e);
+            setIsInitialLoading(false);
+          }
+        }
+      }
+    }
+  }, [initialTime, onResumed]);
 
   const selectQuality = (qualityId: string) => {
     const p = playerRef.current as PlayerWithQualityLevels | null;

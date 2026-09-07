@@ -33,8 +33,14 @@ router.get(
   asyncHandler(enrollmentController.getInstructorEnrollments),
 );
 
-// Update Lesson Progress - Protected Route
+// Update Lesson Progress - Protected Route (supports PATCH and POST for navigator.sendBeacon)
 router.patch(
+  '/:enrollmentId/lesson-progress',
+  authenticate,
+  validateRequest(UpdateLessonProgressSchema),
+  asyncHandler(enrollmentController.updateProgress),
+);
+router.post(
   '/:enrollmentId/lesson-progress',
   authenticate,
   validateRequest(UpdateLessonProgressSchema),

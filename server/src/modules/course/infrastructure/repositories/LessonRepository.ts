@@ -68,7 +68,7 @@ export class LessonRepository
     const modules = await ModuleModel.find({ courseId }).select('_id');
     const moduleIds = modules.map((m) => m._id);
     const lessons = await this.model
-      .find({ moduleId: { $in: moduleIds } })
+      .find({ moduleId: { $in: moduleIds }, isBlocked: { $ne: true } })
       .select('_id');
     return lessons.map((l) => l._id.toString());
   }

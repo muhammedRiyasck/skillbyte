@@ -1,6 +1,7 @@
 import { IEnrollmentWriteRepository } from '../../domain/IRepositories/IEnrollmentWriteRepository';
 import { IUpdateLessonProgressUseCase } from '../interfaces/IUpdateLessonProgress';
 import { ILessonRepository } from '../../../course/domain/IRepositories/ILessonRepository';
+import { IQuizConfigRepository } from '../../../quiz/domain/IRepositories/IQuizConfigRepository';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
@@ -15,6 +16,7 @@ export class UpdateLessonProgressUseCase
   constructor(
     private enrollmentWriteRepo: IEnrollmentWriteRepository,
     private lessonRepo: ILessonRepository,
+    private quizConfigRepo?: IQuizConfigRepository,
   ) {}
 
   async execute(
@@ -46,11 +48,31 @@ export class UpdateLessonProgressUseCase
     );
     const totalLessonsInCourse = activeLessonIds.length;
 
-    const completedLessons = updatedEnrollment.lessonProgress.filter(
-      (lp) => lp.isCompleted && activeLessonIds.includes(lp.lessonId),
+    // Deduplicate completed lesson IDs to prevent double counting
+    const completedLessonIdSet = new Set(
+      updatedEnrollment.lessonProgress
+        .filter((lp) => lp.isCompleted)
+        .map((lp) => lp.lessonId.toString()),
+    );
+    const completedLessons = activeLessonIds.filter((id) =>
+      completedLessonIdSet.has(id),
     ).length;
 
-    const progressPercentage =
+    const allLessonsCompleted =
+      totalLessonsInCourse > 0 && completedLessons >= totalLessonsInCourse;
+
+    // Check if course has an active quiz enabled
+    const quizConfig = this.quizConfigRepo
+      ? await this.quizConfigRepo.findActiveByCourseId(
+          updatedEnrollment.courseId,
+        )
+      : null;
+    const isQuizEnabled = Boolean(quizConfig?.isEnabled);
+
+    const isAlreadyCompleted =
+      updatedEnrollment.status === EnrollmentStatus.COMPLETED;
+
+    let progressPercentage =
       totalLessonsInCourse > 0
         ? Math.min(
             100,
@@ -58,13 +80,26 @@ export class UpdateLessonProgressUseCase
           )
         : 0;
 
+    if (isQuizEnabled && !isAlreadyCompleted) {
+      // If quiz is enabled, completing all lessons unlocks the quiz at 99%.
+      // Passing the quiz will award 100% and COMPLETED status.
+      if (allLessonsCompleted) {
+        progressPercentage = 99;
+      } else {
+        progressPercentage = Math.min(
+          98,
+          Math.round((completedLessons / totalLessonsInCourse) * 98),
+        );
+      }
+    }
+
     const status =
-      progressPercentage >= 100 &&
-      updatedEnrollment.status !== EnrollmentStatus.COMPLETED
+      !isQuizEnabled && allLessonsCompleted && !isAlreadyCompleted
         ? EnrollmentStatus.COMPLETED
         : undefined;
+
     const completedAt =
-      progressPercentage >= 100 && !updatedEnrollment.completedAt
+      !isQuizEnabled && allLessonsCompleted && !updatedEnrollment.completedAt
         ? new Date()
         : undefined;
 

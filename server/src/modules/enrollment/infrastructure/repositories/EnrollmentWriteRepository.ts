@@ -53,7 +53,11 @@ export class EnrollmentWriteRepository
         (lp) => lp.lessonId.toString() === lessonId,
       );
       const isCompleted =
-        existingProgress?.isCompleted || progressData.isCompleted;
+        Boolean(existingProgress?.isCompleted) || progressData.isCompleted;
+      const totalDuration =
+        progressData.totalDuration > 0
+          ? progressData.totalDuration
+          : existingProgress?.totalDuration || progressData.totalDuration;
 
       doc = await this.model.findOneAndUpdate(
         { _id: enrollmentId, 'lessonProgress.lessonId': lessonId },
@@ -61,7 +65,7 @@ export class EnrollmentWriteRepository
           $set: {
             'lessonProgress.$.lastWatchedSecond':
               progressData.lastWatchedSecond,
-            'lessonProgress.$.totalDuration': progressData.totalDuration,
+            'lessonProgress.$.totalDuration': totalDuration,
             'lessonProgress.$.isCompleted': isCompleted,
             'lessonProgress.$.lastUpdated': new Date(),
           },
@@ -69,8 +73,12 @@ export class EnrollmentWriteRepository
         { new: true },
       );
     } else {
-      doc = await this.model.findByIdAndUpdate(
-        enrollmentId,
+      // Concurrency guard: only push if lessonProgress entry does not already exist
+      doc = await this.model.findOneAndUpdate(
+        {
+          _id: enrollmentId,
+          'lessonProgress.lessonId': { $ne: lessonId },
+        },
         {
           $push: {
             lessonProgress: {
@@ -82,6 +90,23 @@ export class EnrollmentWriteRepository
         },
         { new: true },
       );
+
+      // If a concurrent request pushed it first, update that entry
+      if (!doc) {
+        doc = await this.model.findOneAndUpdate(
+          { _id: enrollmentId, 'lessonProgress.lessonId': lessonId },
+          {
+            $set: {
+              'lessonProgress.$.lastWatchedSecond':
+                progressData.lastWatchedSecond,
+              'lessonProgress.$.totalDuration': progressData.totalDuration,
+              'lessonProgress.$.isCompleted': progressData.isCompleted,
+              'lessonProgress.$.lastUpdated': new Date(),
+            },
+          },
+          { new: true },
+        );
+      }
     }
 
     return doc ? this.toEntity(doc) : null;

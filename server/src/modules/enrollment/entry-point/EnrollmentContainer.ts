@@ -13,6 +13,7 @@ import { LessonRepository } from '../../course/infrastructure/repositories/Lesso
 import { CourseRepository } from '../../course/infrastructure/repositories/CourseRepository';
 
 import { StudentRepository } from '../../student/infrastructure/repositories/StudentRepository';
+import { QuizConfigRepository } from '../../quiz/infrastructure/repositories/QuizConfigRepository';
 
 // Initialize repositories
 const enrollmentReadRepo = new EnrollmentReadRepository();
@@ -20,6 +21,7 @@ const enrollmentWriteRepo = new EnrollmentWriteRepository();
 const lessonRepo = new LessonRepository();
 const courseRepo = new CourseRepository();
 const studentRepo = new StudentRepository();
+const quizConfigRepo = new QuizConfigRepository();
 
 // Initialize use cases with split repository interfaces
 const checkEnrollmentUc = new CheckEnrollmentUseCase(enrollmentReadRepo);
@@ -29,6 +31,7 @@ const getInstructorEnrollmentsUc = new GetInstructorEnrollmentsUseCase(
 const updateLessonProgressUc = new UpdateLessonProgressUseCase(
   enrollmentWriteRepo,
   lessonRepo,
+  quizConfigRepo,
 );
 const getStudentEnrollmentsUc = new GetStudentEnrollmentsUseCase(
   enrollmentReadRepo,
