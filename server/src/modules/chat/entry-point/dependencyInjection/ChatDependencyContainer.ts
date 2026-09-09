@@ -1,4 +1,6 @@
 import { ChatController } from '../controllers/ChatController';
+import { ChatUploadController } from '../controllers/ChatUploadController';
+import { UploadChatFileUseCase } from '../../application/use-cases/UploadChatFileUseCase';
 import { CreateConversationUseCase } from '../../application/use-cases/CreateConversationUseCase';
 import { SendMessageUseCase } from '../../application/use-cases/SendMessageUseCase';
 import { GetConversationsUseCase } from '../../application/use-cases/GetConversationsUseCase';
@@ -16,6 +18,7 @@ import { NotificationRepository } from '../../../notification/infrastructure/rep
 import { CreateNotificationUseCase } from '../../../notification/application/use-cases/CreateNotificationUseCase';
 import { SocketChatNotifier } from '../../infrastructure/services/SocketChatNotifier';
 import { ConversationPopulationService } from '../../application/services/ConversationPopulationService';
+import { CloudinaryStorageService } from '../../../../shared/services/file-upload/services/CloudinaryStorageService';
 
 // Repositories
 const conversationReadRepository = new ConversationReadRepository();
@@ -73,11 +76,16 @@ const markMessagesAsReadUseCase = new MarkMessagesAsReadUseCase(
   chatNotifier,
 );
 
-// Controller
+// Controllers
 export const chatController = new ChatController(
   createConversationUseCase,
   sendMessageUseCase,
   getConversationsUseCase,
   getMessagesUseCase,
   markMessagesAsReadUseCase,
+);
+
+const cloudinaryStorageService = new CloudinaryStorageService();
+export const chatUploadController = new ChatUploadController(
+  new UploadChatFileUseCase(cloudinaryStorageService),
 );

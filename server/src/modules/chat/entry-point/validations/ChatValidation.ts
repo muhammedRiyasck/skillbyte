@@ -16,7 +16,7 @@ export const CreateConversationSchema = z.object({
 export const SendMessageSchema = z
   .object({
     content: z.string().optional(),
-    type: z.enum(['text', 'image', 'document']).default('text'),
+    type: z.enum(['video', 'text', 'image', 'document']).default('text'),
     fileUrl: z.string().url('Invalid file URL').optional(),
     fileName: z.string().optional(),
   })

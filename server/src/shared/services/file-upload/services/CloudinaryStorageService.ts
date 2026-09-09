@@ -5,6 +5,15 @@ import { HttpError } from '../../../types/HttpError';
 import { HttpStatusCode } from '../../../enums/HttpStatusCodes';
 import logger from '../../../utils/Logger';
 
+export type MessageFileType = 'image' | 'video' | 'document';
+
+export interface UploadBufferResult {
+  url: string;
+  type: MessageFileType;
+  fileName: string;
+  mimeType: string;
+}
+
 export class CloudinaryStorageService implements IStorageService {
   constructor() {
     cloudinary.config({
@@ -30,6 +39,74 @@ export class CloudinaryStorageService implements IStorageService {
         HttpStatusCode.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  /**
+   * Uploads an in-memory buffer (e.g. from multer memoryStorage) to Cloudinary.
+   * Determines folder, resource_type, and message type from the file's MIME type.
+   */
+  async uploadBuffer(file: Express.Multer.File): Promise<UploadBufferResult> {
+    const { resourceType, folder, messageType } = this.resolveUploadConfig(
+      file.mimetype,
+    );
+    const isRaw = resourceType === 'raw';
+
+    try {
+      const secure_url = await new Promise<string>((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder,
+            resource_type: resourceType,
+            ...(isRaw && {
+              public_id: `${Date.now()}_${file.originalname.replace(/\.[^/.]+$/, '')}`,
+            }),
+          },
+          (error, result) => {
+            if (error || !result)
+              reject(error ?? new Error('Cloudinary upload failed'));
+            else resolve(result.secure_url);
+          },
+        );
+        stream.end(file.buffer);
+      });
+
+      return {
+        url: secure_url,
+        type: messageType,
+        fileName: file.originalname,
+        mimeType: file.mimetype,
+      };
+    } catch (err) {
+      logger.error('Cloudinary buffer upload error:', err);
+      throw new HttpError(
+        ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  private resolveUploadConfig(mimetype: string): {
+    resourceType: 'image' | 'video' | 'raw';
+    folder: string;
+    messageType: MessageFileType;
+  } {
+    if (mimetype.startsWith('image/'))
+      return {
+        resourceType: 'image',
+        folder: 'chat/images',
+        messageType: 'image',
+      };
+    if (mimetype.startsWith('video/'))
+      return {
+        resourceType: 'video',
+        folder: 'chat/videos',
+        messageType: 'video',
+      };
+    return {
+      resourceType: 'raw',
+      folder: 'chat/documents',
+      messageType: 'document',
+    };
   }
 
   async delete(publicId: string): Promise<void> {

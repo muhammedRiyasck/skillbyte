@@ -4,7 +4,7 @@ export interface IMessage {
   senderId: string;
   senderRole: 'student' | 'instructor';
   content?: string;
-  type: 'text' | 'image' | 'document';
+  type: 'video' | 'image' | 'document' | 'text';
   fileUrl?: string;
   fileName?: string;
   isRead: boolean;

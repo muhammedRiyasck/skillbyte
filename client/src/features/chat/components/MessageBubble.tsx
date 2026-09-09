@@ -1,16 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { format } from 'date-fns';
-import { FileText, Download, Check, CheckCheck } from 'lucide-react';
+import {
+  FileText,
+  Download,
+  Check,
+  CheckCheck,
+  Play,
+} from 'lucide-react';
+
 import type { MessageBubbleProps } from '../types/IMessageBubbleProps';
 
-
-
-const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwnMessage }) => {
+const MessageBubble: React.FC<MessageBubbleProps> = ({
+  message,
+  isOwnMessage,
+}) => {
   const isImage = message.type === 'image';
   const isDocument = message.type === 'document';
+  const isVideo = message.type === 'video';
+
+  const [showVideo, setShowVideo] = useState(false);
 
   return (
-    <div className={`flex w-full mb-4 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
+    <div
+      className={`flex w-full mb-4 ${
+        isOwnMessage ? 'justify-end' : 'justify-start'
+      }`}
+    >
       <div
         className={`max-w-[70%] sm:max-w-[60%] rounded-lg shadow-sm relative ${
           isOwnMessage
@@ -18,16 +33,22 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwnMessage }) 
             : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-bl-none border border-gray-200 dark:border-gray-700'
         }`}
       >
+        {/* ================= IMAGE ================= */}
+
         {isImage && message.fileUrl && (
           <div className="p-2 pb-0">
             <img
               src={message.fileUrl}
               alt="Shared image"
               className="rounded-lg max-h-60 w-full object-cover cursor-pointer"
-              onClick={() => window.open(message.fileUrl, '_blank')}
+              onClick={() =>
+                window.open(message.fileUrl, '_blank')
+              }
             />
           </div>
         )}
+
+        {/* ================= DOCUMENT ================= */}
 
         {isDocument && message.fileUrl && (
           <div className="p-3 pb-0">
@@ -41,27 +62,132 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwnMessage }) 
                   : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600'
               }`}
             >
-              <FileText className="w-8 h-8" />
+              <FileText className="w-8 h-8 flex-shrink-0" />
+
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{message.fileName || 'Document'}</p>
-                <p className="text-xs opacity-70">Click to open</p>
+                <p className="text-sm font-medium truncate">
+                  {message.fileName || 'Document'}
+                </p>
+
+                <p className="text-xs opacity-70">
+                  Click to open
+                </p>
               </div>
-              <Download className="w-5 h-5 opacity-70" />
+
+              <Download className="w-5 h-5 opacity-70 flex-shrink-0" />
             </a>
           </div>
         )}
 
-        <div className={`px-4 py-2 ${isImage || isDocument ? 'pt-2' : ''}`}>
+        {/* ================= VIDEO ================= */}
+
+        {isVideo && message.fileUrl && (
+          <div className="p-2 pb-0">
+            {!showVideo ? (
+              /*
+               * Video is NOT rendered yet.
+               * Therefore the browser does not request the video.
+               */
+              <button
+                type="button"
+                onClick={() => setShowVideo(true)}
+                className="
+                  relative
+                  block
+                  w-[280px]
+                  sm:w-[320px]
+                  aspect-video
+                  rounded-lg
+                  overflow-hidden
+                  bg-black
+                  cursor-pointer
+                  group
+                "
+              >
+                {/* Dark background */}
+                <div className="absolute inset-0 bg-black" />
+
+                {/* Play button */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div
+                    className="
+                      w-16
+                      h-16
+                      rounded-full
+                      bg-white
+                      flex
+                      items-center
+                      justify-center
+                      shadow-lg
+                      transition-transform
+                      group-hover:scale-105
+                    "
+                  >
+                    <Play
+                      className="w-8 h-8 text-gray-800 ml-1"
+                      fill="currentColor"
+                    />
+                  </div>
+                </div>
+              </button>
+            ) : (
+              <video
+                src={message.fileUrl}
+                controls
+                playsInline
+                preload="metadata"
+                autoPlay
+                className="
+                  block
+                  w-[280px]
+                  sm:w-[320px]
+                  max-h-80
+                  rounded-lg
+                  object-contain
+                  bg-black
+                "
+              >
+                Your browser does not support video playback.
+              </video>
+            )}
+          </div>
+        )}
+
+        {/* ================= MESSAGE CONTENT ================= */}
+
+        <div
+          className={`px-4 py-2 ${
+            isImage || isDocument || isVideo ? 'pt-2' : ''
+          }`}
+        >
           {message.content && (
-             <p className={`text-sm md:text-base whitespace-pre-wrap break-words ${isOwnMessage ? 'text-white' : 'text-gray-800 dark:text-gray-200'}`}>
-               {message.content}
-             </p>
+            <p
+              className={`text-sm md:text-base whitespace-pre-wrap break-words ${
+                isOwnMessage
+                  ? 'text-white'
+                  : 'text-gray-800 dark:text-gray-200'
+              }`}
+            >
+              {message.content}
+            </p>
           )}
-          
-          <div className={`flex items-center justify-end gap-1 mt-1 ${isOwnMessage ? 'text-indigo-200' : 'text-gray-400'}`}>
+
+          {/* ================= TIME + READ STATUS ================= */}
+
+          <div
+            className={`flex items-center justify-end gap-1 mt-1 ${
+              isOwnMessage
+                ? 'text-indigo-200'
+                : 'text-gray-400'
+            }`}
+          >
             <span className="text-[10px] sm:text-xs">
-              {format(new Date(message.createdAt), 'h:mm a')}
+              {format(
+                new Date(message.createdAt),
+                'h:mm a'
+              )}
             </span>
+
             {isOwnMessage && (
               <span>
                 {message.isRead ? (

@@ -1,5 +1,9 @@
 import { Router } from 'express';
-import { chatController } from '../dependencyInjection/ChatDependencyContainer';
+import {
+  chatController,
+  chatUploadController,
+} from '../dependencyInjection/ChatDependencyContainer';
+import { chatUploadMiddleware } from '../middlewares/ChatUploadMiddleware';
 import { authenticate } from '../../../../shared/middlewares/AuthMiddleware';
 import { requireRole } from '../../../../shared/middlewares/RequireRole';
 import asyncHandler from '../../../../shared/utils/AsyncHandler';
@@ -51,6 +55,15 @@ router.patch(
   authenticate,
   requireRole('student', 'instructor'),
   asyncHandler(chatController.markAsRead),
+);
+
+// Upload a file/image for chat (returns Cloudinary URL + type)
+router.post(
+  '/upload',
+  authenticate,
+  requireRole('student', 'instructor'),
+  chatUploadMiddleware.single('file'),
+  asyncHandler(chatUploadController.uploadFile),
 );
 
 export default router;

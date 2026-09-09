@@ -28,7 +28,7 @@ const MessageSchema = new Schema<IMessageDocument>(
     },
     type: {
       type: String,
-      enum: ['text', 'image', 'document'],
+      enum: ['video', 'text', 'image', 'document'],
       default: 'text',
     },
     fileUrl: String,

@@ -9,7 +9,6 @@ import MessageBubble from './MessageBubble';
 import MessageInput from './MessageInput';
 import type { IChatWindowProps } from '../types/IChatwindowProps';
 import type { IMessage } from '../types/IMessage';
-import { toast } from 'sonner';
 
 const ChatWindow: React.FC<IChatWindowProps> = ({ currentUser, conversation, onBack }) => {
   const queryClient = useQueryClient();
@@ -157,12 +156,31 @@ const ChatWindow: React.FC<IChatWindowProps> = ({ currentUser, conversation, onB
     }
   }, [lastReadEvent, conversation.conversationId, currentUser.id, queryClient]);
 
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isUploading, setIsUploading] = useState(false);
+
   const handleSendMessage = async (content: string, file?: File) => {
     try {
       if (file) {
-         console.warn("File upload feature backend not fully implemented yet");
-         toast.info("File upload feature backend not fully implemented yet");
-         return; 
+        setIsUploading(true);
+        setUploadProgress(0);
+
+        const uploaded = await ChatService.uploadFile(file, (pct) => {
+          setUploadProgress(pct);
+        });
+
+        setIsUploading(false);
+        setUploadProgress(0);
+
+        const trimmedCaption = content.trim();
+        await ChatService.sendMessage({
+          conversationId: conversation.conversationId,
+          ...(trimmedCaption ? { content: trimmedCaption } : {}),
+          type: uploaded.type,
+          fileUrl: uploaded.url,
+          fileName: uploaded.fileName,
+        });
+        return;
       }
 
       await ChatService.sendMessage({
@@ -172,6 +190,8 @@ const ChatWindow: React.FC<IChatWindowProps> = ({ currentUser, conversation, onB
       });
       
     } catch (error) {
+      setIsUploading(false);
+      setUploadProgress(0);
       console.error('Error sending message:', error);
     }
   };
@@ -290,17 +310,8 @@ const ChatWindow: React.FC<IChatWindowProps> = ({ currentUser, conversation, onB
                       </div>
                     )}
                     <MessageBubble
-                      message={{
-                          messageId: message.messageId,
-                          content: message.content,
-                          senderRole: message.senderRole,
-                          type: message.type,
-                          fileUrl: message.fileUrl,
-                          fileName: message.fileName,
-                          createdAt: message.createdAt,
-                          isRead: message.isRead
-                        }}
-                        isOwnMessage={message.senderId === currentUser.id}
+                      message={message}
+                      isOwnMessage={message.senderId === currentUser.id}
                     />
                   </React.Fragment>
                 ))}
@@ -314,6 +325,8 @@ const ChatWindow: React.FC<IChatWindowProps> = ({ currentUser, conversation, onB
       <MessageInput 
         onSendMessage={handleSendMessage}
         onTyping={sendTypingIndicator}
+        isUploading={isUploading}
+        uploadProgress={uploadProgress}
       />
     </div>
   );

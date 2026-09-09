@@ -11,10 +11,17 @@ export interface ICreateConversationRequest {
 
 export interface ISendMessageRequest {
   conversationId: string;
-  content: string;
-  type?: 'text' | 'image' | 'document';
+  content?: string;
+  type?: 'text' |'video'| 'image' | 'document';
   fileUrl?: string;
   fileName?: string;
+}
+
+export interface IUploadFileResponse {
+  url: string;
+  type: 'video'| 'image' | 'document';
+  fileName: string;
+  mimeType: string;
 }
 
 export const ChatService = {
@@ -54,4 +61,31 @@ export const ChatService = {
     );
     return response.data;
   },
+
+  /**
+   * Uploads a file to Cloudinary via the server and returns the URL + metadata.
+   * Call this before sendMessage when attaching a file.
+   */
+  uploadFile: async (
+    file: File,
+    onProgress?: (percent: number) => void,
+  ): Promise<IUploadFileResponse> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await api.post('/chat/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress: (progressEvent) => {
+        if (onProgress && progressEvent.total) {
+          const percent = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total,
+          );
+          onProgress(percent);
+        }
+      },
+    });
+    return response.data.data as IUploadFileResponse;
+  },
 };
+
+
