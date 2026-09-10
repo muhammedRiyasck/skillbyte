@@ -29,6 +29,7 @@ import api from '@shared/utils/AxiosInstance';
 import CropImageModal from '@shared/ui/CropImageModal';
 import getCroppedImg from '@shared/utils/GetCroppedImg';
 import default_profile from '@assets/default_profile.svg';
+import ChangePasswordModal from './ChangePasswordModal';
 import type { AppDispatch } from '@/core/store/Index';
 
 interface StudentProfileModalProps {
@@ -62,6 +63,7 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ isOpen, onClo
   const [croppedPreview, setCroppedPreview] = useState<string>('');
   const [croppedBlob, setCroppedBlob] = useState<Blob | null>(null);
   const [imageUploading, setImageUploading] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
   // ── Queries ──────────────────────────────────────────────────────────────────
   const { data: profileData, isLoading } = useQuery({
@@ -483,7 +485,16 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ isOpen, onClo
                           Remove profile photo
                         </button>
                       )}
-                      <div className="ml-auto">
+                      <div className="ml-auto flex items-center gap-3">
+                        {profileData?.registeredVia === 'local' && (
+                          <button
+                            id="student-change-password-btn"
+                            onClick={() => setIsChangePasswordOpen(true)}
+                            className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                          >
+                            Change Password
+                          </button>
+                        )}
                         <button
                           onClick={handleClose}
                           className="px-6 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-200 transition-colors cursor-pointer"
@@ -500,6 +511,10 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ isOpen, onClo
           </div>
         </Dialog>
       </Transition>
+      <ChangePasswordModal 
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+      />
     </>
   );
 };

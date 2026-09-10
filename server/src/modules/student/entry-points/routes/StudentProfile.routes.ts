@@ -5,6 +5,7 @@ import { requireRole } from '../../../../shared/middlewares/RequireRole';
 import asyncHandler from '../../../../shared/utils/AsyncHandler';
 import { validateRequest } from '../../../../shared/middlewares/validateRequest';
 import { StudentProfileUpdateSchema } from '../validations/StudentProfileUpdateValidation';
+import { ChangeStudentPasswordSchema } from '../validations/ChangeStudentPasswordValidation';
 import multer from 'multer';
 
 const router = Router();
@@ -38,6 +39,14 @@ router.delete(
   authenticate,
   requireRole('student'),
   asyncHandler(studentProfileController.removeProfileImage),
+);
+
+router.put(
+  '/change-password',
+  authenticate,
+  requireRole('student'),
+  validateRequest(ChangeStudentPasswordSchema),
+  asyncHandler(studentProfileController.changePassword),
 );
 
 export default router;

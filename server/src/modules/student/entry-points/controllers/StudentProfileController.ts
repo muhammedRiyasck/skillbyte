@@ -4,10 +4,12 @@ import { IGetStudentProfileUseCase } from '../../application/interfaces/IGetStud
 import { IUpdateStudentProfileUseCase } from '../../application/interfaces/IUpdateStudentProfileUseCase';
 import { IUploadStudentAvatarUseCase } from '../../application/interfaces/IUploadStudentAvatarUseCase';
 import { IRemoveStudentAvatarUseCase } from '../../application/interfaces/IRemoveStudentAvatarUseCase';
+import { IChangeStudentPasswordUseCase } from '../../application/interfaces/IChangeStudentPasswordUseCase';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
+import { ChangeStudentPasswordDto } from '../../entry-points/validations/ChangeStudentPasswordValidation';
 
 /**
  * Controller for student profile operations.
@@ -19,6 +21,7 @@ export class StudentProfileController {
     private readonly _updateProfileUc: IUpdateStudentProfileUseCase,
     private readonly _uploadAvatarUc: IUploadStudentAvatarUseCase,
     private readonly _removeAvatarUc: IRemoveStudentAvatarUseCase,
+    private readonly _changePasswordUc: IChangeStudentPasswordUseCase,
   ) {}
 
   getProfile = async (req: Request, res: Response): Promise<void> => {
@@ -59,5 +62,12 @@ export class StudentProfileController {
     const studentId = (req as AuthenticatedRequest).user.id;
     await this._removeAvatarUc.execute(studentId);
     ApiResponseHelper.success(res, 'Profile image removed');
+  };
+
+  changePassword = async (req: Request, res: Response): Promise<void> => {
+    const studentId = (req as AuthenticatedRequest).user.id;
+    const dto = req.body as ChangeStudentPasswordDto;
+    await this._changePasswordUc.execute(studentId, dto);
+    ApiResponseHelper.success(res, 'Password changed successfully');
   };
 }

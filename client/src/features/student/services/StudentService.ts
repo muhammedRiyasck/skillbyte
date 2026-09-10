@@ -23,3 +23,12 @@ export const removeStudentProfileImage = async () => {
   const response = await api.delete('/student/profile-image');
   return response.data;
 };
+
+export const changeStudentPassword = async (data: {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}) => {
+  const response = await api.put('/student/change-password', data);
+  return response.data;
+};
