@@ -45,3 +45,12 @@ export const syncStripeStatus = async () => {
     const response = await api.post(`/instructor/sync-stripe-status`);
     return response.data;
 };
+
+export const changeInstructorPassword = async (data: {
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+}) => {
+    const response = await api.put('/instructor/change-password', data);
+    return response.data;
+};

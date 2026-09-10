@@ -11,6 +11,7 @@ import Spiner from "@shared/ui/Spiner";
 import ErrorPage from "@shared/ui/ErrorPage";
 import default_profile from "@assets/default_profile.svg";
 import TextInput from "@shared/ui/TextInput";
+import ChangePasswordModal from "../components/dashboard/ChangePasswordModal";
 
 interface FormData {
   name: string;
@@ -31,6 +32,7 @@ const Profile: React.FC = () => {
   const [croppedBlob, setCroppedBlob] = useState<Blob | null>(null);
   const [loading, setLoading] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const queryClient = useQueryClient();
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["instructor-profile"],
@@ -382,10 +384,18 @@ const Profile: React.FC = () => {
         )}
 
         {!editMode && (
-          <div className="mt-6 text-center">
+          <div className="mt-6 flex items-center justify-center gap-4">
+            {(
+              <button
+                onClick={() => setIsChangePasswordOpen(true)}
+                className="px-6 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 cursor-pointer transition-colors"
+              >
+                Change Password
+              </button>
+            )}
             <button
               onClick={() => setEditMode(true)}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer"
+              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer transition-colors"
             >
               Edit Profile
             </button>
@@ -441,6 +451,11 @@ const Profile: React.FC = () => {
           </button>
         </div>
       </Modal>
+
+      <ChangePasswordModal 
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+      />
     </div>
   );
 };

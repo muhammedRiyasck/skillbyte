@@ -5,6 +5,7 @@ import { CreateStripeOnboardingLinkUseCase } from '../../application/use-cases/C
 import { ISyncStripeAccountStatusUseCase } from '../../application/interfaces/ISyncStripeAccountStatusUseCase';
 import { IUploadInstructorAvatarUseCase } from '../../application/interfaces/IUploadInstructorAvatarUseCase';
 import { IRemoveInstructorAvatarUseCase } from '../../application/interfaces/IRemoveInstructorAvatarUseCase';
+import { IChangeInstructorPasswordUseCase } from '../../application/interfaces/IChangeInstructorPasswordUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
@@ -12,6 +13,7 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { InstructorMapper } from '../../application/mappers/InstructorMapper';
 import { InstructorProfileUpdateRequestDto } from '../../application/dtos/InstructorRequestDto';
+import { ChangeInstructorPasswordDto } from '../../entry-point/validations/ChangeInstructorPasswordValidation';
 
 /**
  * Controller for instructor profile operations.
@@ -25,6 +27,7 @@ export class InstructorProfileController {
     private readonly _syncStripeStatusUseCase: ISyncStripeAccountStatusUseCase,
     private readonly _uploadAvatarUc: IUploadInstructorAvatarUseCase,
     private readonly _removeAvatarUc: IRemoveInstructorAvatarUseCase,
+    private readonly _changePasswordUc: IChangeInstructorPasswordUseCase,
   ) {}
 
   getProfile = async (req: Request, res: Response): Promise<void> => {
@@ -100,5 +103,13 @@ export class InstructorProfileController {
     ApiResponseHelper.success(res, 'Stripe status synchronized successfully', {
       isVerified,
     });
+  };
+
+  changePassword = async (req: Request, res: Response): Promise<void> => {
+    const authenticatedRequest = req as AuthenticatedRequest;
+    const instructorId = authenticatedRequest.user.id;
+    const dto = req.body as ChangeInstructorPasswordDto;
+    await this._changePasswordUc.execute(instructorId, dto);
+    ApiResponseHelper.success(res, 'Password changed successfully');
   };
 }

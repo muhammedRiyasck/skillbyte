@@ -8,11 +8,15 @@ import { CloudinaryStorageService } from '../../../../shared/services/file-uploa
 import { StripeProvider } from '../../../../shared/services/payment/StripeProvider';
 import { CreateStripeOnboardingLinkUseCase } from '../../application/use-cases/CreateStripeOnboardingLinkUseCase';
 import { SyncStripeAccountStatusUseCase } from '../../application/use-cases/SyncStripeAccountStatusUseCase';
+import { ChangeInstructorPasswordUseCase } from '../../application/use-cases/ChangeInstructorPasswordUseCase';
 import { InstructorEarningsService } from '../../application/services/InstructorEarningsService';
+import { NodeMailerService } from '../../../../shared/services/mail/NodeMailerService';
+import { passwordHasher } from '../../../../shared/services/password-hasher/BcryptPasswordHasher';
 
 const instructorRepository = new InstructorRepository();
 const storageService = new CloudinaryStorageService();
 const stripeProvider = new StripeProvider();
+const nodeMailer = new NodeMailerService();
 
 // Initialize earnings service to start listening for events
 new InstructorEarningsService(instructorRepository);
@@ -39,6 +43,11 @@ const removeInstructorAvatarUseCase = new RemoveInstructorAvatarUseCase(
   instructorRepository,
   storageService,
 );
+const changeInstructorPasswordUseCase = new ChangeInstructorPasswordUseCase(
+  instructorRepository,
+  passwordHasher,
+  nodeMailer,
+);
 
 export const instructorProfileController = new InstructorProfileController(
   getInstructorProfileUseCase,
@@ -47,4 +56,5 @@ export const instructorProfileController = new InstructorProfileController(
   syncStripeAccountStatusUseCase,
   uploadInstructorAvatarUseCase,
   removeInstructorAvatarUseCase,
+  changeInstructorPasswordUseCase,
 );

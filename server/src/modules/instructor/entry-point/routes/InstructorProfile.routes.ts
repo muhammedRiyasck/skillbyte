@@ -5,6 +5,7 @@ import { requireRole } from '../../../../shared/middlewares/RequireRole';
 import asyncHandler from '../../../../shared/utils/AsyncHandler';
 import { validateRequest } from '../../../../shared/middlewares/validateRequest';
 import { InstructorProfileUpdateSchema } from '../validations/InstructorProfileUpdateValidation';
+import { ChangeInstructorPasswordSchema } from '../validations/ChangeInstructorPasswordValidation';
 import multer from 'multer';
 
 const router = Router();
@@ -52,6 +53,14 @@ router.post(
   authenticate,
   requireRole('instructor'),
   asyncHandler(instructorProfileController.syncStripeStatus),
+);
+
+router.put(
+  '/change-password',
+  authenticate,
+  requireRole('instructor'),
+  validateRequest(ChangeInstructorPasswordSchema),
+  asyncHandler(instructorProfileController.changePassword),
 );
 
 export default router;
