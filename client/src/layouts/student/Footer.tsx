@@ -1,11 +1,36 @@
 const footer = () => {
   return (
-    <footer className="bg-gray-50 border-t border-gray-200 p-6 dark:bg-gray-900 dark:text-white shadow-2xl dark:border-t dark:border-gray-700">
-      <div className="container mx-auto text-center">
-        <p>&copy; 2025 Skillbyte. All rights reserved.</p>
-      </div>
-    </footer>
-  );
+  <footer
+    className="
+      border-t
+      border-gray-200
+      bg-white
+      text-gray-500
+      dark:border-gray-800
+      dark:bg-[#050914]
+      dark:text-gray-400
+    "
+  >
+    <div
+      className="
+        mx-auto
+        flex
+        max-w-[1600px]
+        flex-col
+        items-center
+        justify-center
+        px-4
+        py-5
+        sm:px-6
+        lg:px-8
+      "
+    >
+      <p className="text-xs sm:text-sm text-center">
+        &copy; 2025 Skillbyte. All rights reserved.
+      </p>
+    </div>
+  </footer>
+);
 };
 
 export default footer;

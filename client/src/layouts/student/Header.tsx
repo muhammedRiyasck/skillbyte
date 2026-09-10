@@ -33,7 +33,7 @@ const Header = () => {
     <>
       {user ? (
         <header className="w-full sticky top-0 z-50">
-          <div className="flex items-center justify-between  md:px-8  bg-gray-50 border-b border-gray-200 px-4 dark:bg-gray-900  dark:border-b dark:border-gray-700 dark:text-white">
+          <div className="flex items-center justify-between  md:px-8  bg-gray-50 border-b border-gray-200 px-4 dark:bg-gray-950  dark:border-b dark:border-gray-700 dark:text-white">
             <div className="flex items-center text-2xl font-bold">
               <Link to={ROUTES.root}>
                 <img className="w-30 h-20" src={orginalLogo} alt="logo" />
@@ -125,7 +125,7 @@ const Header = () => {
                 <button
                   id="student-profile-avatar-btn"
                   onClick={() => setIsProfileOpen(true)}
-                  className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden hover:opacity-80 transition-opacity cursor-pointer"
+                  className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-900 overflow-hidden hover:opacity-80 transition-opacity cursor-pointer"
                   title="View Profile"
                 >
                   {user && user.profilePicture ? (
