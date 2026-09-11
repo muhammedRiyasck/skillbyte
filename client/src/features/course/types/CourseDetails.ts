@@ -10,7 +10,7 @@ export interface CourseDetailsResponse {
 export interface CourseDetails {
   id: string;
   instructorId: string;
-  instructor?: InstructorInfo;
+  instructor?: InstructorInfo | undefined;
   thumbnailUrl: string | null;
   title: string;
   subText: string;
@@ -24,12 +24,12 @@ export interface CourseDetails {
   duration: string;
   tags: string[];
   status: CourseStatus;
-  averageRating?: number;
-  totalReviews?: number;
+  averageRating?: number | undefined;
+  totalReviews?: number | undefined;
   createdAt: string;
   updatedAt: string;
-  modules?: ModuleType[];
-  isQuizEnabled?: boolean;
+  modules?: ModuleType[] | undefined;
+  isQuizEnabled?: boolean | undefined;
 }
 
 interface InstructorInfo {
@@ -41,11 +41,30 @@ interface InstructorInfo {
   totalReviews?: number;
 }
 
-// export interface Review {
-//   id: string;
-//   user: string;
-//   avatar: string;
-//   rating: number;
-//   comment: string;
-//   date: string;
-// }
+export interface LessonProgressItem {
+  lessonId: string;
+  lastWatchedSecond: number;
+  totalDuration?: number;
+  isCompleted?: boolean;
+}
+
+export interface EnrollmentDetails {
+  _id?: string;
+  id?: string;
+  courseId?: string;
+  userId?: string;
+  progress?: number;
+  isCompleted?: boolean;
+  lessonProgress?: LessonProgressItem[];
+}
+
+export interface EnrollmentStatusData {
+  isEnrolled: boolean;
+  enrollment?: EnrollmentDetails;
+}
+
+export interface EnrollmentStatusResponse {
+  data?: EnrollmentStatusData;
+  message?: string;
+  success?: boolean;
+}

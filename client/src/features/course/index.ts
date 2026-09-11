@@ -1,4 +1,6 @@
 export { default as CourseCard } from './components/CourseCard';
+export { default as CourseModuleAccordion } from './components/CourseModuleAccordion';
+export * from './components/details';
 export { default as CreateCourse } from './pages/CreateCourse';
 export { default as InstructorCourses } from './pages/InstructorCourses';
 export { default as StudentCourses } from './pages/StudentCourses';

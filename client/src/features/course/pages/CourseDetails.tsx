@@ -1,37 +1,14 @@
 import React, { useState, useMemo } from 'react';
-import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import default_profile from '@assets/default_profile.svg';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import {
-  Star,
-  Clock,
-  Users,
-  Play,
-  FileText,
-  ChevronDown,
-  ChevronRight,
-  Award,
-  CheckCircle,
-  Globe,
-  MessageSquare,
-  Loader2,
-  BrainCircuit,
-  Home,
-  BookOpen,
-  Check,
-  RefreshCw,
-  Pencil,
-  Flag
-} from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { ROUTES } from '@/core/router/paths';
 import { getCourseDetails } from '../services/CourseDetails';
 import { blockLesson } from '../services/CourseLesson';
 import { checkEnrollmentStatus, enrollFreeCourse } from '@features/enrollment/services/EnrollmentService';
 import { issueCertificate } from '@/features/certificate/services/CertificateService';
 import LessonPlayer from '../components/LessonPlayer';
-import RatingSummary from '@features/review/components/RatingSummary';
-import ReviewList from '@features/review/components/ReviewList';
-import ReviewForm from '@features/review/components/ReviewForm';
 import ReportModal from '@/shared/components/ReportModal';
 import { submitReport } from '@features/review/services/ReviewService';
 import { ChatService } from '@/features/chat/services/ChatService';
@@ -41,19 +18,29 @@ import type { ModuleType } from '../types/IModule';
 import type { LessonType } from '../types/ILesson';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/core/store/Index';
-import ToggleSwitch from '@/shared/ui/ToggleSwitch';
 import { toast } from 'sonner';
 import { UserRole } from '@shared/enums/UserRole';
-import { ContentType } from '@shared/enums/ContentType';
+import { InstructorProfileModal } from '../components/InstructorProfileModal';
+
+import {
+  CourseBreadcrumb,
+  CourseHero,
+  CourseOverview,
+  CourseCurriculum,
+  CourseDescription,
+  CourseReviewsSection,
+  CourseSidebar,
+} from '../components/details';
 
 const CourseDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [expandedModules, setExpandedModules] = useState<Set<string>>(new Set());
+  const [expandedModuleId, setExpandedModuleId] = useState<string | null>(null);
   const [blockedLessons, setBlockedLessons] = useState<Set<string>>(new Set());
   const [currentLessonId, setCurrentLessonId] = useState<string | null>(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [hasAlreadyReviewed, setHasAlreadyReviewed] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isInstructorModalOpen, setIsInstructorModalOpen] = useState(false);
 
   const role = useSelector((state: RootState) => state.auth.user?.role);
   const userId = useSelector((state: RootState) => state.auth.user?.id);
@@ -71,7 +58,7 @@ const CourseDetails: React.FC = () => {
       await ChatService.createConversation({
         studentId: userId,
         instructorId: course.instructorId,
-        courseId: course.id
+        courseId: course.id,
       });
 
       // Invalidate conversations query
@@ -79,15 +66,20 @@ const CourseDetails: React.FC = () => {
 
       navigate(ROUTES.chat);
     } catch (error) {
-      console.error("Failed to start conversation:", error);
-      toast.error("Failed to start conversation with instructor");
+      console.error('Failed to start conversation:', error);
+      toast.error('Failed to start conversation with instructor');
     } finally {
       setIsCreatingChat(null);
     }
   };
 
-
-  const { data: courseData, isLoading, isError, error, refetch } = useQuery({
+  const {
+    data: courseData,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ['courseDetails', id, role],
     queryFn: () => getCourseDetails(id!),
     enabled: !!id,
@@ -104,27 +96,25 @@ const CourseDetails: React.FC = () => {
 
   const course = courseData?.data;
 
-
-  const blockedLessonIds = useMemo(() => course?.modules?.flatMap((mod: ModuleType) =>
-    mod.lessons?.filter((les: LessonType) => les.isBlocked).map((les: LessonType) => les.id) || []
-  ) || [], [course?.modules]);
-
+  const blockedLessonIds = useMemo(
+    () =>
+      course?.modules?.flatMap(
+        (mod: ModuleType) =>
+          mod.lessons
+            ?.filter((les: LessonType) => les.isBlocked)
+            .map((les: LessonType) => les.id) || []
+      ) || [],
+    [course?.modules]
+  );
 
   React.useEffect(() => {
     setBlockedLessons(new Set(blockedLessonIds));
   }, [blockedLessonIds]);
 
-
   const isEnrolled = enrollmentData?.data?.isEnrolled || false;
 
   const toggleModule = (moduleId: string) => {
-    const newExpanded = new Set(expandedModules);
-    if (newExpanded.has(moduleId)) {
-      newExpanded.delete(moduleId);
-    } else {
-      newExpanded.add(moduleId);
-    }
-    setExpandedModules(newExpanded);
+    setExpandedModuleId((prev) => (prev === moduleId ? null : moduleId));
   };
 
   const handleEnroll = async () => {
@@ -138,9 +128,12 @@ const CourseDetails: React.FC = () => {
       try {
         await enrollFreeCourse(id!);
         toast.success('Successfully enrolled in this free course!');
-        queryClient.invalidateQueries({ queryKey: ['enrollmentStatus', id, userId] });
+        queryClient.invalidateQueries({
+          queryKey: ['enrollmentStatus', id, userId],
+        });
       } catch (error) {
-        const message = error instanceof Error ? error.message : 'Failed to enroll';
+        const message =
+          error instanceof Error ? error.message : 'Failed to enroll';
         toast.error(message);
       }
       return;
@@ -155,9 +148,15 @@ const CourseDetails: React.FC = () => {
     try {
       const certificate = await issueCertificate(course.id);
       toast.success('Certificate ready');
-      navigate(ROUTES.student.certificate.replace(':certificateId', certificate.certificateId));
+      navigate(
+        ROUTES.student.certificate.replace(
+          ':certificateId',
+          certificate.certificateId
+        )
+      );
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unable to issue certificate';
+      const message =
+        error instanceof Error ? error.message : 'Unable to issue certificate';
       toast.error(message);
     } finally {
       setIsClaimingCertificate(false);
@@ -179,7 +178,6 @@ const CourseDetails: React.FC = () => {
       setBlockedLessons(newBlocked);
     } catch (error) {
       console.error('Failed to block/unblock lesson:', error);
-      // You might want to show a toast notification here
     }
   };
 
@@ -193,12 +191,44 @@ const CourseDetails: React.FC = () => {
     }
   };
 
+  const handleContinueLearning = () => {
+    const firstAvailableLesson = course?.modules
+      ?.find((module) =>
+        module.lessons?.some((lesson) => lesson.isFreePreview || isEnrolled)
+      )
+      ?.lessons?.find((lesson) => lesson.isFreePreview || isEnrolled);
+
+    if (firstAvailableLesson) {
+      setCurrentLessonId(firstAvailableLesson.id);
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+      });
+    }
+  };
+
+  const handleTakeQuiz = () => {
+    if (course?.id) {
+      navigate(ROUTES.student.quiz.landing.replace(':courseId', course.id));
+    }
+  };
+
+  const handleNavigateBack = () => {
+    if (location.state?.page && role === UserRole.INSTRUCTOR) {
+      navigate(`${ROUTES.instructor.myCourses}?page=${location.state.page}`);
+    } else {
+      navigate(-1);
+    }
+  };
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-indigo-600" />
-          <p className="text-gray-600 dark:text-gray-400">Loading course details...</p>
+          <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-indigo-600" />
+          <p className="text-gray-600 dark:text-gray-400">
+            Loading course details...
+          </p>
         </div>
       </div>
     );
@@ -208,7 +238,9 @@ const CourseDetails: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <ErrorPage
-          message={(error as Error)?.message || 'This course currently unavailable.'}
+          message={
+            (error as Error)?.message || 'This course currently unavailable.'
+          }
           statusCode={500}
         />
       </div>
@@ -217,9 +249,11 @@ const CourseDetails: React.FC = () => {
 
   if (!course) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 dark:bg-gray-900">
         <div className="text-center">
-          <p className="text-xl text-gray-600 dark:text-gray-400">Course not found</p>
+          <p className="text-xl text-gray-600 dark:text-gray-400">
+            Course not found
+          </p>
         </div>
       </div>
     );
@@ -234,76 +268,68 @@ const CourseDetails: React.FC = () => {
     const remainingSeconds = seconds % 60;
 
     if (minutes < 60) {
-      return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
+      return remainingSeconds > 0
+        ? `${minutes}m ${remainingSeconds}s`
+        : `${minutes}m`;
     }
 
     const hours = Math.floor(minutes / 60);
     const remainingMinutes = minutes % 60;
-    return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
+    return remainingMinutes > 0
+      ? `${hours}h ${remainingMinutes}m`
+      : `${hours}h`;
   };
 
-  const totalLessons = course.modules?.reduce((acc: number, mod: ModuleType) => acc + (mod.lessons?.length || 0), 0) || 0;
-  const totalDurationSeconds = course.modules?.reduce((acc: number, mod: ModuleType) =>
-    acc + (mod.lessons?.reduce((lessonAcc: number, les) => lessonAcc + (les.duration || 0), 0) || 0), 0
-  ) || 0;
+  const totalLessons =
+    course.modules?.reduce(
+      (acc: number, mod: ModuleType) => acc + (mod.lessons?.length || 0),
+      0
+    ) || 0;
+  const totalDurationSeconds =
+    course.modules?.reduce(
+      (acc: number, mod: ModuleType) =>
+        acc +
+        (mod.lessons?.reduce(
+          (lessonAcc: number, les) => lessonAcc + (les.duration || 0),
+          0
+        ) || 0),
+      0
+    ) || 0;
 
   const currentLesson = currentLessonId
-    ? course.modules?.flatMap((m: ModuleType) => m.lessons || []).find((l: LessonType) => l.id === currentLessonId)
+    ? course.modules
+        ?.flatMap((m: ModuleType) => m.lessons || [])
+        .find((l: LessonType) => l.id === currentLessonId)
     : null;
 
-
-  const currentLessonProgress = enrollmentData?.data?.enrollment?.lessonProgress?.find(
-    (p: { lessonId: string; lastWatchedSecond: number }) => p.lessonId === currentLessonId
-  );
+  const currentLessonProgress =
+    enrollmentData?.data?.enrollment?.lessonProgress?.find(
+      (p: { lessonId: string; lastWatchedSecond: number }) =>
+        p.lessonId === currentLessonId
+    );
 
   const initialProgress = currentLessonProgress?.lastWatchedSecond || 0;
   const enrollmentId = enrollmentData?.data?.enrollment?.enrollmentId;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Breadcrumbs and Back Button */}
-      <div className=" md:block bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-7xl px-4 sm:px-6 xl:px-8 py-4">
-          <div className=" flex items-start justify-start overflow-hidden">
+    <div className="min-h-screen bg-white text-gray-900 dark:bg-[#050914] dark:text-white">
+      {/* BREADCRUMB */}
+      <CourseBreadcrumb
+        courseTitle={course.title}
+        onNavigateBack={handleNavigateBack}
+      />
 
-            <nav className="flex items-center gap-3 bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-full text-lg shadow-sm ">
-              <Link to={ROUTES.root} className="flex items-center gap-2 hover:text-indigo-600 dark:hover:text-indigo-400 dark:text-gray-200 transition-colors">
-                <Home className="w-4 h-4" />
-                Home
-              </Link>
-              <ChevronRight className="w-4 h-4 text-gray-400 " />
-              <button
-                onClick={() => {
-                  if (location.state?.page && role === UserRole.INSTRUCTOR) {
-                    navigate(`${ROUTES.instructor.myCourses}?page=${location.state.page}`);
-                  } else {
-                    navigate(-1);
-                  }
-                }}
-                className="flex items-center gap-2 hover:text-indigo-600 dark:hover:text-indigo-400 dark:text-gray-200 transition-colors cursor-pointer"
-              >
-                <BookOpen className="w-4 h-4" />
-                Courses
-              </button>
-              <ChevronRight className="w-4 h-4 text-gray-400" />
-              <span className="text-gray-900 dark:text-white font-semibold truncate max-w-xs ">
-                {course.title}
-              </span>
-
-            </nav>
-          </div>
-        </div>
-      </div>
-
-      {/* Hero Section or Player */}
+      {/* LESSON PLAYER */}
       {currentLessonId ? (
-        <div className="bg-gray-900 py-8 border-b border-gray-700">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-[#050914] py-5 sm:py-7">
+          <div className="mx-auto max-w-[1500px] px-4 sm:px-6 lg:px-8">
             <LessonPlayer
               id={currentLessonId}
               onClose={() => {
                 setCurrentLessonId(null);
-                queryClient.invalidateQueries({ queryKey: ['enrollmentStatus', id, userId] });
+                queryClient.invalidateQueries({
+                  queryKey: ['enrollmentStatus', id, userId],
+                });
               }}
               title={currentLesson?.title || ''}
               enrollmentId={enrollmentId}
@@ -312,534 +338,112 @@ const CourseDetails: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div className="bg-gradient-to-r bg-gray-800  text-white">
+        <>
+          {/* COURSE HERO */}
+          <CourseHero
+            course={course}
+            role={role}
+            isEnrolled={isEnrolled}
+            isLoading={isLoading}
+            enrollmentData={enrollmentData}
+            isClaimingCertificate={isClaimingCertificate}
+            onRefresh={() => {
+              refetch();
+              toast.success('Course details refreshed!');
+            }}
+            onOpenInstructorModal={() => setIsInstructorModalOpen(true)}
+            onContinueLearning={handleContinueLearning}
+            onEnroll={handleEnroll}
+            onClaimCertificate={handleClaimCertificate}
+            onTakeQuiz={handleTakeQuiz}
+          />
 
-
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 ">
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
-                    {course.category}
-                  </span>
-                  <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-medium">
-                    {course.courseLevel}
-                  </span>
-                </div>
-                <h1 className="text-4xl font-bold mb-4">{course.title}</h1>
-                <p className="text-xl text-indigo-100 font-semibold mb-6">{course.subText}</p>
-
-                <div className="flex items-center gap-6 mb-6">
-                  <div className="flex items-center gap-2">
-                    <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    <span className="font-semibold">{course.averageRating ? course.averageRating.toFixed(1) : '0.0'}</span>
-                    <span className="text-indigo-200">({course.totalReviews || 0} reviews)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="w-5 h-5" />
-                    <span>15420 students</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 mb-6">
-                  <img
-                    src={course.instructor?.avatar || default_profile}
-                    alt={course.instructor?.name || 'Instructor'}
-                    className="w-12 h-12 rounded-full"
-                  />
-                  <div>
-                    <p className="font-semibold">{course.instructor?.name || 'John Smith'}</p>
-                    <p className="text-indigo-200">{course.instructor?.title || 'Senior Web Developer'}</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-6 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4" />
-                    <span>Last updated {new Date(course.updatedAt).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4" />
-                    <span>{course.language}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="lg:pl-8">
-                <button
-                  onClick={() => { refetch(); toast.success('Course details refreshed!') }}
-                  disabled={isLoading}
-                  className="w-12 h-12 ml-auto mb-4 cursor-pointer flex items-center justify-center bg-gray-600 hover:bg-gray-700 rounded-full transition-colors flex-shrink-0"
-                >
-                  <RefreshCw className={`w-6 h-6 ${isLoading ? 'animate-spin' : ''}`} />
-                </button>
-                <div className='flex flex-col lg:flex-row w-full gap-4 items-center'>
-                  <div className="bg-white flex-1 rounded-2xl shadow-2xl overflow-hidden">
-                    <img
-                      src={course.thumbnailUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=400&fit=crop'}
-                      alt={course.title}
-                      className="w-full h-64 object-cover"
-                    />
-                    <div className="p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="text-3xl font-bold text-gray-900">
-                          {course.price === 0 ? (
-                            <span className="text-green-600">Free</span>
-                          ) : (
-                            <>₹{course.price.toLocaleString()}</>
-                          )}
-                        </div>
-                        {course.price > 0 && (
-                          <div className="text-sm text-gray-500 line-through">
-                            ₹{Math.round(course.price * 1.5)}
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        {(isEnrolled || role === UserRole.INSTRUCTOR || role === UserRole.ADMIN) ? (
-                          <div className="space-y-4">
-                            <div className="w-full py-3 px-6 rounded-lg font-semibold bg-green-50 dark:bg-green-900/90 text-green-800 dark:text-green-400 flex items-center justify-center gap-2 border border-green-100 dark:border-green-800/50">
-                              <Check className="w-5 h-5" />
-                              Already Enrolled
-                            </div>
-
-                            {role === UserRole.STUDENT && course.isQuizEnabled && (function () {
-                              const progress = enrollmentData?.data?.enrollment?.progress ?? 0;
-                              const isUnlocked = progress >= 99;
-
-                              if (isUnlocked) {
-                                return (
-                                  <button
-                                    onClick={() => navigate(ROUTES.student.quiz.landing.replace(':courseId', course.id))}
-                                    className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black rounded-xl transition-all shadow-xl shadow-indigo-600/20 hover:shadow-indigo-600/40 hover:-translate-y-1 active:translate-y-0 cursor-pointer flex items-center justify-center gap-2 group"
-                                  >
-                                    <BrainCircuit className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                                    Take AI Final Quiz
-                                  </button>
-                                );
-                              } else {
-                                return (
-                                  <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-xl border border-dashed border-gray-200 dark:border-gray-700">
-                                    <div className="flex items-center gap-3 mb-2 text-gray-500 dark:text-gray-400">
-                                      <BrainCircuit className="w-5 h-5 opacity-40" />
-                                      <span className="font-bold text-sm uppercase tracking-wider">AI Final Quiz</span>
-                                      <span className="ml-auto text-[10px] bg-gray-300 dark:bg-gray-700 px-2 py-0.5 rounded-full font-bold">LOCKED</span>
-                                    </div>
-                                    <p className="text-xs text-black dark:text-gray-400 mb-3">
-                                      Reach 99% progress to unlock. You're at {Math.round(progress)}%.
-                                    </p>
-                                    <div className="w-full bg-gray-200 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
-                                      <div
-                                        className="bg-gray-400 dark:bg-gray-500 h-full transition-all duration-700"
-                                        style={{ width: `${progress}%` }}
-                                      />
-                                    </div>
-                                  </div>
-                                );
-                              }
-                            })()}
-                            {(enrollmentData?.data?.enrollment?.progress ?? 0) >= 100 && (
-                              <button
-                                onClick={handleClaimCertificate}
-                                disabled={isClaimingCertificate}
-                                className="w-full py-3 border-2 border-indigo-600 text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                              >
-                                <Award className="w-4 h-4" />
-                                {isClaimingCertificate ? 'Preparing Certificate...' : 'Get Certificate'}
-                              </button>
-                            )}
-                            <button
-                              onClick={handleMessageInstructor}
-                              disabled={isCreatingChat === course.id}
-                              className="w-full py-3 border-2 border-indigo-600 text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                            >
-                              {isCreatingChat === course.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <MessageSquare className="w-4 h-4" />
-                              )}
-                              Message Instructor
-                            </button>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={handleEnroll}
-                            className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-200 cursor-pointer ${
-                              course.price === 0
-                                ? 'bg-green-600 hover:bg-green-700 text-white'
-                                : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                            }`}
-                          >
-                            {course.price === 0 ? 'Enroll for Free' : 'Enroll Now'}
-                          </button>
-                        )}
-
-                        <div className="mt-4 text-center text-sm text-gray-600">
-                          {course.duration}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Course Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* What You'll Learn */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-              <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
-                What you'll learn
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {course.features.map((feature, index) => (
-                  <div key={index} className="flex items-start gap-3">
-                    <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-700 dark:text-gray-300">{feature}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Course Content */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  Course content
-                </h2>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {course.modules?.length || 0} modules • {totalLessons} lessons • {(formatDuration(totalDurationSeconds))}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                {course.modules?.map((module) => (
-                  <div key={module.id} className="border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer">
-                    <button
-                      onClick={() => toggleModule(module.id)}
-                      className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                    >
-                      <div className="text-left">
-                        <h3 className="font-semibold text-gray-900 dark:text-white">
-                          {module.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          {module.description}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-500">
-                          {module.lessons?.length || 0} lessons
-                        </span>
-                        {expandedModules.has(module.id) ? (
-                          <ChevronDown className="w-5 h-5 text-gray-500" />
-                        ) : (
-                          <ChevronRight className="w-5 h-5 text-gray-500" />
-                        )}
-                      </div>
-                    </button>
-
-                    {expandedModules.has(module.id) && (
-
-                      <div className="border-t border-gray-200 dark:border-gray-700 ">
-                        {module.lessons?.map((lesson) => (
-                          ((lesson.isBlocked && role === UserRole.ADMIN) || !lesson.isBlocked) ? (
-                            <div
-                              key={lesson.id}
-                              className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                            >
-                              <div className="flex items-center justify-between p-4">
-                                <div className="flex items-center gap-3 flex-1">
-                                  {lesson.contentType === ContentType.VIDEO ? (
-                                    <Play className="w-4 h-4 text-gray-500" />
-                                  ) : (
-                                    <FileText className="w-4 h-4 text-gray-500" />
-                                  )}
-                                  <div className="flex-1">
-                                    <p className="font-medium text-gray-900 dark:text-white">
-                                      {lesson.title}
-                                    </p>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                                      {lesson.description}
-                                    </p>
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-4 text-sm text-gray-500">
-                                  {lesson.isFreePreview && (
-                                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
-                                      Preview
-                                    </span>
-                                  )}
-                                  <span>{formatDuration(lesson.duration || 0)}</span>
-                                  {role === UserRole.STUDENT && (lesson.isFreePreview || isEnrolled) && (() => {
-                                    const lessonProg = enrollmentData?.data?.enrollment?.lessonProgress?.find(
-                                      (p: { lessonId: string; lastWatchedSecond: number; isCompleted?: boolean }) => p.lessonId === lesson.id
-                                    );
-                                    const label = lessonProg?.isCompleted
-                                      ? 'Replay'
-                                      : (lessonProg?.lastWatchedSecond || 0) > 0
-                                        ? 'Resume'
-                                        : 'Watch';
-
-                                    return (
-                                      <button
-                                        onClick={() => {
-                                          setCurrentLessonId(lesson.id);
-                                          window.scrollTo({ top: 0, behavior: 'smooth' });
-                                        }}
-                                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-2"
-                                      >
-                                        <Play className="w-4 h-4" />
-                                        {label}
-                                      </button>
-                                    );
-                                  })()}
-                                  {role === UserRole.ADMIN && (
-                                    <ToggleSwitch
-                                      checked={blockedLessons.has(lesson.id)}
-                                      onChange={() => handleBlockLesson(lesson.id)}
-                                      label='Block'
-                                    />
-                                  )}
-                                </div>
-                              </div>
-                              {/* Progress Bar for Enrolled Students */}
-                              {role === UserRole.STUDENT && isEnrolled && (function () {
-                                const prog = enrollmentData?.data?.enrollment?.lessonProgress?.find((p: { lessonId: string; lastWatchedSecond: number; totalDuration: number; isCompleted: boolean }) => p.lessonId === lesson.id);
-                                const pct = prog
-                                  ? prog.isCompleted
-                                    ? 100
-                                    : Math.min(100, Math.max(0, (prog.lastWatchedSecond / (prog.totalDuration || lesson.duration || 1)) * 100))
-                                  : 0;
-                                // Only show progress bar if there is some progress or it's completed
-                                if (!prog && pct === 0) return null;
-
-                                return (
-                                  <div className="px-4 pb-2">
-                                    <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5">
-                                      <div
-                                        className={`bg-indigo-600 h-1.5 rounded-full transition-all duration-300 ${prog?.isCompleted ? 'bg-green-500' : ''}`}
-                                        style={{ width: `${pct}%` }}
-                                      />
-                                    </div>
-                                    {prog?.isCompleted && <p className="text-xs text-green-600 mt-1 flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Completed</p>}
-                                  </div>
-                                );
-                              })()}
-                            </div>
-                          ) : (
-                            <p className="text-red-500 font-semibold text-center p-4">This lesson is removed currently.</p>
-                          )
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-
-
-            {/* Description */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-              <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
-                Description
-              </h2>
-              <div className="prose prose-gray dark:prose-invert max-w-none">
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  {course.description}
-                </p>
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
-                  This course is designed for complete beginners who want to learn web development from scratch.
-                  We'll start with the fundamentals and gradually build up to more advanced concepts.
-                </p>
-              </div>
-            </div>
-
-            {/* Instructor */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-              <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
-                Your Instructor
-              </h2>
-              <div className="flex items-start gap-4">
-                <img
-                  src={course.instructor?.avatar || default_profile}
-                  alt={course.instructor?.name || 'Instructor'}
-                  className="w-16 h-16 rounded-full"
+          {/* MAIN CONTENT */}
+          <main className="mx-auto max-w-[1500px] px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
+            <div className="grid grid-cols-1 gap-14 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-16">
+              {/* MAIN COLUMN */}
+              <div className="min-w-0">
+                {/* COURSE OVERVIEW */}
+                <CourseOverview
+                  modulesCount={course.modules?.length || 0}
+                  totalLessons={totalLessons}
+                  totalDurationSeconds={totalDurationSeconds}
+                  isQuizEnabled={course.isQuizEnabled}
+                  formatDuration={formatDuration}
                 />
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                      {course.instructor?.name}
-                    </h3>
-                    {course.instructor?.averageRating !== undefined && course.instructor.averageRating > 0 && (
-                      <div className="flex items-center gap-1 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-0.5 rounded-full border border-yellow-200 dark:border-yellow-800/50">
-                        <Star size={14} className="fill-yellow-400 text-yellow-400" />
-                        <span className="text-sm font-bold text-yellow-700 dark:text-yellow-500">
-                          {course.instructor.averageRating.toFixed(1)}
-                        </span>
-                        <span className="text-xs text-yellow-600/70 dark:text-yellow-500/50">
-                          ({course.instructor.totalReviews || 0})
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-gray-600 dark:text-gray-400 mb-4">
-                    {course.instructor?.title}
-                  </p>
-                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                    {course.instructor?.bio}
-                  </p>
-                  {role === UserRole.STUDENT && isEnrolled && (
-                    <button
-                      onClick={handleMessageInstructor}
-                      disabled={isCreatingChat === course.id}
-                      className="mt-4 inline-flex items-center gap-2 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 px-4 py-2 rounded-lg transition-colors font-medium cursor-pointer disabled:opacity-50"
-                    >
-                      {isCreatingChat === course.id ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <MessageSquare className="w-4 h-4" />
-                      )}
-                      Message Instructor
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
 
-            {/* Ratings & Reviews */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  Student Feedback
-                </h2>
-                {role === UserRole.STUDENT && isEnrolled && !showReviewForm && (
-                  hasAlreadyReviewed ? (
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-700">
-                      <span className="text-indigo-600 dark:text-indigo-400 text-sm font-semibold">★ You've reviewed this course</span>
-                      <span className="text-indigo-400 dark:text-indigo-500 text-xs">(scroll down to edit)</span>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setShowReviewForm(true)}
-                      className="text-sm flex bg-indigo-50 cursor-pointer text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 dark:hover:bg-indigo-900/50 px-4 py-2 rounded-lg transition-colors font-medium"
-                    >
-                      <Pencil className="w-4 h-4 mr-2" /> Add a Review
-                    </button>
-                  )
-                )}
-              </div>
+                {/* COURSE CONTENT */}
+                <CourseCurriculum
+                  modules={course.modules}
+                  totalLessons={totalLessons}
+                  totalDurationSeconds={totalDurationSeconds}
+                  expandedModuleId={expandedModuleId}
+                  onToggleModule={toggleModule}
+                  role={role}
+                  isEnrolled={isEnrolled}
+                  blockedLessons={blockedLessons}
+                  onBlockLesson={handleBlockLesson}
+                  onSelectLesson={(lessonId) => {
+                    setCurrentLessonId(lessonId);
+                    window.scrollTo({
+                      top: 0,
+                      behavior: 'smooth',
+                    });
+                  }}
+                  enrollmentData={enrollmentData}
+                  formatDuration={formatDuration}
+                />
 
-              {showReviewForm && (
-                <div className="mb-8">
-                  <h3 className="text-lg font-semibold mb-3">Rate this Course</h3>
-                  <ReviewForm
-                    targetType="course"
-                    targetId={id!}
-                    onSuccess={() => {
-                      setShowReviewForm(false);
-                      refetch(); // to update averageRating in hero
-                    }}
-                    onCancel={() => setShowReviewForm(false)}
-                  />
-                </div>
-              )}
+                {/* DESCRIPTION */}
+                <CourseDescription description={course.description} />
 
-              <div className="mb-8">
-                <RatingSummary
-                  targetType="course"
-                  targetId={id!}
+                {/* REVIEWS */}
+                <CourseReviewsSection
+                  courseId={id!}
+                  userId={userId}
+                  role={role}
+                  isEnrolled={isEnrolled}
+                  showReviewForm={showReviewForm}
+                  hasAlreadyReviewed={hasAlreadyReviewed}
+                  onOpenReviewForm={() => setShowReviewForm(true)}
+                  onCloseReviewForm={() => setShowReviewForm(false)}
+                  onReviewSuccess={() => {
+                    setShowReviewForm(false);
+                    refetch();
+                  }}
+                  onHasReview={(has) => setHasAlreadyReviewed(has)}
+                  onReviewSubmitted={() => {
+                    refetch();
+                  }}
                 />
               </div>
 
-              <ReviewList
-                targetType="course"
-                targetId={id!}
-                currentUserId={userId}
-                onHasReview={(has) => setHasAlreadyReviewed(has)}
-                onReviewSubmitted={() => {
-                  refetch(); // Only refetch course hero data, list and summary are handled by cache/invalidation
-                }}
+              {/* SIDEBAR */}
+              <CourseSidebar
+                totalDurationSeconds={totalDurationSeconds}
+                tags={course.tags}
+                role={role}
+                isEnrolled={isEnrolled}
+                onOpenReportModal={() => setIsReportModalOpen(true)}
+                formatDuration={formatDuration}
               />
             </div>
+          </main>
+        </>
+      )}
 
-          </div>
+      {/* INSTRUCTOR PROFILE MODAL */}
+      <InstructorProfileModal
+        isOpen={isInstructorModalOpen}
+        onClose={() => setIsInstructorModalOpen(false)}
+        instructor={course.instructor}
+        defaultProfile={default_profile}
+        canMessage={role === UserRole.STUDENT && isEnrolled}
+        isMessaging={isCreatingChat === course.id}
+        onMessage={handleMessageInstructor}
+      />
 
-          {/* Right Column - Sidebar */}
-          <div className="space-y-6">
-            {/* Course Info Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 sticky top-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                This course includes
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <Play className="w-5 h-5 text-indigo-600" />
-                  <span className="text-gray-700 dark:text-gray-300">
-                    {formatDuration(totalDurationSeconds)} of video content
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <FileText className="w-5 h-5 text-indigo-600" />
-                  <span className="text-gray-700 dark:text-gray-300">
-                    Downloadable resources
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Award className="w-5 h-5 text-indigo-600" />
-                  <span className="text-gray-700 dark:text-gray-300">
-                    Certificate of completion
-                  </span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Users className="w-5 h-5 text-indigo-600" />
-                  <span className="text-gray-700 dark:text-gray-300">
-                    Access on mobile and desktop
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                <h4 className="font-semibold mb-3 text-gray-900 dark:text-white">
-                  Tags
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {course.tags?.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 px-3 py-1 rounded-full text-sm"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {role === UserRole.STUDENT && isEnrolled && (
-                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-center">
-                  <button
-                    onClick={() => setIsReportModalOpen(true)}
-                    className="flex items-center gap-2 text-sm text-gray-500 hover:text-red-500 transition-colors cursor-pointer"
-                  >
-                    <Flag className="w-4 h-4" />
-                    Report this Course
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
+      {/* REPORT MODAL */}
       <ReportModal
         isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}

@@ -1,18 +1,18 @@
 import { ContentType } from "@shared/enums/ContentType";
 
 export interface LessonType {
-  id: string
-  moduleId: string
+  id: string;
+  moduleId: string;
   title: string;
   description: string;
-  contentType: ContentType
-  fileName?: string;
-  signedVideoUrl?: string;
-  duration: number | null
-  order: number
+  contentType: ContentType;
+  fileName?: string | undefined;
+  signedVideoUrl?: string | undefined;
+  duration: number | null;
+  order: number;
   resources: readonly string[];
-  isFreePreview?: boolean;
-  isBlocked?: boolean;
+  isFreePreview?: boolean | undefined;
+  isBlocked?: boolean | undefined;
 }
 
 // export interface uploadToB2Props {
