@@ -43,112 +43,281 @@ const CourseFilters: React.FC<CourseFiltersProps> = ({
     [setFilters],
   );
 
-  return (
-    <div className="bg-white z-10 dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 mb-6 lg:mx-2">
-      {/* Search Bar */}
-      <div className="relative mb-6">
-        <DebouncedInput
-          id="search"
-          type="text"
-          value={filters.search}
-          setValue={handleSearchChange}
-          placeholder="Search courses..."
-        ></DebouncedInput>
+ return (
+  <div className="pb-4 sm:pb-5">
+    <div
+      className="
+        grid
+        grid-cols-2
+        gap-2.5
+        sm:gap-3
+        lg:grid-cols-[minmax(280px,2fr)_repeat(4,minmax(140px,1fr))]
+        items-end
+      "
+    >
+      {/* Search */}
+      <div className="col-span-2 lg:col-span-1">
+        <div className="relative">
+          <DebouncedInput
+            id="search"
+            type="text"
+            value={filters.search}
+            setValue={handleSearchChange}
+            placeholder="Search by title, skill, or instructor..."
+          />
+        </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-        {/* Category Filter */}
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-            Category
-          </label>
-          <div className="relative">
-            <select
-              name="category"
-              value={filters.category}
-              onChange={handleChange}
-              className="w-full appearance-none bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-2.5 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-            >
-              <option value="">All Categories</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat || 'Uncategorized'}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-          </div>
-        </div>
 
-        {/* Level Filter */}
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-            Level
-          </label>
-          <div className="relative">
-            <select
-              name="level"
-              value={filters.level}
-              onChange={handleChange}
-              className="w-full appearance-none bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-2.5 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-            >
-              <option value="">All Levels</option>
-              {Object.values(CourseLevel).map((level) => (
-                <option key={level} value={level}>
-                  {level}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-          </div>
-        </div>
+      {/* Category */}
+      <div>
+        <div className="relative">
+          <select
+            name="category"
+            value={filters.category}
+            onChange={handleChange}
+            className="
+              w-full
+              h-10
+              sm:h-11
+              appearance-none
+              rounded-xl
+              border
+              border-gray-200
+              dark:border-gray-800
+              bg-gray-50
+              dark:bg-[#0b1220]
+              px-3
+              sm:px-3.5
+              pr-9
+              text-sm
+              text-gray-800
+              dark:text-gray-200
+              outline-none
+              transition-all
+              duration-200
+              hover:border-gray-300
+              dark:hover:border-gray-700
+              focus:border-blue-500
+              focus:ring-4
+              focus:ring-blue-500/10
+              cursor-pointer
+            "
+          >
+            <option value="">All categories</option>
 
-        {/* Price Filter */}
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-            Price
-          </label>
-          <div className="relative">
-            <select
-              name="priceRange"
-              value={filters.priceRange}
-              onChange={handleChange}
-              className="w-full appearance-none bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-2.5 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-            >
-              <option value="">All Prices</option>
-              <option value="free">Free</option>
-              <option value="paid">Paid</option>
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-          </div>
-        </div>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat || "Uncategorized"}
+              </option>
+            ))}
+          </select>
 
-        {/* Sort Order */}
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-            Sort By
-          </label>
-          <div className="relative">
-            <select
-              name="sort"
-              value={filters.sort}
-              onChange={handleChange}
-              className="w-full appearance-none bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-2.5 px-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
-            >
-              <option value="createdAt:desc">Newest First</option>
-              <option value="createdAt:asc">Oldest First</option>
-              <option value="price:asc">Price: Low to High</option>
-              <option value="price:desc">Price: High to Low</option>
-              <option value="title:asc">Name: A-Z</option>
-              <option value="title:desc">Name: Z-A</option>
-            </select>
-            <SlidersHorizontal className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-          </div>
+          <ChevronDown
+            className="
+              pointer-events-none
+              absolute
+              right-3
+              top-1/2
+              -translate-y-1/2
+              w-4
+              h-4
+              text-gray-400
+            "
+          />
         </div>
+      </div>
 
+      {/* Level */}
+      <div>
+        <div className="relative">
+          <select
+            name="level"
+            value={filters.level}
+            onChange={handleChange}
+            className="
+              w-full
+              h-10
+              sm:h-11
+              appearance-none
+              rounded-xl
+              border
+              border-gray-200
+              dark:border-gray-800
+              bg-gray-50
+              dark:bg-[#0b1220]
+              px-3
+              sm:px-3.5
+              pr-9
+              text-sm
+              text-gray-800
+              dark:text-gray-200
+              outline-none
+              transition-all
+              duration-200
+              hover:border-gray-300
+              dark:hover:border-gray-700
+              focus:border-blue-500
+              focus:ring-4
+              focus:ring-blue-500/10
+              cursor-pointer
+            "
+          >
+            <option value="">All levels</option>
+
+            {Object.values(CourseLevel).map((level) => (
+              <option key={level} value={level}>
+                {level}
+              </option>
+            ))}
+          </select>
+
+          <ChevronDown
+            className="
+              pointer-events-none
+              absolute
+              right-3
+              top-1/2
+              -translate-y-1/2
+              w-4
+              h-4
+              text-gray-400
+            "
+          />
+        </div>
+      </div>
+
+      {/* Price */}
+      <div>
+        <div className="relative">
+          <select
+            name="priceRange"
+            value={filters.priceRange}
+            onChange={handleChange}
+            className="
+              w-full
+              h-10
+              sm:h-11
+              appearance-none
+              rounded-xl
+              border
+              border-gray-200
+              dark:border-gray-800
+              bg-gray-50
+              dark:bg-[#0b1220]
+              px-3
+              sm:px-3.5
+              pr-9
+              text-sm
+              text-gray-800
+              dark:text-gray-200
+              outline-none
+              transition-all
+              duration-200
+              hover:border-gray-300
+              dark:hover:border-gray-700
+              focus:border-blue-500
+              focus:ring-4
+              focus:ring-blue-500/10
+              cursor-pointer
+            "
+          >
+            <option value="">All prices</option>
+            <option value="free">Free</option>
+            <option value="paid">Paid</option>
+          </select>
+
+          <ChevronDown
+            className="
+              pointer-events-none
+              absolute
+              right-3
+              top-1/2
+              -translate-y-1/2
+              w-4
+              h-4
+              text-gray-400
+            "
+          />
+        </div>
+      </div>
+
+      {/* Sort */}
+      <div>
+        <div className="relative">
+          <select
+            name="sort"
+            value={filters.sort}
+            onChange={handleChange}
+            className="
+              w-full
+              h-10
+              sm:h-11
+              appearance-none
+              rounded-xl
+              border
+              border-gray-200
+              dark:border-gray-800
+              bg-gray-50
+              dark:bg-[#0b1220]
+              px-3
+              sm:px-3.5
+              pr-9
+              text-sm
+              text-gray-800
+              dark:text-gray-200
+              outline-none
+              transition-all
+              duration-200
+              hover:border-gray-300
+              dark:hover:border-gray-700
+              focus:border-blue-500
+              focus:ring-4
+              focus:ring-blue-500/10
+              cursor-pointer
+            "
+          >
+            <option value="createdAt:desc">
+              Newest first
+            </option>
+
+            <option value="createdAt:asc">
+              Oldest first
+            </option>
+
+            <option value="price:asc">
+              Price: low to high
+            </option>
+
+            <option value="price:desc">
+              Price: high to low
+            </option>
+
+            <option value="title:asc">
+              Name: A-Z
+            </option>
+
+            <option value="title:desc">
+              Name: Z-A
+            </option>
+          </select>
+
+          <SlidersHorizontal
+            className="
+              pointer-events-none
+              absolute
+              right-3
+              top-1/2
+              -translate-y-1/2
+              w-4
+              h-4
+              text-gray-400
+            "
+          />
+        </div>
       </div>
     </div>
-
-  );
+  </div>
+);
 };
 
 export default CourseFilters;
