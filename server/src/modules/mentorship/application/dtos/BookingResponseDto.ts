@@ -7,7 +7,12 @@ export interface BookingResponseDto {
   studentAvatar?: string;
   slotDuration?: number;
   slotTitle?: string;
+  slotDescription?: string;
   instructorId: string;
+  instructorName?: string;
+  instructorEmail?: string;
+  instructorAvatar?: string;
+  instructorJobTitle?: string;
   amount: number;
   currency: string;
   status: string;

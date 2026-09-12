@@ -1,6 +1,16 @@
 import type { IMentorshipBooking } from "../types/mentorshipTypes";
 import { format } from "date-fns";
-import { Calendar, Clock, Video, User, Timer, Wallet, Star, CheckCircle, AlertCircle } from "lucide-react";
+import {
+  Calendar,
+  Video,
+  User,
+  Star,
+  CheckCircle2,
+  ArrowRight,
+  MessageSquare,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { cn } from "@shared/utils/cn";
 import { BookingStatus } from "@shared/enums/BookingStatus";
 import { UserRole } from "@shared/enums/UserRole";
 import StarRating from "@features/review/components/StarRating";
@@ -31,233 +41,285 @@ export const BookingCard = ({
   const isPending = booking.status === BookingStatus.PENDING;
   const isCancelled = booking.status === BookingStatus.CANCELLED;
   const isCompleted = booking.status === BookingStatus.COMPLETED;
+  const isRefunded = booking.status === BookingStatus.REFUNDED;
 
   const scheduledDate = new Date(booking.scheduledAt);
   const slot = typeof booking.slotId === "object" ? booking.slotId : null;
+  const slotTitle = slot?.title || booking.slotTitle || "Mentorship Session";
+  const slotDescription = slot?.description || booking.slotDescription;
+  const slotDuration = slot?.duration || booking.slotDuration || 30;
 
   const otherParty =
     userRole === UserRole.INSTRUCTOR
       ? typeof booking.studentId === "object"
         ? booking.studentId
-        : { name: "Student", profilePicture: "" }
+        : {
+            name: booking.studentName || "Student",
+            profilePicture: booking.studentAvatar || "",
+          }
       : typeof booking.instructorId === "object"
         ? booking.instructorId
-        : { name: "Instructor", profilePicture: "", jobTitle: "" };
+        : {
+            name: booking.instructorName || "Instructor",
+            profilePicture: booking.instructorAvatar || "",
+            jobTitle: booking.instructorJobTitle || "",
+          };
 
-  const statusColors: Record<BookingStatus, string> = {
-    [BookingStatus.CONFIRMED]:
-      "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-    [BookingStatus.PENDING]:
-      "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-    [BookingStatus.CANCELLED]: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-    [BookingStatus.COMPLETED]: "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
-    [BookingStatus.REFUNDED]:
-      "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
+  const statusConfig = {
+    [BookingStatus.CONFIRMED]: {
+      label: "Confirmed",
+      className:
+        "bg-green-50 text-green-700 border border-green-200 dark:bg-green-500/10 dark:text-green-300 dark:border-green-500/20",
+    },
+    [BookingStatus.PENDING]: {
+      label: "Pending Payment",
+      className:
+        "bg-orange-50 text-orange-700 border border-orange-200 dark:bg-orange-500/10 dark:text-orange-300 dark:border-orange-500/20",
+    },
+    [BookingStatus.CANCELLED]: {
+      label: "Cancelled",
+      className:
+        "bg-red-50 text-red-700 border border-red-200 dark:bg-red-500/10 dark:text-red-300 dark:border-red-500/20",
+    },
+    [BookingStatus.COMPLETED]: {
+      label: "Completed",
+      className:
+        "bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-500/10 dark:text-blue-300 dark:border-blue-500/20",
+    },
+    [BookingStatus.REFUNDED]: {
+      label: "Refunded",
+      className:
+        "bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-500/10 dark:text-purple-300 dark:border-purple-500/20",
+    },
   };
 
-  return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-5 shadow-sm">
-      <div className="flex justify-between items-start">
-        <div className="flex items-center gap-3">
-          {/* Avatar */}
-          <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
-            {otherParty.profilePicture ? (
-              <img
-                src={otherParty.profilePicture}
-                alt={otherParty.name}
-                className="w-full h-full rounded-full object-cover"
-              />
-            ) : (
-              <User size={20} />
-            )}
-          </div>
-          <div>
-            <h4 className="font-semibold text-gray-900 dark:text-white">
-              {otherParty.name}
-            </h4>
-            <p className="text-xs text-gray-500 capitalize">
-              {userRole === UserRole.STUDENT
-                ? (otherParty as { jobTitle: string }).jobTitle
-                : "Student"}
-            </p>
-          </div>
-        </div>
-        <div>
-          <span
-            className={`px-2 py-0.5 rounded text-xs font-medium capitalize ${statusColors[booking.status]}`}
-          >
-            {booking.status}
-          </span>
-          {booking.cancelledAt && (
-            <p className="text-xs text-gray-500 mt-1">
-              {" "}
-              {format(booking.cancelledAt, "MMM d, yyyy")}
-            </p>
-          )}
-          {booking.cancelledBy && (
-            <p className="text-xs text-gray-500 mt-1 ">
-              Cancelled by{" "}
-              <span className="font-bold ">
-                {booking.cancelledBy.charAt(0).toUpperCase() +
-                  booking.cancelledBy.slice(1)}
-              </span>
-            </p>
-          )}
-          {booking.completedAt && (
-            <p className="text-xs text-gray-500 mt-1">
-              Completed on {format(booking.completedAt, "MMM d, yyyy")}
-            </p>
-          )}
-        </div>
-      </div>
+  const statusStyle = statusConfig[booking.status] || statusConfig[BookingStatus.PENDING];
 
-      <div className="mt-4 pb-4 border-b border-gray-100 dark:border-gray-700">
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">
-          {slot?.title || "Mentorship Session"}
-        </h3>
-        {slot?.description && (
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
-            {slot.description}
+  return (
+    <div className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0b1220] shadow-sm hover:shadow-md transition-shadow duration-300 h-full p-5">
+      <div>
+        {/* ================= HEADER: Role/Subject & Duration ================= */}
+        <div className="flex items-center justify-between gap-3 mb-2">
+          <span className="min-w-0 truncate text-[11px] font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
+            {userRole === UserRole.STUDENT
+              ? (otherParty as { jobTitle?: string }).jobTitle || "Mentorship"
+              : "Mentorship Session"}
+          </span>
+
+          <span className="shrink-0 text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+            {slotDuration} mins
+          </span>
+        </div>
+
+        {/* ================= TITLE + STATUS BADGE ================= */}
+        <div className="flex items-start justify-between gap-3">
+          <motion.h2
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="min-w-0 text-lg font-bold leading-snug text-gray-900 dark:text-white line-clamp-2"
+          >
+            {slotTitle}
+          </motion.h2>
+
+          <span
+            className={cn(
+              "shrink-0 inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold",
+              statusStyle.className
+            )}
+          >
+            {statusStyle.label}
+          </span>
+        </div>
+
+        {/* ================= DESCRIPTION ================= */}
+        {slotDescription && (
+          <p className="mt-3 text-sm leading-relaxed text-gray-500 dark:text-gray-400 line-clamp-2">
+            {slotDescription}
           </p>
         )}
+
+        {/* ================= OTHER PARTY + DATE/TIME + PRICE ================= */}
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            {/* Avatar */}
+            <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center text-gray-600 dark:text-gray-300 shrink-0">
+              {otherParty.profilePicture ? (
+                <img
+                  src={otherParty.profilePicture}
+                  alt={otherParty.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <User size={16} />
+              )}
+            </div>
+
+            {/* Name + Scheduled At */}
+            <div className="min-w-0">
+              <p className="text-xs font-semibold text-gray-900 dark:text-white truncate">
+                {otherParty.name}
+              </p>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-1 truncate">
+                <Calendar size={11} className="shrink-0 text-gray-400" />
+                {format(scheduledDate, "MMM d, yyyy · h:mm a")}
+              </p>
+            </div>
+          </div>
+
+          {/* Price */}
+          {Number(booking.amount) === 0 ? (
+            <span className="shrink-0 text-sm font-bold text-emerald-600 dark:text-emerald-400">
+              Free
+            </span>
+          ) : (
+            <span className="shrink-0 text-sm font-bold text-gray-900 dark:text-white">
+              {booking.currency || "₹"} {booking.amount}
+            </span>
+          )}
+        </div>
+
+        {/* ================= VIDEO CALL STATUS BANNER ================= */}
+        {booking.videoRoomUrl && isConfirmed && (
+          <div className="mt-3 flex items-center justify-between gap-2 p-2.5 rounded-xl border border-blue-200 dark:border-blue-500/30 bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 text-xs font-medium">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+              </span>
+              <span>Video session room is ready</span>
+            </div>
+            <span className="text-[11px] font-semibold flex items-center gap-0.5">
+              Ready <ArrowRight size={12} />
+            </span>
+          </div>
+        )}
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-4 text-sm">
-        <div className="space-y-2.5">
-          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-            <Calendar size={16} className="text-indigo-500" />
-            <span>{format(scheduledDate, "MMM d, yyyy")}</span>
-          </div>
-          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-            <Clock size={16} className="text-indigo-500" />
-            <span>{format(scheduledDate, "h:mm a")}</span>
-          </div>
-        </div>
-        <div className="space-y-2.5">
-          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-            <Timer size={16} className="text-indigo-500" />
-            <span>{slot?.duration || "--"} mins</span>
-          </div>
-          <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300 font-medium">
-            <Wallet size={16} className="text-indigo-500" />
-            <span>{booking.amount == 0 ? "Free" : booking.amount + ".00"}</span>
-          </div>
-        </div>
-      </div>
+      {/* ================= FOOTER / ACTIONS ================= */}
+      <div>
+        {/* Divider */}
+        <div className="mt-4 border-t border-gray-100 dark:border-gray-800" />
 
-      {booking.videoRoomUrl && isConfirmed && (
-        <div className="mt-4 p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg flex items-center gap-3 text-indigo-700 dark:text-indigo-300 text-sm">
-          <Video size={18} />
-          <span className="font-medium">Video room is ready</span>
-        </div>
-      )}
-
-      {isPending && userRole === UserRole.INSTRUCTOR && (
-        <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg flex items-start gap-2 text-yellow-700 dark:text-yellow-300 text-xs">
-          <AlertCircle size={14} className="mt-0.5 shrink-0" />
-          <span>
-            <span className="font-bold">Awaiting Student Payment</span> — This session will be auto-confirmed once the student completes checkout.
-          </span>
-        </div>
-      )}
-
-      {/* Actions */}
-      <div className="mt-5 flex gap-3">
-        {isConfirmed && onJoinSession && (
-          <button
-            onClick={() => onJoinSession(booking.bookingId)}
-            className="flex-1 cursor-pointer bg-indigo-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition flex items-center justify-center gap-2"
-          >
-            <Video size={16} /> Join Session
-          </button>
-        )}
-
-        {isConfirmed && userRole === UserRole.INSTRUCTOR && onReschedule && (
-          <button
-            onClick={() => onReschedule(booking)}
-            className="px-3 cursor-pointer py-2 border border-indigo-300 dark:border-indigo-600 rounded-lg text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition flex items-center justify-center gap-1.5"
-            title="Reschedule this session"
-          >
-            <Calendar size={15} /> Reschedule
-          </button>
-        )}
-
-        {(isConfirmed || isPending) && onCancel && (
-          <button
-            onClick={() => onCancel(booking.bookingId)}
-            className="px-4 cursor-pointer py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-          >
-            Cancel
-          </button>
-        )}
-
-        {isPending && booking.amount > 0 && onResumePayment && (
-          <button
-            onClick={() => onResumePayment(booking.bookingId)}
-            className="flex-1 cursor-pointer flex items-center justify-center gap-2 bg-indigo-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition"
-          >
-            Complete Payment
-          </button>
-        )}
-
-        {isCancelled && (
-          <button
-            disabled
-            className="w-full py-2 bg-gray-100 dark:bg-gray-700 text-gray-400 rounded-lg text-sm cursor-not-allowed"
-          >
-            Cancelled
-          </button>
-        )}
-
-        {isCompleted && (
-          <div className="w-full gap-2 pt-4">
-            {userRole === UserRole.STUDENT && (
-              existingRating ? (
-                <div className="space-y-3 w-full">
-                  <div className="flex flex-col items-center gap-1 py-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                    <div className="flex items-center gap-1.5 text-green-700 dark:text-green-400">
-                      <CheckCircle size={14} />
-                      <span className="text-xs font-medium">You rated this session</span>
-                    </div>
-                    <StarRating rating={typeof existingRating === 'object' ? existingRating.rating : existingRating} readonly size="sm" />
-                  </div>
-                  
-                  {typeof existingRating === 'object' && existingRating.comment && (
-                    <div className="p-3 bg-gray-50 dark:bg-gray-700/30 rounded-lg">
-                      <p className="text-xs text-gray-500 mb-1">Your Comment:</p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300 italic line-clamp-2">"{existingRating.comment}"</p>
-                    </div>
-                  )}
-
-                  {typeof existingRating === 'object' && existingRating.instructorReply && (
-                    <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-lg">
-                      <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-tighter mb-1">Instructor Reply:</p>
-                      <p className="text-sm text-gray-700 dark:text-gray-300">{existingRating.instructorReply}</p>
-                    </div>
-                  )}
-                </div>
-              ) : onRate && (
+        <div className="mt-1">
+          {/* Confirmed Actions */}
+          {isConfirmed && (
+            <div className="space-y-2 mt-4">
+              {onJoinSession && (
                 <button
-                  onClick={() => onRate(booking.bookingId)}
-                  className="flex-1 flex gap-2 w-full justify-center py-2 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 dark:bg-indigo-900 dark:text-white dark:hover:bg-indigo-900/50 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                  onClick={() => onJoinSession(booking.bookingId)}
+                  className="w-full h-10 rounded-xl text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-4 bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500/20 cursor-pointer flex items-center justify-center gap-2"
                 >
-                  <Star size={20} className="text-indigo-500 dark:text-white"/>
-                  Rate Session
+                  <Video size={16} /> Join Session
                 </button>
-              )
-            )}
-          </div>
-        )}
+              )}
 
-        {booking.status === BookingStatus.REFUNDED && (
-          <button
-            disabled
-            className="w-full  py-2 bg-gray-100 dark:bg-gray-700 text-gray-500 rounded-lg text-sm cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            Refunded
-          </button>
-        )}
+              <div className="flex gap-2 w-full">
+                {userRole === UserRole.INSTRUCTOR && onReschedule && (
+                  <button
+                    onClick={() => onReschedule(booking)}
+                    className="flex-1 h-9 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700/60 transition-colors cursor-pointer"
+                  >
+                    Reschedule
+                  </button>
+                )}
+
+                {onCancel && (
+                  <button
+                    onClick={() => onCancel(booking.bookingId)}
+                    className="flex-1 h-9 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-800 transition-colors cursor-pointer"
+                  >
+                    Cancel Booking
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Pending Actions */}
+          {isPending && (
+            <div className="space-y-2 mt-4">
+              {booking.amount > 0 && onResumePayment && userRole === UserRole.STUDENT && (
+                <button
+                  onClick={() => onResumePayment(booking.bookingId)}
+                  className="w-full h-10 rounded-xl text-sm font-semibold transition-all duration-200 focus:outline-none focus:ring-4 bg-blue-600 hover:bg-blue-700 text-white focus:ring-blue-500/20 cursor-pointer flex items-center justify-center gap-2"
+                >
+                  Complete Payment
+                </button>
+              )}
+
+              {onCancel && (
+                <button
+                  onClick={() => onCancel(booking.bookingId)}
+                  className="w-full h-9 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 text-xs font-semibold text-gray-700 dark:text-gray-300 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400 transition-colors cursor-pointer"
+                >
+                  Cancel Booking
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Completed Actions & Rating */}
+          {isCompleted && (
+            <div className="mt-4">
+              {userRole === UserRole.STUDENT && (
+                existingRating ? (
+                  <div className="space-y-2 rounded-xl bg-gray-50 dark:bg-gray-900/60 border border-gray-100 dark:border-gray-800 p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 text-green-700 dark:text-green-400 text-xs font-semibold">
+                        <CheckCircle2 size={13} />
+                        <span>You rated this session</span>
+                      </div>
+                      <StarRating
+                        rating={typeof existingRating === "object" ? existingRating.rating : existingRating}
+                        readonly
+                        size="sm"
+                      />
+                    </div>
+
+                    {typeof existingRating === "object" && existingRating.comment && (
+                      <p className="text-xs text-gray-600 dark:text-gray-400 italic">
+                        "{existingRating.comment}"
+                      </p>
+                    )}
+
+                    {typeof existingRating === "object" && existingRating.instructorReply && (
+                      <div className="pt-2 border-t border-gray-200/60 dark:border-gray-800 text-xs">
+                        <p className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-0.5 flex items-center gap-1">
+                          <MessageSquare size={11} /> Instructor Reply
+                        </p>
+                        <p className="text-gray-700 dark:text-gray-300">{existingRating.instructorReply}</p>
+                      </div>
+                    )}
+                  </div>
+                ) : onRate ? (
+                  <button
+                    onClick={() => onRate(booking.bookingId)}
+                    className="w-full h-10 inline-flex items-center justify-center gap-2 rounded-xl border border-blue-200 dark:border-blue-500/30 bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-300 text-sm font-semibold hover:bg-blue-100 dark:hover:bg-blue-500/15 transition-colors cursor-pointer"
+                  >
+                    <Star size={15} className="text-amber-500 fill-amber-500" />
+                    Rate Session
+                  </button>
+                ) : null
+              )}
+            </div>
+          )}
+
+          {/* Cancelled / Refunded state */}
+          {(isCancelled || isRefunded) && (
+            <div className="mt-4">
+              <button
+                disabled
+                className="w-full h-10 rounded-xl bg-gray-100 dark:bg-gray-800 text-gray-400 text-sm font-semibold cursor-not-allowed"
+              >
+                {isRefunded ? "Session Refunded" : booking.cancelledBy ? `Cancelled by ${booking.cancelledBy}` : "Session Cancelled"}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
+
+

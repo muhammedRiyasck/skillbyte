@@ -49,11 +49,12 @@ export class MentorshipMapper {
         name: string;
         email: string;
         profileImageUrl?: string;
+        profilePictureUrl?: string;
       };
       entity.studentDetails = {
         name: student.name,
         email: student.email,
-        profileImageUrl: student.profileImageUrl,
+        profileImageUrl: student.profilePictureUrl || student.profileImageUrl,
       };
     }
 
@@ -62,10 +63,11 @@ export class MentorshipMapper {
       typeof doc.slotId === 'object' &&
       'duration' in doc.slotId
     ) {
-      const slot = doc.slotId as unknown as { duration: number; title: string };
+      const slot = doc.slotId as unknown as { duration: number; title: string; description?: string };
       entity.slotDetails = {
         duration: slot.duration,
         title: slot.title,
+        description: slot.description,
       };
     }
 
@@ -78,12 +80,13 @@ export class MentorshipMapper {
         name: string;
         email?: string;
         profileImageUrl?: string;
+        profilePictureUrl?: string;
         jobTitle?: string;
       };
       entity.instructorDetails = {
         name: instructor.name,
         email: instructor.email,
-        profileImageUrl: instructor.profileImageUrl,
+        profileImageUrl: instructor.profilePictureUrl || instructor.profileImageUrl,
         jobTitle: instructor.jobTitle,
       };
     }

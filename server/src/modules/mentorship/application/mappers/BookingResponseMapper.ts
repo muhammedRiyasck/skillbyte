@@ -12,7 +12,12 @@ export class BookingResponseMapper {
       studentAvatar: booking.studentDetails?.profileImageUrl,
       slotDuration: booking.slotDetails?.duration,
       slotTitle: booking.slotDetails?.title,
+      slotDescription: booking.slotDetails?.description,
       instructorId: booking.instructorId,
+      instructorName: booking.instructorDetails?.name,
+      instructorEmail: booking.instructorDetails?.email,
+      instructorAvatar: booking.instructorDetails?.profileImageUrl,
+      instructorJobTitle: booking.instructorDetails?.jobTitle,
       // Note: paymentId is intentionally excluded — sensitive payment data
       amount: booking.amount,
       currency: booking.currency,

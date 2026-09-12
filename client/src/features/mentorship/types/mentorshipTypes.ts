@@ -63,7 +63,17 @@ export interface IMentorshipBooking {
   bookingId: string;
   slotId: string | IMentorshipSlot;
   studentId: string | { id: string; name: string; email: string; profilePicture?: string };
+  studentName?: string;
+  studentEmail?: string;
+  studentAvatar?: string;
+  slotDuration?: number;
+  slotTitle?: string;
+  slotDescription?: string;
   instructorId: string | { id: string; name: string; jobTitle?: string; profilePicture?: string };
+  instructorName?: string;
+  instructorEmail?: string;
+  instructorAvatar?: string;
+  instructorJobTitle?: string;
   paymentId?: string;
   amount: number;
   currency: string;

@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import {motion} from 'framer-motion'
 import { toast } from "sonner";
 import { getStudentBookings, cancelBooking, generateVideoRoom, getResumePaymentSecret } from "../services/BookingServices";
 import { getMySessionRatings, type ISessionReview } from "../../review/services/ReviewService";
 import type { IMentorshipBooking, StudentBookingFilters } from "../types/mentorshipTypes";
 import { BookingCard } from "../components/BookingCard";
-import { Calendar, RefreshCw, Filter } from "lucide-react";
+import { RefreshCw, Filter } from "lucide-react";
 import { ROUTES } from "@/core/router/paths";
 import { useNavigate } from "react-router-dom";
 import Modal from "@shared/ui/Modal";
@@ -65,7 +66,7 @@ const StudentBookingsPage = () => {
         if (node) observer.current.observe(node);
     }, [loading, hasMore]);
 
-    const fetchBookings = async (pageNum: number, isRefresh: boolean = false, activeStatus: string = 'all') => {
+    const fetchBookings = useCallback(async (pageNum: number, isRefresh: boolean = false, activeStatus: string = 'all') => {
         try {
             setLoading(true);
             const filters: StudentBookingFilters = {
@@ -98,7 +99,7 @@ const StudentBookingsPage = () => {
             setLoading(false);
             setInitialLoading(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -111,7 +112,7 @@ const StudentBookingsPage = () => {
             setPage(1);
             setHasMore(true);
         }
-    }, [page, statusFilter]);
+    }, [page, statusFilter, fetchBookings]);
 
     const handlePayPalCapture = useCallback(async (orderId: string) => {
         try {
@@ -149,18 +150,18 @@ const StudentBookingsPage = () => {
         fetchRatings();
     }, []);
 
+    // Handle initial PayPal capture if redirected back
+    useEffect(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        if (token) {
+            handlePayPalCapture(token);
+        }
+    }, [handlePayPalCapture]);
+
     useEffect(() => {
         fetchBookings(page, page === 1, statusFilter);
-
-        // Handle PayPal return on initial mount
-        if (page === 1) {
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
-            if (token) {
-                handlePayPalCapture(token);
-            }
-        }
-    }, [page, statusFilter, handlePayPalCapture]);
+    }, [page, statusFilter, fetchBookings]);
 
     const handleStatusChange = (newStatus: string) => {
         setStatusFilter(newStatus);
@@ -250,21 +251,71 @@ const StudentBookingsPage = () => {
 
     const selectedBooking = bookings.find(b => b.bookingId === bookingToCancel);
 
-    return (
-        <div className="min-h-screen bg-white dark:bg-gray-900 pb-8">
-            <div className="lg:sticky top-0 z-10 bg-white dark:bg-gray-900 pt-4 pb-2 border-b border-gray-200 dark:border-gray-700">
-                <div className="bg-gray-100 dark:bg-gray-800 shadow-sm px-6 py-6 flex flex-col md:flex-row justify-between items-center border-b border-gray-200 dark:border-gray-700 lg:mb-4 gap-4">
-                    <h1 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                        <Calendar className="w-8 h-8 text-indigo-600" />
-                        My Bookings
-                    </h1>
-                    <div className="flex items-center gap-4 w-full md:w-auto">
-                        <div className="relative group flex-1 md:flex-none">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Filter className="h-4 w-4 text-gray-400" />
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-[#050914] text-gray-900 dark:text-white pb-10">
+
+        {/* =========================================================
+            HEADER
+        ========================================================= */}
+        <div className="lg:sticky lg:top-0 z-30 bg-white/95 dark:bg-[#050914]/95 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
+
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-6">
+
+                <motion.div
+                    className="py-5 lg:py-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-5"
+                >
+
+                    {/* Title */}
+                    <div>
+                        <div className="flex items-center gap-3">
+                            <div>
+                                <p className="text-[11px] uppercase tracking-[0.18em] font-semibold text-blue-600 dark:text-blue-400">
+                                    Mentorship
+                                </p>
+
+                                <motion.h1 initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="text-2xl
+              sm:text-3xl
+              md:text-4xl
+              font-bold
+              tracking-tight
+              text-gray-950
+              dark:text-white
+              flex
+              items-center
+              gap-3">
+                                    My Bookings
+                                </motion.h1>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Controls */}
+                    <div className="flex items-center gap-3 w-full md:w-auto">
+
+                        {/* Filter */}
+                        <div className="relative flex-1 md:flex-none">
+                            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+
                             <select
-                                className="w-full md:w-48 pl-9 pr-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:text-white appearance-none cursor-pointer hover:border-indigo-300 transition-colors shadow-sm"
+                                className="
+                                    w-full md:w-48
+                                    appearance-none
+                                    pl-9 pr-4 py-2.5
+                                    rounded-xl
+                                    border border-gray-200 dark:border-gray-800
+                                    bg-white dark:bg-[#0b1220]
+                                    text-sm font-medium
+                                    text-gray-700 dark:text-gray-200
+                                    outline-none
+                                    cursor-pointer
+                                    transition-all duration-200
+                                    hover:border-blue-300 dark:hover:border-blue-500/40
+                                    focus:border-blue-500
+                                    focus:ring-2 focus:ring-blue-500/10
+                                "
                                 value={statusFilter}
                                 onChange={(e) => handleStatusChange(e.target.value)}
                             >
@@ -275,204 +326,504 @@ const StudentBookingsPage = () => {
                                 <option value={BookingStatus.COMPLETED}>Completed</option>
                             </select>
                         </div>
-                        <button
+
+                        {/* Refresh */}
+                        <motion.button
+                            whileHover={{ y: -1 }}
+                            whileTap={{ scale: 0.97 }}
                             onClick={() => {
                                 refreshBookings();
                                 toast.success("Bookings refreshed");
                             }}
-                            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg cursor-pointer whitespace-nowrap"
+                            className="
+                                flex items-center justify-center gap-2
+                                px-4 py-2.5
+                                rounded-xl
+                                bg-blue-600 hover:bg-blue-700
+                                dark:bg-blue-600 dark:hover:bg-blue-500
+                                text-white
+                                text-sm font-semibold
+                                shadow-sm hover:shadow-md
+                                transition-all duration-200
+                                cursor-pointer
+                                whitespace-nowrap
+                            "
                         >
-                            <RefreshCw className="w-5 h-5" />
+                            <RefreshCw className="w-4 h-4" />
                             <span className="hidden sm:inline">Refresh</span>
-                        </button>
+                        </motion.button>
                     </div>
-                </div>
+                </motion.div>
             </div>
+        </div>
 
-            <div className="container mx-auto px-6 py-8">
 
-                {initialLoading ? (
-                    <div className="flex justify-center py-12">
-                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        {/* =========================================================
+            CONTENT
+        ========================================================= */}
+        <main className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-6 lg:pt-8">
+
+            {initialLoading ? (
+
+                /* =====================================================
+                   INITIAL LOADING
+                ===================================================== */
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="
+                        min-h-[280px]
+                        flex flex-col items-center justify-center
+                        rounded-2xl
+                        border border-gray-200 dark:border-gray-800
+                        bg-white dark:bg-[#0b1220]
+                    "
+                >
+                    <div className="relative">
+                        <div className="
+                            h-10 w-10
+                            rounded-full
+                            border-2
+                            border-gray-200 dark:border-gray-700
+                            border-t-blue-600 dark:border-t-blue-400
+                            animate-spin"/>
+
+                        <div className="
+                            absolute inset-0
+                            rounded-full
+                            bg-blue-500/10
+                            blur-xl
+                        " />
                     </div>
-                ) : bookings.length === 0 ? (
-                    <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-dashed border-gray-300 dark:border-gray-700 shadow-sm">
-                        <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded-full w-fit mx-auto mb-4">
-                            <Filter className="w-8 h-8 text-gray-400" />
-                        </div>
-                        <p className="text-gray-500 dark:text-gray-400">
-                            {statusFilter !== 'all'
-                                ? `No ${statusFilter} bookings found.`
-                                : "You haven't booked any sessions yet."}
+
+                    <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                        Loading your bookings...
+                    </p>
+                </motion.div>
+
+            ) : bookings.length === 0 ? (
+
+                /* =====================================================
+                   EMPTY STATE
+                ===================================================== */
+                <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.45, ease: "easeOut" }}
+                    className="
+                        relative
+                        overflow-hidden
+                        rounded-2xl
+                        border border-gray-200 dark:border-gray-800
+                        bg-white dark:bg-[#0b1220]
+                        px-6 py-16 sm:py-20
+                        text-center
+                    "
+                >
+                    {/* Subtle background glow */}
+                    <div className="
+                        absolute
+                        -top-32
+                        left-1/2
+                        -translate-x-1/2
+                        h-64 w-64
+                        rounded-full
+                        bg-blue-500/10
+                        blur-[100px]
+                        pointer-events-none
+                    " />
+
+                    <motion.div
+                        initial={{ scale: 0.85, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{
+                            duration: 0.4,
+                            delay: 0.1,
+                        }}
+                        className="
+                            relative
+                            mx-auto mb-6
+                            flex h-16 w-16
+                            items-center justify-center
+                            rounded-2xl
+                            bg-blue-50 dark:bg-blue-500/10
+                            border border-blue-100 dark:border-blue-500/20
+                        "
+                    >
+                        <Filter className="w-7 h-7 text-blue-600 dark:text-blue-400" />
+                    </motion.div>
+
+                    <div className="relative">
+                        <h2 className="text-xl font-bold text-gray-950 dark:text-white">
+                            {statusFilter !== "all"
+                                ? `No ${statusFilter} bookings`
+                                : "No bookings yet"}
+                        </h2>
+
+                        <p className="mt-2 max-w-md mx-auto text-sm leading-6 text-gray-500 dark:text-gray-400">
+                            {statusFilter !== "all"
+                                ? `There are no ${statusFilter} mentorship bookings matching your current filter.`
+                                : "Book a session with an instructor and get personalized guidance for your learning journey."}
                         </p>
-                        {statusFilter === 'all' && (
-                            <button
-                                onClick={() => navigate(ROUTES.student.mentorship.browse)}
-                                className="mt-4 text-indigo-600 cursor-pointer font-medium hover:underline"
+
+                        {statusFilter === "all" && (
+                            <motion.button
+                                whileHover={{ y: -2 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() =>
+                                    navigate(
+                                        ROUTES.student.mentorship.browse
+                                    )
+                                }
+                                className="
+                                    mt-7
+                                    inline-flex items-center justify-center
+                                    rounded-xl
+                                    bg-blue-600 hover:bg-blue-700
+                                    px-5 py-2.5
+                                    text-sm font-semibold
+                                    text-white
+                                    shadow-sm hover:shadow-md
+                                    transition-all duration-200
+                                    cursor-pointer
+                                "
                             >
                                 Browse Instructors
-                            </button>
+                            </motion.button>
                         )}
-                        {statusFilter !== 'all' && (
-                            <button
-                                onClick={() => handleStatusChange('all')}
-                                className="mt-4 text-indigo-600 cursor-pointer font-medium hover:underline"
+
+                        {statusFilter !== "all" && (
+                            <motion.button
+                                whileHover={{ y: -1 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() =>
+                                    handleStatusChange("all")
+                                }
+                                className="
+                                    mt-7
+                                    inline-flex items-center justify-center
+                                    rounded-xl
+                                    border border-gray-200 dark:border-gray-700
+                                    bg-white dark:bg-[#101827]
+                                    px-5 py-2.5
+                                    text-sm font-semibold
+                                    text-gray-700 dark:text-gray-200
+                                    hover:border-blue-300
+                                    hover:text-blue-600
+                                    dark:hover:text-blue-400
+                                    transition-all duration-200
+                                    cursor-pointer
+                                "
                             >
                                 Clear Filters
-                            </button>
+                            </motion.button>
                         )}
                     </div>
-                ) : (
-                    <>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in duration-500">
-                            {bookings.map((booking, index) => {
-                                if (bookings.length === index + 1) {
-                                    return (
-                                        <div ref={lastBookingElementRef} key={booking.bookingId}>
-                                            <BookingCard
-                                                booking={booking}
-                                                onCancel={handleCancelClick}
-                                                onJoinSession={handleJoinSession}
-                                                onRate={handleRateClick}
-                                                onResumePayment={handleResumePayment}
-                                                userRole={UserRole.STUDENT}
-                                                existingRating={userRatings[booking.bookingId]}
-                                            />
-                                        </div>
-                                    );
-                                } else {
-                                    return (
-                                        <BookingCard
-                                            key={booking.bookingId}
-                                            booking={booking}
-                                            onCancel={handleCancelClick}
-                                            onJoinSession={handleJoinSession}
-                                            onRate={handleRateClick}
-                                            onResumePayment={handleResumePayment}
-                                            userRole={UserRole.STUDENT}
-                                            existingRating={userRatings[booking.bookingId]}
-                                        />
-                                    );
-                                }
-                            })}
-                        </div>
-                        {loading && (
-                            <div className="flex justify-center py-8">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                            </div>
-                        )}
-                        {!hasMore && bookings.length > 0 && (
-                            <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                                No more bookings to load.
-                            </div>
-                        )}
-                    </>
-                )}
-            </div>
+                </motion.div>
 
-            <Modal
-                isOpen={isConfirmOpen}
-                onClose={() => !isCancelling && setIsConfirmOpen(false)}
-                title="Cancel Booking"
-                onConfirm={confirmCancel}
-                confirmLabel={isCancelling ? "Cancelling..." : "Yes, Cancel"}
-                cancelLabel="Keep Booking"
-            >
-                <div className="space-y-3">
-                    <p className="text-gray-600 dark:text-gray-400">
-                        Are you sure you want to cancel this mentorship session?
-                    </p>
+            ) : (
 
-                    {selectedBooking?.amount && selectedBooking.amount > 0 && selectedBooking.status === BookingStatus.CONFIRMED ? (
-                        <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-sm text-green-700 dark:text-green-300">
-                            <p className="font-semibold">You are eligible for a full refund.</p>
-                            <p className="text-xs mt-1">Cancellation is more than 24 hours before the session.</p>
-                        </div>
-                    ) : null}
+                /* =====================================================
+                   BOOKINGS
+                ===================================================== */
+                <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                        {bookings.map((booking, index) => {
+                            const isLast = bookings.length === index + 1;
 
-                    <p className="text-xs text-gray-500">
-                        This action cannot be undone.
-                    </p>
-                </div>
-            </Modal>
-
-            <Modal
-                isOpen={cantRefund}
-                onClose={() => setCantRefund(false)}
-                title="No Refund"
-                onConfirm={() => setCantRefund(false)}
-                confirmLabel="Understood"
-                cancelLabel="Close"
-            >
-                <div className="space-y-3">
-                    <div className="p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg text-sm text-amber-700 dark:text-amber-300">
-                        <p className="font-semibold">No refund will be issued.</p>
-                        <p className="text-xs mt-1">Cancellation is within 24 hours of the session start time.</p>
+                            return (
+                                <motion.div
+                                    key={booking.bookingId}
+                                    ref={isLast ? lastBookingElementRef : undefined}
+                                    initial={{
+                                        opacity: 0,
+                                        y: 12,
+                                    }}
+                                    animate={{
+                                        opacity: 1,
+                                        y: 0,
+                                    }}
+                                    transition={{
+                                        duration: 0.6,
+                                        ease: "easeOut",
+                                        delay: index * 0.1,
+                                    }}
+                                    whileHover={{
+                                        y: -4,
+                                    }}
+                                    className="h-full flex flex-col"
+                                >
+                                    <BookingCard
+                                        booking={booking}
+                                        onCancel={handleCancelClick}
+                                        onJoinSession={handleJoinSession}
+                                        onRate={handleRateClick}
+                                        onResumePayment={handleResumePayment}
+                                        userRole={UserRole.STUDENT}
+                                        existingRating={
+                                            userRatings[booking.bookingId]
+                                        }
+                                    />
+                                </motion.div>
+                            );
+                        })}
                     </div>
-                    <div className="p-3 bg-gray-50 dark:bg-gray-900/20 border border-gray-200 dark:border-gray-800 rounded-lg text-sm text-gray-700 dark:text-gray-300">
-                        <p className="font-semibold">No further action is required at this time.</p>
-                        <p className="text-sm mt-1">
-                            No changes were made due to the cancellation timing.
+
+
+                    {/* =================================================
+                        LOAD MORE
+                    ================================================= */}
+                    {loading && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="flex justify-center py-8"
+                        >
+                            <div className="
+                                h-8 w-8
+                                rounded-full
+                                border-2
+                                border-gray-200 dark:border-gray-700
+                                border-t-blue-600 dark:border-t-blue-400
+                                animate-spin
+                            " />
+                        </motion.div>
+                    )}
+
+
+                    {/* =================================================
+                        END OF LIST
+                    ================================================= */}
+                    {!hasMore && bookings.length > 0 && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="
+                                flex items-center justify-center gap-3
+                                py-8
+                            "
+                        >
+                            <div className="h-px w-16 bg-gray-200 dark:bg-gray-800" />
+
+                            <span className="
+                                text-xs
+                                font-medium
+                                text-gray-400 dark:text-gray-500
+                            ">
+                                No more bookings
+                            </span>
+
+                            <div className="h-px w-16 bg-gray-200 dark:bg-gray-800" />
+                        </motion.div>
+                    )}
+                </>
+            )}
+        </main>
+
+
+        {/* =============================================================
+            CANCEL BOOKING MODAL
+        ============================================================= */}
+        <Modal
+            isOpen={isConfirmOpen}
+            onClose={() =>
+                !isCancelling && setIsConfirmOpen(false)
+            }
+            title="Cancel Booking"
+            onConfirm={confirmCancel}
+            confirmLabel={
+                isCancelling ? "Cancelling..." : "Yes, Cancel"
+            }
+            cancelLabel="Keep Booking"
+        >
+            <div className="space-y-4">
+
+                <p className="text-sm leading-6 text-gray-600 dark:text-gray-400">
+                    Are you sure you want to cancel this mentorship session?
+                </p>
+
+                {selectedBooking?.amount &&
+                selectedBooking.amount > 0 &&
+                selectedBooking.status === BookingStatus.CONFIRMED ? (
+                    <div className="
+                        p-4
+                        rounded-xl
+                        bg-green-50 dark:bg-green-500/10
+                        border border-green-200 dark:border-green-500/20
+                        text-sm
+                        text-green-700 dark:text-green-400
+                    ">
+                        <p className="font-semibold">
+                            You are eligible for a full refund.
+                        </p>
+
+                        <p className="text-xs mt-1.5 opacity-80">
+                            Cancellation is more than 24 hours before
+                            the session.
                         </p>
                     </div>
+                ) : null}
+
+                <p className="text-xs text-gray-500 dark:text-gray-500">
+                    This action cannot be undone.
+                </p>
+            </div>
+        </Modal>
+
+
+        {/* =============================================================
+            NO REFUND MODAL
+        ============================================================= */}
+        <Modal
+            isOpen={cantRefund}
+            onClose={() => setCantRefund(false)}
+            title="No Refund"
+            onConfirm={() => setCantRefund(false)}
+            confirmLabel="Understood"
+            cancelLabel="Close"
+        >
+            <div className="space-y-4">
+
+                <div className="
+                    p-4
+                    rounded-xl
+                    bg-amber-50 dark:bg-amber-500/10
+                    border border-amber-200 dark:border-amber-500/20
+                    text-sm
+                    text-amber-700 dark:text-amber-400
+                ">
+                    <p className="font-semibold">
+                        No refund will be issued.
+                    </p>
+
+                    <p className="text-xs mt-1.5 opacity-80">
+                        Cancellation is within 24 hours of the
+                        session start time.
+                    </p>
                 </div>
 
-            </Modal>
+                <div className="
+                    p-4
+                    rounded-xl
+                    bg-gray-50 dark:bg-[#101827]
+                    border border-gray-200 dark:border-gray-800
+                    text-sm
+                    text-gray-700 dark:text-gray-300
+                ">
+                    <p className="font-semibold">
+                        No further action is required at this time.
+                    </p>
 
-            {/* Review Model */}
+                    <p className="text-sm mt-1.5 text-gray-500 dark:text-gray-400">
+                        No changes were made due to the cancellation timing.
+                    </p>
+                </div>
+            </div>
+        </Modal>
+
+
+        {/* =============================================================
+            REVIEW MODAL
+        ============================================================= */}
+        <Modal
+            isOpen={isReviewOpen}
+            onClose={() => setIsReviewOpen(false)}
+            title="Rate Mentorship Session"
+        >
+            <div className="pt-2">
+                {bookingToReview && (
+                    <ReviewForm
+                        targetType="session"
+                        targetId={bookingToReview}
+                        onSuccess={(rating) => {
+
+                            setUserRatings((prev) => {
+                                const next = {
+                                    ...prev,
+                                    [bookingToReview]: { rating },
+                                };
+
+                                localStorage.setItem(
+                                    "student_session_ratings",
+                                    JSON.stringify(next)
+                                );
+
+                                return next;
+                            });
+
+                            refreshBookings();
+                            setIsReviewOpen(false);
+                        }}
+                        onCancel={() => setIsReviewOpen(false)}
+                    />
+                )}
+            </div>
+        </Modal>
+
+
+        {/* =============================================================
+            RESUME PAYMENT MODAL
+        ============================================================= */}
+        {resumeClientSecret && (
             <Modal
-                isOpen={isReviewOpen}
-                onClose={() => setIsReviewOpen(false)}
-                title="Rate Mentorship Session"
+                isOpen={!!resumeClientSecret}
+                onClose={() => setResumeClientSecret(null)}
+                title="Complete Payment"
             >
-                <div className="pt-2">
-                    {bookingToReview && (
-                        <ReviewForm
-                            targetType="session"
-                            targetId={bookingToReview}
-                            onSuccess={(rating) => {
-                                // Refresh to get full review object if needed, or just update rating
-                                setUserRatings(prev => {
-                                    const next = { ...prev, [bookingToReview]: { rating } };
-                                    localStorage.setItem('student_session_ratings', JSON.stringify(next));
-                                    return next;
-                                });
-                                // Invalidate bookings if we want to be sure
-                                refreshBookings();
-                                setIsReviewOpen(false);
-                            }}
-                            onCancel={() => setIsReviewOpen(false)}
-                        />
-                    )}
-                </div>
-            </Modal>
-            {/* Resume Payment Modal */}
-            {resumeClientSecret && (
-                <Modal
-                    isOpen={!!resumeClientSecret}
-                    onClose={() => setResumeClientSecret(null)}
-                    title="Complete Payment"
+                <Elements
+                    stripe={stripePromise}
+                    options={{
+                        clientSecret: resumeClientSecret,
+                    }}
                 >
-                    <Elements stripe={stripePromise} options={{ clientSecret: resumeClientSecret }}>
-                        <MentorshipCheckoutForm
-                            onSuccess={() => {
-                                toast.success("Booking confirmed!");
-                                setResumeClientSecret(null);
-                                refreshBookings();
-                            }}
-                        />
-                    </Elements>
-                </Modal>
-            )}
+                    <MentorshipCheckoutForm
+                        onSuccess={() => {
+                            toast.success("Booking confirmed!");
+                            setResumeClientSecret(null);
+                            refreshBookings();
+                        }}
+                    />
+                </Elements>
+            </Modal>
+        )}
 
-            {/* Resume Loading Toast */}
-            {isResumingPayment && (
-                <div className="fixed bottom-4 right-4 z-50 bg-indigo-600 text-white px-4 py-2 rounded-lg shadow-lg text-sm">
-                    Loading payment details...
-                </div>
-            )}
-        </div>
-    );
+
+        {/* =============================================================
+            PAYMENT LOADING TOAST
+        ============================================================= */}
+        {isResumingPayment && (
+            <motion.div
+                initial={{ opacity: 0, y: 15, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 15, scale: 0.96 }}
+                className="
+                    fixed
+                    bottom-5 right-5
+                    z-50
+                    flex items-center gap-3
+                    rounded-xl
+                    border border-blue-400/20
+                    bg-[#0b1220]
+                    px-4 py-3
+                    text-sm font-medium
+                    text-white
+                    shadow-xl shadow-black/20
+                "
+            >
+                <div className="
+                    h-4 w-4
+                    rounded-full
+                    border-2
+                    border-gray-600
+                    border-t-blue-400
+                    animate-spin
+                " />
+
+                Loading payment details...
+            </motion.div>
+        )}
+    </div>
+);
 };
 
 export default StudentBookingsPage;

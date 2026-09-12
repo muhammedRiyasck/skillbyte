@@ -45,7 +45,7 @@ export class MentorshipBookingRepository
     const docs = await this.model
       .find(query)
       .populate('slotId')
-      .populate('instructorId', 'name profileImageUrl jobTitle')
+      .populate('instructorId', 'name profilePictureUrl profileImageUrl jobTitle')
       .sort({ scheduledAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -59,7 +59,7 @@ export class MentorshipBookingRepository
     const doc = await this.model
       .findOne({ studentId, slotId })
       .populate('slotId')
-      .populate('instructorId', 'name profileImageUrl jobTitle')
+      .populate('instructorId', 'name profilePictureUrl profileImageUrl jobTitle')
       .sort({ createdAt: -1 });
     return doc ? this.toEntity(doc) : null;
   }
@@ -80,7 +80,7 @@ export class MentorshipBookingRepository
     const docs = await this.model
       .find(query)
       .populate('slotId')
-      .populate('studentId', 'name email profileImageUrl')
+      .populate('studentId', 'name email profilePictureUrl profileImageUrl')
       .sort({ scheduledAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -139,7 +139,7 @@ export class MentorshipBookingRepository
         status: { $in: ['pending', 'confirmed'] },
       })
       .populate('slotId')
-      .populate('instructorId', 'name profileImageUrl jobTitle')
+      .populate('instructorId', 'name profilePictureUrl profileImageUrl jobTitle')
       .sort({ scheduledAt: 1 });
     return docs.map((doc) => this.toEntity(doc));
   }
@@ -158,7 +158,7 @@ export class MentorshipBookingRepository
         status: 'confirmed',
       })
       .populate('slotId')
-      .populate('studentId', 'name email profileImageUrl')
+      .populate('studentId', 'name email profilePictureUrl profileImageUrl')
       .sort({ scheduledAt: 1 })
       .limit(3); // Only need 3 for the dashboard widget
     return docs.map((doc) => this.toEntity(doc));
@@ -198,8 +198,8 @@ export class MentorshipBookingRepository
         scheduledAt: { $lt: timeThreshold },
       })
       .populate('slotId')
-      .populate('studentId', 'name email profileImageUrl')
-      .populate('instructorId', 'name profileImageUrl jobTitle');
+      .populate('studentId', 'name email profilePictureUrl profileImageUrl')
+      .populate('instructorId', 'name profilePictureUrl profileImageUrl jobTitle');
 
     return docs.map((doc) => this.toEntity(doc));
   }
@@ -215,7 +215,7 @@ export class MentorshipBookingRepository
         { new: true },
       )
       .populate('slotId')
-      .populate('studentId', 'name email profileImageUrl')
+      .populate('studentId', 'name email profilePictureUrl profileImageUrl')
       .populate('instructorId', 'name email profileImageUrl jobTitle');
 
     return doc ? this.toEntity(doc) : null;
@@ -227,7 +227,7 @@ export class MentorshipBookingRepository
     const doc = await this.model
       .findById(bookingId)
       .populate('slotId')
-      .populate('studentId', 'name email profileImageUrl')
+      .populate('studentId', 'name email profilePictureUrl profileImageUrl')
       .populate('instructorId', 'name email profileImageUrl jobTitle');
 
     return doc ? this.toEntity(doc) : null;

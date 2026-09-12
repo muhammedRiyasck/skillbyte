@@ -38,6 +38,7 @@ export class MentorshipBooking {
     public slotDetails?: {
       duration: number;
       title: string;
+      description?: string;
     },
     public instructorDetails?: {
       name: string;
