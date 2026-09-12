@@ -1,7 +1,8 @@
 import type { IMentorshipSlot } from "../types/mentorshipTypes";
+import {AnimatePresence, motion} from 'framer-motion';
 import { format } from "date-fns";
-import { Calendar, Clock, Video, Trash2, Edit, IndianRupee, Info, Tag, ChevronDown, ChevronUp, Repeat } from "lucide-react";
-import { useState } from "react";
+import { Calendar, Clock, Video, Trash2, Edit, IndianRupee, Info, Tag, ChevronDown, Repeat } from "lucide-react";
+import { useEffect, useState } from "react";
 import { SlotStatus } from "@shared/enums/SlotStatus";
 
 interface SlotCardProps {
@@ -25,177 +26,374 @@ export const SlotCard = ({ slot, onEdit, onDelete, onBook, onResumePayment, vari
     const isExpired = new Date() > startTime;
     const isUnavailable = (isBooked && !isPendingForUser) || isExpired;
 
+    useEffect(()=>{
+        window.scrollTo({
+            top:0,
+            behavior:'smooth'
+        })
+    }, []);
+
     return (
-        <div className={`group relative flex flex-col h-full bg-white dark:bg-gray-800 rounded-2xl border transition-all duration-300 overflow-hidden ${isUnavailable
-                ? 'border-gray-300 dark:border-gray-700 opacity-70 cursor-not-allowed bg-gray-50 dark:bg-gray-900'
-                : 'border-gray-200 dark:border-gray-700 hover:shadow-xl hover:-translate-y-1 hover:border-indigo-200 dark:hover:border-indigo-900'
-            }`}>
+         <motion.div
+        layout
+        initial={{ opacity: 0, y: 12, scale: 0.98 }}
+        animate={{
+            opacity: isUnavailable ? 0.7 : 1,
+            y: 0,
+            scale: 1,
+        }}
+        transition={{
+            duration: 0.3,
+            ease: "easeOut",
+        }}
+        whileHover={
+              {...(!isUnavailable && {
+        whileHover: { scale: 1.08 },
+    })}
+        }
+        className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition-colors duration-300 dark:bg-[#0b1220] ${
+            isUnavailable
+                ? "cursor-not-allowed border-gray-300 bg-gray-50 dark:border-gray-800 dark:bg-gray-900"
+                : "border-gray-200 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-500/5 dark:border-gray-800 dark:hover:border-blue-500/40"
+        }`}
+    >
+        {/* Top accent line */}
+        {!isUnavailable && (
+            <motion.div
+                initial={{ scaleX: 0, opacity: 0 }}
+                whileHover={{ scaleX: 1, opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="absolute left-0 right-0 top-0 h-1 origin-left bg-blue-500"
+            />
+        )}
 
-            {/* Decorative gradient for available slots */}
-            {!isUnavailable && (
-                <div className="absolute top-0 left-0 w-full h-1  opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            )}
+        {/* Main Content */}
+        <div className="flex flex-1 flex-col p-5">
+            {/* Header */}
+            <div className="mb-3 flex items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                    <motion.h3
+                        initial={{ opacity: 0, x: -5 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.25 }}
+                        className="truncate text-lg font-bold leading-tight text-gray-950 dark:text-white"
+                        title={slot.title || "Mentorship Session"}
+                    >
+                        {slot.title || "Mentorship Session"}
+                    </motion.h3>
 
-            {/* Main Content Area */}
-            <div className="p-5 flex-1 flex flex-col">
+                    {/* Status */}
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <motion.div
+    {...(!isUnavailable && {
+        whileHover: { scale: 1.08 },
+    })}
+    className={`flex h-6 w-6 items-center justify-center rounded-full ${
+        isUnavailable
+            ? "bg-gray-100 dark:bg-gray-800"
+            : "bg-blue-50 dark:bg-blue-500/10"
+    }`}
+>
+    <Video
+        size={14}
+        className={
+            isUnavailable
+                ? "text-gray-400"
+                : "text-blue-500"
+        }
+    />
+</motion.div>
 
-                {/* Header Section: Title & Status */}
-                <div className="flex justify-between items-start mb-3 gap-3">
-                    <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-gray-900 dark:text-gray-100 truncate text-lg leading-tight" title={slot.title || "Mentorship Session"}>
-                            {slot.title || "Mentorship Session"}
-                        </h3>
-
-                        {/* Status Badge & Video Icon */}
-                        <div className="flex items-center gap-2 mt-2">
-                            <div className={`flex items-center justify-center w-6 h-6 rounded-full ${isUnavailable ? 'bg-gray-100 dark:bg-gray-800' : 'bg-blue-50 dark:bg-blue-900/30'}`}>
-                                <Video size={14} className={isUnavailable ? 'text-gray-400' : 'text-blue-500'} />
-                            </div>
-                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${isUnavailable
-                                    ? 'bg-gray-100 text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
+                        <span
+                            className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                                isUnavailable
+                                    ? "border-gray-200 bg-gray-100 text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400"
                                     : isPendingForUser
-                                        ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800'
-                                        : 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800'
-                                }`}>
-                                {isExpired ? 'EXPIRED' : isPendingForUser ? 'PENDING' : slot.status}
-                            </span>
-                            {slot.isRecurring && (
-                                <span
-                                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800"
-                                    title={`Recurring slot (${slot.recurrenceRule?.frequency || 'series'})`}
-                                >
-                                    <Repeat size={10} />
-                                    Recurring
-                                </span>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Action Buttons (Instructor Only) */}
-                    {variant === 'instructor' && onEdit && onDelete && (
-                        <div className="flex gap-1 shrink-0">
-                            {!isBooked && !isExpired && (
-                                <button
-                                    onClick={() => onEdit(slot)}
-                                    className="p-2 cursor-pointer text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 rounded-lg transition-colors"
-                                    title="Edit Slot"
-                                >
-                                    <Edit size={16} />
-                                </button>
-                            )}
-                            {!isBooked && (
-                                <button
-                                    onClick={() => onDelete(slot.slotId, slot)}
-                                    className="p-2 cursor-pointer text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/40 rounded-lg transition-colors"
-                                    title="Delete Slot"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                {/* Description Section */}
-                <div className="mb-4">
-                    <div className="flex gap-2.5 text-sm dark:text-gray-300">
-                        <div className="shrink-0 pt-0.5">
-                            <Info size={16} className="text-gray-400 dark:text-gray-500" />
-                        </div>
-                        <p className="line-clamp-2 text-gray-600 dark:text-gray-400 text-sm leading-relaxed break-words" title={slot.description}>
-                            {slot.description || "No description provided."}
-                        </p>
-                    </div>
-                </div>
-
-                {/* Tags Section */}
-                <div className="mb-4 min-h-[24px]">
-                    {slot.tags && slot.tags.length > 0 ? (
-                        <div className="flex flex-col items-start gap-2">
-                            <button
-                                onClick={() => setShowTags(!showTags)}
-                                className="group/tag flex items-center cursor-pointer gap-1.5 text-xs font-semibold text-gray-500 hover:text-indigo-600 dark:text-gray-400 dark:hover:text-indigo-400 transition-colors"
-                            >
-                                <Tag size={14} className="group-hover/tag:text-indigo-500 transition-colors" />
-                                <span>{showTags ? 'Hide Tags' : `View Tags (${slot.tags.length})`}</span>
-                                {showTags ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                            </button>
-
-                            {showTags && (
-                                <div className="flex flex-wrap gap-2 pt-1 animate-in fade-in slide-in-from-top-1 duration-200">
-                                    {slot.tags.map((tag, index) => (
-                                        <span key={index} className="inline-flex items-center px-2 py-1 text-[10px] font-medium text-blue-700 bg-blue-50 border border-blue-100 rounded-md dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800/50">
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="flex items-center gap-2 text-xs text-gray-400 italic">
-                            <Tag size={14} />
-                            <span className="opacity-70">No tags</span>
-                        </div>
-                    )}
-                </div>
-
-                {/* Time Info Grid */}
-                <div className="grid grid-cols-1 gap-2 py-3 border-t border-dashed border-gray-200 dark:border-gray-700 mt-auto">
-                    <div className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
-                        <div className="w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-400 shrink-0">
-                            <Calendar size={16} />
-                        </div>
-                        <span className="font-medium truncate">{format(startTime, "EEEE, MMM d, yyyy")}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300">
-                        <div className="w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-center justify-center text-gray-400 shrink-0">
-                            <Clock size={16} />
-                        </div>
-                        <span className="font-medium truncate">
-                            {format(startTime, "h:mm a")} - {format(endTime, "h:mm a")}
+                                      ? "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800/50 dark:bg-amber-900/20 dark:text-amber-400"
+                                      : "border-green-200 bg-green-50 text-green-700 dark:border-green-800/50 dark:bg-green-900/20 dark:text-green-400"
+                            }`}
+                        >
+                            {isExpired
+                                ? "EXPIRED"
+                                : isPendingForUser
+                                  ? "PENDING"
+                                  : slot.status}
                         </span>
+
+                        {slot.isRecurring && (
+                            <motion.span
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: 0.1 }}
+                                className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700 dark:border-blue-800/50 dark:bg-blue-500/10 dark:text-blue-300"
+                                title={`Recurring slot (${slot.recurrenceRule?.frequency || "series"})`}
+                            >
+                                <Repeat size={10} />
+                                Recurring
+                            </motion.span>
+                        )}
                     </div>
                 </div>
 
+                {/* Instructor actions */}
+                {variant === "instructor" && onEdit && onDelete && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="flex shrink-0 gap-1"
+                    >
+                        {!isBooked && !isExpired && (
+                            <motion.button
+                                whileHover={{ scale: 1.08 }}
+                                whileTap={{ scale: 0.94 }}
+                                onClick={() => onEdit(slot)}
+                                className="cursor-pointer rounded-lg p-2 text-gray-400 transition-colors hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-500/10 dark:hover:text-blue-400"
+                                title="Edit Slot"
+                            >
+                                <Edit size={16} />
+                            </motion.button>
+                        )}
+
+                        {!isBooked && (
+                            <motion.button
+                                whileHover={{ scale: 1.08 }}
+                                whileTap={{ scale: 0.94 }}
+                                onClick={() => onDelete(slot.slotId, slot)}
+                                className="cursor-pointer rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10 dark:hover:text-red-400"
+                                title="Delete Slot"
+                            >
+                                <Trash2 size={16} />
+                            </motion.button>
+                        )}
+                    </motion.div>
+                )}
             </div>
 
-            {/* Footer: Price & Action */}
-            <div className="p-4 bg-gray-50/50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between gap-4">
-                {isUnavailable && variant === 'student' ? <span className="text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-4 py-1 rounded-full">{isExpired ? 'Expired' : 'Booked'}</span> : <div className="flex flex-col">
-                    <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Investment</span>
-                    <div className="flex items-center gap-1 mt-0.5">
+            {/* Description */}
+            <motion.div
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.05, duration: 0.25 }}
+                className="mb-4"
+            >
+                <div className="flex gap-2.5 text-sm">
+                    <div className="shrink-0 pt-0.5">
+                        <Info
+                            size={16}
+                            className="text-gray-400 dark:text-gray-500"
+                        />
+                    </div>
+
+                    <p
+                        className="line-clamp-2 break-words text-sm leading-relaxed text-gray-600 dark:text-gray-400"
+                        title={slot.description}
+                    >
+                        {slot.description || "No description provided."}
+                    </p>
+                </div>
+            </motion.div>
+
+            {/* Tags */}
+            <div className="mb-4 min-h-[24px]">
+                {slot.tags && slot.tags.length > 0 ? (
+                    <div className="flex flex-col items-start gap-2">
+                        <motion.button
+                            whileHover={{ x: 2 }}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => setShowTags(!showTags)}
+                            className="group/tag flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-gray-500 transition-colors hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
+                        >
+                            <Tag
+                                size={14}
+                                className="transition-colors group-hover/tag:text-blue-500"
+                            />
+
+                            <span>
+                                {showTags
+                                    ? "Hide Tags"
+                                    : `View Tags (${slot.tags.length})`}
+                            </span>
+
+                            <motion.span
+                                animate={{
+                                    rotate: showTags ? 180 : 0,
+                                }}
+                                transition={{ duration: 0.2 }}
+                            >
+                                <ChevronDown size={14} />
+                            </motion.span>
+                        </motion.button>
+
+                        <AnimatePresence initial={false}>
+                            {showTags && (
+                                <motion.div
+                                    initial={{
+                                        opacity: 0,
+                                        height: 0,
+                                        y: -5,
+                                    }}
+                                    animate={{
+                                        opacity: 1,
+                                        height: "auto",
+                                        y: 0,
+                                    }}
+                                    exit={{
+                                        opacity: 0,
+                                        height: 0,
+                                        y: -5,
+                                    }}
+                                    transition={{
+                                        duration: 0.2,
+                                        ease: "easeOut",
+                                    }}
+                                    className="flex flex-wrap gap-2 overflow-hidden pt-1"
+                                >
+                                    {slot.tags.map((tag, index) => (
+                                        <motion.span
+                                            key={index}
+                                            initial={{
+                                                opacity: 0,
+                                                scale: 0.9,
+                                            }}
+                                            animate={{
+                                                opacity: 1,
+                                                scale: 1,
+                                            }}
+                                            transition={{
+                                                delay: index * 0.03,
+                                            }}
+                                            className="inline-flex items-center rounded-md border border-blue-100 bg-blue-50 px-2 py-1 text-[10px] font-medium text-blue-700 dark:border-blue-800/50 dark:bg-blue-500/10 dark:text-blue-300"
+                                        >
+                                            {tag}
+                                        </motion.span>
+                                    ))}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-2 text-xs italic text-gray-400">
+                        <Tag size={14} />
+                        <span className="opacity-70">No tags</span>
+                    </div>
+                )}
+            </div>
+
+            {/* Date / Time */}
+            <div className="mt-auto grid grid-cols-1 gap-2 border-t border-dashed border-gray-200 py-3 dark:border-gray-800">
+                <motion.div
+                    whileHover={{ x: 2 }}
+                    className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300"
+                >
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-50 text-gray-400 dark:bg-[#101827]">
+                        <Calendar size={16} />
+                    </div>
+
+                    <span className="truncate font-medium">
+                        {format(startTime, "EEEE, MMM d, yyyy")}
+                    </span>
+                </motion.div>
+
+                <motion.div
+                    whileHover={{ x: 2 }}
+                    className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300"
+                >
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gray-50 text-gray-400 dark:bg-[#101827]">
+                        <Clock size={16} />
+                    </div>
+
+                    <span className="truncate font-medium">
+                        {format(startTime, "h:mm a")} -{" "}
+                        {format(endTime, "h:mm a")}
+                    </span>
+                </motion.div>
+            </div>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between gap-4 border-t border-gray-100 bg-gray-50/60 p-4 dark:border-gray-800 dark:bg-[#101827]/60">
+            {/* Price */}
+            {isUnavailable && variant === "student" ? (
+                <span className="rounded-full bg-gray-100 px-4 py-1 text-sm font-medium text-gray-500 dark:bg-gray-800 dark:text-gray-400">
+                    {isExpired ? "Expired" : "Booked"}
+                </span>
+            ) : (
+                <div className="flex flex-col">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                        Investment
+                    </span>
+
+                    <div className="mt-0.5 flex items-center gap-1">
                         {slot.price > 0 ? (
-                            <div className="flex items-center gap-0.5 text-gray-900 dark:text-white">
-                                <IndianRupee size={16} className="text-gray-500 dark:text-gray-400" />
-                                <span className="text-lg font-black">{slot.price}</span>
-                            </div>
+                            <motion.div
+                                initial={{ opacity: 0, x: -5 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                className="flex items-center gap-0.5 text-gray-950 dark:text-white"
+                            >
+                                <IndianRupee
+                                    size={16}
+                                    className="text-gray-500 dark:text-gray-400"
+                                />
+
+                                <span className="text-lg font-black">
+                                    {slot.price}
+                                </span>
+                            </motion.div>
                         ) : (
-                            <span className="px-2 py-1 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-bold rounded uppercase tracking-wide">
+                            <span className="rounded bg-green-100 px-2 py-1 text-xs font-bold uppercase tracking-wide text-green-700 dark:bg-green-900/30 dark:text-green-400">
                                 Free
                             </span>
                         )}
                     </div>
-                </div>}
+                </div>
+            )}
 
-                {variant === 'student' && !isUnavailable && (
-                    isPendingForUser && onResumePayment ? (
-                        <button
-                            onClick={() => onResumePayment(slot.slotId!)}
-                            className="relative overflow-hidden cursor-pointer bg-yellow-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-yellow-600 transition-all shadow-lg shadow-yellow-500/20 active:scale-95 shrink-0"
+            {/* Student Actions */}
+            {variant === "student" && !isUnavailable && (
+                <>
+                    {isPendingForUser && onResumePayment ? (
+                        <motion.button
+                            whileHover={{
+                                y: -2,
+                                scale: 1.01,
+                            }}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() =>
+                                onResumePayment(slot.slotId!)
+                            }
+                            className="cursor-pointer rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-amber-500/20 transition-colors hover:bg-amber-600"
                         >
                             Continue Payment
-                        </button>
+                        </motion.button>
                     ) : onBook ? (
-                        <button
+                        <motion.button
+                            whileHover={{
+                                y: -2,
+                                scale: 1.01,
+                            }}
+                            whileTap={{ scale: 0.97 }}
                             onClick={() => onBook(slot)}
-                            className="relative overflow-hidden cursor-pointer bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20 active:scale-95 group/btn shrink-0"
+                            className="group/btn relative shrink-0 cursor-pointer overflow-hidden rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-blue-500/20 transition-colors hover:bg-blue-700"
                         >
-                            <span className="relative ">Book Slot</span>
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:animate-[shimmer_1.5s_infinite]" />
-                        </button>
-                    ) : null
-                )}
-            </div>
+                            <span className="relative z-10">
+                                Book Slot
+                            </span>
+
+                            {/* Shimmer */}
+                            <motion.div
+                                initial={{ x: "-100%" }}
+                                whileHover={{ x: "100%" }}
+                                transition={{
+                                    duration: 0.7,
+                                    ease: "easeInOut",
+                                }}
+                                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                            />
+                        </motion.button>
+                    ) : null}
+                </>
+            )}
         </div>
+    </motion.div>
     );
 };
