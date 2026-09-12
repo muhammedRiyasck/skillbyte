@@ -166,233 +166,353 @@ const SupportPage: React.FC = () => {
     });
 
     return (
-        <div className="bg-white dark:bg-gray-900 overflow-hidden text-gray-800 dark:text-gray-100 min-h-screen">
-            {/* Search Header */}
-            <section className="relative py-20 bg-gradient-to-br from-indigo-600 to-purple-700 text-white">
-                <div className="container mx-auto px-4 text-center">
-                    <motion.h1
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-4xl md:text-5xl font-bold mb-4"
-                    >
-                        Help Center
-                    </motion.h1>
-                    <motion.p
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.1 }}
-                        className="text-indigo-100 text-lg mb-8"
-                    >
-                        Find answers to common questions about Skillbyte's features.
-                    </motion.p>
-                    <div className="max-w-2xl mx-auto relative">
-                        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                        <input
-                            type="text"
-                            id="support-search"
-                            placeholder="Search help topics, e.g. 'certificate', 'payment', 'quiz'..."
-                            className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white text-gray-800 shadow-xl focus:ring-4 focus:ring-indigo-300 transition-all outline-none"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                    </div>
+    <div className="min-h-screen overflow-hidden bg-white text-gray-800 dark:bg-[#050914] dark:text-gray-100">
+        {/* Search Header */}
+        <section className="relative bg-gradient-to-br from-blue-600 to-blue-500 py-20 text-white">
+            <div className="container mx-auto px-4 text-center">
+                <motion.h1
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-4 text-4xl font-bold md:text-5xl"
+                >
+                    Help Center
+                </motion.h1>
+
+                <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                    className="mb-8 text-lg text-blue-100"
+                >
+                    Find answers to common questions about Skillbyte's features.
+                </motion.p>
+
+                <div className="relative mx-auto max-w-2xl">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 transform text-gray-400" />
+
+                    <input
+                        type="text"
+                        id="support-search"
+                        placeholder="Search help topics, e.g. 'certificate', 'payment', 'quiz'..."
+                        className="w-full rounded-2xl bg-white py-4 pl-12 pr-4 text-gray-800 shadow-xl outline-none transition-all focus:ring-4 focus:ring-blue-300"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                    />
                 </div>
+            </div>
 
-                {/* Abstract Shapes */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32 blur-3xl" />
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-indigo-400/20 rounded-full -ml-32 -mb-32 blur-3xl" />
-            </section>
+            {/* Abstract Shapes */}
+            <div className="absolute -mr-32 -mt-32 right-0 top-0 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+            <div className="absolute -mb-32 -ml-32 bottom-0 left-0 h-64 w-64 rounded-full bg-blue-400/20 blur-3xl" />
+        </section>
 
-            {/* Contact Info */}
-            <section className="py-12">
-                <div className="container mx-auto px-4">
-                    <div className="max-w-xl mx-auto">
-                        <motion.div
-                            whileHover={{ y: -4 }}
-                            className="p-8 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-center shadow-sm hover:shadow-lg transition-all"
-                        >
-                            <div className="w-12 h-12 bg-white dark:bg-gray-700 rounded-xl shadow-md flex items-center justify-center mx-auto mb-4">
-                                <Mail className="text-blue-500" />
-                            </div>
-                            <h3 className="text-xl font-bold mb-1">Email Support</h3>
-                            <a
-                                href="https://mail.google.com/mail/?view=cm&fs=1&to=skillbyte.team@gmail.com"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-indigo-600 dark:text-indigo-400 font-semibold mb-2 block hover:underline"
-                            >
-                                skillbyte.team@gmail.com
-                            </a>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                                Send us your questions or feedback — we respond within 24 hours.
-                            </p>
-                        </motion.div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Main FAQ Grid */}
-            <section className="py-16 bg-gray-50 dark:bg-gray-800/30">
-                <div className="container mx-auto px-4">
-                    <div className="grid lg:grid-cols-3 gap-12">
-
-                        {/* Categories */}
-                        <div className="lg:col-span-1 space-y-3">
-                            <h2 className="text-2xl font-bold mb-6">Browse by Topic</h2>
-                            <button
-                                onClick={() => setActiveCategory(null)}
-                                className={`w-full flex items-center gap-4 p-4 rounded-xl transition-colors text-left shadow-sm border ${activeCategory === null
-                                        ? "bg-indigo-600 text-white border-indigo-600"
-                                        : "bg-white dark:bg-gray-800 border-transparent hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:border-indigo-200"
-                                    }`}
-                            >
-                                <MessageSquare size={18} className={activeCategory === null ? "text-white" : "text-indigo-600"} />
-                                <span className="font-medium">All Topics</span>
-                                <span className={`ml-auto text-xs px-2 py-0.5 rounded-full font-semibold ${activeCategory === null ? "bg-white/20 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-500"}`}>
-                                    {faqs.length}
-                                </span>
-                            </button>
-                            {categories.map((cat, i) => {
-                                const count = faqs.filter((f) => f.category === cat.label).length;
-                                const isActive = activeCategory === cat.label;
-                                return (
-                                    <button
-                                        key={i}
-                                        onClick={() => setActiveCategory(isActive ? null : cat.label)}
-                                        className={`w-full flex items-center gap-4 p-4 rounded-xl transition-colors text-left shadow-sm border ${isActive
-                                                ? "bg-indigo-600 text-white border-indigo-600"
-                                                : "bg-white dark:bg-gray-800 border-transparent hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:border-indigo-200"
-                                            }`}
-                                    >
-                                        <div className={isActive ? "text-white" : "text-indigo-600"}>{cat.icon}</div>
-                                        <span className="font-medium">{cat.label}</span>
-                                        <span className={`ml-auto text-xs px-2 py-0.5 rounded-full font-semibold ${isActive ? "bg-white/20 text-white" : "bg-gray-100 dark:bg-gray-700 text-gray-500"}`}>
-                                            {count}
-                                        </span>
-                                    </button>
-                                );
-                            })}
+        {/* Contact Info */}
+        <section className="py-12">
+            <div className="container mx-auto px-4">
+                <div className="mx-auto max-w-xl">
+                    <motion.div
+                        whileHover={{ y: -4 }}
+                        className="rounded-2xl border border-gray-100 bg-gray-50 p-8 text-center shadow-sm transition-all hover:shadow-lg dark:border-gray-800 dark:bg-[#0b1220]"
+                    >
+                        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-md dark:bg-[#101827]">
+                            <Mail className="text-blue-500" />
                         </div>
 
-                        {/* FAQs */}
-                        <div className="lg:col-span-2">
-                            <h2 className="text-2xl font-bold mb-6">
-                                Frequently Asked Questions
-                                {activeCategory && (
-                                    <span className="ml-3 text-base font-normal text-indigo-600 dark:text-indigo-400">
-                                        — {activeCategory}
-                                    </span>
-                                )}
-                            </h2>
-                            <div className="space-y-4">
-                                {filteredFaqs.length > 0 ? (
-                                    filteredFaqs.map((faq, index) => (
-                                        <div
-                                            key={index}
-                                            className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden shadow-sm"
-                                        >
-                                            <button
-                                                id={`faq-btn-${index}`}
-                                                onClick={() =>
-                                                    setActiveAccordion(activeAccordion === index ? null : index)
-                                                }
-                                                className="w-full flex items-center justify-between p-6 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                                            >
-                                                <div className="flex-1 pr-4">
-                                                    <span className="text-xs font-semibold text-indigo-500 dark:text-indigo-400 uppercase tracking-wide mb-1 block">
-                                                        {faq.category}
-                                                    </span>
-                                                    <span className="font-bold text-base">{faq.question}</span>
-                                                </div>
-                                                {activeAccordion === index ? (
-                                                    <ChevronUp size={20} className="flex-shrink-0 text-indigo-500" />
-                                                ) : (
-                                                    <ChevronDown size={20} className="flex-shrink-0 text-gray-400" />
-                                                )}
-                                            </button>
-                                            <AnimatePresence>
-                                                {activeAccordion === index && (
-                                                    <motion.div
-                                                        initial={{ height: 0, opacity: 0 }}
-                                                        animate={{ height: "auto", opacity: 1 }}
-                                                        exit={{ height: 0, opacity: 0 }}
-                                                        className="overflow-hidden"
-                                                    >
-                                                        <div className="p-6 pt-2 text-gray-600 dark:text-gray-400 leading-relaxed border-t border-gray-50 dark:border-gray-700">
-                                                            {faq.answer}
-                                                        </div>
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-2xl border border-dashed border-gray-300 dark:border-gray-700">
-                                        <p className="text-gray-500 mb-2">No results found for "{searchQuery}"</p>
-                                        <p className="text-sm text-gray-400">Try a different keyword or browse by topic.</p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                        <h3 className="mb-1 text-xl font-bold">
+                            Email Support
+                        </h3>
 
-                    </div>
-                </div>
-            </section>
-
-            {/* Quick Links */}
-            <section className="py-16">
-                <div className="container mx-auto px-4">
-                    <h2 className="text-2xl font-bold text-center mb-10">Quick Links</h2>
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
-                        {[
-                            { label: "Browse Courses", to: ROUTES.student.courses, icon: <Book size={20} /> },
-                            { label: "Book Mentorship", to: ROUTES.student.mentorship.browse, icon: <Video size={20} /> },
-                            { label: "My Purchases", to: ROUTES.student.purchases, icon: <CreditCard size={20} /> },
-                            { label: "Verify Certificate", to: ROUTES.student.verifyCertificate.replace(":verificationCode", ""), icon: <BadgeCheck size={20} /> },
-                        ].map((link, i) => (
-                            <Link
-                                key={i}
-                                to={link.to}
-                                className="flex items-center gap-3 p-5 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all group shadow-sm"
-                            >
-                                <div className="w-10 h-10 rounded-xl bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shadow-sm">
-                                    {link.icon}
-                                </div>
-                                <span className="font-semibold text-sm group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                                    {link.label}
-                                </span>
-                                <ExternalLink size={14} className="ml-auto text-gray-400 group-hover:text-indigo-400 transition-colors" />
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Still Need Help */}
-            <section className="py-16 bg-gray-50 dark:bg-gray-800/30">
-                <div className="container mx-auto px-4">
-                    <div className="max-w-3xl mx-auto rounded-3xl bg-indigo-600 p-12 text-center text-white shadow-2xl relative overflow-hidden">
-                        <h2 className="text-3xl font-bold mb-4">Still need help?</h2>
-                        <p className="text-indigo-100 mb-8 text-lg">
-                            Couldn't find what you were looking for? Reach out to us by email and we'll get back to you within 24 hours.
-                        </p>
                         <a
                             href="https://mail.google.com/mail/?view=cm&fs=1&to=skillbyte.team@gmail.com"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-block px-10 py-4 bg-white text-indigo-600 font-bold rounded-xl hover:bg-gray-100 transition-colors shadow-lg"
+                            className="mb-2 block font-semibold text-blue-600 hover:underline dark:text-blue-400"
                         >
-                            Email Us at skillbyte.team@gmail.com
+                            skillbyte.team@gmail.com
                         </a>
 
-                        {/* Decorative */}
-                        <div className="absolute -top-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-xl" />
-                        <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-purple-400/20 rounded-full blur-xl" />
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                            Send us your questions or feedback — we respond within 24 hours.
+                        </p>
+                    </motion.div>
+                </div>
+            </div>
+        </section>
+
+        {/* Main FAQ Grid */}
+        <section className="bg-gray-50 py-16 dark:bg-[#050914]">
+            <div className="container mx-auto px-4">
+                <div className="grid gap-12 lg:grid-cols-3">
+
+                    {/* Categories */}
+                    <div className="space-y-3 lg:col-span-1">
+                        <h2 className="mb-6 text-2xl font-bold">
+                            Browse by Topic
+                        </h2>
+
+                        <button
+                            onClick={() => setActiveCategory(null)}
+                            className={`flex w-full items-center gap-4 rounded-xl border p-4 text-left shadow-sm transition-colors ${
+                                activeCategory === null
+                                    ? "border-blue-600 bg-blue-600 text-white"
+                                    : "border-transparent bg-white hover:border-blue-200 hover:bg-blue-50 dark:bg-[#0b1220] dark:hover:border-blue-500/40 dark:hover:bg-blue-500/10"
+                            }`}
+                        >
+                            <MessageSquare
+                                size={18}
+                                className={
+                                    activeCategory === null
+                                        ? "text-white"
+                                        : "text-blue-600 dark:text-blue-400"
+                                }
+                            />
+
+                            <span className="font-medium">
+                                All Topics
+                            </span>
+
+                            <span
+                                className={`ml-auto rounded-full px-2 py-0.5 text-xs font-semibold ${
+                                    activeCategory === null
+                                        ? "bg-white/20 text-white"
+                                        : "bg-gray-100 text-gray-500 dark:bg-[#101827] dark:text-gray-400"
+                                }`}
+                            >
+                                {faqs.length}
+                            </span>
+                        </button>
+
+                        {categories.map((cat, i) => {
+                            const count = faqs.filter(
+                                (f) => f.category === cat.label
+                            ).length;
+
+                            const isActive =
+                                activeCategory === cat.label;
+
+                            return (
+                                <button
+                                    key={i}
+                                    onClick={() =>
+                                        setActiveCategory(
+                                            isActive ? null : cat.label
+                                        )
+                                    }
+                                    className={`flex w-full items-center gap-4 rounded-xl border p-4 text-left shadow-sm transition-colors ${
+                                        isActive
+                                            ? "border-blue-600 bg-blue-600 text-white"
+                                            : "border-transparent bg-white hover:border-blue-200 hover:bg-blue-50 dark:bg-[#0b1220] dark:hover:border-blue-500/40 dark:hover:bg-blue-500/10"
+                                    }`}
+                                >
+                                    <div
+                                        className={
+                                            isActive
+                                                ? "text-white"
+                                                : "text-blue-600 dark:text-blue-400"
+                                        }
+                                    >
+                                        {cat.icon}
+                                    </div>
+
+                                    <span className="font-medium">
+                                        {cat.label}
+                                    </span>
+
+                                    <span
+                                        className={`ml-auto rounded-full px-2 py-0.5 text-xs font-semibold ${
+                                            isActive
+                                                ? "bg-white/20 text-white"
+                                                : "bg-gray-100 text-gray-500 dark:bg-[#101827] dark:text-gray-400"
+                                        }`}
+                                    >
+                                        {count}
+                                    </span>
+                                </button>
+                            );
+                        })}
+                    </div>
+
+                    {/* FAQs */}
+                    <div className="lg:col-span-2">
+                        <h2 className="mb-6 text-2xl font-bold">
+                            Frequently Asked Questions
+
+                            {activeCategory && (
+                                <span className="ml-3 text-base font-normal text-blue-600 dark:text-blue-400">
+                                    — {activeCategory}
+                                </span>
+                            )}
+                        </h2>
+
+                        <div className="space-y-4">
+                            {filteredFaqs.length > 0 ? (
+                                filteredFaqs.map((faq, index) => (
+                                    <div
+                                        key={index}
+                                        className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-[#0b1220]"
+                                    >
+                                        <button
+                                            id={`faq-btn-${index}`}
+                                            onClick={() =>
+                                                setActiveAccordion(
+                                                    activeAccordion === index
+                                                        ? null
+                                                        : index
+                                                )
+                                            }
+                                            className="flex w-full items-center justify-between p-6 text-left transition-colors hover:bg-gray-50 dark:hover:bg-[#101827]"
+                                        >
+                                            <div className="flex-1 pr-4">
+                                                <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-blue-500 dark:text-blue-400">
+                                                    {faq.category}
+                                                </span>
+
+                                                <span className="text-base font-bold">
+                                                    {faq.question}
+                                                </span>
+                                            </div>
+
+                                            {activeAccordion === index ? (
+                                                <ChevronUp
+                                                    size={20}
+                                                    className="flex-shrink-0 text-blue-500"
+                                                />
+                                            ) : (
+                                                <ChevronDown
+                                                    size={20}
+                                                    className="flex-shrink-0 text-gray-400"
+                                                />
+                                            )}
+                                        </button>
+
+                                        <AnimatePresence>
+                                            {activeAccordion === index && (
+                                                <motion.div
+                                                    initial={{
+                                                        height: 0,
+                                                        opacity: 0,
+                                                    }}
+                                                    animate={{
+                                                        height: "auto",
+                                                        opacity: 1,
+                                                    }}
+                                                    exit={{
+                                                        height: 0,
+                                                        opacity: 0,
+                                                    }}
+                                                    className="overflow-hidden"
+                                                >
+                                                    <div className="border-t border-gray-50 p-6 pt-2 leading-relaxed text-gray-600 dark:border-gray-800 dark:text-gray-400">
+                                                        {faq.answer}
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="rounded-2xl border border-dashed border-gray-300 bg-white py-12 text-center dark:border-gray-800 dark:bg-[#0b1220]">
+                                    <p className="mb-2 text-gray-500">
+                                        No results found for "{searchQuery}"
+                                    </p>
+
+                                    <p className="text-sm text-gray-400">
+                                        Try a different keyword or browse by topic.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </section>
-        </div>
-    );
+            </div>
+        </section>
+
+        {/* Quick Links */}
+        <section className="py-16">
+            <div className="container mx-auto px-4">
+                <h2 className="mb-10 text-center text-2xl font-bold">
+                    Quick Links
+                </h2>
+
+                <div className="mx-auto grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    {[
+                        {
+                            label: "Browse Courses",
+                            to: ROUTES.student.courses,
+                            icon: <Book size={20} />,
+                        },
+                        {
+                            label: "Book Mentorship",
+                            to: ROUTES.student.mentorship.browse,
+                            icon: <Video size={20} />,
+                        },
+                        {
+                            label: "My Purchases",
+                            to: ROUTES.student.purchases,
+                            icon: <CreditCard size={20} />,
+                        },
+                        {
+                            label: "Verify Certificate",
+                            to: ROUTES.student.verifyCertificate.replace(
+                                ":verificationCode",
+                                ""
+                            ),
+                            icon: <BadgeCheck size={20} />,
+                        },
+                    ].map((link, i) => (
+                        <Link
+                            key={i}
+                            to={link.to}
+                            className="group flex items-center gap-3 rounded-2xl border border-gray-100 bg-gray-50 p-5 shadow-sm transition-all hover:border-blue-300 hover:bg-blue-50 dark:border-gray-800 dark:bg-[#0b1220] dark:hover:border-blue-500/40 dark:hover:bg-blue-500/10"
+                        >
+                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm dark:bg-[#101827] dark:text-blue-400">
+                                {link.icon}
+                            </div>
+
+                            <span className="text-sm font-semibold transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                                {link.label}
+                            </span>
+
+                            <ExternalLink
+                                size={14}
+                                className="ml-auto text-gray-400 transition-colors group-hover:text-blue-400"
+                            />
+                        </Link>
+                    ))}
+                </div>
+            </div>
+        </section>
+
+        {/* Still Need Help */}
+        <section className="bg-gray-50 py-16 dark:bg-[#050914]">
+            <div className="container mx-auto px-4">
+                <div className="relative mx-auto max-w-3xl overflow-hidden rounded-3xl bg-blue-600 p-12 text-center text-white shadow-2xl">
+                    <h2 className="mb-4 text-3xl font-bold">
+                        Still need help?
+                    </h2>
+
+                    <p className="mb-8 text-lg text-blue-100">
+                        Couldn't find what you were looking for? Reach out to us by email and we'll
+                        get back to you within 24 hours.
+                    </p>
+
+                    <a
+                        href="https://mail.google.com/mail/?view=cm&fs=1&to=skillbyte.team@gmail.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block rounded-xl bg-white px-10 py-4 font-bold text-blue-600 shadow-lg transition-colors hover:bg-gray-100"
+                    >
+                        Email Us at skillbyte.team@gmail.com
+                    </a>
+
+                    {/* Decorative */}
+                    <div className="absolute -left-10 -top-10 h-32 w-32 rounded-full bg-white/10 blur-xl" />
+                    <div className="absolute -bottom-10 -right-10 h-32 w-32 rounded-full bg-blue-400/20 blur-xl" />
+                </div>
+            </div>
+        </section>
+    </div>
+);
 };
 
 export default SupportPage;
