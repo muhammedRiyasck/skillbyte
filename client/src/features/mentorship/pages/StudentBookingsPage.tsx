@@ -252,58 +252,53 @@ const StudentBookingsPage = () => {
     const selectedBooking = bookings.find(b => b.bookingId === bookingToCancel);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#050914] text-gray-900 dark:text-white pb-10">
+    <div className="min-h-screen bg-white dark:bg-[#050914] text-gray-900 dark:text-white pb-10">
 
         {/* =========================================================
             HEADER
         ========================================================= */}
-        <div className="lg:sticky lg:top-0 z-30 bg-white/95 dark:bg-[#050914]/95 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800">
+        <div className="lg:sticky lg:top-0 z-20 bg-white/95 dark:bg-[#050914]/95 backdrop-blur-xl">
 
-            <div className="max-w-[1600px] mx-auto px-4 sm:px-6">
+            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-5 lg:pt-6">
 
-                <motion.div
-                    className="py-5 lg:py-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-5"
-                >
+                <div className="flex items-center justify-between gap-3 mb-5">
 
                     {/* Title */}
-                    <div>
-                        <div className="flex items-center gap-3">
-                            <div>
-                                <p className="text-[11px] uppercase tracking-[0.18em] font-semibold text-blue-600 dark:text-blue-400">
-                                    Mentorship
-                                </p>
+                    <div className="min-w-0">
+                        <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400 mb-1">
+                            Mentorship
+                        </p>
 
-                                <motion.h1 initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="text-2xl
-              sm:text-3xl
-              md:text-4xl
-              font-bold
-              tracking-tight
-              text-gray-950
-              dark:text-white
-              flex
-              items-center
-              gap-3">
-                                    My Bookings
-                                </motion.h1>
-                            </div>
-                        </div>
+                        <motion.h1 initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.15 }}
+                            className="text-2xl
+                                sm:text-3xl
+                                md:text-4xl
+                                font-bold
+                                tracking-tight
+                                text-gray-950
+                                dark:text-white
+                                flex
+                                items-center
+                                gap-3"
+                        >
+                            <span>My Bookings</span>
+                        </motion.h1>
                     </div>
 
                     {/* Controls */}
-                    <div className="flex items-center gap-3 w-full md:w-auto">
+                    <div className="flex items-center gap-3">
 
                         {/* Filter */}
-                        <div className="relative flex-1 md:flex-none">
+                        <div className="relative">
                             <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
 
                             <select
                                 className="
-                                    w-full md:w-48
+                                    w-36 sm:w-48
                                     appearance-none
-                                    pl-9 pr-4 py-2.5
+                                    pl-9 pr-4 h-10
                                     rounded-xl
                                     border border-gray-200 dark:border-gray-800
                                     bg-white dark:bg-[#0b1220]
@@ -312,7 +307,7 @@ const StudentBookingsPage = () => {
                                     outline-none
                                     cursor-pointer
                                     transition-all duration-200
-                                    hover:border-blue-300 dark:hover:border-blue-500/40
+                                    hover:border-gray-300 dark:hover:border-gray-700
                                     focus:border-blue-500
                                     focus:ring-2 focus:ring-blue-500/10
                                 "
@@ -328,32 +323,49 @@ const StudentBookingsPage = () => {
                         </div>
 
                         {/* Refresh */}
-                        <motion.button
-                            whileHover={{ y: -1 }}
-                            whileTap={{ scale: 0.97 }}
+                        <button
                             onClick={() => {
                                 refreshBookings();
                                 toast.success("Bookings refreshed");
                             }}
                             className="
-                                flex items-center justify-center gap-2
-                                px-4 py-2.5
+                                shrink-0
+                                inline-flex
+                                items-center
+                                justify-center
+                                gap-2
+                                h-10
+                                px-3
+                                sm:px-4
                                 rounded-xl
-                                bg-blue-600 hover:bg-blue-700
-                                dark:bg-blue-600 dark:hover:bg-blue-500
-                                text-white
-                                text-sm font-semibold
-                                shadow-sm hover:shadow-md
-                                transition-all duration-200
+                                border
+                                border-gray-200
+                                dark:border-gray-800
+                                bg-white
+                                dark:bg-[#0b1220]
+                                text-sm
+                                font-medium
+                                text-gray-700
+                                dark:text-gray-200
+                                shadow-sm
+                                hover:bg-gray-50
+                                dark:hover:bg-gray-800
+                                hover:border-gray-300
+                                dark:hover:border-gray-700
+                                hover:shadow-md
+                                transition-all
+                                duration-300
                                 cursor-pointer
-                                whitespace-nowrap
                             "
                         >
-                            <RefreshCw className="w-4 h-4" />
+                            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
                             <span className="hidden sm:inline">Refresh</span>
-                        </motion.button>
+                        </button>
                     </div>
-                </motion.div>
+                </div>
+
+                {/* Bottom border */}
+                <div className="border-b border-gray-200 dark:border-gray-800" />
             </div>
         </div>
 
@@ -361,7 +373,7 @@ const StudentBookingsPage = () => {
         {/* =========================================================
             CONTENT
         ========================================================= */}
-        <main className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-6 lg:pt-8">
+        <main className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-6">
 
             {initialLoading ? (
 

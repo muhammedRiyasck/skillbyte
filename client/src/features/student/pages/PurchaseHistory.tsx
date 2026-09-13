@@ -77,26 +77,21 @@ const PurchaseHistory: React.FC = () => {
   }
 
   return (
-  <div className="min-h-screen bg-gray-50 pb-10 text-gray-900 dark:bg-[#050914] dark:text-white">
+  <div className="min-h-screen bg-white dark:bg-[#050914] text-gray-900 dark:text-white pb-10">
     {/* =========================================================
         HEADER
     ========================================================= */}
-    <div className="sticky top-0 z-20 border-b border-gray-200/80 bg-white/95 backdrop-blur-xl dark:border-gray-800/80 dark:bg-[#050914]/95">
-      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between py-5">
-          <motion.div
-            className="flex min-w-0 items-center gap-3"
-          >
-          
+    <div className="lg:sticky lg:top-0 z-20 bg-white/95 dark:bg-[#050914]/95 backdrop-blur-xl">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-5 lg:pt-6">
+        <div className="flex items-center justify-between gap-3 mb-5">
+          <div className="min-w-0">
+            <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400 mb-1">
+              Investments
+            </p>
 
-            <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400">
-                Investments
-              </p>
-
-              <motion.h1 initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }} className="
+            <motion.h1 initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }} className="
               text-2xl
               sm:text-3xl
               md:text-4xl
@@ -108,11 +103,9 @@ const PurchaseHistory: React.FC = () => {
               items-center
               gap-3
             ">
-                My Purchases
-              </motion.h1>
-            </div>
-          </motion.div>
-
+              <span>My Purchases</span>
+            </motion.h1>
+          </div>
         </div>
 
         {/* =========================================================
@@ -122,7 +115,7 @@ const PurchaseHistory: React.FC = () => {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35, delay: 0.08 }}
-          className="flex flex-col gap-3 border-t border-gray-100 py-4 sm:flex-row dark:border-gray-800"
+          className="pb-5 flex flex-col sm:flex-row gap-3 items-center"
         >
           <select
             value={dateFilter}
@@ -205,13 +198,16 @@ const PurchaseHistory: React.FC = () => {
             </option>
           </select>
         </motion.div>
+
+        {/* Bottom border */}
+        <div className="border-b border-gray-200 dark:border-gray-800" />
       </div>
     </div>
 
     {/* =========================================================
         CONTENT
     ========================================================= */}
-    <main className="mx-auto max-w-[1600px] px-4 pt-7 sm:px-6 lg:px-8">
+    <main className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-6">
       {purchases.length === 0 ? (
         /* =======================================================
            EMPTY STATE

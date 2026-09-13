@@ -347,50 +347,36 @@ const MentorshipBrowsePage = () => {
       {/* =========================================================
           HEADER / SEARCH AREA
       ========================================================= */}
-      <header className="sticky top-0 z-30 border-b border-gray-200/80 bg-white/95 backdrop-blur-xl dark:border-gray-800/80 dark:bg-[#050914]/95">
-        <div className="mx-auto max-w-[1500px] px-6 sm:px-6 lg:px-8">
+      <header className="lg:sticky lg:top-0 z-20 bg-white/95 dark:bg-[#050914]/95 backdrop-blur-xl">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-5 lg:pt-6">
           {/* Top row */}
-          <div className="flex min-h-[72px] items-center justify-between gap-5 py-5">
-            <div className="flex min-w-0 items-center gap-3">
-             
-
-              <div className="min-w-0">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400">
+          <div className="flex items-center justify-between gap-3 mb-5">
+            <div className="min-w-0">
+              <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400 mb-1">
                 Always Learn
               </p>
-                <motion.h1 initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }} className="text-2xl
-              sm:text-3xl
-              md:text-4xl
-              font-bold
-              tracking-tight
-              text-gray-950
-              dark:text-white
-              flex
-              items-center
-              gap-3">
-                  Metorship Program
-                </motion.h1>
 
-                
-              </div>
+              <motion.h1
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-gray-950 dark:text-white flex items-center gap-3"
+              >
+                <span>Mentorship Program</span>
+              </motion.h1>
             </div>
 
-            <motion.button
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.97 }}
+            {/* Refresh */}
+            <button
               onClick={() => {
                 refreshSlots();
                 toast.success("Mentorship slots refreshed");
               }}
-              className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-gray-200 bg-white px-3.5 py-2 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 dark:border-gray-800 dark:bg-[#0b1220] dark:text-gray-300 dark:hover:border-blue-500/30 dark:hover:bg-blue-500/10 dark:hover:text-blue-400"
+              className="shrink-0 inline-flex items-center justify-center gap-2 h-10 px-3 sm:px-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0b1220] text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-700 hover:shadow-md transition-all duration-300 cursor-pointer"
             >
-              <RefreshCw
-                className={`h-4 w-4 ${loading ? "animate-spin" : ""}`}
-              />
+              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
               <span className="hidden sm:inline">Refresh</span>
-            </motion.button>
+            </button>
           </div>
 
           {/* Search */}
@@ -565,13 +551,16 @@ const MentorshipBrowsePage = () => {
               </button>
             )}
           </div>
+
+          {/* Bottom border */}
+          <div className="border-b border-gray-200 dark:border-gray-800" />
         </div>
       </header>
 
       {/* =========================================================
           PAGE CONTENT
       ========================================================= */}
-      <main className="mx-auto max-w-[1500px] px-4 py-7 sm:px-6 lg:px-8 lg:py-9">
+      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-6">
         {initialLoading ? (
           <div className="flex min-h-[420px] flex-col items-center justify-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 dark:border-blue-500/20 dark:bg-blue-500/10">

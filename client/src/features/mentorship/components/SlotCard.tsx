@@ -73,9 +73,9 @@ export const SlotCard = ({ slot, onEdit, onDelete, onBook, onResumePayment, vari
             <div className="mb-3 flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                     <motion.h3
-                        initial={{ opacity: 0, x: -5 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.25 }}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
                         className="truncate text-lg font-bold leading-tight text-gray-950 dark:text-white"
                         title={slot.title || "Mentorship Session"}
                     >
