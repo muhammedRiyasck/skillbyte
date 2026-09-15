@@ -3,6 +3,7 @@ import logger from '../../../../shared/utils/Logger';
 import { IAutoCompleteBookingsUseCase } from '../interfaces/IBookingUseCases';
 import { ICancelBookingUseCase } from '../interfaces/IBookingUseCases';
 import { CancelledBy } from '../../domain/entities/MentorshipBooking';
+import { IStudentRepository } from '../../../student/domain/IRepositories/IStudentRepository';
 
 export class AutoCompleteBookingsUseCase
   implements IAutoCompleteBookingsUseCase
@@ -10,6 +11,7 @@ export class AutoCompleteBookingsUseCase
   constructor(
     private bookingRepo: IMentorshipBookingRepository,
     private cancelBookingUC: ICancelBookingUseCase,
+    private studentRepo: IStudentRepository,
   ) {}
 
   async execute(): Promise<void> {
@@ -39,6 +41,21 @@ export class AutoCompleteBookingsUseCase
       for (const booking of bookingsToComplete) {
         await this.bookingRepo.markAsCompleted(booking.bookingId!);
         logger.info(`Auto-completed booking ${booking.bookingId}`);
+
+        // Award XP for completing a mentorship session
+        if (booking.studentId) {
+          try {
+            await this.studentRepo.recordActivity(booking.studentId, 50);
+            logger.info(
+              `Awarded 50 XP to student ${booking.studentId} for completed mentorship ${booking.bookingId}`,
+            );
+          } catch (xpErr) {
+            logger.error(
+              `Failed to award XP to student ${booking.studentId}:`,
+              xpErr,
+            );
+          }
+        }
       }
     } catch (error) {
       logger.error('Failed in AutoCompleteBookingsUseCase (complete):', error);

@@ -5,7 +5,24 @@ export const getStudentProfile = async () => {
   return response.data;
 };
 
-export const updateStudentProfile = async (data: { name: string }) => {
+export interface UpdateStudentProfileData {
+  name?: string | undefined;
+  headline?: string | undefined;
+  bio?: string | undefined;
+  phoneNumber?: string | null | undefined;
+  timezone?: string | undefined;
+  location?: string | undefined;
+  socialLinks?: {
+    linkedin?: string | undefined;
+    github?: string | undefined;
+    website?: string | undefined;
+    twitter?: string | undefined;
+  } | undefined;
+  interests?: string[] | undefined;
+  learningGoals?: string[] | undefined;
+}
+
+export const updateStudentProfile = async (data: UpdateStudentProfileData) => {
   const response = await api.put('/student/profile', data);
   return response.data;
 };

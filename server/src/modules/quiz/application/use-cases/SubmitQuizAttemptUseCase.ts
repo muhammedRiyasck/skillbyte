@@ -14,6 +14,10 @@ import { IEnrollmentWriteRepository } from '../../../enrollment/domain/IReposito
 import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
 import { IAIQuizService } from '../../../../shared/services/ai/IAIQuizService';
 import { QuizGrader } from '../../domain/utils/QuizGrader';
+import { IStudentRepository } from '../../../student/domain/IRepositories/IStudentRepository';
+
+const XP_PER_CORRECT_ANSWER = 10;
+const XP_BONUS_PASS = 50;
 
 export class SubmitQuizAttemptUseCase implements ISubmitQuizAttemptUseCase {
   constructor(
@@ -22,6 +26,7 @@ export class SubmitQuizAttemptUseCase implements ISubmitQuizAttemptUseCase {
     private enrollmentReadRepo: IEnrollmentReadRepository,
     private enrollmentWriteRepo: IEnrollmentWriteRepository,
     private aiQuizService: IAIQuizService,
+    private studentRepository: IStudentRepository,
   ) {}
 
   async execute(
@@ -138,6 +143,24 @@ export class SubmitQuizAttemptUseCase implements ISubmitQuizAttemptUseCase {
           EnrollmentStatus.COMPLETED,
           new Date(),
         );
+      }
+
+      // Award XP for passing the quiz (fire-and-forget)
+      const xpEarned = correctCount * XP_PER_CORRECT_ANSWER + XP_BONUS_PASS;
+      this.studentRepository
+        .recordActivity(userId, xpEarned)
+        .catch((err) =>
+          console.error('Failed to record quiz XP activity:', err),
+        );
+    } else if (!timedOut) {
+      // Still award partial XP for attempting (fire-and-forget)
+      const xpEarned = correctCount * XP_PER_CORRECT_ANSWER;
+      if (xpEarned > 0) {
+        this.studentRepository
+          .recordActivity(userId, xpEarned)
+          .catch((err) =>
+            console.error('Failed to record partial quiz XP activity:', err),
+          );
       }
     }
 

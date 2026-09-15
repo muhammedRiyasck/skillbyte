@@ -90,6 +90,7 @@ const validateVideoRoomAccessUC = new ValidateVideoRoomAccessUseCase(
 export const autoCompleteBookingsUC = new AutoCompleteBookingsUseCase(
   bookingRepository,
   cancelBookingUC,
+  studentRepository,
 );
 const getResumePaymentUC = new GetResumePaymentUseCase(
   bookingRepository,

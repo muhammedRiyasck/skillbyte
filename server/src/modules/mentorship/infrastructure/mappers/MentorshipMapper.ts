@@ -63,7 +63,11 @@ export class MentorshipMapper {
       typeof doc.slotId === 'object' &&
       'duration' in doc.slotId
     ) {
-      const slot = doc.slotId as unknown as { duration: number; title: string; description?: string };
+      const slot = doc.slotId as unknown as {
+        duration: number;
+        title: string;
+        description?: string;
+      };
       entity.slotDetails = {
         duration: slot.duration,
         title: slot.title,
@@ -86,7 +90,8 @@ export class MentorshipMapper {
       entity.instructorDetails = {
         name: instructor.name,
         email: instructor.email,
-        profileImageUrl: instructor.profilePictureUrl || instructor.profileImageUrl,
+        profileImageUrl:
+          instructor.profilePictureUrl || instructor.profileImageUrl,
         jobTitle: instructor.jobTitle,
       };
     }

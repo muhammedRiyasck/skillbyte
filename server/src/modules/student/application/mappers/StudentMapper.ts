@@ -21,6 +21,13 @@ export class StudentMapper {
     };
   }
 
+  static calculateRank(xp: number): string {
+    if (xp >= 5001) return '💎 Master';
+    if (xp >= 1001) return '🥇 Expert';
+    if (xp >= 201) return '🥈 Scholar';
+    return '🥉 Novice';
+  }
+
   static toResponseDto(student: Student): StudentResponseDto {
     return {
       id: student.studentId,
@@ -30,6 +37,21 @@ export class StudentMapper {
       registeredVia: student.registeredVia,
       profilePicture: student.profilePictureUrl,
       accountStatus: student.accountStatus,
+      headline: student.headline,
+      bio: student.bio,
+      phoneNumber: student.phoneNumber,
+      timezone: student.timezone,
+      location: student.location,
+      socialLinks: student.socialLinks,
+      interests: student.interests || [],
+      experienceLevel: student.experienceLevel || 'beginner',
+      rank: StudentMapper.calculateRank(student.xp || 0),
+      learningGoals: student.learningGoals || [],
+      xp: student.xp || 0,
+      currentStreak: student.currentStreak || 0,
+      longestStreak: student.longestStreak || 0,
+      lastActiveDate: student.lastActiveDate,
+      createdAt: student.createdAt,
     };
   }
 }

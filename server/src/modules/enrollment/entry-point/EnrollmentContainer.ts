@@ -29,8 +29,10 @@ const getInstructorEnrollmentsUc = new GetInstructorEnrollmentsUseCase(
   enrollmentReadRepo,
 );
 const updateLessonProgressUc = new UpdateLessonProgressUseCase(
+  enrollmentReadRepo,
   enrollmentWriteRepo,
   lessonRepo,
+  studentRepo,
   quizConfigRepo,
 );
 const getStudentEnrollmentsUc = new GetStudentEnrollmentsUseCase(

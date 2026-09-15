@@ -37,8 +37,31 @@ export class StudentProfileController {
 
   updateProfile = async (req: Request, res: Response): Promise<void> => {
     const studentId = (req as AuthenticatedRequest).user.id;
-    const { name } = req.body as { name: string };
-    await this._updateProfileUc.execute(studentId, { name });
+    const {
+      name,
+      headline,
+      bio,
+      phoneNumber,
+      timezone,
+      location,
+      socialLinks,
+      interests,
+      experienceLevel,
+      learningGoals,
+    } = req.body;
+
+    await this._updateProfileUc.execute(studentId, {
+      name,
+      headline,
+      bio,
+      phoneNumber,
+      timezone,
+      location,
+      socialLinks,
+      interests,
+      experienceLevel,
+      learningGoals,
+    });
     ApiResponseHelper.success(res, 'Profile updated successfully');
   };
 

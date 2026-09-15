@@ -45,7 +45,10 @@ export class MentorshipBookingRepository
     const docs = await this.model
       .find(query)
       .populate('slotId')
-      .populate('instructorId', 'name profilePictureUrl profileImageUrl jobTitle')
+      .populate(
+        'instructorId',
+        'name profilePictureUrl profileImageUrl jobTitle',
+      )
       .sort({ scheduledAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -59,7 +62,10 @@ export class MentorshipBookingRepository
     const doc = await this.model
       .findOne({ studentId, slotId })
       .populate('slotId')
-      .populate('instructorId', 'name profilePictureUrl profileImageUrl jobTitle')
+      .populate(
+        'instructorId',
+        'name profilePictureUrl profileImageUrl jobTitle',
+      )
       .sort({ createdAt: -1 });
     return doc ? this.toEntity(doc) : null;
   }
@@ -139,7 +145,10 @@ export class MentorshipBookingRepository
         status: { $in: ['pending', 'confirmed'] },
       })
       .populate('slotId')
-      .populate('instructorId', 'name profilePictureUrl profileImageUrl jobTitle')
+      .populate(
+        'instructorId',
+        'name profilePictureUrl profileImageUrl jobTitle',
+      )
       .sort({ scheduledAt: 1 });
     return docs.map((doc) => this.toEntity(doc));
   }
@@ -199,7 +208,10 @@ export class MentorshipBookingRepository
       })
       .populate('slotId')
       .populate('studentId', 'name email profilePictureUrl profileImageUrl')
-      .populate('instructorId', 'name profilePictureUrl profileImageUrl jobTitle');
+      .populate(
+        'instructorId',
+        'name profilePictureUrl profileImageUrl jobTitle',
+      );
 
     return docs.map((doc) => this.toEntity(doc));
   }

@@ -1,7 +1,9 @@
+import { IEnrollmentReadRepository } from '../../domain/IRepositories/IEnrollmentReadRepository';
 import { IEnrollmentWriteRepository } from '../../domain/IRepositories/IEnrollmentWriteRepository';
 import { IUpdateLessonProgressUseCase } from '../interfaces/IUpdateLessonProgress';
 import { ILessonRepository } from '../../../course/domain/IRepositories/ILessonRepository';
 import { IQuizConfigRepository } from '../../../quiz/domain/IRepositories/IQuizConfigRepository';
+import { IStudentRepository } from '../../../student/domain/IRepositories/IStudentRepository';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
@@ -14,8 +16,10 @@ export class UpdateLessonProgressUseCase
   implements IUpdateLessonProgressUseCase
 {
   constructor(
+    private enrollmentReadRepo: IEnrollmentReadRepository,
     private enrollmentWriteRepo: IEnrollmentWriteRepository,
     private lessonRepo: ILessonRepository,
+    private studentRepo: IStudentRepository,
     private quizConfigRepo?: IQuizConfigRepository,
   ) {}
 
@@ -31,6 +35,17 @@ export class UpdateLessonProgressUseCase
       );
     }
 
+    const previousEnrollment =
+      await this.enrollmentReadRepo.findById(enrollmentId);
+    if (!previousEnrollment) {
+      logger.error(`Enrollment not found: ${enrollmentId}`);
+      return null;
+    }
+
+    const wasCompleted = previousEnrollment.lessonProgress.find(
+      (lp) => lp.lessonId.toString() === lessonId,
+    )?.isCompleted;
+
     const updatedEnrollment =
       await this.enrollmentWriteRepo.updateLessonProgress(
         enrollmentId,
@@ -39,8 +54,17 @@ export class UpdateLessonProgressUseCase
       );
 
     if (!updatedEnrollment) {
-      logger.error(`Enrollment not found: ${enrollmentId}`);
+      logger.error(
+        `Failed to update lesson progress for enrollment: ${enrollmentId}`,
+      );
       return null;
+    }
+
+    if (progressData.isCompleted && !wasCompleted) {
+      await this.studentRepo.recordActivity(updatedEnrollment.userId, 10);
+      logger.info(
+        `Awarded 10 XP to student ${updatedEnrollment.userId} for completing lesson ${lessonId}`,
+      );
     }
 
     const activeLessonIds = await this.lessonRepo.findLessonIdsByCourseId(

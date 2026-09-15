@@ -10,10 +10,7 @@ export class UpdateStudentProfileUseCase
 {
   constructor(private readonly _studentRepo: IStudentRepository) {}
 
-  async execute(
-    id: string,
-    updates: Partial<Pick<Student, 'name' | 'profilePictureUrl'>>,
-  ): Promise<void> {
+  async execute(id: string, updates: Partial<Student>): Promise<void> {
     await this._studentRepo.updateProfile(id, updates);
   }
 }

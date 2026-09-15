@@ -13,6 +13,7 @@ import { QuizAttemptRepository } from '../../infrastructure/repositories/QuizAtt
 import { EnrollmentReadRepository } from '../../../enrollment/infrastructure/repositories/EnrollmentReadRepository';
 import { EnrollmentWriteRepository } from '../../../enrollment/infrastructure/repositories/EnrollmentWriteRepository';
 import { CourseRepository } from '../../../course/infrastructure/repositories/CourseRepository';
+import { StudentRepository } from '../../../student/infrastructure/repositories/StudentRepository';
 import { QuizController } from '../controllers/QuizController';
 
 const quizConfigRepository = new QuizConfigRepository();
@@ -20,6 +21,7 @@ const quizAttemptRepository = new QuizAttemptRepository();
 const enrollmentReadRepository = new EnrollmentReadRepository();
 const enrollmentWriteRepository = new EnrollmentWriteRepository();
 const courseRepository = new CourseRepository();
+const studentRepository = new StudentRepository();
 
 const createQuizConfigUseCase = new CreateQuizConfigUseCase(
   quizConfigRepository,
@@ -47,6 +49,7 @@ const submitQuizAttemptUseCase = new SubmitQuizAttemptUseCase(
   enrollmentReadRepository,
   enrollmentWriteRepository,
   aiQuizService,
+  studentRepository,
 );
 
 const getQuizResultUseCase = new GetQuizResultUseCase(quizAttemptRepository);
