@@ -11,6 +11,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { SocketProvider } from "../context/SocketContext";
 import { NotificationProvider } from "../features/notification/context/NotificationContext";
 import { ChatProvider } from "../features/chat/context/ChatProvider";
+import XpToastManager from "../features/gamification/components/XpToastManager";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -46,6 +47,7 @@ function App() {
         <ChatProvider>
           <NotificationProvider>
             <Toaster position="top-center" richColors />
+            <XpToastManager />
             <RouterProvider router={router} />
           </NotificationProvider>
         </ChatProvider>
