@@ -321,9 +321,10 @@ const CourseDetails: React.FC = () => {
 
       {/* LESSON PLAYER */}
       {currentLessonId ? (
-        <div className="bg-[#050914] py-5 sm:py-7">
+        <div className=" bg-white dark:bg-[#050914] py-5 sm:py-7">
           <div className="mx-auto max-w-[1500px] px-4 sm:px-6 lg:px-8">
             <LessonPlayer
+              key={currentLessonId}
               id={currentLessonId}
               onClose={() => {
                 setCurrentLessonId(null);
@@ -339,7 +340,6 @@ const CourseDetails: React.FC = () => {
         </div>
       ) : (
         <>
-          {/* COURSE HERO */}
           <CourseHero
             course={course}
             role={role}
@@ -357,7 +357,7 @@ const CourseDetails: React.FC = () => {
             onClaimCertificate={handleClaimCertificate}
             onTakeQuiz={handleTakeQuiz}
           />
-
+ 
           {/* MAIN CONTENT */}
           <main className="mx-auto max-w-[1500px] px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
             <div className="grid grid-cols-1 gap-14 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-16">

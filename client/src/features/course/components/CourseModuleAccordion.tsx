@@ -163,10 +163,7 @@ export const CourseModuleAccordion: React.FC<CourseModuleAccordionProps> = ({
                           (p) => p.lessonId === lesson.id
                         );
 
-                      const pct = prog
-                        ? prog.isCompleted
-                          ? 100
-                          : Math.min(
+                      const pct =  prog?Math.min(
                               100,
                               Math.max(
                                 0,

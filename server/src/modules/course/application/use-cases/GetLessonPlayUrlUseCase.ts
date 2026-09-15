@@ -77,11 +77,6 @@ export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
     }
 
     if (lesson.hlsUrl) {
-      const baseUrl = process.env.BASE_URL?.replace(/\/$/, '');
-      if (!baseUrl) {
-        throw new Error('BASE_URL must be configured to stream HLS media');
-      }
-
       // Pre-warm cache for master and 144p segments
       if (this._streamHlsUseCase) {
         this._streamHlsUseCase.prewarm(lessonId);
@@ -89,7 +84,7 @@ export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
 
       return {
         isProcessing: false,
-        hlsUrl: `${baseUrl}/api/v1/course/lesson/${lessonId}/hls/master.m3u8`,
+        hlsUrl: `/api/v1/course/lesson/${lessonId}/hls/master.m3u8`,
       };
     }
 
