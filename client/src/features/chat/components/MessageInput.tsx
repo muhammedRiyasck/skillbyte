@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, Paperclip, X, FileText, Image as ImageIcon, Loader2, Smile } from 'lucide-react';
 import { toast } from 'sonner';
-import Picker from '@emoji-mart/react';
-import data from '@emoji-mart/data';
-import type { EmojiData, MessageInputProps } from '../types/IMessageInputProps';
+import EmojiPicker from "emoji-picker-react";
+import type { MessageInputProps } from '../types/IMessageInputProps';
 
 
 const MessageInput: React.FC<MessageInputProps> = ({
@@ -56,28 +55,33 @@ const MessageInput: React.FC<MessageInputProps> = ({
     };
   }, [showEmojiPicker]);
 
-  const insertEmojiAtCursor = useCallback((emoji: EmojiData) => {
-    const textarea = inputRef.current;
-    if (!textarea) {
-      setContent((prev) => prev + emoji.native);
-      return;
-    }
+  const insertEmojiAtCursor = useCallback((emoji: string) => {
+  const textarea = inputRef.current;
 
-    const start = textarea.selectionStart ?? content.length;
-    const end = textarea.selectionEnd ?? content.length;
-    const newContent =
-      content.substring(0, start) + emoji.native + content.substring(end);
+  if (!textarea) {
+    setContent((prev) => prev + emoji);
+    return;
+  }
 
-    setContent(newContent);
+  const start = textarea.selectionStart ?? content.length;
+  const end = textarea.selectionEnd ?? content.length;
 
-    // Restore cursor position after the inserted emoji
-    requestAnimationFrame(() => {
-      const newCursor = start + emoji.native.length;
-      textarea.selectionStart = newCursor;
-      textarea.selectionEnd = newCursor;
-      textarea.focus();
-    });
-  }, [content]);
+  const newContent =
+    content.substring(0, start) +
+    emoji +
+    content.substring(end);
+
+  setContent(newContent);
+
+  // Restore cursor position after the inserted emoji
+  requestAnimationFrame(() => {
+    const newCursor = start + emoji.length;
+
+    textarea.selectionStart = newCursor;
+    textarea.selectionEnd = newCursor;
+    textarea.focus();
+  });
+}, [content]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
@@ -224,15 +228,13 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
           {showEmojiPicker && (
             <div className="absolute bottom-12 left-0 z-50 shadow-2xl rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
-              <Picker
-                data={data}
-                onEmojiSelect={insertEmojiAtCursor}
-                theme="auto"
-                previewPosition="none"
-                skinTonePosition="none"
-                maxFrequentRows={2}
-                perLine={8}
-              />
+              <EmojiPicker
+  onEmojiClick={(emojiData) => insertEmojiAtCursor(emojiData.emoji)}
+  previewConfig={{ showPreview: false }}
+  skinTonesDisabled
+  width={320}
+  height={350}
+/>
             </div>
           )}
         </div>
