@@ -1,3 +1,6 @@
+import { config } from 'dotenv';
+config(); // Must be first — before ANY other import reads process.env
+
 import http from 'http';
 import app from './app';
 import { SocketService } from './shared/services/socket/SocketService';
