@@ -26,6 +26,6 @@ JobQueueInitializer.initialize();
 
 const PORT = process.env.PORT || 5000;
 
-server.listen(PORT, () => {
+server.listen(PORT as number, '0.0.0.0', () => {
   logger.info(`Server running on port ${PORT}`);
 });
