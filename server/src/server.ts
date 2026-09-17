@@ -1,6 +1,11 @@
 import { config } from 'dotenv';
 config(); // Must be first — before ANY other import reads process.env
 
+// TEMP DEBUG — remove after confirming env vars are loaded
+console.log('[DEBUG] STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? `exists (starts with ${process.env.STRIPE_SECRET_KEY.slice(0, 10)}...)` : 'UNDEFINED');
+console.log('[DEBUG] NODE_ENV:', process.env.NODE_ENV);
+console.log('[DEBUG] PORT:', process.env.PORT);
+
 import http from 'http';
 import app from './app';
 import { SocketService } from './shared/services/socket/SocketService';
