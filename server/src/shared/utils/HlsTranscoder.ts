@@ -110,7 +110,7 @@ export class HlsTranscoder {
                 `-b:v ${res.videoBitrate}`,
                 `-b:a ${res.audioBitrate}`,
                 '-threads 1',
-                '-preset fast',
+                '-preset ultrafast',
                 '-g 30',
                 '-keyint_min 30',
                 '-sc_threshold 0',
