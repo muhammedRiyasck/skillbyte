@@ -88,9 +88,8 @@ export class HlsTranscoder {
       `Source height: ${originalHeight}px → transcoding to: ${targetResolutions.map((r) => r.name).join(', ')}`,
     );
 
-    // Run at most 2 FFmpeg processes at once — faster than sequential but
-    // avoids the disk/CPU spike of running all 4 simultaneously.
-    const limit = pLimit(2);
+    // Run 1 FFmpeg process at a time to prevent out-of-memory (OOM) crashes
+    const limit = pLimit(1);
     await Promise.all(
       targetResolutions.map((res) =>
         limit(() => {
@@ -110,6 +109,7 @@ export class HlsTranscoder {
                 `-vf scale=${res.width}:${res.height}:force_original_aspect_ratio=decrease,pad=${res.width}:${res.height}:(ow-iw)/2:(oh-ih)/2`,
                 `-b:v ${res.videoBitrate}`,
                 `-b:a ${res.audioBitrate}`,
+                '-threads 1',
                 '-preset fast',
                 '-g 30',
                 '-keyint_min 30',
