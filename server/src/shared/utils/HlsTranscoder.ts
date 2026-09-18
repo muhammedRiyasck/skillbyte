@@ -94,9 +94,6 @@ export class HlsTranscoder {
       targetResolutions.map((res) =>
         limit(() => {
           const playlistPath = path.join(outputFolder, `${res.name}.m3u8`);
-          // Use forward slashes for ffmpeg segment filename pattern (even on Windows)
-          const segmentPattern =
-            outputFolder.replace(/\\/g, '/') + `/${res.name}_%04d.ts`;
 
           // Only log when progress jumps by ≥5% to avoid flooding the console.
           let lastLoggedPct = -1;
@@ -117,7 +114,6 @@ export class HlsTranscoder {
                 '-hls_time 4',
                 '-hls_playlist_type vod',
                 '-hls_flags independent_segments',
-                `-hls_segment_filename ${segmentPattern}`,
                 '-f hls',
               ])
               .output(playlistPath)
