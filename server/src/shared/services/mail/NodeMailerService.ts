@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import { IMailerService } from './IMailerService';
 import { HttpError } from '../../types/HttpError';
 import { ERROR_MESSAGES } from '../../constants/messages';
@@ -6,27 +6,29 @@ import logger from '../../utils/Logger';
 import { HttpStatusCode } from '../../enums/HttpStatusCodes';
 
 export class NodeMailerService implements IMailerService {
-  transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL,
-      pass: process.env.EMAIL_PASSWORD,
-    },
-    // secure: true, // Use TLS
-  });
+  private resend: Resend;
+
+  constructor() {
+    this.resend = new Resend(process.env.RESEND_API_KEY);
+  }
 
   async sendMail(email: string, subject: string, html: string): Promise<void> {
     try {
-      const result = await this.transporter.verify();
-      logger.info('send mail verify', result, email, ' email');
-      await this.transporter.sendMail({
-        from: 'SkillByte" <no-reply@skillbyte.com>',
+      const { data, error } = await this.resend.emails.send({
+        from: 'SkillByte <no-reply@skillbyte.site>',
         to: email,
         subject,
         html,
       });
+
+      if (error) {
+        logger.error('Error from Resend API:', error);
+        throw new Error(error.message);
+      }
+      
+      logger.info('Email sent successfully via Resend:', data);
     } catch (error) {
-      logger.error('Error verifying email transporter:', error);
+      logger.error('Error sending email:', error);
       throw new HttpError(
         ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
         HttpStatusCode.INTERNAL_SERVER_ERROR,
