@@ -52,9 +52,20 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
 
   const handleViewResume = useCallback(async (instructorId: string) => {
     try {
-      window.open(`${api.defaults.baseURL}/instructors/${instructorId}/resume`, '_blank');
+      const response = await api.get(`/instructors/${instructorId}/resume`, {
+        responseType: 'blob', // Important: tell Axios we expect a binary file
+      });
+      
+      // Create a blob URL and open it
+      const blob = new Blob([response.data], { type: response.headers['content-type'] || 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      
+      // Clean up the URL object after a short delay
+      setTimeout(() => window.URL.revokeObjectURL(url), 1000);
     } catch (error) {
       console.error('Error opening resume:', error);
+      alert('Unable to load resume. The file may be missing or corrupted.');
     }
   }, []);
 
