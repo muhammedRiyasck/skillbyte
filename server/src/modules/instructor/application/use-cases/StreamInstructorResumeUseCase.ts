@@ -36,27 +36,9 @@ export class StreamInstructorResumeUseCase
 
     const fileKey = instructor.resumeUrl;
     const freshSignedUrl = await this._storageService.getSignedUrl(fileKey);
-    const fileResponse = await fetch(freshSignedUrl);
-
-    if (!fileResponse.ok || !fileResponse.body) {
-      logger.error(
-        `Failed to fetch resume from storage: ${fileResponse.status} ${fileResponse.statusText}`,
-      );
-      throw new HttpError(
-        'Failed to fetch file from storage',
-        HttpStatusCode.INTERNAL_SERVER_ERROR,
-      );
-    }
-
-    const contentType =
-      fileResponse.headers.get('content-type') || 'application/pdf';
-    const stream = Readable.fromWeb(
-      fileResponse.body as unknown as import('stream/web').ReadableStream,
-    );
 
     return {
-      stream,
-      contentType,
+      url: freshSignedUrl,
     };
   }
 }

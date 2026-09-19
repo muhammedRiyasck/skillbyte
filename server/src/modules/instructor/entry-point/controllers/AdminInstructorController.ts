@@ -89,10 +89,8 @@ export class AdminInstructorController {
 
   getInstructorResume = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
-    const { stream, contentType } = await this._streamResumeUC.execute(id);
+    const { url } = await this._streamResumeUC.execute(id);
 
-    res.setHeader('Content-Type', contentType);
-    res.setHeader('Content-Disposition', 'inline');
-    stream.pipe(res);
+    ApiResponseHelper.success(res, 'Resume URL generated successfully', { url });
   };
 }

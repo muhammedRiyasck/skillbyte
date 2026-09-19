@@ -1,8 +1,7 @@
 import { Readable } from 'stream';
 
 export interface StreamResumeResult {
-  stream: Readable;
-  contentType: string;
+  url: string;
 }
 
 export interface IStreamInstructorResumeUseCase {
