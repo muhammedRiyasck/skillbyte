@@ -35,7 +35,11 @@ export const instructorRegister = async (payload: IinstrctorSignUpPayload) => {
   }
 
   // Step 1: Send form data as JSON — server sends OTP and returns a pre-signed upload URL
-  const response = await api.post("/instructor/register", jsonPayload);
+  const response = await api.post("/instructor/register", jsonPayload, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   const { uploadUrl, resumeKey } = response.data?.data ?? {};
 
   // Step 2: Upload resume directly to S3 using the pre-signed URL (no server involved)
