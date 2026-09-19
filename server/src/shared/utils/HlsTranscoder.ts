@@ -146,7 +146,7 @@ export class HlsTranscoder {
       '#EXT-X-VERSION:3',
       ...targetResolutions.map(
         (res) =>
-          `#EXT-X-STREAM-INF:BANDWIDTH=${res.bandwidth},RESOLUTION=${res.width}x${res.height}\n${res.name}.m3u8`,
+          `#EXT-X-STREAM-INF:BANDWIDTH=${res.bandwidth},RESOLUTION=${res.width}x${res.height},CODECS="avc1.42E01E,mp4a.40.2"\n${res.name}.m3u8`,
       ),
     ].join('\n');
 
