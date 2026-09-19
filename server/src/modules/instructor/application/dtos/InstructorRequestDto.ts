@@ -11,11 +11,13 @@ export interface InstructorRegistrationRequestDto {
   bio?: string;
   customJobTitle?: string;
   customSubject?: string;
+  resumeContentType: string;
 }
 
 export interface InstructorVerifyOtpRequestDto {
   email: string;
   Otp: string;
+  resumeKey?: string;
 }
 
 export interface InstructorReapplyRequestDto {

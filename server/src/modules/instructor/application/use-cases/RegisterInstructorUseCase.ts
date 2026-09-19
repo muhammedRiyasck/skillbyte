@@ -4,9 +4,6 @@ import { IOtpService } from '../../../../shared/services/otp/interfaces/IOtpServ
 import { IRegisterInstructorUseCase } from '../interfaces/IRegisterInstructorUseCase';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { HttpError } from '../../../../shared/types/HttpError';
-
-import { eventBus } from '../../../../shared/services/event-bus/EventBus';
-import { INSTRUCTOR_EVENTS } from '../../../../shared/services/event-bus/InstructorEvents';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { TempInstructorData } from '../../../../shared/services/otp/interfaces/ITempInstructorData ';
 import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
@@ -43,11 +40,13 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
   /**
    * Executes the instructor registration process.
    * Retrieves temporary data, verifies OTP, validates data completeness, and saves the new instructor.
+   * The resumeKey (S3 key) was pre-uploaded directly by the client using a pre-signed URL.
    * @param email - The email address of the instructor.
    * @param otp - The OTP for verification.
+   * @param resumeKey - The S3 key where the resume was uploaded (validated by the controller).
    * @throws HttpError with appropriate status code if registration fails.
    */
-  async execute(email: string, otp: string): Promise<void> {
+  async execute(email: string, otp: string, resumeKey?: string): Promise<void> {
     const dto = await this._otpService.getTempData(email);
     if (!dto) {
       throw new HttpError(
@@ -62,6 +61,11 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
         HttpStatusCode.BAD_REQUEST,
       );
     }
+
+    // Use the resumeKey passed from the controller (already validated to exist in S3)
+    // Fall back to tempResumeKey stored in Redis (in case of race conditions)
+    const resolvedResumeKey = resumeKey || dto.tempResumeKey || null;
+
     const hashedPassword = await this._passwordHasher.hash(dto.password);
     const instructor = new Instructor(
       dto.fullName,
@@ -74,7 +78,7 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
       dto.portfolioLink || '',
       dto.bio,
       dto.phoneNumber || null,
-      null, // resumeUrl - will be set asynchronously
+      resolvedResumeKey, // S3 key — uploaded directly by client via pre-signed URL
       null, // profilePictureUrl
       true, // isEmailVerified
       InstructorAccountStatus.PENDING, // accountStatus
@@ -92,18 +96,6 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
       false, // isStripeVerified
     );
 
-    const savedInstructor = await this._instructorRepo.save(instructor);
-
-    // Emit event for background resume upload if file exists
-    if (dto.resumeFile) {
-      const file = dto.resumeFile as { path: string; originalname: string };
-
-      eventBus.emit(INSTRUCTOR_EVENTS.RESUME_UPLOAD_REQUESTED, {
-        instructorId: savedInstructor.instructorId || '',
-        filePath: file.path,
-        originalName: file.originalname,
-        email: dto.email,
-      });
-    }
+    await this._instructorRepo.save(instructor);
   }
 }

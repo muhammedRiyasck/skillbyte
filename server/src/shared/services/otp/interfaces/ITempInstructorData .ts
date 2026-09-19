@@ -9,5 +9,6 @@ export interface TempInstructorData {
   socialMediaLink: string;
   portfolioLink?: string;
   bio: string;
-  resumeFile?: { path: string; originalname: string };
+  /** S3 key of the temp-uploaded resume (uploaded directly by client via pre-signed URL) */
+  tempResumeKey?: string;
 }

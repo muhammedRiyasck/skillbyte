@@ -12,7 +12,6 @@ const upload = multer({ dest: 'uploads/' });
 
 router.post(
   '/register',
-  upload.single('resume'),
   validateRequest(InstructorRegistrationSchema),
   asyncHandler(instructorAuthController.registerInstructor),
 );

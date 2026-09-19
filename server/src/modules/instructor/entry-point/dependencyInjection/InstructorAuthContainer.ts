@@ -14,11 +14,13 @@ import { TempInstructorData } from '../../../../shared/services/otp/interfaces/I
 const otpRateLimiter = new OtpRateLimiter();
 const OtpService = new RedisOtpService(otpRateLimiter, 60);
 
+const storageService = new S3StorageService();
+
 const registerInstructorUC = new RegisterInstructorUseCase(
   instructorRepo,
   OtpService as IOtpService<TempInstructorData>,
 );
-const storageService = new S3StorageService();
+
 const reapplyInstructorUseCase = new ReapplyInstructorUseCase(
   instructorRepo,
   storageService,
@@ -28,4 +30,5 @@ export const instructorAuthController = new InstructorAuthController(
   registerInstructorUC,
   OtpService,
   reapplyInstructorUseCase,
+  storageService,
 );

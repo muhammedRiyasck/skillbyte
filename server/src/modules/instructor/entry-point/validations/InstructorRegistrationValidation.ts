@@ -17,6 +17,7 @@ export const InstructorRegistrationSchema = z
     bio: z.string().optional().or(z.literal('')),
     customJobTitle: z.string().optional().or(z.literal('')),
     customSubject: z.string().optional().or(z.literal('')),
+    resumeContentType: z.string().min(1, 'Resume content type is required'),
   })
   .superRefine((data, ctx) => {
     if (data.subject.trim() === 'Other' && !data.customSubject) {

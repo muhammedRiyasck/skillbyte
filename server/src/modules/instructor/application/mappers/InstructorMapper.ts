@@ -12,7 +12,7 @@ import { Instructor } from '../../domain/entities/Instructor';
 export class InstructorMapper {
   static toRegisterInstructorEntity(
     dto: InstructorRegistrationRequestDto,
-    file?: Express.Multer.File,
+    tempResumeKey?: string,
   ) {
     const subject =
       dto.subject.trim() === 'Other' ? dto.customSubject : dto.subject;
@@ -30,7 +30,7 @@ export class InstructorMapper {
       experience: dto.experience,
       portfolioLink: dto.portfolioLink,
       bio: dto.bio,
-      resumeFile: file,
+      tempResumeKey: tempResumeKey,
     };
   }
 

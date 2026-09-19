@@ -9,11 +9,13 @@ import { IReapplyInstructorUseCase } from '../../application/interfaces/IReapply
 import { InstructorMapper } from '../../application/mappers/InstructorMapper';
 import { TempInstructorData } from '../../../../shared/services/otp/interfaces/ITempInstructorData ';
 import { TempStudentData } from '../../../../shared/services/otp/interfaces/ITempStudentData';
+import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 import {
   InstructorRegistrationRequestDto,
   InstructorVerifyOtpRequestDto,
   InstructorReapplyRequestDto,
 } from '../../application/dtos/InstructorRequestDto';
+import crypto from 'crypto';
 
 /**
  * Controller for instructor authentication operations.
@@ -24,6 +26,8 @@ export class InstructorAuthController {
    * Constructs the InstructorAuthController.
    * @param _registerInstructorUseCase - Use case for registering instructors.
    * @param _generateOtpUseCase - Service for OTP generation and verification.
+   * @param _reapplyInstructorUseCase - Use case for re-applying instructors.
+   * @param _storageService - Storage service for generating pre-signed upload URLs.
    */
   constructor(
     private readonly _registerInstructorUseCase: IRegisterInstructorUseCase,
@@ -31,21 +35,17 @@ export class InstructorAuthController {
       TempInstructorData | TempStudentData
     >,
     private readonly _reapplyInstructorUseCase: IReapplyInstructorUseCase,
+    private readonly _storageService: IStorageService,
   ) {}
 
   /**
    * Registers a new instructor by storing temporary data and sending OTP.
-   * @param req - Express request object with instructor registration data.
+   * Also generates a write-only pre-signed S3 URL so the client can upload
+   * the resume directly to S3 — no file data ever touches this server.
+   * @param req - Express request object with instructor registration data (JSON, no file).
    * @param res - Express response object.
    */
   registerInstructor = async (req: Request, res: Response): Promise<void> => {
-    if (!req.file) {
-      throw new HttpError(
-        "We can't see your resume",
-        HttpStatusCode.BAD_REQUEST,
-      );
-    }
-
     const dto: InstructorRegistrationRequestDto = req.body;
 
     const isUserExists = await this._registerInstructorUseCase.isUserExists(
@@ -57,9 +57,19 @@ export class InstructorAuthController {
         HttpStatusCode.BAD_REQUEST,
       );
 
+    // Generate a unique S3 key with a UUID — not guessable
+    // The pre-signed URL is write-only (PUT) and expires in 6 minutes
+    const resumeKey = `temp-resumes/${crypto.randomUUID()}-resume`;
+    const { signedUrl: uploadUrl } =
+      await this._storageService.generateUploadUrl(
+        resumeKey,
+        dto.resumeContentType,
+      );
+
+    // Store ONLY the key (short string) in Redis — no binary data
     const instructorEntity = InstructorMapper.toRegisterInstructorEntity(
       dto,
-      req.file,
+      resumeKey,
     );
 
     await this._generateOtpUseCase.storeTempData(dto.email, instructorEntity);
@@ -68,18 +78,37 @@ export class InstructorAuthController {
       dto.fullName,
       'Instructor Registration OTP',
     );
-    ApiResponseHelper.created(res, 'An OTP sent to your mail.');
+
+    // Return the pre-signed URL to the client for direct S3 upload
+    res.status(201).json({
+      success: true,
+      message: 'An OTP sent to your mail.',
+      data: { uploadUrl, resumeKey },
+    });
   };
 
   /**
    * Verifies the OTP and completes instructor registration.
-   * @param req - Express request object with OTP and email.
+   * Confirms the resume file actually exists in S3 before creating the account.
+   * @param req - Express request object with OTP, email, and resumeKey.
    * @param res - Express response object.
    */
   verifyOtp = async (req: Request, res: Response): Promise<void> => {
     const dto: InstructorVerifyOtpRequestDto = req.body;
     const { email, otp } = InstructorMapper.toVerifyOtpEntity(dto);
-    await this._registerInstructorUseCase.execute(email, otp);
+
+    // Validate the resume was actually uploaded before confirming registration
+    if (dto.resumeKey) {
+      const resumeUploaded = await this._storageService.fileExists(dto.resumeKey);
+      if (!resumeUploaded) {
+        throw new HttpError(
+          'Resume upload incomplete. Please try registering again.',
+          HttpStatusCode.BAD_REQUEST,
+        );
+      }
+    }
+
+    await this._registerInstructorUseCase.execute(email, otp, dto.resumeKey);
     ApiResponseHelper.created(
       res,
       "Successfully registered. You'll receive an email once approved.",
