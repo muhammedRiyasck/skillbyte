@@ -389,7 +389,7 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
   };
 
   return (
-    <div data-vjs-player className="relative w-full aspect-video">
+    <div data-vjs-player className="relative w-full aspect-video max-h-[85vh] flex items-center justify-center bg-black">
       {/* Hide the default Video.js big play button while we are in initial load */}
       <style>{`
         ${isInitialLoading ? '.vjs-big-play-button { display: none !important; }' : ''}

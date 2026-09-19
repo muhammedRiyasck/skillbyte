@@ -339,7 +339,7 @@ const CourseDetails: React.FC = () => {
           </div>
         </div>
       ) : (
-        <>
+        // <>
           <CourseHero
             course={course}
             role={role}
@@ -357,6 +357,7 @@ const CourseDetails: React.FC = () => {
             onClaimCertificate={handleClaimCertificate}
             onTakeQuiz={handleTakeQuiz}
           />
+          )}
  
           {/* MAIN CONTENT */}
           <main className="mx-auto max-w-[1500px] px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
@@ -429,8 +430,8 @@ const CourseDetails: React.FC = () => {
               />
             </div>
           </main>
-        </>
-      )}
+        {/* </> */}
+      
 
       {/* INSTRUCTOR PROFILE MODAL */}
       <InstructorProfileModal
