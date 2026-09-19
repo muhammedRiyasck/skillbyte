@@ -36,6 +36,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
   const [isSlowConnection, setIsSlowConnection] = useState(false);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [initialSignedUrl, setInitialSignedUrl] = useState<string | null>(null);
   const hideControlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const role = useSelector((state: RootState) => state.auth.user?.role);
@@ -143,11 +144,19 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     lastSavedTime.current = 0;
     hasCompleted.current = false;
     pendingSave.current = null;
+    setInitialSignedUrl(null);
 
     if (videoRef.current) {
       videoRef.current.load();
     }
   }, [id]);
+
+  // Lock the signed URL so it doesn't change on background refetches
+  useEffect(() => {
+    if (signedUrl && !initialSignedUrl) {
+      setInitialSignedUrl(signedUrl);
+    }
+  }, [signedUrl, initialSignedUrl]);
 
   // Handle online/offline status
   useEffect(() => {
@@ -512,7 +521,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
         {hlsUrl ? (
           <HlsPlayer
             src={hlsUrl}
-            initialTime={initialProgress}
+            initialTime={currentTimeRef.current > 0 ? currentTimeRef.current : initialProgress}
             onTimeUpdate={(time, dur) => {
               setCurrentTime(time);
               setDuration(dur);
@@ -546,7 +555,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
             {/* Fallback Native Video Element for older MP4s */}
             <video
               ref={videoRef}
-              src={signedUrl}
+              src={initialSignedUrl || signedUrl}
               className="w-full h-full"
               onClick={togglePlayPause}
               autoPlay
