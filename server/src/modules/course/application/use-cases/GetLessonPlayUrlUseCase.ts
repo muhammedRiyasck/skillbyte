@@ -82,9 +82,10 @@ export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
         this._streamHlsUseCase.prewarm(lessonId);
       }
 
+      const baseUrl = process.env.BASE_URL?.replace(/\/$/, '') || '';
       return {
         isProcessing: false,
-        hlsUrl: `/api/v1/course/lesson/${lessonId}/hls/master.m3u8`,
+        hlsUrl: `${baseUrl}/api/v1/course/lesson/${lessonId}/hls/master.m3u8`,
       };
     }
 
