@@ -139,12 +139,7 @@ export class VideoTranscodeProcessor {
         logger.info(
           `Phase: TRANSCODE - Transcoding video for lesson ${lessonId}`,
         );
-        const baseUrl = process.env.BASE_URL?.replace(/\/$/, '');
-        if (!baseUrl) {
-          throw new Error('BASE_URL must be configured to transcode HLS media');
-        }
-        const hlsProxyBaseUrl = `${baseUrl}/api/v1/course/lesson/${lessonId}/hls`;
-        await HlsTranscoder.transcode(inputPath, outputFolder, hlsProxyBaseUrl);
+        await HlsTranscoder.transcode(inputPath, outputFolder);
 
         await LessonModel.findByIdAndUpdate(lessonId, {
           transcodePhase: 'transcoded',

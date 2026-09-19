@@ -20,7 +20,6 @@ export class HlsTranscoder {
   static async transcode(
     inputPath: string,
     outputFolder: string,
-    hlsProxyBaseUrl?: string,
   ): Promise<TranscodeResult> {
     await fs.mkdir(outputFolder, { recursive: true });
 
@@ -135,10 +134,6 @@ export class HlsTranscoder {
                 reject(err);
               })
               .run();
-          }).then(async () => {
-            if (hlsProxyBaseUrl) {
-              await this.rewritePlaylistUrls(playlistPath, hlsProxyBaseUrl);
-            }
           });
         }),
       ),
@@ -151,7 +146,7 @@ export class HlsTranscoder {
       '#EXT-X-VERSION:3',
       ...targetResolutions.map(
         (res) =>
-          `#EXT-X-STREAM-INF:BANDWIDTH=${res.bandwidth},RESOLUTION=${res.width}x${res.height}\n${hlsProxyBaseUrl ? `${hlsProxyBaseUrl}/${res.name}.m3u8` : `${res.name}.m3u8`}`,
+          `#EXT-X-STREAM-INF:BANDWIDTH=${res.bandwidth},RESOLUTION=${res.width}x${res.height}\n${res.name}.m3u8`,
       ),
     ].join('\n');
 
@@ -165,24 +160,4 @@ export class HlsTranscoder {
     };
   }
 
-  /**
-   * Makes every media URI in an HLS playlist return through the signed-URL
-   * proxy. HLS resolves relative URIs against the final redirect location,
-   * which would otherwise bypass the proxy and request private B2 objects.
-   */
-  private static async rewritePlaylistUrls(
-    playlistPath: string,
-    hlsProxyBaseUrl: string,
-  ): Promise<void> {
-    const playlist = await fs.readFile(playlistPath, 'utf-8');
-    const rewrittenPlaylist = playlist
-      .split(/\r?\n/)
-      .map((line) => {
-        const uri = line.trim();
-        return uri && !uri.startsWith('#') ? `${hlsProxyBaseUrl}/${uri}` : line;
-      })
-      .join('\n');
-
-    await fs.writeFile(playlistPath, rewrittenPlaylist, 'utf-8');
   }
-}
