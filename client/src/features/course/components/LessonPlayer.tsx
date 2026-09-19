@@ -31,13 +31,11 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showControls, setShowControls] = useState(true);
   const [buffering, setBuffering] = useState(false);
   const [isSlowConnection, setIsSlowConnection] = useState(false);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [initialSignedUrl, setInitialSignedUrl] = useState<string | null>(null);
-  const hideControlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const role = useSelector((state: RootState) => state.auth.user?.role);
 
@@ -321,13 +319,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enrollmentId, id]);
 
-  const handleMouseMove = () => {
-    setShowControls(true);
-    if (hideControlsTimeoutRef.current) clearTimeout(hideControlsTimeoutRef.current);
-    hideControlsTimeoutRef.current = setTimeout(() => {
-      if (isPlaying) setShowControls(false);
-    }, 3000);
-  };
+
 
   const togglePlayPause = () => {
     if (videoRef.current) {
@@ -524,18 +516,16 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
 
       <div
         ref={containerRef}
-        className="relative w-full bg-black aspect-video max-h-[85vh] flex items-center justify-center group outline-none"
-        onMouseMove={handleMouseMove}
-        onMouseLeave={() => isPlaying && setShowControls(false)}
+        className={`relative w-full bg-black flex items-center justify-center group outline-none ${isFullscreen ? "h-screen" : "aspect-video max-h-[85vh]"}`}
         tabIndex={0}
         onKeyDown={handleKeyDown}
       >
-        {isProcessing && setTimeout(()=>{
+        {isProcessing && ( 
           <div className="absolute top-4 left-4 z-[60] bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-md border border-white/10 text-white text-xs flex items-center gap-2">
             <Loader2 className="w-3 h-3 animate-spin text-indigo-400" />
             <span>Processing HD qualities... Playing original video</span>
           </div>
-        },2000)}
+        )}
         {hlsUrl ? (
           <HlsPlayer
             src={hlsUrl}
@@ -569,28 +559,26 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
             }}
           />
         ) : (
-          <>
+          <div className="flex flex-col w-full h-full relative">
             {/* Fallback Native Video Element for older MP4s */}
-            <video
-              ref={videoRef}
-              src={initialSignedUrl || signedUrl}
-              className="w-full h-full object-contain bg-black"
-              onClick={togglePlayPause}
-              autoPlay
-              onPlay={() => setIsPlaying(true)}
-              onTimeUpdate={handleTimeUpdate}
-              onLoadedMetadata={handleLoadedMetadata}
-              onDurationChange={handleLoadedMetadata}
-              onWaiting={handleWaiting}
-              onCanPlay={handleCanPlay}
-              onEnded={() => handleEnded()}
-            />
+            <div className="flex-1 min-h-0 relative bg-black cursor-pointer" onClick={togglePlayPause}>
+              <video
+                ref={videoRef}
+                src={initialSignedUrl || signedUrl}
+                className="absolute inset-0 w-full h-full object-contain"
+                autoPlay
+                onPlay={() => setIsPlaying(true)}
+                onTimeUpdate={handleTimeUpdate}
+                onLoadedMetadata={handleLoadedMetadata}
+                onDurationChange={handleLoadedMetadata}
+                onWaiting={handleWaiting}
+                onCanPlay={handleCanPlay}
+                onEnded={() => handleEnded()}
+              />
+            </div>
 
-            {/* Controls Overlay (Only for native video) */}
-            <div
-              className={`absolute bottom-4 left-4 right-4 bg-black/60 backdrop-blur-md border border-white/10 rounded-xl p-4 transition-all duration-300 transform ${showControls ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
-                }`}
-            >
+            {/* Controls Bar Below Video (Always visible) */}
+            <div className="bg-[#050505] border-t border-white/10 px-4 py-2.5 flex-shrink-0 z-10">
               {/* Progress Bar */}
               <input
                 type="range"
@@ -598,7 +586,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
                 max={duration || 0}
                 value={currentTime}
                 onChange={handleSeek}
-                className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer mb-4"
+                className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer mb-2.5"
                 style={{
                   background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${(currentTime / duration) * 100}%, #4b5563 ${(currentTime / duration) * 100
                     }%, #4b5563 100%)`,
@@ -610,13 +598,13 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
                 <div className="flex items-center gap-4">
                   {/* Play/Pause */}
                   <button onClick={togglePlayPause} className="hover:text-indigo-400 transition-colors cursor-pointer">
-                    {isPlaying ? <Pause className="w-8 h-8" /> : <Play className="w-8 h-8" />}
+                    {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
                   </button>
 
                   {/* Volume */}
                   <div className="flex items-center gap-2">
                     <button onClick={toggleMute} className="hover:text-indigo-400 transition-colors cursor-pointer ">
-                      {isMuted || volume === 0 ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+                      {isMuted || volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                     </button>
                     <input
                       type="range"
@@ -637,11 +625,11 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
 
                 {/* Fullscreen */}
                 <button onClick={toggleFullscreen} className="hover:text-indigo-400 transition-colors  cursor-pointer">
-                  {isFullscreen ? <Minimize className="w-6 h-6" /> : <Maximize className="w-6 h-6" />}
+                  {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
                 </button>
               </div>
             </div>
-          </>
+          </div>
         )}
 
         {/* Offline Indicator */}

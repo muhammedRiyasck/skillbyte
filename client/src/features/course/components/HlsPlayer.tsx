@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { Maximize, Minimize } from 'lucide-react';
 import videojs from 'video.js';
 import type Player from 'video.js/dist/types/player';
 
@@ -60,6 +61,7 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
   const [isSeeking, setIsSeeking] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(initialTime > 0);
   const [vjsContainer, setVjsContainer] = useState<HTMLElement | null>(null);
+  const [isZoomed, setIsZoomed] = useState(false);
   const playbackRates = [0.5, 1, 1.5, 2];
 
 
@@ -79,7 +81,7 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
 
     const player = videojs(videoElement, {
       controls: true,
-      fluid: true,
+      fill: true,
       // Eagerly load metadata so we know duration / can resume before play
       preload: 'metadata',
       html5: {
@@ -243,6 +245,14 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
       }
     });
 
+    player.on('fullscreenchange', () => {
+      if (player.isFullscreen()) {
+        setIsZoomed(true);
+      } else {
+        setIsZoomed(false);
+      }
+    });
+
     // --- Keyboard Shortcuts ---
     const handleKeyDown = (e: KeyboardEvent) => {
       // Don't intercept shortcuts if the user is typing in an input field (e.g. comments/notes)
@@ -389,11 +399,24 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
   };
 
   return (
-    <div data-vjs-player className="relative w-full aspect-video max-h-[85vh] flex items-center justify-center bg-black">
+    <div data-vjs-player className="relative w-full h-full flex items-center justify-center bg-black">
       {/* Hide the default Video.js big play button while we are in initial load */}
       <style>{`
         ${isInitialLoading ? '.vjs-big-play-button { display: none !important; }' : ''}
         @keyframes hls-spin { to { transform: rotate(360deg); } }
+        /* Force video to contain within the bounding box to maintain true aspect ratio */
+        .video-js .vjs-tech { 
+          object-fit: ${isZoomed ? 'cover' : 'contain'} !important; 
+          height: calc(100% - 3em) !important;
+        }
+        /* Keep control bar always visible and at the bottom, non-overlapping */
+        .video-js.vjs-has-started .vjs-control-bar {
+          display: flex !important;
+          opacity: 1 !important;
+          visibility: visible !important;
+          background-color: #050505 !important;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
       `}</style>
 
       {/* Video.js container - we append the actual video element here dynamically */}
@@ -456,14 +479,23 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
                     </option>
                   ))}
                 </select>
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-white/70 group-hover:text-white transition-colors">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f1f1f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="6 9 12 15 18 9"></polyline> 
-                  </svg>
+                <div className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-white/50">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                 </div>
               </div>
             </div>
           )}
+          
+          {/* Zoom Button - Bottom Right above control bar */}
+          <div className="absolute right-4 bottom-14 z-[100]">
+            <button
+              onClick={() => setIsZoomed(!isZoomed)}
+              className="flex items-center justify-center bg-black/60 backdrop-blur-md border border-white/10 shadow-lg p-2 rounded-lg text-white/90 hover:bg-black/80 hover:border-white/20 transition-all duration-200"
+              title={isZoomed ? "Zoom out" : "Zoom to fill"}
+            >
+              {isZoomed ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
+            </button>
+          </div>
         </>,
         vjsContainer
       ) : null}
