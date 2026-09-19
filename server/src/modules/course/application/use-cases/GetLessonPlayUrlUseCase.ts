@@ -73,7 +73,8 @@ export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
     }
 
     if (lesson.isProcessing) {
-      return { isProcessing: true };
+      const signedUrl = await this._storageService.getSignedUrl(lesson.fileName);
+      return { isProcessing: true, signedUrl };
     }
 
     if (lesson.hlsUrl) {

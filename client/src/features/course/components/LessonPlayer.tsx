@@ -461,21 +461,11 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     );
   }
 
-  if (isProcessing) {
+  if (!data?.data) {
     return (
       <div className="w-full h-96 bg-gray-900 flex flex-col items-center justify-center rounded-xl relative">
         <Loader2 className="w-12 h-12 animate-spin text-indigo-500 mb-4" />
-        <h3 className="text-xl text-white font-semibold mb-2">Processing Video</h3>
-        <p className="text-gray-400 text-center max-w-md px-4">
-          This lesson is currently being transcoded to provide high-quality adaptive streaming. 
-          Please check back in a few minutes.
-        </p>
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
-        >
-          <X className="w-6 h-6" />
-        </button>
+        <h3 className="text-xl text-white font-semibold mb-2">Loading</h3>
       </div>
     );
   }
@@ -513,6 +503,12 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
         tabIndex={0}
         onKeyDown={handleKeyDown}
       >
+        {isProcessing && (
+          <div className="absolute top-4 left-4 z-[60] bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-md border border-white/10 text-white text-xs flex items-center gap-2">
+            <Loader2 className="w-3 h-3 animate-spin text-indigo-400" />
+            <span>Processing HD qualities... Playing original video</span>
+          </div>
+        )}
         {hlsUrl ? (
           <HlsPlayer
             src={hlsUrl}
