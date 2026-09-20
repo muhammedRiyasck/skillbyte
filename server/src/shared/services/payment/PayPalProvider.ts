@@ -26,7 +26,7 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
   private clientId = process.env.PAYPAL_CLIENT_ID;
   private clientSecret = process.env.PAYPAL_CLIENT_SECRET;
   private baseUrl =
-    process.env.NODE_ENV === 'production'
+    process.env.PAYPAL_MODE === 'live'
       ? process.env.PAYPAL_LIVE_URL
       : process.env.PAYPAL_SANDBOX_URL;
 
