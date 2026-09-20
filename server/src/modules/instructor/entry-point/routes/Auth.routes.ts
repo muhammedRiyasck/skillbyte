@@ -8,7 +8,7 @@ import { InstructorVerifyOtpSchema } from '../validations/InstructorVerifyOtpVal
 import { InstructorReapplySchema } from '../validations/InstructorReapplyValidation';
 
 const router = Router();
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ storage: multer.memoryStorage() });
 
 router.post(
   '/register',

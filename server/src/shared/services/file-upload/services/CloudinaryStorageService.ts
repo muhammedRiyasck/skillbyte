@@ -42,10 +42,26 @@ export class CloudinaryStorageService implements IStorageService {
   }
 
   /**
-   * Uploads an in-memory buffer (e.g. from multer memoryStorage) to Cloudinary.
-   * Determines folder, resource_type, and message type from the file's MIME type.
+   * Satisfies the IStorageService interface.
+   * Resumes are stored in S3 (Backblaze), not Cloudinary — this method is not used.
    */
-  async uploadBuffer(file: Express.Multer.File): Promise<UploadBufferResult> {
+  async uploadBuffer(
+    _buffer: Buffer,
+    _originalName: string,
+    _options: UploadOptions,
+  ): Promise<string> {
+    throw new HttpError(
+      'uploadBuffer is not implemented for Cloudinary. Use S3StorageService for resume uploads.',
+      HttpStatusCode.INTERNAL_SERVER_ERROR,
+    );
+  }
+
+  /**
+   * Uploads an in-memory buffer (e.g. from multer memoryStorage) to Cloudinary.
+   * Used by the chat module. Determines folder, resource_type, and message type
+   * from the file's MIME type.
+   */
+  async uploadChatBuffer(file: Express.Multer.File): Promise<UploadBufferResult> {
     const { resourceType, folder, messageType } = this.resolveUploadConfig(
       file.mimetype,
     );

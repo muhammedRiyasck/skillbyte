@@ -12,7 +12,7 @@ import { Instructor } from '../../domain/entities/Instructor';
 export class InstructorMapper {
   static toRegisterInstructorEntity(
     dto: InstructorRegistrationRequestDto,
-    file?: Express.Multer.File,
+    resumeKey?: string,
   ) {
     const subject =
       dto.subject.trim() === 'Other' ? dto.customSubject : dto.subject;
@@ -30,7 +30,7 @@ export class InstructorMapper {
       experience: dto.experience,
       portfolioLink: dto.portfolioLink,
       bio: dto.bio,
-      resumeFile: file,
+      resumeKey, // plain S3 key, or undefined if upload failed/skipped
     };
   }
 
@@ -42,11 +42,26 @@ export class InstructorMapper {
   }
 
   static toReapplyEntity(dto: InstructorReapplyRequestDto) {
-    const { email, ...rest } = dto;
-    const updates: Record<string, unknown> = { ...rest };
-    if (updates.experience) {
-      updates.experience = Number(updates.experience);
+    const { email } = dto;
+    const updates: Partial<Instructor> = {};
+
+    if (dto.fullName !== undefined) updates.name = dto.fullName;
+    if (dto.phoneNumber !== undefined) updates.phoneNumber = dto.phoneNumber;
+    if (dto.subject !== undefined) {
+      updates.subject =
+        dto.subject === 'Other' ? dto.customSubject || '' : dto.subject;
     }
+    if (dto.jobTitle !== undefined) {
+      updates.jobTitle =
+        dto.jobTitle === 'Other' ? dto.customJobTitle || '' : dto.jobTitle;
+    }
+    if (dto.socialMediaLink !== undefined)
+      updates.socialProfile = dto.socialMediaLink;
+    if (dto.experience !== undefined)
+      updates.experience = Number(dto.experience);
+    if (dto.portfolioLink !== undefined) updates.portfolio = dto.portfolioLink;
+    if (dto.bio !== undefined) updates.bio = dto.bio;
+
     return { email, updates };
   }
 

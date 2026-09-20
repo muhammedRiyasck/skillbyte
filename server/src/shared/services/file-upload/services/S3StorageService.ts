@@ -62,6 +62,60 @@ export class S3StorageService implements IStorageService {
     }
   }
 
+  /**
+   * Upload a Buffer directly to S3 without touching the local filesystem.
+   * Uses the original filename to derive the extension and content type.
+   */
+  async uploadBuffer(
+    buffer: Buffer,
+    originalName: string,
+    options: UploadOptions,
+  ): Promise<string> {
+    const ext = path.extname(originalName) || '';
+    const fileName = `${options.folder}/${Date.now()}-${Math.random().toString(36).substring(2)}${ext}`;
+
+    logger.info('[S3:uploadBuffer] Starting buffer upload', {
+      originalName,
+      ext,
+      folder: options.folder,
+      bucket: this.bucket,
+      sizeBytes: buffer.length,
+      key: fileName,
+    });
+
+    try {
+      const command = new PutObjectCommand({
+        Bucket: this.bucket,
+        Key: fileName,
+        Body: buffer,
+        ContentType: options.contentType || 'application/octet-stream',
+      });
+
+      await s3.send(command);
+
+      logger.info('[S3:uploadBuffer] Upload succeeded', { key: fileName });
+      return fileName;
+    } catch (err: unknown) {
+      const error = err as Error & {
+        Code?: string;
+        code?: string;
+        $metadata?: { httpStatusCode?: number };
+      };
+      logger.error('[S3:uploadBuffer] Upload FAILED', {
+        message: error?.message,
+        code: error?.Code || error?.code,
+        status: error?.$metadata?.httpStatusCode,
+        originalName,
+        folder: options.folder,
+        key: fileName,
+      });
+      throw new HttpError(
+        ERROR_MESSAGES.INTERNAL_SERVER_ERROR,
+        HttpStatusCode.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   async delete(key: string): Promise<void> {
     if (!key) return;
     try {

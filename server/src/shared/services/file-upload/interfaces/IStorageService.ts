@@ -8,6 +8,15 @@ export interface UploadOptions {
 
 export interface IStorageService {
   upload(filePath: string, options: UploadOptions): Promise<string>;
+  /**
+   * Upload a raw Buffer directly to storage (no local file required).
+   * Returns the storage key (e.g. 'instructor-resumes/1234-abc.pdf').
+   */
+  uploadBuffer(
+    buffer: Buffer,
+    originalName: string,
+    options: UploadOptions,
+  ): Promise<string>;
   delete(identifier: string): Promise<void>;
   deleteFolder(prefix: string): Promise<void>;
   getSignedUrl(identifier: string, expiresIn?: number): Promise<string>;

@@ -5,8 +5,6 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
-import { eventBus } from '../../../../shared/services/event-bus/EventBus';
-import { INSTRUCTOR_EVENTS } from '../../../../shared/services/event-bus/InstructorEvents';
 import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 import { IPasswordHasher } from '../../../../shared/services/password-hasher/IPasswordHasher';
 import { passwordHasher } from '../../../../shared/services/password-hasher/BcryptPasswordHasher';
@@ -47,7 +45,6 @@ export class ReapplyInstructorUseCase implements IReapplyInstructorUseCase {
     };
 
     // Handle password hashing if provided and not empty
-    // Handle password hashing if provided and not empty
     const updatesWithPassword = updates as Partial<Instructor> & {
       password?: string;
     };
@@ -68,7 +65,20 @@ export class ReapplyInstructorUseCase implements IReapplyInstructorUseCase {
     );
 
     if (resumeFile) {
-      // Fire-and-forget: clean up old resume in background, don't block response
+      const resumeKey = await this._storageService.uploadBuffer(
+        resumeFile.buffer,
+        resumeFile.originalname,
+        {
+          folder: 'instructor-resumes',
+          contentType: resumeFile.mimetype,
+        },
+      );
+
+      await this._instructorRepo.updateById(instructor.instructorId!, {
+        resumeUrl: resumeKey,
+      });
+
+      // The new upload is safely stored before the old resume is removed.
       if (instructor.resumeUrl) {
         try {
           const oldResumeId = this._storageService.getIdentifierFromUrl(
@@ -82,13 +92,6 @@ export class ReapplyInstructorUseCase implements IReapplyInstructorUseCase {
           );
         }
       }
-
-      eventBus.emit(INSTRUCTOR_EVENTS.RESUME_UPLOAD_REQUESTED, {
-        instructorId: instructor.instructorId!,
-        filePath: resumeFile.path,
-        originalName: resumeFile.originalname,
-        email: instructor.email,
-      });
     }
   }
 }

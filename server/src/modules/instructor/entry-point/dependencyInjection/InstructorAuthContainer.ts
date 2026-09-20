@@ -28,4 +28,5 @@ export const instructorAuthController = new InstructorAuthController(
   registerInstructorUC,
   OtpService,
   reapplyInstructorUseCase,
+  storageService,
 );

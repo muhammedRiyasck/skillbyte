@@ -1,7 +1,8 @@
 export interface ResumeUploadJobData {
   instructorId: string;
-  filePath: string;
+  fileBuffer: string; // base64-encoded file content
   originalName: string;
+  mimetype: string;
   email: string;
 }
 
