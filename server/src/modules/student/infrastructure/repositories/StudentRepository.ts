@@ -5,6 +5,7 @@ import { StudentModel, IStudent } from '../models/StudentModel';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { StudentMapper } from '../mappers/StudentMapper';
+import { SocketService } from '../../../../shared/services/socket/SocketService';
 
 export class StudentRepository
   extends BaseRepository<Student, IStudent>
@@ -94,11 +95,10 @@ export class StudentRepository
     if (!updated) {
       throw new HttpError('Student not found', HttpStatusCode.NOT_FOUND);
     }
-    
+
     // Emit real-time XP notification
     if (xpEarned > 0) {
       try {
-        const SocketService = require('../../../../shared/services/socket/SocketService').SocketService;
         SocketService.getInstance().emitToUser(id, 'xp_earned', { xpEarned });
       } catch (err) {
         console.error('Failed to emit xp_earned socket event:', err);

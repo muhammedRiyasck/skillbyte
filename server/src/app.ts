@@ -7,8 +7,6 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 
-
-
 import errorHandler from './shared/middlewares/GlobalErrorMiddleware';
 import logger from './shared/utils/Logger';
 

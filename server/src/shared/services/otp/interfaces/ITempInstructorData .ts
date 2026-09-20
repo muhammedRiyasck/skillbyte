@@ -10,5 +10,4 @@ export interface TempInstructorData {
   portfolioLink?: string;
   bio: string;
   resumeKey?: string; // S3 storage key, set after successful upload
-
 }

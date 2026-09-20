@@ -1,11 +1,5 @@
 import { config } from 'dotenv';
-config(); // Must be first — before ANY other import reads process.env
-
-// TEMP DEBUG — log all env keys Railway is injecting
-console.log('[DEBUG] ALL ENV KEYS:', Object.keys(process.env).join(', '));
-console.log('[DEBUG] STRIPE_SECRET_KEY:', process.env.STRIPE_SECRET_KEY ? `exists (${process.env.STRIPE_SECRET_KEY.slice(0,12)}...)` : 'UNDEFINED');
-console.log('[DEBUG] PORT:', process.env.PORT);
-
+config();
 import http from 'http';
 import app from './app';
 import { SocketService } from './shared/services/socket/SocketService';

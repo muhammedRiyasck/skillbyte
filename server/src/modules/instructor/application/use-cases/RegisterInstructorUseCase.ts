@@ -83,10 +83,13 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
         { email },
       );
     } else {
-      logger.info('[RegisterUseCase] resumeKey present, will be set on instructor', {
-        email,
-        resumeKey,
-      });
+      logger.info(
+        '[RegisterUseCase] resumeKey present, will be set on instructor',
+        {
+          email,
+          resumeKey,
+        },
+      );
     }
 
     // ── 4. Build and save instructor ───────────────────────────────────────
@@ -102,22 +105,22 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
       dto.portfolioLink || '',
       dto.bio,
       dto.phoneNumber || null,
-      resumeKey,                        // S3 key from fire-and-forget upload
-      null,                             // profilePictureUrl
-      true,                             // isEmailVerified
-      InstructorAccountStatus.PENDING,  // accountStatus
-      false,                            // not approved
-      null,                             // approvalNotes
-      false,                            // not rejected
-      null,                             // rejectedNote
-      null,                             // doneBy
-      null,                             // doneAt
-      0,                                // avg rating
-      0,                                // total reviews
-      0,                                // total earnings
-      0,                                // withdrawn amount
-      null,                             // stripeAccountId
-      false,                            // isStripeVerified
+      resumeKey, // S3 key from fire-and-forget upload
+      null, // profilePictureUrl
+      true, // isEmailVerified
+      InstructorAccountStatus.PENDING, // accountStatus
+      false, // not approved
+      null, // approvalNotes
+      false, // not rejected
+      null, // rejectedNote
+      null, // doneBy
+      null, // doneAt
+      0, // avg rating
+      0, // total reviews
+      0, // total earnings
+      0, // withdrawn amount
+      null, // stripeAccountId
+      false, // isStripeVerified
     );
 
     const savedInstructor = await this._instructorRepo.save(instructor);

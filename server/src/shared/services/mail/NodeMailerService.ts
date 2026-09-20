@@ -25,7 +25,7 @@ export class NodeMailerService implements IMailerService {
         logger.error('Error from Resend API:', error);
         throw new Error(error.message);
       }
-      
+
       logger.info('Email sent successfully via Resend:', data);
     } catch (error) {
       logger.error('Error sending email:', error);

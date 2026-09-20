@@ -73,7 +73,9 @@ export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
     }
 
     if (lesson.isProcessing) {
-      const signedUrl = await this._storageService.getSignedUrl(lesson.fileName);
+      const signedUrl = await this._storageService.getSignedUrl(
+        lesson.fileName,
+      );
       return { isProcessing: true, signedUrl };
     }
 

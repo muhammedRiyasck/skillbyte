@@ -159,5 +159,4 @@ export class HlsTranscoder {
       resolutions: targetResolutions.map((r) => r.name),
     };
   }
-
-  }
+}

@@ -24,7 +24,9 @@ export class StreamInstructorResumeUseCase
     // ── 1. Fetch instructor ────────────────────────────────────────────────
     const instructor = await this._instructorRepo.findById(instructorId);
     if (!instructor) {
-      logger.error('[StreamResume] Instructor not found in DB', { instructorId });
+      logger.error('[StreamResume] Instructor not found in DB', {
+        instructorId,
+      });
       throw new HttpError(
         ERROR_MESSAGES.INSTRUCTOR_NOT_FOUND,
         HttpStatusCode.NOT_FOUND,
@@ -50,7 +52,10 @@ export class StreamInstructorResumeUseCase
     }
 
     const fileKey = instructor.resumeUrl;
-    logger.info('[StreamResume] Generating signed URL', { instructorId, fileKey });
+    logger.info('[StreamResume] Generating signed URL', {
+      instructorId,
+      fileKey,
+    });
 
     // ── 3. Generate signed URL ─────────────────────────────────────────────
     let freshSignedUrl: string;
@@ -72,7 +77,10 @@ export class StreamInstructorResumeUseCase
     }
 
     // ── 4. Fetch file from storage ─────────────────────────────────────────
-    logger.info('[StreamResume] Fetching file from signed URL', { instructorId, fileKey });
+    logger.info('[StreamResume] Fetching file from signed URL', {
+      instructorId,
+      fileKey,
+    });
     const fileResponse = await fetch(freshSignedUrl);
 
     logger.info('[StreamResume] Fetch response received', {

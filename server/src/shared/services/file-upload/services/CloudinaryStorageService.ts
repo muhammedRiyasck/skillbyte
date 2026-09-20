@@ -61,7 +61,9 @@ export class CloudinaryStorageService implements IStorageService {
    * Used by the chat module. Determines folder, resource_type, and message type
    * from the file's MIME type.
    */
-  async uploadChatBuffer(file: Express.Multer.File): Promise<UploadBufferResult> {
+  async uploadChatBuffer(
+    file: Express.Multer.File,
+  ): Promise<UploadBufferResult> {
     const { resourceType, folder, messageType } = this.resolveUploadConfig(
       file.mimetype,
     );
