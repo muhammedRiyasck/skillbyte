@@ -41,13 +41,9 @@ export class InstructorAuthController {
   /**
    * Registers a new instructor.
    *
-   * Upload flow (fire-and-forget):
-   *   1. multer puts the file in memory (no disk write).
-   *   2. We fire the S3 upload immediately — the response is NOT awaited.
-   *      The upload finishes in the background while the user waits for OTP.
-   *   3. On success the resolved S3 key is patched into the Redis temp data.
-   *   4. If the upload fails the key is left undefined; registration still
-   *      succeeds but the instructor will have no resume.
+   * The resume upload completes before temporary registration data is stored.
+   * This guarantees OTP verification cannot create an instructor without the
+   * required resume key.
    */
   registerInstructor = async (req: Request, res: Response): Promise<void> => {
     if (!req.file) {
@@ -76,72 +72,29 @@ export class InstructorAuthController {
       );
     }
 
-    // Store temp data without resume key first so OTP can be sent right away
-    const instructorEntity = InstructorMapper.toRegisterInstructorEntity(dto);
-    await this._generateOtpUseCase.storeTempData(dto.email, instructorEntity);
-
-    logger.info('[Register] Temp data stored in Redis (no resume key yet)', {
+    logger.info('[Register:upload] Starting resume upload', {
       email: dto.email,
+      originalName: req.file.originalname,
+      sizeBytes: req.file.size,
     });
+    const resumeKey = await this._storageService.uploadBuffer(
+      req.file.buffer,
+      req.file.originalname,
+      {
+        folder: 'instructor-resumes',
+        contentType: req.file.mimetype,
+      },
+    );
 
-    // ── Fire-and-forget S3 upload ──────────────────────────────────────────
-    // We deliberately do NOT await this. The OTP is sent immediately and the
-    // upload resolves in the background (typically <2 s for a PDF).
-    // On completion the Redis entry is patched with the S3 key so that by the
-    // time the user enters their OTP it is already available.
-    void (async () => {
-      try {
-        logger.info('[Register:upload] Starting S3 upload', {
-          email: dto.email,
-          originalName: req.file!.originalname,
-          sizeBytes: req.file!.size,
-        });
-
-        const resumeKey = await this._storageService.uploadBuffer(
-          req.file!.buffer,
-          req.file!.originalname,
-          {
-            folder: 'instructor-resumes',
-            contentType: req.file!.mimetype,
-          },
-        );
-
-        logger.info('[Register:upload] S3 upload succeeded', {
-          email: dto.email,
-          resumeKey,
-        });
-
-        // Patch the already-stored temp data with the resolved key
-        const existing = (await this._generateOtpUseCase.getTempData(
-          dto.email,
-        )) as TempInstructorData | null;
-
-        if (existing) {
-          await this._generateOtpUseCase.storeTempData(dto.email, {
-            ...existing,
-            resumeKey,
-          });
-          logger.info('[Register:upload] Redis temp data patched with resumeKey', {
-            email: dto.email,
-            resumeKey,
-          });
-        } else {
-          // Temp data expired before upload finished (very unlikely in <2 s)
-          logger.warn(
-            '[Register:upload] Temp data expired before resume key could be patched',
-            { email: dto.email },
-          );
-        }
-      } catch (err) {
-        // Upload failed — log it, but do NOT crash the registration.
-        // The instructor will simply have no resume URL after verification.
-        logger.error('[Register:upload] S3 upload FAILED (non-blocking)', {
-          email: dto.email,
-          error: (err as Error)?.message,
-        });
-      }
-    })();
-    // ──────────────────────────────────────────────────────────────────────
+    const instructorEntity = InstructorMapper.toRegisterInstructorEntity(
+      dto,
+      resumeKey,
+    );
+    await this._generateOtpUseCase.storeTempData(dto.email, instructorEntity);
+    logger.info('[Register] Temp data stored with resume key', {
+      email: dto.email,
+      resumeKey,
+    });
 
     await this._generateOtpUseCase.sendOtp(
       dto.email,

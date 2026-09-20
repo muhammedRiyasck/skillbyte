@@ -39,7 +39,7 @@ export class InstructorRepository
     const doc = await this.model
       .findById(id)
       .select(
-        'name email bio profilePictureUrl experience socialProfile subject jobTitle averageRating totalReviews totalEarnings withdrawnAmount stripeAccountId isStripeVerified',
+        'name email bio profilePictureUrl resumeUrl experience socialProfile subject jobTitle averageRating totalReviews totalEarnings withdrawnAmount stripeAccountId isStripeVerified',
       );
     if (!doc) return null;
     return this.toEntity(doc);
