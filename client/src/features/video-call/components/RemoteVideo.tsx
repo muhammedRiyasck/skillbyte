@@ -22,11 +22,26 @@ export const RemoteVideo = ({
   onRetry,
 }: RemoteVideoProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
-    if (videoRef.current && stream) {
-      videoRef.current.srcObject = stream;
-    }
+    const attachStream = async (element: HTMLMediaElement | null) => {
+      if (!element) return;
+
+      element.srcObject = stream;
+      if (stream) {
+        try {
+          await element.play();
+        } catch (error) {
+          // Browsers can reject unmuted autoplay. The native controls are not
+          // shown, so retain this diagnostic rather than failing silently.
+          console.warn('Remote media playback was blocked:', error);
+        }
+      }
+    };
+
+    void attachStream(audioRef.current);
+    void attachStream(videoRef.current);
   }, [stream, connectionState, isVideoEnabled]);
 
   // Only show video if stream exists, video is enabled, connection is good, AND there is actually a video track
@@ -34,10 +49,13 @@ export const RemoteVideo = ({
 
   return (
     <div className="relative w-full h-full bg-zinc-900">
+      {/* Audio must stay mounted even when the participant's camera is off. */}
+      <audio ref={audioRef} autoPlay playsInline />
       {showVideo ? (
         <video
           ref={videoRef}
           autoPlay
+          muted
           playsInline
           className="w-full h-full object-cover"
         />

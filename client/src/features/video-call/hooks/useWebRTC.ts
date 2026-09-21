@@ -168,8 +168,12 @@ export const useWebRTC = ({
     pc.ontrack = (event) => {
       console.log('✅ Received remote track:', event.track.kind);
       const [stream] = event.streams;
-      setRemoteStream(stream);
-      onRemoteStream?.(stream);
+      // A peer can deliver audio and video in separate `ontrack` events. Use
+      // a fresh stream instance so React re-renders when a later track is
+      // added to the same underlying MediaStream.
+      const updatedStream = new MediaStream(stream?.getTracks() ?? [event.track]);
+      setRemoteStream(updatedStream);
+      onRemoteStream?.(updatedStream);
     };
 
     // Handle ICE candidates
