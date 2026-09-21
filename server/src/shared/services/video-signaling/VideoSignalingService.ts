@@ -1,5 +1,7 @@
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { Server, Socket } from 'socket.io';
 import logger from '../../utils/Logger';
+import { SocketUser } from '../socket/SocketAuthMiddleware';
 import { IVideoSignalingService } from './IVideoSignalingService';
 import { VideoRoomManager, VideoRoomParticipant } from './VideoRoomManager';
 
@@ -12,19 +14,47 @@ export class VideoSignalingService implements IVideoSignalingService {
     // User joins video room
     socket.on(
       'video:join-room',
-      ({
-        roomId,
-        userId,
-        bookingId,
-        name,
-        profileImage,
-      }: {
-        roomId: string;
-        userId: string;
-        bookingId: string;
-        name: string;
-        profileImage?: string;
-      }) => {
+      (
+        {
+          roomId,
+          userId,
+          bookingId,
+          name,
+          profileImage,
+          roomToken,
+        }: {
+          roomId: string;
+          userId: string;
+          bookingId: string;
+          name: string;
+          profileImage?: string;
+          roomToken: string;
+        },
+        callback?: (result: { success: boolean; message?: string }) => void,
+      ) => {
+        const authenticatedUser = socket.data.user as SocketUser;
+        if (
+          !this.isValidRoomToken(
+            roomToken,
+            roomId,
+            bookingId,
+            userId,
+            authenticatedUser.id,
+          )
+        ) {
+          logger.warn(
+            `Rejected unauthorized video room join for user ${authenticatedUser.id}`,
+          );
+          socket.emit('video:join-error', {
+            message: 'Video room authorization expired or is invalid',
+          });
+          callback?.({
+            success: false,
+            message: 'Video room authorization expired or is invalid',
+          });
+          return;
+        }
+
         logger.info(`User ${userId} joining video room ${roomId}`);
 
         socket.join(`video:${roomId}`);
@@ -73,6 +103,7 @@ export class VideoSignalingService implements IVideoSignalingService {
         logger.info(
           `User ${userId} joined video room ${roomId}, total participants: ${this.roomManager.getRoom(roomId)?.participants.size}`,
         );
+        callback?.({ success: true });
       },
     );
 
@@ -80,6 +111,19 @@ export class VideoSignalingService implements IVideoSignalingService {
     socket.on(
       'video:leave-room',
       ({ roomId, userId }: { roomId: string; userId: string }) => {
+        const authenticatedUser = socket.data.user as SocketUser;
+        if (authenticatedUser.id !== userId) {
+          logger.warn(
+            `Rejected video room leave for user ${authenticatedUser.id}`,
+          );
+          return;
+        }
+        if (this.getUserIdBySocketId(socket.id, roomId) !== userId) {
+          logger.warn(
+            `Rejected video room leave from socket outside room ${roomId}`,
+          );
+          return;
+        }
         this.handleUserLeaveRoom(socket, roomId, userId);
       },
     );
@@ -102,9 +146,14 @@ export class VideoSignalingService implements IVideoSignalingService {
           return;
         }
 
+        const fromUserId = this.getUserIdBySocketId(socket.id, roomId);
+        if (fromUserId === 'unknown') {
+          logger.warn(`Rejected offer from socket outside room ${roomId}`);
+          return;
+        }
+
         const targetParticipant = room.participants.get(to);
         if (targetParticipant) {
-          const fromUserId = this.getUserIdBySocketId(socket.id, roomId);
           logger.info(
             `📤 Forwarding offer in room ${roomId} from ${fromUserId} to ${to}`,
           );
@@ -138,9 +187,14 @@ export class VideoSignalingService implements IVideoSignalingService {
           return;
         }
 
+        const fromUserId = this.getUserIdBySocketId(socket.id, roomId);
+        if (fromUserId === 'unknown') {
+          logger.warn(`Rejected answer from socket outside room ${roomId}`);
+          return;
+        }
+
         const targetParticipant = room.participants.get(to);
         if (targetParticipant) {
-          const fromUserId = this.getUserIdBySocketId(socket.id, roomId);
           logger.info(
             `📤 Forwarding answer in room ${roomId} from ${fromUserId} to ${to}`,
           );
@@ -171,9 +225,16 @@ export class VideoSignalingService implements IVideoSignalingService {
         const room = this.roomManager.getRoom(roomId);
         if (!room) return;
 
+        const fromUserId = this.getUserIdBySocketId(socket.id, roomId);
+        if (fromUserId === 'unknown') {
+          logger.warn(
+            `Rejected ICE candidate from socket outside room ${roomId}`,
+          );
+          return;
+        }
+
         const targetParticipant = room.participants.get(to);
         if (targetParticipant) {
-          const fromUserId = this.getUserIdBySocketId(socket.id, roomId);
           logger.info(
             `🧊 Forwarding ICE candidate in room ${roomId} from ${fromUserId} to ${to}`,
           );
@@ -197,6 +258,12 @@ export class VideoSignalingService implements IVideoSignalingService {
         userId: string;
         enabled: boolean;
       }) => {
+        if (this.getUserIdBySocketId(socket.id, roomId) !== userId) {
+          logger.warn(
+            `Rejected audio toggle from socket outside room ${roomId}`,
+          );
+          return;
+        }
         const updated = this.roomManager.setAudioEnabled(
           roomId,
           userId,
@@ -223,6 +290,12 @@ export class VideoSignalingService implements IVideoSignalingService {
         userId: string;
         enabled: boolean;
       }) => {
+        if (this.getUserIdBySocketId(socket.id, roomId) !== userId) {
+          logger.warn(
+            `Rejected video toggle from socket outside room ${roomId}`,
+          );
+          return;
+        }
         const updated = this.roomManager.setVideoEnabled(
           roomId,
           userId,
@@ -290,6 +363,40 @@ export class VideoSignalingService implements IVideoSignalingService {
       }
     }
     return 'unknown';
+  }
+
+  private isValidRoomToken(
+    roomToken: string,
+    roomId: string,
+    bookingId: string,
+    userId: string,
+    authenticatedUserId: string,
+  ): boolean {
+    if (!roomToken || userId !== authenticatedUserId) {
+      return false;
+    }
+
+    try {
+      const decoded = jwt.verify(roomToken, process.env.JWT_SECRET!);
+      if (typeof decoded === 'string') {
+        return false;
+      }
+
+      const payload = decoded as JwtPayload & {
+        purpose?: string;
+        roomId?: string;
+        bookingId?: string;
+        userId?: string;
+      };
+      return (
+        payload.purpose === 'video-room' &&
+        payload.roomId === roomId &&
+        payload.bookingId === bookingId &&
+        payload.userId === userId
+      );
+    } catch {
+      return false;
+    }
   }
 
   /**

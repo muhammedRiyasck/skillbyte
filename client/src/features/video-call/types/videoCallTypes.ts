@@ -29,6 +29,7 @@ export interface VideoSocketEvents {
     roomId: string;
     userId: string;
     bookingId: string;
+    roomToken: string;
   }) => void;
   'video:leave-room': (data: { roomId: string; userId: string }) => void;
   'video:offer': (data: {

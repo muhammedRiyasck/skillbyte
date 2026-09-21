@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { webrtcConfig } from '../utils/webrtcConfig';
 import { useVideoSocket } from './useVideoSocket';
 import { VideoConnectionState } from '../../../shared/enums/VideoConnectionState';
 
@@ -7,6 +6,7 @@ interface UseWebRTCProps {
   roomId: string;
   userId: string;
   localStream: MediaStream | null;
+  iceServers: RTCIceServer[] | null;
   onRemoteStream?: (stream: MediaStream) => void;
   onConnectionStateChange?: (state: RTCPeerConnectionState) => void;
 }
@@ -15,6 +15,7 @@ export const useWebRTC = ({
   roomId,
   userId,
   localStream,
+  iceServers,
   onRemoteStream,
   onConnectionStateChange,
 }: UseWebRTCProps) => {
@@ -39,6 +40,28 @@ export const useWebRTC = ({
   useEffect(() => {
     localStreamRef.current = localStream;
   }, [localStream]);
+
+  /**
+   * ICE candidates can arrive while an SDP offer/answer is still being applied.
+   * `addIceCandidate` rejects in that state, so keep them until the remote
+   * description is available and drain the queue immediately afterwards.
+   */
+  const addPendingIceCandidates = useCallback(async (pc: RTCPeerConnection) => {
+    if (!pc.remoteDescription || pendingIceCandidatesRef.current.length === 0) {
+      return;
+    }
+
+    const pendingCandidates = pendingIceCandidatesRef.current;
+    pendingIceCandidatesRef.current = [];
+
+    for (const candidate of pendingCandidates) {
+      try {
+        await pc.addIceCandidate(new RTCIceCandidate(candidate));
+      } catch (error) {
+        console.error('Error adding queued ICE candidate:', error);
+      }
+    }
+  }, []);
 
   // Renegotiate connection (create new offer) using existing PC
   const renegotiate = useCallback(async () => {
@@ -111,6 +134,11 @@ export const useWebRTC = ({
 
   // Create peer connection - should only be called once per peer
   const createPeerConnection = useCallback((peerId: string) => {
+    if (!iceServers) {
+      console.warn('⚠️ Cannot create a peer connection before ICE servers load');
+      return null;
+    }
+
     console.log('Creating peer connection for:', peerId);
 
     // Close existing connection if any
@@ -119,7 +147,7 @@ export const useWebRTC = ({
       peerConnectionRef.current.close();
     }
 
-    const pc = new RTCPeerConnection(webrtcConfig);
+    const pc = new RTCPeerConnection({ iceServers, iceCandidatePoolSize: 10 });
     peerConnectionRef.current = pc;
     setRemotePeerId(peerId);
 
@@ -163,48 +191,22 @@ export const useWebRTC = ({
       onConnectionStateChange?.(pc.connectionState);
     };
 
-    // Connection timeout logic
-    const connectionTimeout = setTimeout(() => {
-      if (pc.signalingState !== 'closed') {
-        if (pc.connectionState === VideoConnectionState.NEW || pc.connectionState === VideoConnectionState.CONNECTING) {
-          console.warn('⚠️ Connection timed out, forcing failed state');
-          setConnectionState(VideoConnectionState.FAILED);
-          onConnectionStateChange?.(VideoConnectionState.FAILED);
-        }
-      }
-    }, 3000); // 3 seconds timeout
-
     pc.oniceconnectionstatechange = () => {
       console.log('🧊 ICE connection state:', pc.iceConnectionState);
-      if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
-        clearTimeout(connectionTimeout);
-      }
     };
 
     pc.onicegatheringstatechange = () => {
       console.log('📡 ICE gathering state:', pc.iceGatheringState);
     };
 
-    // Process any pending ICE candidates
-    if (pendingIceCandidatesRef.current.length > 0) {
-      console.log('Processing pending ICE candidates:', pendingIceCandidatesRef.current.length);
-      pendingIceCandidatesRef.current.forEach(async (candidate) => {
-        try {
-          await pc.addIceCandidate(new RTCIceCandidate(candidate));
-        } catch (error) {
-          console.error('Error adding pending ICE candidate:', error);
-        }
-      });
-      pendingIceCandidatesRef.current = [];
-    }
-
     return pc;
-  }, [roomId, emit, onRemoteStream, onConnectionStateChange]); // localStreamRef is stable, no need to depend on it
+  }, [roomId, emit, onRemoteStream, onConnectionStateChange, iceServers]); // localStreamRef is stable, no need to depend on it
 
   // Create offer for the remote peer
   const createOffer = useCallback(async (peerId: string) => {
     console.log('📤 Creating offer for:', peerId);
     const pc = createPeerConnection(peerId);
+    if (!pc) return;
 
     try {
       const offer = await pc.createOffer({
@@ -229,10 +231,12 @@ export const useWebRTC = ({
   const handleOffer = useCallback(async (offer: RTCSessionDescriptionInit, from: string) => {
     console.log('📥 Received offer from:', from);
     const pc = createPeerConnection(from);
+    if (!pc) return;
 
     try {
       await pc.setRemoteDescription(new RTCSessionDescription(offer));
       console.log('✅ Set remote description from offer');
+      await addPendingIceCandidates(pc);
 
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
@@ -247,7 +251,7 @@ export const useWebRTC = ({
     } catch (error) {
       console.error('❌ Error handling offer:', error);
     }
-  }, [createPeerConnection, roomId, emit]);
+  }, [createPeerConnection, roomId, emit, addPendingIceCandidates]);
 
   // Handle incoming answer
   const handleAnswer = useCallback(async (answer: RTCSessionDescriptionInit, from: string) => {
@@ -261,10 +265,11 @@ export const useWebRTC = ({
     try {
       await pc.setRemoteDescription(new RTCSessionDescription(answer));
       console.log('✅ Set remote description from answer');
+      await addPendingIceCandidates(pc);
     } catch (error) {
       console.error('❌ Error handling answer:', error);
     }
-  }, []);
+  }, [addPendingIceCandidates]);
 
   // Handle incoming ICE candidate
   const handleIceCandidate = useCallback(async (candidate: RTCIceCandidateInit, from: string) => {
@@ -329,9 +334,12 @@ export const useWebRTC = ({
 
     on<{ participants: { userId: string; name: string; profileImage?: string; isVideoEnabled?: boolean; isAudioEnabled?: boolean }[] }>('video:room-joined', ({ participants }) => {
       console.log('🚪 I joined room, existing participants:', participants);
-      // If there are existing participants, create offer to first one
+      // The participants that were already in the room receive
+      // `video:user-joined` and create the offer.  The joiner must only wait
+      // for that offer; if both sides create one, simultaneous offers replace
+      // each other's peer connections and the call fails.
       if (participants.length > 0 && participants[0].userId !== userId) {
-        console.log('📤 Will create offer to existing participant');
+        console.log('👥 Waiting for an offer from the existing participant');
         setRemoteParticipant({
           name: participants[0].name,
           profileImage: participants[0].profileImage
@@ -339,7 +347,6 @@ export const useWebRTC = ({
         if (participants[0].isVideoEnabled !== undefined) setRemoteVideoEnabled(participants[0].isVideoEnabled);
         if (participants[0].isAudioEnabled !== undefined) setRemoteAudioEnabled(participants[0].isAudioEnabled);
 
-        createOffer(participants[0].userId);
       }
     });
 

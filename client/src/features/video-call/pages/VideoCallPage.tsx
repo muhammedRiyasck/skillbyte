@@ -23,6 +23,8 @@ export const VideoCallPage = () => {
   const [isValidating, setIsValidating] = useState(true);
   const [bookingId, setBookingId] = useState<string | null>(null);
   const [bookingStatus, setBookingStatus] = useState<BookingStatus | null>(null);
+  const [roomToken, setRoomToken] = useState<string | null>(null);
+  const [iceServers, setIceServers] = useState<RTCIceServer[] | null>(null);
   const [isJoining, setIsJoining] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [showRatingModal, setShowRatingModal] = useState(false);
@@ -47,6 +49,7 @@ export const VideoCallPage = () => {
     roomId: roomId || '',
     userId: user?.id || '',
     localStream: mediaState.stream,
+    iceServers,
   });
 
   const userProfileImage = user?.profilePicture;
@@ -64,6 +67,8 @@ export const VideoCallPage = () => {
         const result = await validateVideoRoomAccess(roomId);
         setBookingId(result.bookingId);
         setBookingStatus(result.status);
+        setRoomToken(result.roomToken);
+        setIceServers(result.iceServers);
         setIsValidating(false);
       } catch (error) {
         console.error('Access validation failed:', error);
@@ -96,7 +101,15 @@ export const VideoCallPage = () => {
 
   // Logic to actually join the socket room
   const joinVideoRoom = useCallback(async () => {
-    if (!roomId || !bookingId || !socket || isJoining || hasJoined) return;
+    if (
+      !roomId ||
+      !bookingId ||
+      !roomToken ||
+      !iceServers ||
+      !socket ||
+      isJoining ||
+      hasJoined
+    ) return;
 
     setIsJoining(true);
     try {
@@ -108,16 +121,31 @@ export const VideoCallPage = () => {
         }
       }
 
-      // Join video room via socket
-      socket.emit('video:join-room', {
-        roomId,
-        userId: user?.id,
-        bookingId,
-        name: user?.name || 'User',
-        profileImage: userProfileImage,
-        isVideoEnabled: mediaState.isVideoEnabled,
-        isAudioEnabled: mediaState.isAudioEnabled,
+      const joined = await new Promise<boolean>((resolve) => {
+        const timeoutId = window.setTimeout(() => resolve(false), 10_000);
+
+        socket.emit(
+          'video:join-room',
+          {
+            roomId,
+            userId: user?.id,
+            bookingId,
+            roomToken,
+            name: user?.name || 'User',
+            profileImage: userProfileImage,
+            isVideoEnabled: mediaState.isVideoEnabled,
+            isAudioEnabled: mediaState.isAudioEnabled,
+          },
+          (result: { success: boolean }) => {
+            window.clearTimeout(timeoutId);
+            resolve(result.success);
+          },
+        );
       });
+
+      if (!joined) {
+        throw new Error('Video room authorization was not accepted');
+      }
 
       setHasJoined(true);
       toast.success('Joined video call');
@@ -130,6 +158,8 @@ export const VideoCallPage = () => {
   }, [
     roomId,
     bookingId,
+    roomToken,
+    iceServers,
     socket,
     isJoining,
     mediaState.stream,

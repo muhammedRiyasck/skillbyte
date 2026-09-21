@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import {
   IGenerateVideoRoomUseCase,
   IValidateVideoRoomAccessUseCase,
@@ -7,11 +8,13 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
+import { MeteredTurnService } from '../../../../shared/services/video-signaling/MeteredTurnService';
 
 export class MentorshipVideoController {
   constructor(
     private _generateVideoRoomUseCase: IGenerateVideoRoomUseCase,
     private _validateVideoRoomAccessUseCase: IValidateVideoRoomAccessUseCase,
+    private _meteredTurnService: MeteredTurnService,
   ) {}
 
   /**
@@ -59,6 +62,21 @@ export class MentorshipVideoController {
       userRole: userRole as 'student' | 'instructor',
     });
 
-    ApiResponseHelper.success(res, 'Video room access validated', result);
+    const roomToken = jwt.sign(
+      {
+        purpose: 'video-room',
+        roomId,
+        bookingId: result.bookingId,
+        userId,
+      },
+      process.env.JWT_SECRET!,
+      { expiresIn: '2h' },
+    );
+
+    ApiResponseHelper.success(res, 'Video room access validated', {
+      ...result,
+      roomToken,
+      iceServers: this._meteredTurnService.getIceServers(),
+    });
   };
 }

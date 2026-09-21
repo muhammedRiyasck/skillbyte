@@ -32,6 +32,7 @@ import { InstructorRepository } from '../../../instructor/infrastructure/reposit
 import { PaymentReadRepository } from '../../../payment/infrastructure/repositories/PaymentReadRepository';
 import { StripeProvider } from '../../../../shared/services/payment/StripeProvider';
 import { StudentRepository } from '../../../student/infrastructure/repositories/StudentRepository';
+import { MeteredTurnService } from '../../../../shared/services/video-signaling/MeteredTurnService';
 
 // Repositories
 const slotRepository = new MentorshipSlotRepository();
@@ -39,6 +40,7 @@ const bookingRepository = new MentorshipBookingRepository();
 const instructorRepository = new InstructorRepository();
 const paymentReadRepository = new PaymentReadRepository();
 const studentRepository = new StudentRepository();
+const meteredTurnService = new MeteredTurnService();
 
 // Providers
 const stripeProvider = new StripeProvider();
@@ -141,6 +143,7 @@ export const mentorshipBookingController = new MentorshipBookingController(
 export const mentorshipVideoController = new MentorshipVideoController(
   generateVideoRoomUC,
   validateVideoRoomAccessUC,
+  meteredTurnService,
 );
 
 // Backward-compatible facade controller
