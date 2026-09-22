@@ -38,44 +38,43 @@ const NotificationPage: React.FC = () => {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-12 pt-6">
 
             {/* Glass Sticky Header */}
-            <div className="sticky top-0  z-50 w-full">
+            <div className="sticky top-0 z-50 w-full">
                 <div
-                    className={`max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center rounded-xl transition-all duration-300
+                    className={`max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 rounded-xl transition-all duration-300
                     backdrop-blur-lg bg-white/70 dark:bg-gray-900/70
                     border border-gray-200/60 dark:border-gray-700/60
                     ${isScrolled ? "shadow-lg" : "shadow-none"}
                     `}
                 >
-                    {/* Back Button */}
-                    <button
-                        className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition cursor-pointer"
-                        onClick={() => navigate(-1)}
-                    >
-                        <ArrowLeft className="w-6 h-6" />
-                    </button>
+                    {/* Row: Back + Title + Mark-All */}
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        {/* Back Button */}
+                        <button
+                            className="flex-shrink-0 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition cursor-pointer"
+                            onClick={() => navigate(-1)}
+                        >
+                            <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+                        </button>
 
-                    {/* Title */}
-                    <h1 className="text-lg sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
-                        <Bell className="w-7 h-7 text-indigo-600 animate-pulse  " />
-                        Notifications ({page})
-                        {unreadCount > 0 && (
-                            <span className="bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
-                                {unreadCount} new
-                            </span>
-                        )}
-                    </h1>
+                        {/* Title */}
+                        <h1 className="flex-1 min-w-0 text-base sm:text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2 sm:gap-3 truncate">
+                            <Bell className="flex-shrink-0 w-5 h-5 sm:w-7 sm:h-7 text-indigo-600 animate-pulse" />
+                            <span className="truncate">Notifications</span>
+                            {unreadCount > 0 && (
+                                <span className="flex-shrink-0 bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium">
+                                    {unreadCount} new
+                                </span>
+                            )}
+                        </h1>
 
-                    {/* Mark All Button */}
-                    <div>
+                        {/* Mark All Button */}
                         {unreadCount > 0 && (
                             <button
                                 onClick={handleMarkAllAsRead}
-                                className="flex items-center gap-2 px-3 sm:px-4 py-2 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-all cursor-pointer text-sm"
+                                className="flex-shrink-0 flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-all cursor-pointer text-sm"
                             >
-                                <CheckCheck className="w-5 h-5" />
-                                <span className="hidden sm:inline">
-                                    Mark all read
-                                </span>
+                                <CheckCheck className="w-4 h-4 sm:w-5 sm:h-5" />
+                                <span className="hidden sm:inline">Mark all read</span>
                             </button>
                         )}
                     </div>
@@ -83,26 +82,26 @@ const NotificationPage: React.FC = () => {
             </div>
 
             {/* Content */}
-            <div className="max-w-5xl mx-auto px-4 mt-8">
+            <div className="max-w-5xl mx-auto px-3 sm:px-4 mt-6 sm:mt-8">
 
                 {isLoading && notifications.length === 0 ? (
                     <div className="space-y-4">
                         {[1, 2, 3].map(i => (
-                            <div key={i} className="bg-white dark:bg-gray-800 p-6 rounded-xl animate-pulse">
+                            <div key={i} className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl animate-pulse">
                                 <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
                                 <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
                             </div>
                         ))}
                     </div>
                 ) : notifications.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center my-24 py-20 text-center bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
-                        <div className="w-20 h-20 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center mb-4">
-                            <Bell className="w-10 h-10 text-indigo-600 dark:text-indigo-400" />
+                    <div className="flex flex-col items-center justify-center my-16 sm:my-24 py-14 sm:py-20 text-center bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 px-4">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center mb-4">
+                            <Bell className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-600 dark:text-indigo-400" />
                         </div>
-                        <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-300">
+                        <h2 className="text-xl sm:text-2xl font-semibold text-gray-700 dark:text-gray-300">
                             No notifications
                         </h2>
-                        <p className="text-gray-500 dark:text-gray-400 mt-2">
+                        <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm sm:text-base">
                             We'll notify you when something important happens.
                         </p>
                     </div>
@@ -112,13 +111,13 @@ const NotificationPage: React.FC = () => {
                             {notifications.map((notification) => (
                                 <div
                                     key={notification.id}
-                                    className={`p-6 transition-colors flex gap-4 hover:bg-gray-50 dark:hover:bg-gray-700/40 ${!notification.isRead
+                                    className={`p-3 sm:p-6 transition-colors flex gap-3 sm:gap-4 hover:bg-gray-50 dark:hover:bg-gray-700/40 ${!notification.isRead
                                             ? 'bg-indigo-50/40 dark:bg-indigo-900/10'
                                             : ''
                                         }`}
                                 >
                                     <div
-                                        className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center ${notification.type === NotificationType.SUCCESS
+                                        className={`flex-shrink-0 w-9 h-9 sm:w-12 sm:h-12 rounded-full flex items-center justify-center ${notification.type === NotificationType.SUCCESS
                                                 ? 'bg-green-100 text-green-600'
                                                 : notification.type === NotificationType.ERROR
                                                     ? 'bg-red-100 text-red-600'
@@ -127,20 +126,20 @@ const NotificationPage: React.FC = () => {
                                                         : 'bg-blue-100 text-blue-600'
                                             }`}
                                     >
-                                        <Bell className="w-6 h-6" />
+                                        <Bell className="w-4 h-4 sm:w-6 sm:h-6" />
                                     </div>
 
-                                    <div className="flex-1">
-                                        <div className="flex justify-between items-start mb-1">
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-1 gap-0.5">
                                             <h3
-                                                className={`font-semibold ${!notification.isRead
+                                                className={`font-semibold text-sm sm:text-base truncate pr-2 ${!notification.isRead
                                                         ? 'text-gray-900 dark:text-white'
                                                         : 'text-gray-600 dark:text-gray-400'
                                                     }`}
                                             >
                                                 {notification.title}
                                             </h3>
-                                            <span className="text-xs text-gray-400 whitespace-nowrap">
+                                            <span className="text-xs text-gray-400 flex-shrink-0">
                                                 {formatDistanceToNow(
                                                     new Date(notification.createdAt),
                                                     { addSuffix: true }
@@ -148,7 +147,7 @@ const NotificationPage: React.FC = () => {
                                             </span>
                                         </div>
 
-                                        <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                                        <p className="text-gray-600 dark:text-gray-400 text-xs sm:text-sm leading-relaxed break-words">
                                             {notification.message}
                                         </p>
 
@@ -157,7 +156,7 @@ const NotificationPage: React.FC = () => {
                                                 onClick={() =>
                                                     handleMarkAsRead(notification.id)
                                                 }
-                                                className="mt-3 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 flex items-center gap-1 cursor-pointer"
+                                                className="mt-2 sm:mt-3 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 flex items-center gap-1 cursor-pointer"
                                             >
                                                 <Check className="w-4 h-4" /> Mark as read
                                             </button>
