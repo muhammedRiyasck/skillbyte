@@ -78,11 +78,14 @@ export class VideoSignalingService implements IVideoSignalingService {
           userId,
         );
 
-        // Notify other participants
+        // Notify other participants — include the joining user's A/V state so
+        // the already-in-room side immediately knows if they joined muted/camera-off.
         socket.to(`video:${roomId}`).emit('video:user-joined', {
           userId,
           name,
           profileImage,
+          isAudioEnabled,
+          isVideoEnabled,
           participants: otherParticipants.map((p) => ({
             userId: p.userId,
             name: p.name,
