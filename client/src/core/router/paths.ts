@@ -7,8 +7,8 @@ export const ROUTES = {
   chat: '/chat',
   videoCall: '/video-call/:roomId',
   home: {
-    about: '/about',
-    support: '/support',
+    about: 'about',
+    support: 'support',
   },
 
   auth: {
