@@ -30,6 +30,7 @@ export const useWebRTC = ({
   const [remoteAudioEnabled, setRemoteAudioEnabled] = useState(true);
 
   const pendingIceCandidatesRef = useRef<RTCIceCandidateInit[]>([]);
+  const remoteStreamRef = useRef<MediaStream | null>(null);
 
   // Use a ref to keep track of the latest localStream without triggering effect re-runs for the connection creation logic
   const localStreamRef = useRef<MediaStream | null>(localStream);
@@ -145,6 +146,8 @@ export const useWebRTC = ({
     if (peerConnectionRef.current) {
       console.log('Closing existing peer connection');
       peerConnectionRef.current.close();
+      remoteStreamRef.current = null;
+      setRemoteStream(null);
     }
 
     const pc = new RTCPeerConnection({ iceServers, iceCandidatePoolSize: 10 });
@@ -167,13 +170,21 @@ export const useWebRTC = ({
     // Handle incoming remote stream
     pc.ontrack = (event) => {
       console.log('✅ Received remote track:', event.track.kind);
-      const [stream] = event.streams;
-      // A peer can deliver audio and video in separate `ontrack` events. Use
-      // a fresh stream instance so React re-renders when a later track is
-      // added to the same underlying MediaStream.
-      const updatedStream = new MediaStream(stream?.getTracks() ?? [event.track]);
-      setRemoteStream(updatedStream);
-      onRemoteStream?.(updatedStream);
+      // Tracks may arrive in separate events. Merge them so an audio event
+      // cannot replace video already being shown (or the reverse).
+      const updatedStream = remoteStreamRef.current ?? new MediaStream();
+      const incomingTracks = event.streams[0]?.getTracks() ?? [event.track];
+      incomingTracks.forEach((track) => {
+        if (!updatedStream.getTracks().some((existing) => existing.id === track.id)) {
+          updatedStream.addTrack(track);
+        }
+      });
+      remoteStreamRef.current = updatedStream;
+      // Publish a new wrapper to ensure React updates when the second track
+      // arrives, while the ref above remains the authoritative merged stream.
+      const renderStream = new MediaStream(updatedStream.getTracks());
+      setRemoteStream(renderStream);
+      onRemoteStream?.(renderStream);
     };
 
     // Handle ICE candidates
@@ -325,12 +336,14 @@ export const useWebRTC = ({
 
 
 
-    on<{ userId: string; name: string; profileImage?: string; isVideoEnabled?: boolean; isAudioEnabled?: boolean }>('video:user-joined', ({ userId: joinedUserId, name, profileImage }) => {
+    on<{ userId: string; name: string; profileImage?: string; isVideoEnabled?: boolean; isAudioEnabled?: boolean }>('video:user-joined', ({ userId: joinedUserId, name, profileImage, isVideoEnabled, isAudioEnabled }) => {
       console.log('👤 User joined room:', joinedUserId);
       // Initiate offer to the new user (we are already in the room)
       if (joinedUserId !== userId) {
         console.log('📤 I will create an offer to the new user');
         setRemoteParticipant({ name, profileImage });
+        if (isVideoEnabled !== undefined) setRemoteVideoEnabled(isVideoEnabled);
+        if (isAudioEnabled !== undefined) setRemoteAudioEnabled(isAudioEnabled);
 
         createOffer(joinedUserId);
       }
@@ -362,6 +375,7 @@ export const useWebRTC = ({
           peerConnectionRef.current = null;
         }
         setRemoteStream(null);
+        remoteStreamRef.current = null;
         setRemoteParticipant(null);
         setRemotePeerId(null);
         setConnectionState(VideoConnectionState.NEW);

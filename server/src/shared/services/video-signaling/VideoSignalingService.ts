@@ -22,6 +22,8 @@ export class VideoSignalingService implements IVideoSignalingService {
           name,
           profileImage,
           roomToken,
+          isAudioEnabled = true,
+          isVideoEnabled = true,
         }: {
           roomId: string;
           userId: string;
@@ -29,6 +31,8 @@ export class VideoSignalingService implements IVideoSignalingService {
           name: string;
           profileImage?: string;
           roomToken: string;
+          isAudioEnabled?: boolean;
+          isVideoEnabled?: boolean;
         },
         callback?: (result: { success: boolean; message?: string }) => void,
       ) => {
@@ -65,8 +69,8 @@ export class VideoSignalingService implements IVideoSignalingService {
           bookingId,
           name,
           profileImage,
-          isAudioEnabled: true,
-          isVideoEnabled: true,
+          isAudioEnabled,
+          isVideoEnabled,
         });
 
         const otherParticipants = this.roomManager.getOtherParticipants(

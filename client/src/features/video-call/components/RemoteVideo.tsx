@@ -57,7 +57,7 @@ export const RemoteVideo = ({
           autoPlay
           muted
           playsInline
-          className="w-full h-full object-cover"
+          className="w-full h-full bg-black object-contain"
         />
       ) : (
         <div className="w-full h-full flex flex-col items-center justify-center bg-zinc-800 relative">
