@@ -44,6 +44,7 @@ export const VideoCallPage = () => {
     socket,
     remoteParticipant,
     remoteVideoEnabled,
+    remoteAudioEnabled,
     restartIce
   } = useWebRTC({
     roomId: roomId || '',
@@ -293,6 +294,7 @@ export const VideoCallPage = () => {
             connectionState={connectionState}
             profileImage={remoteParticipant.profileImage}
             isVideoEnabled={remoteVideoEnabled}
+            isAudioEnabled={remoteAudioEnabled}
             onRetry={restartIce}
           />
         ) : (

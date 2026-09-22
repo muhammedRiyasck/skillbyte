@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { RefreshCw, User } from 'lucide-react';
+import { MicOff, RefreshCw, User, VideoOff } from 'lucide-react';
 import Logo from '@/assets/OrginalLogo.png';
 import { getInitials } from '../utils/getIntials';
 import { VideoConnectionState } from '../../../shared/enums/VideoConnectionState';
@@ -8,6 +8,7 @@ interface RemoteVideoProps {
   stream: MediaStream | null;
   participantName?: string;
   isVideoEnabled?: boolean;
+  isAudioEnabled?: boolean;
   profileImage?: string | undefined;
   connectionState: RTCPeerConnectionState;
   onRetry?: () => void;
@@ -17,6 +18,7 @@ export const RemoteVideo = ({
   stream,
   participantName,
   isVideoEnabled = true,
+  isAudioEnabled = true,
   profileImage,
   connectionState,
   onRetry,
@@ -46,11 +48,13 @@ export const RemoteVideo = ({
 
   // Only show video if stream exists, video is enabled, connection is good, AND there is actually a video track
   const showVideo = stream && isVideoEnabled && connectionState === VideoConnectionState.CONNECTED && stream.getVideoTracks().length > 0;
+  const isConnected = connectionState === VideoConnectionState.CONNECTED;
 
   return (
     <div className="relative w-full h-full bg-zinc-900">
       {/* Audio must stay mounted even when the participant's camera is off. */}
       <audio ref={audioRef} autoPlay playsInline />
+
       {showVideo ? (
         <video
           ref={videoRef}
@@ -82,9 +86,6 @@ export const RemoteVideo = ({
           {connectionState === 'connecting' && (
             <p className="text-sm text-gray-400 mt-2">Connecting...</p>
           )}
-          {connectionState === 'connected' && (!isVideoEnabled || (stream && stream.getVideoTracks().length === 0)) && (
-            <p className="text-sm text-gray-400 mt-2">Camera off</p>
-          )}
           {connectionState === 'disconnected' && (
             <p className="text-sm text-gray-400 mt-2">Disconnected</p>
           )}
@@ -114,6 +115,22 @@ export const RemoteVideo = ({
           {connectionState === VideoConnectionState.NEW && 'Initializing...'}
           {connectionState === VideoConnectionState.DISCONNECTED && 'Reconnecting...'}
           {connectionState === VideoConnectionState.FAILED && 'Connection failed'}
+        </div>
+      )}
+
+      {/* Mic / Camera status icons — top-left, visible on both video and avatar views */}
+      {isConnected && (!isAudioEnabled || !isVideoEnabled) && (
+        <div className="absolute top-4 left-4 flex items-center gap-2">
+          {!isAudioEnabled && (
+            <div className="bg-red-500/90 backdrop-blur-sm p-1.5 rounded-full" title="Microphone off">
+              <MicOff className="w-4 h-4 text-white" />
+            </div>
+          )}
+          {!isVideoEnabled && (
+            <div className="bg-red-500/90 backdrop-blur-sm p-1.5 rounded-full" title="Camera off">
+              <VideoOff className="w-4 h-4 text-white" />
+            </div>
+          )}
         </div>
       )}
 

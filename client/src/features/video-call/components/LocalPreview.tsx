@@ -41,7 +41,7 @@ export const LocalPreview = ({
       className={`
         bg-zinc-900 overflow-hidden
         ${isDraggable
-          ? 'absolute bottom-6 right-4 sm:bottom-8 sm:right-8 w-[min(42vw,11rem)] sm:w-64 aspect-video h-auto rounded-2xl shadow-xl border border-white/10 ring-1 ring-black/20 z-40 cursor-grab active:cursor-grabbing group'
+          ? 'absolute bottom-28 right-4 sm:bottom-8 sm:right-8 w-[min(42vw,11rem)] sm:w-64 aspect-video h-auto rounded-2xl shadow-xl border border-white/10 ring-1 ring-black/20 z-40 cursor-grab active:cursor-grabbing group'
           : 'relative w-full h-full rounded-2xl border border-white/10'
         }
       `}
