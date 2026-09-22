@@ -23,6 +23,9 @@ export const useWebRTC = ({
   const [connectionState, setConnectionState] = useState<RTCPeerConnectionState>('new');
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const [remotePeerId, setRemotePeerId] = useState<string | null>(null);
+  // Ref mirrors remotePeerId so event-handler closures always read the latest
+  // value without needing to be in the signaling effect's dependency array.
+  const remotePeerIdRef = useRef<string | null>(null);
   // State to hold remote participant info
   const [remoteParticipant, setRemoteParticipant] = useState<{ name: string; profileImage: string | undefined } | null>(null);
 
@@ -31,16 +34,24 @@ export const useWebRTC = ({
 
   const pendingIceCandidatesRef = useRef<RTCIceCandidateInit[]>([]);
   const remoteStreamRef = useRef<MediaStream | null>(null);
+  // Auto ICE-restart bookkeeping
+  const iceRestartCountRef = useRef(0);
+  const iceRestartTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const MAX_ICE_RESTARTS = 3;
 
   // Use a ref to keep track of the latest localStream without triggering effect re-runs for the connection creation logic
   const localStreamRef = useRef<MediaStream | null>(localStream);
 
   const { socket, isConnected, on, off, emit } = useVideoSocket();
 
-  // Update ref when localStream changes
+  // Update refs when their corresponding state values change
   useEffect(() => {
     localStreamRef.current = localStream;
   }, [localStream]);
+
+  useEffect(() => {
+    remotePeerIdRef.current = remotePeerId;
+  }, [remotePeerId]);
 
   /**
    * ICE candidates can arrive while an SDP offer/answer is still being applied.
@@ -199,15 +210,50 @@ export const useWebRTC = ({
       }
     };
 
-    // Handle connection state changes
+    // Handle connection state changes — auto-restart ICE on failure
     pc.onconnectionstatechange = () => {
-      console.log('🔄 Connection state:', pc.connectionState);
-      setConnectionState(pc.connectionState);
-      onConnectionStateChange?.(pc.connectionState);
+      const state = pc.connectionState;
+      console.log('🔄 Connection state:', state);
+      setConnectionState(state);
+      onConnectionStateChange?.(state);
+
+      if (state === 'connected') {
+        // Reset restart counter on a healthy connection
+        iceRestartCountRef.current = 0;
+        if (iceRestartTimerRef.current !== null) {
+          clearTimeout(iceRestartTimerRef.current);
+          iceRestartTimerRef.current = null;
+        }
+      } else if (state === 'failed') {
+        scheduleIceRestart(pc, peerId);
+      }
     };
 
+    // Also catch the transient 'disconnected' state — browsers may linger here
+    // for several seconds before escalating to 'failed'. Triggering an early
+    // restart gives a better chance of seamless recovery on network switches.
     pc.oniceconnectionstatechange = () => {
-      console.log('🧊 ICE connection state:', pc.iceConnectionState);
+      const iceState = pc.iceConnectionState;
+      console.log('🧊 ICE connection state:', iceState);
+      if (iceState === 'disconnected') {
+        // Use a short grace period — if the browser self-heals we don't restart
+        if (iceRestartTimerRef.current === null) {
+          iceRestartTimerRef.current = setTimeout(() => {
+            iceRestartTimerRef.current = null;
+            // Only restart if still disconnected (not yet failed or recovered)
+            if (pc.iceConnectionState === 'disconnected') {
+              console.log('🧊 Still disconnected after grace period — triggering ICE restart');
+              scheduleIceRestart(pc, peerId, 0); // no extra delay
+            }
+          }, 3_000);
+        }
+      } else if (iceState === 'connected' || iceState === 'completed') {
+        // Cancel any pending grace-period timer if ICE recovered on its own
+        if (iceRestartTimerRef.current !== null) {
+          clearTimeout(iceRestartTimerRef.current);
+          iceRestartTimerRef.current = null;
+        }
+      }
     };
 
     pc.onicegatheringstatechange = () => {
@@ -216,6 +262,50 @@ export const useWebRTC = ({
 
     return pc;
   }, [roomId, emit, onRemoteStream, onConnectionStateChange, iceServers]); // localStreamRef is stable, no need to depend on it
+
+  /**
+   * Schedules an ICE restart with exponential back-off (1 s, 2 s, 4 s).
+   * Bails out after MAX_ICE_RESTARTS attempts to avoid infinite loops.
+   * `delayOverride` can be 0 to skip the back-off delay (e.g. from the
+   * disconnected grace-period path which already waited 3 s).
+   */
+  const scheduleIceRestart = useCallback((
+    pc: RTCPeerConnection,
+    peerId: string,
+    delayOverride?: number,
+  ) => {
+    if (iceRestartCountRef.current >= MAX_ICE_RESTARTS) {
+      console.warn(`⛔ Max ICE restarts (${MAX_ICE_RESTARTS}) reached — giving up`);
+      return;
+    }
+
+    const attempt = iceRestartCountRef.current + 1;
+    const delay = delayOverride ?? Math.pow(2, iceRestartCountRef.current) * 1_000;
+    console.log(`🔁 Scheduling ICE restart attempt ${attempt}/${MAX_ICE_RESTARTS} in ${delay}ms`);
+
+    iceRestartTimerRef.current = setTimeout(async () => {
+      iceRestartTimerRef.current = null;
+      // Guard: connection may have recovered or closed while we waited
+      if (pc.connectionState === 'connected' || pc.connectionState === 'closed') return;
+
+      iceRestartCountRef.current = attempt;
+      console.log(`🔄 ICE restart attempt ${attempt}/${MAX_ICE_RESTARTS}`);
+
+      try {
+        const offer = await pc.createOffer({
+          iceRestart: true,
+          offerToReceiveAudio: true,
+          offerToReceiveVideo: true,
+        });
+        await pc.setLocalDescription(offer);
+        emit('video:offer', { roomId, offer, to: peerId });
+        console.log('✅ Auto ICE restart offer sent');
+      } catch (err) {
+        console.error('❌ Auto ICE restart failed:', err);
+      }
+    }, delay);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomId, emit]);
 
   // Create offer for the remote peer
   const createOffer = useCallback(async (peerId: string) => {
@@ -325,12 +415,13 @@ export const useWebRTC = ({
 
     on<{ userId: string; enabled: boolean }>('video:peer-video-toggled', ({ userId: peerId, enabled }) => {
       console.log(`🎥 Peer ${peerId} video toggled: ${enabled}`);
-      setRemoteVideoEnabled((prev) => (peerId === remotePeerId ? enabled : prev));
+      // Use ref so this handler doesn't need remotePeerId in dep array
+      setRemoteVideoEnabled((prev) => (peerId === remotePeerIdRef.current ? enabled : prev));
     });
 
     on<{ userId: string; enabled: boolean }>('video:peer-audio-toggled', ({ userId: peerId, enabled }) => {
       console.log(`🎤 Peer ${peerId} audio toggled: ${enabled}`);
-      setRemoteAudioEnabled((prev) => (peerId === remotePeerId ? enabled : prev));
+      setRemoteAudioEnabled((prev) => (peerId === remotePeerIdRef.current ? enabled : prev));
     });
 
 
@@ -369,7 +460,10 @@ export const useWebRTC = ({
 
     on<{ userId: string }>('video:user-left', ({ userId: leftUserId }) => {
       console.log('👋 User left:', leftUserId);
-      if (leftUserId === remotePeerId) {
+      // Use ref here — if remotePeerId state were used the handler would close
+      // over a stale null value from the render cycle before the peer connected,
+      // causing the match to always fail (or worse, always succeed with null).
+      if (leftUserId === remotePeerIdRef.current) {
         if (peerConnectionRef.current) {
           peerConnectionRef.current.close();
           peerConnectionRef.current = null;
@@ -378,6 +472,7 @@ export const useWebRTC = ({
         remoteStreamRef.current = null;
         setRemoteParticipant(null);
         setRemotePeerId(null);
+        remotePeerIdRef.current = null;
         setConnectionState(VideoConnectionState.NEW);
         setRemoteVideoEnabled(true);
         setRemoteAudioEnabled(true);
@@ -395,31 +490,33 @@ export const useWebRTC = ({
       off('video:peer-video-toggled');
       off('video:peer-audio-toggled');
     };
-  }, [isConnected, handleOffer, handleAnswer, handleIceCandidate, userId, remotePeerId, createOffer, on, off]);
+  // remotePeerId and createOffer are intentionally omitted from this dep array.
+  // Including remotePeerId would tear down and re-register ALL signaling handlers
+  // every time a peer connects (because setRemotePeerId triggers a re-render),
+  // creating timing windows where events are missed and connections are dropped.
+  // We use remotePeerIdRef instead so handlers always read the latest value.
+  // createOffer is stable enough for this purpose and does not need to be here.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isConnected, handleOffer, handleAnswer, handleIceCandidate, userId, on, off]);
 
   /* ... cleanup ... */
 
-  // Restart ICE connection
+  // Restart ICE connection (manual trigger — also called automatically on failure)
   const restartIce = useCallback(() => {
     const pc = peerConnectionRef.current;
-    if (pc && remotePeerId) {
-      console.log('🔄 Restarting ICE connection...');
-      // Create a new offer with iceRestart: true
+    const peerId = remotePeerIdRef.current;
+    if (pc && peerId) {
+      console.log('🔄 Manual ICE restart requested...');
+      iceRestartCountRef.current = 0; // reset counter for manual restarts
       pc.createOffer({ iceRestart: true, offerToReceiveAudio: true, offerToReceiveVideo: true })
+        .then((offer) => pc.setLocalDescription(offer).then(() => offer))
         .then((offer) => {
-          return pc.setLocalDescription(offer).then(() => offer);
-        })
-        .then((offer) => {
-          emit('video:offer', {
-            roomId,
-            offer,
-            to: remotePeerId,
-          });
-          console.log('✅ ICE restart offer sent');
+          emit('video:offer', { roomId, offer, to: peerId });
+          console.log('✅ Manual ICE restart offer sent');
         })
         .catch((err) => console.error('Error restarting ICE:', err));
     }
-  }, [roomId, remotePeerId, emit]);
+  }, [roomId, emit]); // remotePeerIdRef is a stable ref, not needed in deps
 
   return {
     remoteStream,

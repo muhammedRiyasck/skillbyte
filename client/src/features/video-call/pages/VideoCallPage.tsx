@@ -83,6 +83,8 @@ export const VideoCallPage = () => {
   // Determine if we should show the lobby
   const [showLobby, setShowLobby] = useState(true);
   const [hasJoined, setHasJoined] = useState(false);
+  // Ref so the unmount-only leave-room cleanup always sees the latest value
+  const hasJoinedRef = useRef(false);
 
   useEffect(() => {
     // If setting is 'false', lobby is disabled (stored as string 'false')
@@ -149,6 +151,7 @@ export const VideoCallPage = () => {
       }
 
       setHasJoined(true);
+      hasJoinedRef.current = true;
       toast.success('Joined video call');
     } catch (error) {
       console.error('Failed to join room:', error);
@@ -191,17 +194,24 @@ export const VideoCallPage = () => {
     };
   }, [stopMediaStream]);
 
-  // Handle leaving room (when dependencies change or unmount)
+  // Handle leaving room on unmount only.
+  // Using refs (socket via useRef equivalent, hasJoinedRef) means this effect
+  // runs ONLY on true component unmount, not whenever socket or hasJoined
+  // changes — which would emit video:leave-room while the call is still live.
+  const socketRef = useRef(socket);
+  useEffect(() => { socketRef.current = socket; }, [socket]);
+
   useEffect(() => {
     return () => {
-      if (socket && roomId && user?.id && hasJoined) {
-        socket.emit('video:leave-room', {
+      if (socketRef.current && roomId && user?.id && hasJoinedRef.current) {
+        socketRef.current.emit('video:leave-room', {
           roomId,
           userId: user.id,
         });
       }
     };
-  }, [socket, roomId, user, hasJoined]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // intentionally empty — only fires on unmount
 
   const handleEndCall = () => {
     if (socket && roomId && user?.id) {
