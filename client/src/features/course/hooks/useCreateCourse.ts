@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { createBase, uploadThumbnail } from "../services/CourseBase";
-import type { Ibase } from "../types/IBase";
+import type { CreateCoursePayload } from "../services/CourseBase";
 
 export default function useCreateCourse() {
   const queryClient = useQueryClient();
@@ -10,12 +10,11 @@ export default function useCreateCourse() {
     croppedBlob,
     thumbnailFile,
   }: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    formData: any;
+    formData: CreateCoursePayload;
     croppedBlob: Blob;
     thumbnailFile: File;
   }) => {
-    const response = await createBase({ ...formData, thumbnail: null } as Ibase);
+    const response = await createBase(formData);
     await uploadThumbnail({
       id: response.data.id,
       blob: croppedBlob,

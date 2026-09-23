@@ -1,9 +1,13 @@
+import Queue from 'bull';
 import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
 import {
   JOB_NAMES,
   QUEUE_NAMES,
 } from '../../../../shared/services/job-queue/JobTypes';
-import { VideoTranscodeProcessor } from '../../../../shared/services/job-queue/processors/VideoTranscodeProcessor';
+import {
+  VideoTranscodeProcessor,
+  VideoTranscodeJobData,
+} from '../../../../shared/services/job-queue/processors/VideoTranscodeProcessor';
 import { eventBus } from '../../../../shared/services/event-bus/EventBus';
 import {
   COURSE_EVENTS,
@@ -23,8 +27,7 @@ export function registerCourseJobs(): void {
   jobQueueService.processJob(
     QUEUE_NAMES.COURSE,
     JOB_NAMES.VIDEO_TRANSCODE,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (job: any) => VideoTranscodeProcessor.process(job),
+    (job: Queue.Job<VideoTranscodeJobData>) => VideoTranscodeProcessor.process(job),
   );
 
   // Subscribe to domain event → enqueue video transcode job
@@ -43,8 +46,7 @@ export function registerCourseJobs(): void {
             backoff: { type: 'exponential', delay: 5000 },
           },
         )
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .catch((err: any) =>
+        .catch((err: unknown) =>
           logger.error('Failed to enqueue video-transcode job:', err),
         );
     }

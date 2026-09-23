@@ -38,29 +38,36 @@ async function withRetry<T>(
   for (let attempt = 1; attempt <= maxTries; attempt++) {
     try {
       return await fn();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
+    } catch (err: unknown) {
       lastError = err;
 
+      // Narrow to access transient-error properties safely
+      const e = err as {
+        code?: string;
+        name?: string;
+        message?: string;
+        $metadata?: { httpStatusCode?: number };
+      };
+
       const isTransient =
-        err?.code === 'ECONNRESET' ||
-        err?.code === 'ETIMEDOUT' ||
-        err?.code === 'ENOTFOUND' ||
-        err?.code === 'EPIPE' ||
-        err?.name === 'InternalError' || // Backblaze 500
-        err?.$metadata?.httpStatusCode === 500 ||
-        err?.$metadata?.httpStatusCode === 503;
+        e?.code === 'ECONNRESET' ||
+        e?.code === 'ETIMEDOUT' ||
+        e?.code === 'ENOTFOUND' ||
+        e?.code === 'EPIPE' ||
+        e?.name === 'InternalError' || // Backblaze 500
+        e?.$metadata?.httpStatusCode === 500 ||
+        e?.$metadata?.httpStatusCode === 503;
 
       if (!isTransient || attempt === maxTries) {
         logger.warn(
-          `[${label}] Non-transient error or max attempts reached (${attempt}/${maxTries}): ${err?.message}`,
+          `[${label}] Non-transient error or max attempts reached (${attempt}/${maxTries}): ${e?.message}`,
         );
         throw err;
       }
 
       const delay = baseDelay * Math.pow(2, attempt - 1); // 1.5s → 3s → 6s → 12s ...
       logger.warn(
-        `[${label}] Transient error (attempt ${attempt}/${maxTries}): ${err?.message}. Retrying in ${delay}ms...`,
+        `[${label}] Transient error (attempt ${attempt}/${maxTries}): ${e?.message}. Retrying in ${delay}ms...`,
       );
       await new Promise((r) => setTimeout(r, delay));
     }
@@ -224,8 +231,7 @@ export class VideoTranscodeProcessor {
           `Successfully completed video transcode job for lesson ${lessonId}`,
         );
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(
         `Error in video transcode job for lesson ${lessonId} (Attempt ${job.attemptsMade + 1}/${job.opts.attempts}):`,
         error,
@@ -233,7 +239,7 @@ export class VideoTranscodeProcessor {
 
       // Persist the failure message for debugging via the API / MongoDB
       await LessonModel.findByIdAndUpdate(lessonId, {
-        transcodeError: error?.message || 'Unknown error during transcoding',
+        transcodeError: error instanceof Error ? error.message : 'Unknown error during transcoding',
       }).catch((dbErr) =>
         logger.error(`Failed to save transcodeError:`, dbErr),
       );

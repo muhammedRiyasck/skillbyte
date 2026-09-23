@@ -1,13 +1,14 @@
 import api from "@shared/utils/AxiosInstance";
 import type { Ibase } from "../types/IBase";
 
-export const createBase = async (data: Ibase) => {
+export type CreateCoursePayload = Omit<Ibase, "id" | "thumbnailUrl">;
+
+export const createBase = async (data: CreateCoursePayload) => {
   const response = await api.post("/course/createbase", data);
   return response.data;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const updateBase = async (id: string, data: any) => {
+export const updateBase = async (id: string, data: Partial<Ibase>) => {
   const response = await api.patch(`/course/${id}`, data);
   return response.data;
 };

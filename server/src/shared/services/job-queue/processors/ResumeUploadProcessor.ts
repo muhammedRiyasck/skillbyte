@@ -14,11 +14,10 @@ export class ResumeUploadProcessor {
   }
 
   private _registerProcessor(): void {
-    jobQueueService.processJob(
+    jobQueueService.processJob<ResumeUploadJobData>(
       QUEUE_NAMES.INSTRUCTOR_REGISTRATION,
       JOB_NAMES.RESUME_UPLOAD,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this._processResumeUpload.bind(this) as any,
+      (job) => this._processResumeUpload(job),
     );
   }
 

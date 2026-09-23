@@ -15,11 +15,10 @@ export class DeleteDeclinedInstructorProcessor {
   }
 
   private _registerProcessor(): void {
-    jobQueueService.processJob(
+    jobQueueService.processJob<{ instructorId: string }>(
       QUEUE_NAMES.CLEANUP,
       JOB_NAMES.DELETE_DECLINED_INSTRUCTOR,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this._processDelete.bind(this) as any,
+      (job) => this._processDelete(job),
     );
   }
 

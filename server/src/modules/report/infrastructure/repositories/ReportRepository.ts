@@ -8,6 +8,32 @@ import { ReportModel, IReportDoc } from '../models/ReportModel';
 import { ReportMapper } from '../mappers/ReportMapper';
 import mongoose from 'mongoose';
 
+/** Shape of a populated reporter sub-document after Mongoose .populate() */
+interface PopulatedUser {
+  _id: mongoose.Types.ObjectId;
+  name?: string;
+  profilePictureUrl?: string;
+}
+
+/** IReportDoc with its reference fields optionally populated */
+interface PopulatedReportDoc extends Omit<IReportDoc, 'reportedBy' | 'instructorId'> {
+  reportedBy: mongoose.Types.ObjectId | PopulatedUser;
+  instructorId?: mongoose.Types.ObjectId | PopulatedUser;
+  reporterRole: 'student' | 'instructor';
+}
+
+/** Data written to MongoDB when creating a new Report */
+interface ReportSaveData {
+  reportedBy?: string;
+  instructorId?: string;
+  reporterRole: 'student' | 'instructor';
+  targetType: IReportDoc['targetType'];
+  targetId: IReportDoc['targetId'];
+  reason: string;
+  description?: string;
+  status: IReportDoc['status'];
+}
+
 export class ReportRepository
   extends BaseRepository<Report, IReportDoc>
   implements IReportRepository
@@ -17,8 +43,7 @@ export class ReportRepository
   }
 
   override async save(entity: Report): Promise<Report> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data: Record<string, any> = {
+    const data: ReportSaveData = {
       reportedBy:
         entity.reporterRole === 'student' ? entity.reportedBy : undefined,
       instructorId:
@@ -46,10 +71,8 @@ export class ReportRepository
 
   private mapDocs(docs: IReportDoc[]): Report[] {
     return docs.map((document) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const doc = document as any;
-      const reporterRole: 'student' | 'instructor' =
-        doc.reporterRole ?? 'student';
+      const doc = document as PopulatedReportDoc;
+      const reporterRole: 'student' | 'instructor' = doc.reporterRole ?? 'student';
 
       // Resolve reporter info based on role
       let studentInfo: { name: string; profilePictureUrl?: string } | undefined;
@@ -59,28 +82,30 @@ export class ReportRepository
       let reportedById: mongoose.Types.ObjectId;
 
       if (reporterRole === 'instructor') {
-        const isPopulated =
-          doc.instructorId && typeof doc.instructorId === 'object';
-        if (isPopulated) {
+        const populated = doc.instructorId && 'name' in doc.instructorId
+          ? doc.instructorId as PopulatedUser
+          : undefined;
+        if (populated) {
           instructorInfo = {
-            name: doc.instructorId.name || 'Unknown Instructor',
-            profilePictureUrl: doc.instructorId.profilePictureUrl,
+            name: populated.name || 'Unknown Instructor',
+            profilePictureUrl: populated.profilePictureUrl,
           };
-          reportedById = doc.instructorId._id;
+          reportedById = populated._id;
         } else {
-          reportedById = doc.instructorId || new mongoose.Types.ObjectId();
+          reportedById = (doc.instructorId as mongoose.Types.ObjectId | undefined) || new mongoose.Types.ObjectId();
         }
       } else {
-        const isPopulated =
-          doc.reportedBy && typeof doc.reportedBy === 'object';
-        if (isPopulated) {
+        const populated = doc.reportedBy && 'name' in doc.reportedBy
+          ? doc.reportedBy as PopulatedUser
+          : undefined;
+        if (populated) {
           studentInfo = {
-            name: doc.reportedBy.name || 'Unknown Student',
-            profilePictureUrl: doc.reportedBy.profilePictureUrl,
+            name: populated.name || 'Unknown Student',
+            profilePictureUrl: populated.profilePictureUrl,
           };
-          reportedById = doc.reportedBy._id;
+          reportedById = populated._id;
         } else {
-          reportedById = doc.reportedBy || new mongoose.Types.ObjectId();
+          reportedById = (doc.reportedBy as mongoose.Types.ObjectId) || new mongoose.Types.ObjectId();
         }
       }
 

@@ -4,11 +4,24 @@ import { Maximize, Minimize } from 'lucide-react';
 import videojs from 'video.js';
 import type Player from 'video.js/dist/types/player';
 
-// Expose videojs to window for plugins to work in Vite
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-(window as any).videojs = videojs;
+
+(window as unknown as { videojs: typeof videojs }).videojs = videojs;
 
 import 'video.js/dist/video-js.css';
+
+// Internal Video.js tech interface (not exposed in public typings)
+interface VideoJsVhs {
+  mediaSource?: MediaSource;
+}
+interface VideoJsTech {
+  vhs?: VideoJsVhs;
+  hls?: VideoJsVhs; // legacy alias
+}
+// Standalone — intentionally does NOT extend Player to avoid return-type conflict
+// with Player's own tech() declaration in video.js typings.
+interface VideoJsPlayerWithTech {
+  tech(safety: boolean): VideoJsTech;
+}
 
 interface HlsPlayerProps {
   src: string;
@@ -374,8 +387,7 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
     // SourceBuffer. If we don't remove them, seeking backward will serve those
     // old low-quality frames instead of re-downloading at the new rendition.
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const tech = (playerRef.current as any).tech(true);
+      const tech = (playerRef.current as unknown as VideoJsPlayerWithTech).tech(true);
       const vhs = tech?.vhs ?? tech?.hls; // 'hls' is the legacy alias
       const mediaSource = vhs?.mediaSource;
       if (mediaSource?.readyState === 'open') {

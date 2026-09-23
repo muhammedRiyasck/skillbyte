@@ -20,11 +20,10 @@ export class MentorshipCleanupProcessor {
   }
 
   private _registerProcessor(): void {
-    jobQueueService.processJob(
+    jobQueueService.processJob<MentorshipCleanupJobData>(
       QUEUE_NAMES.MENTORSHIP,
       JOB_NAMES.MENTORSHIP_CLEANUP,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this._processCleanup.bind(this) as any,
+      (job) => this._processCleanup(job),
     );
   }
 

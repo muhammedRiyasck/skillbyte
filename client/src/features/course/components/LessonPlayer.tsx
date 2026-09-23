@@ -399,14 +399,25 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     }
   };
 
+// ScreenOrientation.lock/unlock are experimental — not present in all DOM lib versions.
+// OrientationLockType is also absent from older lib targets, so we inline the W3C spec union.
+type ScreenOrientationLock =
+  | 'any' | 'natural' | 'landscape' | 'portrait'
+  | 'portrait-primary' | 'portrait-secondary'
+  | 'landscape-primary' | 'landscape-secondary';
+
+interface OrientationWithLock extends ScreenOrientation {
+  lock(orientation: ScreenOrientationLock): Promise<void>;
+  unlock(): void;
+}
+
   const toggleFullscreen = async () => {
     if (!containerRef.current) return;
 
     try {
       if (!isFullscreen) {
         await containerRef.current.requestFullscreen();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const orientation = window.screen?.orientation as any;
+        const orientation = window.screen?.orientation as OrientationWithLock | undefined;
         if (orientation && orientation.lock) {
           try {
             await orientation.lock("landscape");
@@ -416,8 +427,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
         }
       } else {
         await document.exitFullscreen();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const orientation = window.screen?.orientation as any;
+        const orientation = window.screen?.orientation as OrientationWithLock | undefined;
         if (orientation && orientation.unlock) {
           orientation.unlock();
         }

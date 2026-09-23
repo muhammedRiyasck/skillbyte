@@ -10,11 +10,10 @@ export class EmailProcessor {
   }
 
   private _registerProcessor(): void {
-    jobQueueService.processJob(
+    jobQueueService.processJob<EmailJobData>(
       QUEUE_NAMES.EMAIL,
       JOB_NAMES.SEND_EMAIL,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      this._processEmail.bind(this) as any,
+      (job) => this._processEmail(job),
     );
   }
 

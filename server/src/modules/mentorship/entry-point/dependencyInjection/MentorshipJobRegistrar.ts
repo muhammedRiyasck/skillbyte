@@ -49,8 +49,7 @@ export function registerMentorshipJobs(): void {
           { bookingId: event.bookingId },
           { delay: event.delayMs },
         )
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .catch((err: any) =>
+        .catch((err: unknown) =>
           logger.error(
             `Failed to enqueue mentorship cleanup job for booking ${event.bookingId}:`,
             err,
@@ -69,9 +68,7 @@ export function registerMentorshipJobs(): void {
       'mentorship-auto-complete-singleton',
     )
     .catch(
-      (
-        err: any, // eslint-disable-line @typescript-eslint/no-explicit-any
-      ) =>
+      (err: unknown) =>
         logger.error('Failed to register mentorship auto-complete cron:', err),
     );
 

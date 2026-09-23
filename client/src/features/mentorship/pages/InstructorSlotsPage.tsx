@@ -20,6 +20,7 @@ import {
     deleteRecurringSlots,
 } from "../services/SlotServices";
 import { SlotStatus } from "../../../shared/enums/SlotStatus";
+import { getApiErrorMessage } from "@shared/utils/ApiError";
 
 const InstructorSlotsPage = () => {
     const [slots, setSlots] = useState<IMentorshipSlot[]>([]);
@@ -104,10 +105,9 @@ const InstructorSlotsPage = () => {
                 setSlots(prev => prev.filter(s => s.slotId !== slotToDelete.slotId));
             }
             setIsDeleteModalOpen(false);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Failed to delete slot", error);
-            toast.error(error.response?.data?.message || "Failed to delete slot");
+            toast.error(getApiErrorMessage(error, "Failed to delete slot"));
         } finally {
             setIsDeleting(false);
             setSlotToDelete(null);
@@ -156,10 +156,9 @@ const InstructorSlotsPage = () => {
             }
             await fetchSlots();
             setIsModalOpen(false);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Failed to create recurring slots", error);
-            toast.error(error.response?.data?.message || "Failed to create recurring slots");
+            toast.error(getApiErrorMessage(error, "Failed to create recurring slots"));
         } finally {
             setIsSaving(false);
         }

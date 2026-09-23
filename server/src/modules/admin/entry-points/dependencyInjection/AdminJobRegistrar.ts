@@ -38,9 +38,7 @@ export function registerAdminJobs(): void {
       'refresh-top-instructors-singleton',
     )
     .catch(
-      (
-        err: any, // eslint-disable-line @typescript-eslint/no-explicit-any
-      ) =>
+      (err: unknown) =>
         logger.error('Failed to register refresh-top-instructors cron:', err),
     );
 
