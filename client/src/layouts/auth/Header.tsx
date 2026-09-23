@@ -61,11 +61,11 @@ const Header = () => {
                   <BookOpen size={20} className="text-green-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Courses</span>
                 </NavLink>
-                <NavLink to="/notYet" className={({isActive}) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
+                <NavLink to={ROUTES.home.about} className={({isActive}) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
                   <Info size={20} className="text-blue-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">About</span>
                 </NavLink>
-                <NavLink to="/notYet" className={({isActive}) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
+                <NavLink to={ROUTES.home.support} className={({isActive}) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
                   <HelpCircle size={20} className="text-purple-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Support</span>
                 </NavLink>
