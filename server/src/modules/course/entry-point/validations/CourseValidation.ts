@@ -61,12 +61,12 @@ export const CreateLessonSchema = z.object({
   fileName: z.string().min(1, 'File Name is required'),
   order: z.coerce.number(),
   duration: z.coerce.number().optional().default(0),
-  resources: z.array(z.any()).optional(),
+  resources: z.array(z.string()).optional(),
   isFreePreview: z.boolean().optional(),
   isPublished: z.boolean().optional(),
 });
 
-export const UpdateLessonSchema = z.record(z.string(), z.any());
+export const UpdateLessonSchema = z.record(z.string(), z.unknown());
 
 export const GetUploadUrlSchema = z.object({
   fileName: z.string().min(1, 'File Name is required'),
@@ -89,11 +89,11 @@ export const CreateModuleSchema = z
     title: z.string().min(1, 'Title is required'),
     description: z.string().optional(),
     order: z.number(),
-    lessons: z.array(z.any()).optional(),
+    lessons: z.array(z.unknown()).optional(),
   })
   .refine((data) => data.courseId || data.id, {
     message: 'Either courseId or id (for course) must be provided',
     path: ['courseId'],
   });
 
-export const UpdateModuleSchema = z.record(z.string(), z.any());
+export const UpdateModuleSchema = z.record(z.string(), z.unknown());
