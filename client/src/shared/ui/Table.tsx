@@ -12,6 +12,7 @@ interface TableProps<T> {
   columns: Column<T>[];
   data: T[];
   isLoading?: boolean;
+  isFetching?: boolean;
   emptyComponent?: React.ReactNode;
   currentPage?: number;
   totalPages?: number;
@@ -22,22 +23,39 @@ function Table<T>({
   columns,
   data,
   isLoading = false,
+  isFetching = false,
   emptyComponent = <div className="p-8 text-center text-lg">No data available</div>,
   currentPage,
   totalPages,
   onPageChange,
 }: TableProps<T>) {
-  if (isLoading) {
+  // Show full shimmer only on initial load (no existing data yet)
+  if (isLoading && (!data || data.length === 0)) {
     return <TableShimmer />;
   }
 
-  if (!data || data.length === 0) {
+  const showEmptyState = !isLoading && (!data || data.length === 0);
+  if (showEmptyState) {
     return emptyComponent;
   }
 
   return (
     <div className="overflow-x-scroll" style={{scrollbarWidth:'none'}}>
-        
+      {/* Subtle top loading bar shown during refetch/search */}
+      <div className="relative h-0.5 w-full bg-transparent">
+        {isFetching && (
+          <div className="absolute inset-0 overflow-hidden">
+            <div
+              className="h-full bg-indigo-500"
+              style={{
+                animation: 'tableProgressBar 1.2s ease-in-out infinite',
+                width: '40%',
+              }}
+            />
+          </div>
+        )}
+      </div>
+      <div className={isFetching ? 'opacity-60 pointer-events-none transition-opacity duration-200' : 'transition-opacity duration-200'}>
       <table className="w-full min-w-max divide-y divide-gray-200 dark:divide-gray-700">
         <thead className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-800 dark:to-gray-700">
           <tr>
@@ -84,6 +102,7 @@ function Table<T>({
           onPageChange={onPageChange}
         />
       )}
+      </div>
     </div>
   );
 }

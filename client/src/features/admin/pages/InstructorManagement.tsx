@@ -28,7 +28,7 @@ const InstructorManagement: React.FC = () => {
   const [isDropDownOpend, setIsDropDownOpend] = useState(false);
   const [search, setSearch] = useState("");
 
-  const { data, isLoading, isError, error, refetch } = useQuery({
+  const { data, isLoading, isFetching, isError, error, refetch } = useQuery({
     queryKey: ['instructors', dropDownValue, page, search],
     queryFn: () => api.get(`/instructors/getInstructors?status=${dropDownValue}&page=${page}&limit=${ITEMS_PER_PAGE}&search=${encodeURIComponent(search)}`).then(r => r.data),
     staleTime: 0
@@ -136,14 +136,6 @@ const InstructorManagement: React.FC = () => {
     queryClient.invalidateQueries({ queryKey: ["instructors", option, 1] });
   }, [queryClient]);
 
-  if (isLoading) {
-    return (
-      <div className="p-6 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex justify-center items-center">
-        <p>Loading...</p>
-      </div>
-    );
-  }
-
   if (isError) {
     return (
       <div className="p-6 min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex justify-center items-center">
@@ -204,6 +196,7 @@ const InstructorManagement: React.FC = () => {
       <InstructorTable
         data={data}
         isLoading={isLoading}
+        isFetching={isFetching}
         currentPage={data?.data?.meta?.page || 1}
         totalPages={data?.data?.meta?.totalPages || 1}
         onPageChange={setPage}

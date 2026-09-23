@@ -13,7 +13,7 @@ const StudentManagement: React.FC = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, isFetching, refetch } = useQuery({
     queryKey: ['students', page, search],
     queryFn: () =>
       api.get(`/students/allStudents?page=${page}&limit=${ITEMS_PER_PAGE}&search=${encodeURIComponent(search)}`).then(r => r.data?.data),
@@ -72,6 +72,7 @@ const StudentManagement: React.FC = () => {
         <StudentTable
           students={students}
           isLoading={isLoading}
+          isFetching={isFetching}
           currentPage={meta?.page}
           totalPages={meta?.totalPages}
           onPageChange={setPage}

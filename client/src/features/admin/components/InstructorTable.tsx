@@ -15,6 +15,7 @@ interface InstructorTableProps {
     };
   };
   isLoading: boolean;
+  isFetching?: boolean;
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
@@ -28,6 +29,7 @@ interface InstructorTableProps {
 const InstructorTable: React.FC<InstructorTableProps> = ({
   data,
   isLoading,
+  isFetching = false,
   currentPage,
   totalPages,
   onPageChange,
@@ -289,6 +291,7 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
         columns={columns}
         data={instructorsWithIndex}
         isLoading={isLoading}
+        isFetching={isFetching}
         emptyComponent={
           <div className="text-center py-12">
             <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">

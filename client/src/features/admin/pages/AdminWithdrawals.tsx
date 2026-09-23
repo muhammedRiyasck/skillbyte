@@ -65,7 +65,7 @@ const AdminWithdrawals: React.FC = () => {
         window.scrollTo({top:0,behavior:'smooth'})
     },[page])
 
-    const { data, isLoading, isError, refetch } = useQuery({
+    const { data, isLoading, isFetching, isError, refetch } = useQuery({
         queryKey: ['admin-withdrawals', statusFilter, debouncedSearch, page],
         queryFn: () => getAllWithdrawals({ 
             status: statusFilter, 
@@ -181,12 +181,21 @@ const AdminWithdrawals: React.FC = () => {
 
             {/* Table */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                {/* Loading progress bar */}
+                {isFetching && (
+                    <div className="relative h-0.5 w-full overflow-hidden">
+                        <div
+                            className="absolute h-full bg-indigo-500"
+                            style={{ animation: 'tableProgressBar 1.2s ease-in-out infinite', width: '40%' }}
+                        />
+                    </div>
+                )}
                 {isError ? (
                     <div className="py-20 flex flex-col items-center gap-3 text-red-500">
                         <AlertTriangle className="w-10 h-10" />
                         <p className="font-bold">Failed to load withdrawals</p>
                     </div>
-                ) : isLoading ? (
+                ) : isLoading && withdrawals.length === 0 ? (
                     <div className="py-20 text-center text-gray-400 font-bold animate-pulse">
                         Loading withdrawals...
                     </div>
@@ -195,7 +204,7 @@ const AdminWithdrawals: React.FC = () => {
                         No {statusFilter === 'ALL' ? '' : statusFilter} withdrawal requests found
                     </div>
                 ) : (
-                    <div className="overflow-x-auto">
+                    <div className={`overflow-x-auto transition-opacity duration-200 ${isFetching ? 'opacity-60 pointer-events-none' : ''}`}>
                         <table className="w-full text-left">
                             <thead>
                                 <tr className="bg-gray-50 dark:bg-gray-700/50 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">

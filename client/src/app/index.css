@@ -73,4 +73,12 @@ textarea,
   background: #475569;
 }
 
+@keyframes tableProgressBar {
+  0%   { transform: translateX(-100%); }
+  50%  { transform: translateX(150%); }
+  100% { transform: translateX(400%); }
+}
+
+
+
 

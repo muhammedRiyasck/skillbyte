@@ -21,6 +21,7 @@ interface Student {
 interface StudentTableProps {
   students: Student[];
   isLoading: boolean;
+  isFetching?: boolean;
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
@@ -31,6 +32,7 @@ interface StudentTableProps {
 const StudentTable: React.FC<StudentTableProps> = ({
   students,
   isLoading,
+  isFetching = false,
   currentPage = 1,
   totalPages,
   onPageChange
@@ -152,6 +154,7 @@ const StudentTable: React.FC<StudentTableProps> = ({
         columns={columns}
         data={studentsWithIndex}
         isLoading={isLoading}
+        isFetching={isFetching}
         emptyComponent={
           <div className="text-center py-12">
             <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
