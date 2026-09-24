@@ -1,9 +1,8 @@
-import { Instructor } from '../../domain/entities/Instructor';
+import { InstructorReapplyRequestDto } from '../dtos/InstructorRequestDto';
 
 export interface IReapplyInstructorUseCase {
   execute(
-    email: string,
-    updates: Partial<Instructor>,
+    dto: InstructorReapplyRequestDto,
     resumeFile?: Express.Multer.File,
   ): Promise<void>;
 }

@@ -1,15 +1,9 @@
-import { Course } from '../../domain/entities/Course';
-
-type UpdatableCourseFields = Omit<
-  Course,
-  'createdAt' | 'updatedAt' | 'courseId'
->;
-type IUpdateBaseInfo = Partial<UpdatableCourseFields>;
+import { UpdateBaseValidationType } from '../dtos/CourseDetailsDtos';
 
 export interface IUpdateBaseUseCase {
   execute(
     courseId: string,
     instructorId: string,
-    updates: IUpdateBaseInfo,
+    validatedData: UpdateBaseValidationType,
   ): Promise<void>;
 }

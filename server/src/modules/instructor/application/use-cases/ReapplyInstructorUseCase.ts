@@ -8,6 +8,8 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 import { IPasswordHasher } from '../../../../shared/services/password-hasher/IPasswordHasher';
 import { passwordHasher } from '../../../../shared/services/password-hasher/BcryptPasswordHasher';
+import { InstructorMapper } from '../mappers/InstructorMapper';
+import { InstructorReapplyRequestDto } from '../dtos/InstructorRequestDto';
 
 export class ReapplyInstructorUseCase implements IReapplyInstructorUseCase {
   constructor(
@@ -17,10 +19,10 @@ export class ReapplyInstructorUseCase implements IReapplyInstructorUseCase {
   ) {}
 
   async execute(
-    email: string,
-    updates: Partial<Instructor>,
+    dto: InstructorReapplyRequestDto,
     resumeFile?: Express.Multer.File,
   ): Promise<void> {
+    const { email, updates } = InstructorMapper.toReapplyEntity(dto);
     const instructor = await this._instructorRepo.findByEmail(email);
     if (!instructor) {
       throw new HttpError(

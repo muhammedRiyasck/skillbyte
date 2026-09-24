@@ -11,7 +11,6 @@ import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequ
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
-import { InstructorMapper } from '../../application/mappers/InstructorMapper';
 import { InstructorProfileUpdateRequestDto } from '../../application/dtos/InstructorRequestDto';
 import { ChangeInstructorPasswordDto } from '../../entry-point/validations/ChangeInstructorPasswordValidation';
 
@@ -52,9 +51,8 @@ export class InstructorProfileController {
     const authenticatedRequest = req as AuthenticatedRequest;
     const instructorId = authenticatedRequest.user.id;
     const dto: InstructorProfileUpdateRequestDto = req.body;
-    const updates = InstructorMapper.toUpdateProfileEntity(dto);
 
-    await this._updateInstructorProfileUseCase.execute(instructorId, updates);
+    await this._updateInstructorProfileUseCase.execute(instructorId, dto);
     ApiResponseHelper.success(res, 'Profile updated successfully');
   };
 

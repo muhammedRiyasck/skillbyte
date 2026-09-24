@@ -9,7 +9,6 @@ import {
   StudentRegistrationRequestDto,
   StudentVerifyOtpRequestDto,
 } from '../../application/dtos/StudentRequestDto';
-import { StudentMapper } from '../../application/mappers/StudentMapper';
 import { TempInstructorData } from '../../../../shared/services/otp/interfaces/ITempInstructorData ';
 import { TempStudentData } from '../../../../shared/services/otp/interfaces/ITempStudentData';
 
@@ -37,8 +36,7 @@ export class StudentAuthController {
    */
   registerStudent = async (req: Request, res: Response): Promise<void> => {
     const dto: StudentRegistrationRequestDto = req.body;
-    const { fullName, email, password } =
-      StudentMapper.toRegisterStudentEntity(dto);
+    const { fullName, email, password } = dto;
 
     const isUserExists = await this._registerStudentUseCase.isUserExists(email);
     if (!isUserExists) {
@@ -68,8 +66,7 @@ export class StudentAuthController {
    */
   verifyOtp = async (req: Request, res: Response): Promise<void> => {
     const dto: StudentVerifyOtpRequestDto = req.body;
-    const { email, otp } = StudentMapper.toVerifyOtpEntity(dto);
-    await this._registerStudentUseCase.execute(email, otp);
+    await this._registerStudentUseCase.execute(dto.email, dto.Otp);
     ApiResponseHelper.created(res, 'Student Registration Successful.');
   };
 }

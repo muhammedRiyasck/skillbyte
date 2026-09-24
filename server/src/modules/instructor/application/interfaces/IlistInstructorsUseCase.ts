@@ -1,12 +1,13 @@
 import { InstructorResponseDto } from '../dtos/InstructorResponseDto';
 import { PaginatedResult } from '../../../../shared/types/PaginationType';
+import { AdminInstructorPaginationRequestDto } from '../dtos/AdminInstructorRequestDto';
+
 type GetPaginatedInstructors<T = InstructorResponseDto> = PaginatedResult<T>;
 
 export interface IlistInstructorsUC {
   execute(
-    query: Record<string, unknown>,
+    query: AdminInstructorPaginationRequestDto,
     page: number,
     limit: number,
-    sort: Record<string, 1 | -1>,
   ): Promise<GetPaginatedInstructors | null>;
 }

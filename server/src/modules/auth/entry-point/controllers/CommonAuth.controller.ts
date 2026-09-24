@@ -11,7 +11,6 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import logger from '../../../../shared/utils/Logger';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
-import { AuthMapper } from '../../application/mappers/AuthMapper';
 import { UserRole } from '../../../../shared/enums/UserRole';
 import { AuthResponseDto } from '../../application/dtos/AuthResponseDto';
 import { LoginRequestDto } from '../../application/dtos/LoginRequestDto';
@@ -59,14 +58,14 @@ export class CommonAuthController {
     switch (role) {
       case UserRole.STUDENT: {
         const data = await this._studentLoginUC.execute(dto);
-        authResponse = AuthMapper.toAuthResponseDto(data.user, role);
+        authResponse = data.user;
         accessToken = data.accessToken;
         refreshToken = data.refreshToken;
         break;
       }
       case UserRole.INSTRUCTOR: {
         const data = await this._instructorLoginUC.execute(dto);
-        authResponse = AuthMapper.toAuthResponseDto(data.user, role);
+        authResponse = data.user;
         accessToken = data.accessToken;
         refreshToken = data.refreshToken;
         break;

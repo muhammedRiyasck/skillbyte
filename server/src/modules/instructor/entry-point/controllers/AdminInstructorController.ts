@@ -7,7 +7,6 @@ import { IDeleteInstructorUseCase } from '../../application/interfaces/IDeleteIn
 import { IStreamInstructorResumeUseCase } from '../../application/interfaces/IStreamInstructorResumeUseCase';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
-import { AdminInstructorMapper } from '../../application/mappers/AdminInstructorMapper';
 import {
   AdminInstructorPaginationRequestDto,
   ApproveInstructorRequestDto,
@@ -31,14 +30,11 @@ export class AdminInstructorController {
 
   getInstructors = async (req: Request, res: Response): Promise<void> => {
     const query = req.query as unknown as AdminInstructorPaginationRequestDto;
-    const filter = AdminInstructorMapper.toGetInstructorsFilter(query);
-    const sort = AdminInstructorMapper.toSort(query.sort);
 
     const instructors = await this._listInstructorsUC.execute(
-      filter,
+      query,
       query.page ?? 1,
       query.limit ?? 12,
-      sort,
     );
     ApiResponseHelper.success(
       res,

@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { IHandleStripeWebhook } from '../../application/interfaces/IHandleStripeWebhook';
 import { ICapturePayPalPayment } from '../../application/interfaces/ICapturePayPalPayment';
-import { PaymentMapper } from '../../application/mappers/PaymentMapper';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 
 /**
@@ -41,7 +40,7 @@ export class PaymentWebhookController {
     if (result.success && result.payment) {
       ApiResponseHelper.success(res, 'Payment captured successfully', {
         ...result,
-        payment: PaymentMapper.toResponse(result.payment),
+        payment: result.payment,
       });
     } else if (result.success) {
       ApiResponseHelper.success(res, 'Payment captured successfully', result);

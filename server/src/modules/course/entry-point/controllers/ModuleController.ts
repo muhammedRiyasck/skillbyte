@@ -12,7 +12,6 @@ import {
   CreateModuleSchema,
   UpdateModuleSchema,
 } from '../../entry-point/validations/CourseValidation';
-import { ModuleMapper } from '../../application/mappers/ModuleMapper';
 
 /**
  * Interface for authenticated request with user data.
@@ -38,10 +37,10 @@ export class ModuleController {
     const validatedData = CreateModuleSchema.parse(authenticatedReq.body);
     const instructorId = authenticatedReq.user.id;
 
-    const moduleEntity = ModuleMapper.toCreateEntity({
+    const moduleEntity = {
       ...validatedData,
       instructorId,
-    });
+    };
 
     const module = await this._createUseCase.execute(moduleEntity);
     logger.info(
@@ -65,9 +64,8 @@ export class ModuleController {
     const moduleId = authenticatedReq.params.id;
     const instructorId = authenticatedReq.user.id;
     const validatedUpdates = UpdateModuleSchema.parse(authenticatedReq.body);
-    const updates = ModuleMapper.toUpdateEntity(validatedUpdates);
 
-    await this._updateModuleUseCase.execute(moduleId, instructorId, updates);
+    await this._updateModuleUseCase.execute(moduleId, instructorId, validatedUpdates);
     logger.info(`Module ${moduleId} updated successfully`);
     ApiResponseHelper.success(res, 'Module updated successfully');
   };

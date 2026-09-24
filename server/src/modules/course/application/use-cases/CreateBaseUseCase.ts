@@ -2,8 +2,8 @@ import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository'
 import { Course } from '../../domain/entities/Course';
 import { ICreateBaseUseCase } from '../interfaces/ICreateBaseUseCase';
 import { CourseMapper } from '../mappers/CourseMapper';
-import { CreateCourseDto } from '../dtos/CourseDto';
 import { CourseResponseDto } from '../dtos/CourseResponseDto';
+import { CreateBaseValidationType } from '../dtos/CourseDetailsDtos';
 
 /**
  * Use case for creating a new course.
@@ -11,7 +11,8 @@ import { CourseResponseDto } from '../dtos/CourseResponseDto';
 export class CreateBaseUseCase implements ICreateBaseUseCase {
   constructor(private _courseRepo: ICourseRepository) {}
 
-  async execute(dto: CreateCourseDto): Promise<CourseResponseDto> {
+  async execute(validatedData: CreateBaseValidationType, instructorId: string): Promise<CourseResponseDto> {
+    const dto = CourseMapper.toCreateDto(validatedData, instructorId);
     const course = new Course(
       dto.instructorId,
       dto.thumbnailUrl || null,

@@ -17,7 +17,6 @@ import {
   BlockLessonSchema,
   UpdateLessonSchema,
 } from '../../entry-point/validations/CourseValidation';
-import { LessonMapper } from '../../application/mappers/LessonMapper';
 import logger from '../../../../shared/utils/Logger';
 
 export class LessonController {
@@ -41,12 +40,8 @@ export class LessonController {
 
     const instructorId = authenticatedReq.user.id;
     const validatedData = CreateLessonSchema.parse(authenticatedReq.body);
-    const lessonEntity = LessonMapper.toCreateEntity(
-      validatedData,
-      instructorId,
-    );
 
-    const data = await this._createUseCase.execute(lessonEntity);
+    const data = await this._createUseCase.execute(validatedData, instructorId);
 
     logger.info(
       `Lesson created successfully for module ${validatedData.moduleId}`,

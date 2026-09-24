@@ -1,7 +1,6 @@
 import { generateRefreshToken } from '../../../../shared/utils/RefreshToken';
 import { generateAccessToken } from '../../../../shared/utils/AccessToken';
 import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRepository';
-import { InstructorResponseDto } from '../dtos/InstructorResponseDto';
 import { IPasswordHasher } from '../../../../shared/services/password-hasher/IPasswordHasher';
 import { passwordHasher } from '../../../../shared/services/password-hasher/BcryptPasswordHasher';
 import { ILoginInstructorUseCase } from '../interfaces/ILoginInstructorUseCase';
@@ -11,6 +10,8 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
 import { UserRole } from '../../../../shared/enums/UserRole';
 import { InstructorMapper } from '../mappers/InstructorMapper';
+import { AuthMapper } from '../../../auth/application/mappers/AuthMapper';
+import { AuthResponseDto } from '../../../auth/application/dtos/AuthResponseDto';
 
 /**
  * Use case for logging in an instructor.
@@ -25,7 +26,7 @@ export class LoginInstructorUseCase implements ILoginInstructorUseCase {
   ) {}
 
   async execute(dto: LoginRequestDto): Promise<{
-    user: InstructorResponseDto;
+    user: AuthResponseDto;
     accessToken: string;
     refreshToken: string;
   }> {
@@ -72,8 +73,10 @@ export class LoginInstructorUseCase implements ILoginInstructorUseCase {
       id: instructor.instructorId,
       role: UserRole.INSTRUCTOR,
     });
+
+    const instructorDto = InstructorMapper.toResponseDto(instructor);
     return {
-      user: InstructorMapper.toResponseDto(instructor),
+      user: AuthMapper.toAuthResponseDto(instructorDto, UserRole.INSTRUCTOR),
       accessToken,
       refreshToken,
     };

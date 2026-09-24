@@ -1,5 +1,5 @@
-import { Instructor } from '../../domain/entities/Instructor';
+import { InstructorProfileUpdateRequestDto } from '../dtos/InstructorRequestDto';
 
 export interface IUpdateInstructorProfileUseCase {
-  execute(id: string, updates: Partial<Instructor>): Promise<void>;
+  execute(id: string, dto: InstructorProfileUpdateRequestDto): Promise<void>;
 }

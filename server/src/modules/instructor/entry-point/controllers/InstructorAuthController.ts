@@ -6,7 +6,6 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { IReapplyInstructorUseCase } from '../../application/interfaces/IReapplyInstructorUseCase';
-import { InstructorMapper } from '../../application/mappers/InstructorMapper';
 import { TempInstructorData } from '../../../../shared/services/otp/interfaces/ITempInstructorData ';
 import { TempStudentData } from '../../../../shared/services/otp/interfaces/ITempStudentData';
 import {
@@ -86,10 +85,19 @@ export class InstructorAuthController {
       },
     );
 
-    const instructorEntity = InstructorMapper.toRegisterInstructorEntity(
-      dto,
-      resumeKey,
-    );
+    const instructorEntity = {
+      fullName: dto.fullName,
+      email: dto.email,
+      password: dto.password,
+      phoneNumber: dto.phoneNumber,
+      subject: dto.subject.trim() === 'Other' ? dto.customSubject : dto.subject,
+      jobTitle: dto.jobTitle.trim() === 'Other' ? dto.customJobTitle : dto.jobTitle,
+      socialMediaLink: dto.socialMediaLink,
+      experience: dto.experience,
+      portfolioLink: dto.portfolioLink,
+      bio: dto.bio,
+      resumeKey, // plain S3 key, or undefined if upload failed/skipped
+    };
     await this._generateOtpUseCase.storeTempData(dto.email, instructorEntity);
     logger.info('[Register] Temp data stored with resume key', {
       email: dto.email,
@@ -111,13 +119,12 @@ export class InstructorAuthController {
    */
   verifyOtp = async (req: Request, res: Response): Promise<void> => {
     const dto: InstructorVerifyOtpRequestDto = req.body;
-    const { email, otp } = InstructorMapper.toVerifyOtpEntity(dto);
 
-    logger.info('[VerifyOtp] OTP verification attempt', { email });
+    logger.info('[VerifyOtp] OTP verification attempt', { email: dto.email });
 
-    await this._registerInstructorUseCase.execute(email, otp);
+    await this._registerInstructorUseCase.execute(dto.email, dto.Otp);
 
-    logger.info('[VerifyOtp] Instructor registered successfully', { email });
+    logger.info('[VerifyOtp] Instructor registered successfully', { email: dto.email });
     ApiResponseHelper.created(
       res,
       "Successfully registered. You'll receive an email once approved.",
@@ -130,9 +137,8 @@ export class InstructorAuthController {
   reapply = async (req: Request, res: Response): Promise<void> => {
     const dto: InstructorReapplyRequestDto = req.body;
     const file = req.file;
-    const { email, updates } = InstructorMapper.toReapplyEntity(dto);
 
-    await this._reapplyInstructorUseCase.execute(email, updates, file);
+    await this._reapplyInstructorUseCase.execute(dto, file);
     ApiResponseHelper.success(res, 'Application re-submitted successfully');
   };
 }

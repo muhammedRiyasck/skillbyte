@@ -9,9 +9,7 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { eventBus } from '../../../../shared/services/event-bus/EventBus';
 import { COURSE_EVENTS } from '../../../../shared/services/event-bus/CourseEvents';
 import { LessonMapper } from '../mappers/LessonMapper';
-import { LessonResponseDto } from '../dtos/LessonDtos';
-
-type WithInstructorId<T> = T & { instructorId: string };
+import { CreateLessonDto, LessonResponseDto } from '../dtos/LessonDtos';
 
 /**
  * Use case for creating a new lesson.
@@ -32,14 +30,16 @@ export class CreateLessonUseCase implements ICreateLessonUseCase {
 
   /**
    * Executes the lesson creation logic.
-   * Validates the module exists, the course exists, and the instructor owns the course.
-   * Creates a new Lesson entity and saves it.
-   * @param dto - The data transfer object containing lesson creation details with instructor ID.
+   * Maps the raw DTO to a domain entity, validates module/course ownership, and saves.
+   * @param dto - Raw lesson creation DTO from the controller.
+   * @param instructorId - The authenticated instructor's ID.
    * @returns A promise that resolves to the created LessonResponseDto.
    * @throws HttpError with appropriate status code if validation fails.
    */
-  async execute(dto: WithInstructorId<Lesson>): Promise<LessonResponseDto> {
-    const module = await this._moduleRepo.findById(dto.moduleId);
+  async execute(dto: CreateLessonDto, instructorId: string): Promise<LessonResponseDto> {
+    const lessonEntity = LessonMapper.toCreateEntity(dto, instructorId);
+
+    const module = await this._moduleRepo.findById(lessonEntity.moduleId);
     if (!module) {
       throw new HttpError(
         ERROR_MESSAGES.MODULE_NOT_FOUND,
@@ -55,7 +55,7 @@ export class CreateLessonUseCase implements ICreateLessonUseCase {
       );
     }
 
-    if (course.instructorId !== dto.instructorId) {
+    if (course.instructorId !== instructorId) {
       throw new HttpError(
         ERROR_MESSAGES.UNAUTHORIZED_ADD_LESSON,
         HttpStatusCode.BAD_REQUEST,
@@ -63,18 +63,18 @@ export class CreateLessonUseCase implements ICreateLessonUseCase {
     }
 
     const lesson = new Lesson(
-      dto.moduleId,
-      dto.title,
-      dto.description,
-      dto.contentType,
-      dto.fileName,
-      dto.order,
-      dto.duration,
-      dto.resources,
-      dto.isFreePreview || false,
-      dto.isPublished || false,
-      dto.isBlocked || false,
-      dto.contentType === 'video' ? true : false,
+      lessonEntity.moduleId,
+      lessonEntity.title,
+      lessonEntity.description,
+      lessonEntity.contentType,
+      lessonEntity.fileName,
+      lessonEntity.order,
+      lessonEntity.duration,
+      lessonEntity.resources,
+      lessonEntity.isFreePreview || false,
+      lessonEntity.isPublished || false,
+      lessonEntity.isBlocked || false,
+      lessonEntity.contentType === 'video' ? true : false,
     );
 
     const savedLesson = await this._lessonRepo.create(lesson);
@@ -84,8 +84,8 @@ export class CreateLessonUseCase implements ICreateLessonUseCase {
       courseId: course.courseId!,
       courseTitle: course.title,
       lessonId: savedLesson.lessonId,
-      lessonTitle: dto.title,
-      instructorId: dto.instructorId,
+      lessonTitle: lessonEntity.title,
+      instructorId,
       contentType: savedLesson.contentType,
       fileName: savedLesson.fileName,
     });

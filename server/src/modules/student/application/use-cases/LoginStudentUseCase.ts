@@ -8,7 +8,9 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { StudentMapper } from '../mappers/StudentMapper';
-import { StudentResponseDto } from '../dtos/StudentResponseDto';
+import { AuthMapper } from '../../../auth/application/mappers/AuthMapper';
+import { AuthResponseDto } from '../../../auth/application/dtos/AuthResponseDto';
+import { UserRole } from '../../../../shared/enums/UserRole';
 
 /**
  * Use case for student login.
@@ -23,7 +25,7 @@ export class LoginStudentUseCase implements ILoginStudentUseCase {
   ) {}
 
   async execute(dto: LoginRequestDto): Promise<{
-    user: StudentResponseDto;
+    user: AuthResponseDto;
     accessToken: string;
     refreshToken: string;
   }> {
@@ -64,8 +66,10 @@ export class LoginStudentUseCase implements ILoginStudentUseCase {
       id: student.studentId,
       role: 'student',
     });
+
+    const studentDto = StudentMapper.toResponseDto(student);
     return {
-      user: StudentMapper.toResponseDto(student),
+      user: AuthMapper.toAuthResponseDto(studentDto, UserRole.STUDENT),
       accessToken,
       refreshToken,
     };

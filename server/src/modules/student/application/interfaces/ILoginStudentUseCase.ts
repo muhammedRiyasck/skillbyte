@@ -1,9 +1,9 @@
-import { StudentResponseDto } from '../dtos/StudentResponseDto';
+import { AuthResponseDto } from '../../../auth/application/dtos/AuthResponseDto';
 import { LoginRequestDto } from '../../../auth/application/dtos/LoginRequestDto';
 
 export interface ILoginStudentUseCase {
   execute(dto: LoginRequestDto): Promise<{
-    user: StudentResponseDto;
+    user: AuthResponseDto;
     accessToken: string;
     refreshToken: string;
   }>;

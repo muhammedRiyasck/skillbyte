@@ -19,7 +19,6 @@ import {
   PaginationQuerySchema,
   BlockCourseSchema,
 } from '../validations/CourseValidation';
-import { CourseMapper } from '../../application/mappers/CourseMapper';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { GetCategories } from '../../application/use-cases/GetCategoriesUseCase';
 import { CourseStatus } from '../../../../shared/enums/CourseStatus';
@@ -44,8 +43,7 @@ export class CourseController {
     const validatedData = CreateBaseSchema.parse(authenticatedReq.body);
     const instructorId = authenticatedReq.user.id;
 
-    const dto = CourseMapper.toCreateDto(validatedData, instructorId);
-    const course = await this._createCourseUseCase.execute(dto);
+    const course = await this._createCourseUseCase.execute(validatedData, instructorId);
 
     logger.info(
       `Course base created successfully for instructor ${instructorId}`,
@@ -91,9 +89,8 @@ export class CourseController {
     const instructorId = authenticatedReq.user.id;
 
     const validatedData = UpdateBaseSchema.parse(authenticatedReq.body);
-    const data = CourseMapper.toUpdateDto(validatedData);
 
-    await this._updateBaseUseCase.execute(id, instructorId, data);
+    await this._updateBaseUseCase.execute(id, instructorId, validatedData);
     ApiResponseHelper.success(res, 'Course updated successfully');
   };
 

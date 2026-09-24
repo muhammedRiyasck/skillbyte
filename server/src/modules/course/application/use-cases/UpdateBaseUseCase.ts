@@ -1,13 +1,14 @@
 import { ICourseRepository } from '../../domain/IRepositories/ICourseRepository';
-import { Course } from '../../domain/entities/Course';
 import { IUpdateBaseUseCase } from '../interfaces/IUpdateBaseUseCase';
+import { CourseMapper } from '../mappers/CourseMapper';
+import { UpdateBaseValidationType } from '../dtos/CourseDetailsDtos';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 /**
  * Use case for updating basic course information.
- * Handles the business logic for updating course details, including authorization checks and duration conversion.
+ * Handles the business logic for updating course details, including authorization checks.
  */
 export class UpdateBaseUseCase implements IUpdateBaseUseCase {
   /**
@@ -21,15 +22,17 @@ export class UpdateBaseUseCase implements IUpdateBaseUseCase {
    * Validates the course exists and the instructor has permission, then updates the provided fields.
    * @param courseId - The ID of the course to update.
    * @param instructorId - The ID of the instructor making the update.
-   * @param data - The partial course data to update.
+   * @param validatedData - The raw Zod-validated update payload.
    * @returns A promise that resolves when the update is complete.
    * @throws HttpError with appropriate status code if validation fails or access is denied.
    */
   async execute(
     courseId: string,
     instructorId: string,
-    data: Partial<Omit<Course, 'createdAt' | 'updatedAt' | 'courseId'>>,
+    validatedData: UpdateBaseValidationType,
   ): Promise<void> {
+    const data = CourseMapper.toUpdateDto(validatedData);
+
     // Find the course to ensure it exists
     const course = await this._CourseRepo.findById(courseId);
     if (!course) {

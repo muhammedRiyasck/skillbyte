@@ -1,8 +1,5 @@
-import { Lesson } from '../../domain/entities/Lesson';
-import { LessonResponseDto } from '../dtos/LessonDtos';
-
-type WithInstructorId<Lesson> = Lesson & { instructorId: string };
+import { CreateLessonDto, LessonResponseDto } from '../dtos/LessonDtos';
 
 export interface ICreateLessonUseCase {
-  execute(dto: WithInstructorId<Lesson>): Promise<LessonResponseDto>;
+  execute(dto: CreateLessonDto, instructorId: string): Promise<LessonResponseDto>;
 }

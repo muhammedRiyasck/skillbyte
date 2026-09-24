@@ -3,17 +3,8 @@ import { IGetPaginatedStudentsUseCase } from '../interfaces/IGetPaginatedStudent
 import { PaginatedResult } from '../../../../shared/types/PaginationType';
 import { StudentResponseDto } from '../dtos/StudentResponseDto';
 import { StudentMapper } from '../mappers/StudentMapper';
-
-/**
- * Query filters for paginated students.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type StudentQuery = Record<string, any>;
-
-/**
- * Sort options for students.
- */
-type StudentSort = Record<string, 1 | -1>;
+import { AdminStudentMapper } from '../mappers/AdminStudentMapper';
+import { AdminStudentPaginationRequestDto } from '../dtos/AdminStudentRequestDto';
 
 /**
  * Use case for retrieving paginated students with optional filters and sorting.
@@ -31,18 +22,19 @@ export class GetPaginatedStudentsUseCase
   /**
    * Executes the paginated student retrieval logic.
    * Validates and sanitizes pagination parameters, applies filters and sorting, and returns paginated results.
-   * @param query - Optional filters for the students.
+   * @param query - Raw pagination/filter DTO from the controller.
    * @param page - The page number to retrieve (defaults to 1 if invalid).
    * @param limit - The number of items per page (defaults to 6, max 50).
-   * @param sort - Sorting options for the results.
    * @returns A promise that resolves to a PaginatedResult containing the students and pagination metadata.
    */
   async execute(
-    query: StudentQuery,
+    query: AdminStudentPaginationRequestDto,
     page: number,
     limit: number,
-    sort: StudentSort,
   ): Promise<PaginatedResult<StudentResponseDto> | null> {
+    const filter = AdminStudentMapper.toListAllFilter(query);
+    const sort = AdminStudentMapper.toSort(query.sort);
+
     // Validate and sanitize the page number
     const safePage = Number.isFinite(page) && page > 0 ? page : 1;
 
@@ -52,7 +44,7 @@ export class GetPaginatedStudentsUseCase
 
     // Fetch paginated data from the repository
     const { data, total } = await this._studentRepo.paginatedList(
-      query,
+      filter,
       safePage,
       safeLimit,
       sort,

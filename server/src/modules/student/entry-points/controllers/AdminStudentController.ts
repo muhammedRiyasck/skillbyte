@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { IGetPaginatedStudentsUseCase } from '../../application/interfaces/IGetPaginatedStudentsUseCase';
 import { IChangeStudentStatusUseCase } from '../../application/interfaces/IChangeStudentStatusUseCase';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
-import { AdminStudentMapper } from '../../application/mappers/AdminStudentMapper';
 import {
   AdminStudentPaginationRequestDto,
   ChangeStudentStatusRequestDto,
@@ -23,14 +22,10 @@ export class AdminStudentController {
   getAllStudents = async (req: Request, res: Response): Promise<void> => {
     const query = req.query as unknown as AdminStudentPaginationRequestDto;
 
-    const filter = AdminStudentMapper.toListAllFilter(query);
-    const sort = AdminStudentMapper.toSort(query.sort);
-
     const students = await this._listStudentsUseCase.execute(
-      filter,
+      query,
       query.page ?? 1,
       query.limit ?? 6,
-      sort,
     );
 
     ApiResponseHelper.success(res, 'Students fetched successfully', students);
