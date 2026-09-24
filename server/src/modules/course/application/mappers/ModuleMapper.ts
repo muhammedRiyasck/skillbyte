@@ -2,7 +2,13 @@ import { CreateModuleDto, ModuleResponseDto } from '../dtos/ModuleDtos';
 import { LessonMapper } from './LessonMapper';
 import { Module } from '../../domain/entities/Module';
 
+/** Handles module mapper functionality. */
 export class ModuleMapper {
+  /**
+   * To create entity for the ModuleMapper entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   */
   static toCreateEntity(dto: CreateModuleDto) {
     return {
       courseId: dto.courseId || dto.id || '',
@@ -15,6 +21,12 @@ export class ModuleMapper {
     };
   }
 
+  /**
+   * To response for the ModuleMapper entity.
+   *
+   * @param module - The module information.
+   * @returns The standardized HTTP response.
+   */
   static toResponse(module: Module): ModuleResponseDto {
     return {
       id: module.moduleId,
@@ -30,6 +42,11 @@ export class ModuleMapper {
     };
   }
 
+  /**
+   * To update entity for the ModuleMapper entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   */
   static toUpdateEntity(dto: Record<string, unknown>) {
     return dto;
   }

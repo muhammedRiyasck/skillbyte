@@ -12,6 +12,7 @@ import logger from '../../../../shared/utils/Logger';
 
 const MAX_THUMBNAIL_SIZE = 2 * 1024 * 1024; // 2MB
 
+/** Executes the business logic for upload course thumbnail. */
 export class UploadCourseThumbnailUseCase
   implements IUploadCourseThumbnailUseCase
 {
@@ -20,6 +21,12 @@ export class UploadCourseThumbnailUseCase
     private readonly _storageService: IStorageService,
   ) {}
 
+  /**
+   * Execute for the UploadCourseThumbnail entity.
+   *
+   * @param input - The input information.
+   * @returns The result of the operation.
+   */
   async execute(
     input: UploadThumbnailInput,
   ): Promise<{ id: string; thumbnailUrl: string }> {

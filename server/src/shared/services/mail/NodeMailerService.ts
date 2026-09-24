@@ -5,6 +5,7 @@ import { ERROR_MESSAGES } from '../../constants/messages';
 import logger from '../../utils/Logger';
 import { HttpStatusCode } from '../../enums/HttpStatusCodes';
 
+/** Handles node mailer service functionality. */
 export class NodeMailerService implements IMailerService {
   private resend: Resend;
 
@@ -12,6 +13,13 @@ export class NodeMailerService implements IMailerService {
     this.resend = new Resend(process.env.RESEND_API_KEY);
   }
 
+  /**
+   * Send mail for the NodeMailerService entity.
+   *
+   * @param email - The email information.
+   * @param subject - The subject information.
+   * @param html - The html information.
+   */
   async sendMail(email: string, subject: string, html: string): Promise<void> {
     try {
       const { data, error } = await this.resend.emails.send({

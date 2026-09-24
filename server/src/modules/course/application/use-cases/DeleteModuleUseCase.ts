@@ -7,11 +7,7 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
-/**
- * Use case for deleting a module.
- * Handles the business logic for module deletion, including cascading deletes of associated lessons.
- * Ensures only the course instructor can delete the module.
- */
+/** Executes the business logic for delete module. */
 export class DeleteModuleUseCase implements IDeleteModuleUseCase {
   /**
    * Constructs a new DeleteModuleUseCase instance.
@@ -27,11 +23,10 @@ export class DeleteModuleUseCase implements IDeleteModuleUseCase {
   ) {}
 
   /**
-   * Executes the module deletion logic.
-   * Validates the module exists and the instructor owns the associated course, then deletes lessons and the module in cascade.
-   * @param moduleId - The ID of the module to delete.
-   * @param instructorId - The ID of the instructor attempting the deletion.
-   * @throws HttpError with appropriate status code if validation fails.
+   * Execute for the DeleteModule entity.
+   *
+   * @param moduleId - The unique identifier for the module.
+   * @param instructorId - The unique identifier for the instructor.
    */
   async execute(moduleId: string, instructorId: string): Promise<void> {
     // Find the module to ensure it exists
@@ -52,10 +47,8 @@ export class DeleteModuleUseCase implements IDeleteModuleUseCase {
       );
     }
 
-    // Fetch all lessons to collect media keys before deletion
     const lessons = await this._lessonRepo.findByModuleId([moduleId]);
 
-    // Delete DB records immediately — this is what the HTTP response waits for
     await this._lessonRepo.deleteManyByModuleId(moduleId);
     await this._moduleRepo.deleteById(moduleId);
 

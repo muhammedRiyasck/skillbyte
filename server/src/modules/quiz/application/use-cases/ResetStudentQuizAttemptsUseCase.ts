@@ -7,6 +7,7 @@ import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
+/** Executes the business logic for reset student quiz attempts. */
 export class ResetStudentQuizAttemptsUseCase
   implements IResetStudentQuizAttemptsUseCase
 {
@@ -17,6 +18,13 @@ export class ResetStudentQuizAttemptsUseCase
     private enrollmentWriteRepo: IEnrollmentWriteRepository,
   ) {}
 
+  /**
+   * Execute for the ResetStudentQuizAttempts entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @param studentId - The unique identifier for the student.
+   * @param instructorId - The unique identifier for the instructor.
+   */
   async execute(
     courseId: string,
     studentId: string,
@@ -38,7 +46,6 @@ export class ResetStudentQuizAttemptsUseCase
       );
     }
 
-    // Delete all quiz attempts for this student
     await this.quizAttemptRepository.deleteAttemptsByCourseAndUser(
       courseId,
       studentId,

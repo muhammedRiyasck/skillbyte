@@ -13,6 +13,7 @@ import {
 } from '../../../../mentorship/domain/entities/MentorshipBooking';
 import { NotificationType } from '../../../../../shared/enums/NotificationType';
 
+/** Handles mentorship notification listener functionality. */
 export class MentorshipNotificationListener {
   constructor(private createNotificationUseCase: ICreateNotificationUseCase) {
     this.registerListeners();

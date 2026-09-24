@@ -9,6 +9,7 @@ import { IPaymentReadRepository } from '../../domain/IRepositories/IPaymentReadR
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
+/** Executes the business logic for initiate payment. */
 export class InitiatePaymentUseCase implements IInitiatePayment {
   constructor(
     private paymentRepo: IPaymentWriteRepository,
@@ -16,6 +17,12 @@ export class InitiatePaymentUseCase implements IInitiatePayment {
     private paymentProviderFactory: PaymentProviderFactory,
   ) {}
 
+  /**
+   * Execute for the InitiatePayment entity.
+   *
+   * @param request - The request information.
+   * @returns The standardized HTTP response.
+   */
   async execute(request: InitiatePaymentDto): Promise<{
     providerResponse: PaymentInitiationResponse;
     paymentId: string;

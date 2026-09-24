@@ -6,6 +6,7 @@ import {
   ITopInstructorData,
 } from '../../domain/IRepositories/ITopInstructorRepository';
 
+/** Executes the business logic for refresh top instructors. */
 export class RefreshTopInstructorsUseCase
   implements IRefreshTopInstructorsUseCase
 {
@@ -14,10 +15,7 @@ export class RefreshTopInstructorsUseCase
     private topInstructorRepository: ITopInstructorRepository,
   ) {}
 
-  /**
-   * Refreshes the top instructors capped collection by fetching the latest top 5
-   * and inserting them. The capped collection will automatically drop the oldest 5.
-   */
+  /** Execute for the RefreshTopInstructors entity. */
   public async execute(): Promise<void> {
     try {
       const topInstructors =

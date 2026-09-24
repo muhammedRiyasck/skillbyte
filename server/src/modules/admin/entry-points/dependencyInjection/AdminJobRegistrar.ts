@@ -37,9 +37,8 @@ export function registerAdminJobs(): void {
       {},
       'refresh-top-instructors-singleton',
     )
-    .catch(
-      (err: unknown) =>
-        logger.error('Failed to register refresh-top-instructors cron:', err),
+    .catch((err: unknown) =>
+      logger.error('Failed to register refresh-top-instructors cron:', err),
     );
 
   // Seed the capped collection immediately on startup

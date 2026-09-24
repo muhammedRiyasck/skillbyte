@@ -22,6 +22,7 @@ interface PayPalOrderResponse {
   links: PayPalLink[];
 }
 
+/** Handles pay pal provider functionality. */
 export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
   private clientId = process.env.PAYPAL_CLIENT_ID;
   private clientSecret = process.env.PAYPAL_CLIENT_SECRET;
@@ -63,6 +64,14 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
     return data.access_token;
   }
 
+  /**
+   * Initiate for the PayPalProvider entity.
+   *
+   * @param amount - The amount information.
+   * @param currency - The currency information.
+   * @param metadata - The metadata information.
+   * @returns The standardized HTTP response.
+   */
   async initiate(
     amount: number,
     currency: string,
@@ -85,6 +94,12 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
     };
   }
 
+  /**
+   * Normalize amount for the PayPalProvider entity.
+   *
+   * @param amount - The amount information.
+   * @param currency - The currency information.
+   */
   normalizeAmount(amount: number, currency: string) {
     if (currency === 'INR') {
       const exchangeRate = CurrencyConverter.USD_TO_INR_RATE;
@@ -102,10 +117,25 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
     };
   }
 
+  /**
+   * Map provider transaction id for the PayPalProvider entity.
+   *
+   * @param responseId - The unique identifier for the response.
+   * @returns The result of the operation.
+   */
   mapProviderTransactionId(responseId: string): Record<string, string> {
     return { paypalOrderId: responseId };
   }
 
+  /**
+   * Create order for the PayPalProvider entity.
+   *
+   * @param amount - The amount information.
+   * @param currency - The currency information.
+   * @param returnUrl - The return url information.
+   * @param cancelUrl - The cancel url information.
+   * @returns The standardized HTTP response.
+   */
   async createOrder(
     amount: number,
     currency: string = 'USD',
@@ -150,6 +180,12 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
     return response.json() as Promise<{ id: string; links: PayPalLink[] }>;
   }
 
+  /**
+   * Capture payment for the PayPalProvider entity.
+   *
+   * @param orderId - The unique identifier for the order.
+   * @returns The standardized HTTP response.
+   */
   async capturePayment(orderId: string): Promise<PayPalCaptureResponse> {
     const accessToken = await this.getAccessToken();
 
@@ -184,6 +220,12 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
     };
   }
 
+  /**
+   * Refund for the PayPalProvider entity.
+   *
+   * @param captureId - The unique identifier for the capture.
+   * @returns The result of the operation.
+   */
   async refund(captureId: string): Promise<boolean> {
     try {
       const accessToken = await this.getAccessToken();
@@ -211,6 +253,14 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
     }
   }
 
+  /**
+   * Payout for the PayPalProvider entity.
+   *
+   * @param _amount - The _amount information.
+   * @param _currency - The _currency information.
+   * @param _destination - The _destination information.
+   * @returns The result of the operation.
+   */
   async payout(
     _amount: number,
     _currency: string,
@@ -222,6 +272,12 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
     );
   }
 
+  /**
+   * Validate destination for the PayPalProvider entity.
+   *
+   * @param _destination - The _destination information.
+   * @returns The result of the operation.
+   */
   async validateDestination(
     _destination: string,
   ): Promise<{ isValid: boolean; reason?: string }> {
@@ -231,6 +287,13 @@ export class PayPalProvider implements IPayPalProvider, IPaymentProvider {
     };
   }
 
+  /**
+   * Validate balance for the PayPalProvider entity.
+   *
+   * @param _amount - The _amount information.
+   * @param _currency - The _currency information.
+   * @returns The result of the operation.
+   */
   async validateBalance(
     _amount: number,
     _currency: string,

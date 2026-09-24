@@ -5,12 +5,18 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import logger from '../../../../shared/utils/Logger';
 
+/** Executes the business logic for remove student avatar. */
 export class RemoveStudentAvatarUseCase implements IRemoveStudentAvatarUseCase {
   constructor(
     private readonly _studentRepo: IStudentRepository,
     private readonly _storageService: IStorageService,
   ) {}
 
+  /**
+   * Execute for the RemoveStudentAvatar entity.
+   *
+   * @param studentId - The unique identifier for the student.
+   */
   async execute(studentId: string): Promise<void> {
     const student = await this._studentRepo.findById(studentId);
     if (!student) {

@@ -3,7 +3,15 @@ import passport from 'passport';
 import { Request, Response, NextFunction } from 'express';
 import { generateAccessToken } from '../../../../shared/utils/AccessToken';
 import { generateRefreshToken } from '../../../../shared/utils/RefreshToken';
+/** Handles HTTP requests for google operations. */
 export class GoogleController {
+  /**
+   * Google auth for the Google entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   * @param next - The next middleware function.
+   */
   static googleAuth(req: Request, res: Response, next: NextFunction) {
     const state = JSON.stringify({ role: req.query.role || 'student' });
     passport.authenticate('google', {
@@ -12,6 +20,13 @@ export class GoogleController {
     })(req, res, next);
   }
 
+  /**
+   * Google callback for the Google entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   * @param next - The next middleware function.
+   */
   static googleCallback(req: Request, res: Response, next: NextFunction) {
     passport.authenticate(
       'google',

@@ -10,6 +10,7 @@ import { ICourseRepository } from '../../../course/domain/IRepositories/ICourseR
 import logger from '../../../../shared/utils/Logger';
 import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
 
+/** Handles enrollment fulfillment service functionality. */
 export class EnrollmentFulfillmentService {
   constructor(
     private enrollmentReadRepo: IEnrollmentReadRepository,
@@ -49,7 +50,6 @@ export class EnrollmentFulfillmentService {
         return;
       }
 
-      // Create enrollment
       await this.enrollmentWriteRepo.save({
         userId: event.userId,
         courseId: event.courseId,
@@ -86,6 +86,7 @@ export class EnrollmentFulfillmentService {
     }
   }
 
+  /** Unregister event listeners for the EnrollmentFulfillmentService entity. */
   public unregisterEventListeners() {
     eventBus.off(
       PAYMENT_EVENTS.PAYMENT_SUCCEEDED,

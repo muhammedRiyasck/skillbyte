@@ -17,6 +17,7 @@ import logger from '../../../../shared/utils/Logger';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 
+/** Handles HTTP requests for mentorship slot operations. */
 export class MentorshipSlotController {
   constructor(
     private _createSlotUseCase: ICreateSlotUseCase,
@@ -31,7 +32,10 @@ export class MentorshipSlotController {
   ) {}
 
   /**
-   * Creates a new mentorship slot for an instructor.
+   * Create slot for the MentorshipSlot entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   createSlot = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
@@ -51,7 +55,10 @@ export class MentorshipSlotController {
   };
 
   /**
-   * Creates recurring mentorship slots for an instructor.
+   * Create recurring slots for the MentorshipSlot entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   createRecurringSlots = async (req: Request, res: Response): Promise<void> => {
     if (!this._createRecurringSlotsUseCase) {
@@ -84,7 +91,10 @@ export class MentorshipSlotController {
   };
 
   /**
-   * Deletes unbooked slots in a recurring series.
+   * Delete recurring slots for the MentorshipSlot entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   deleteRecurringSlots = async (req: Request, res: Response): Promise<void> => {
     if (!this._deleteRecurringSlotsUseCase) {
@@ -116,7 +126,10 @@ export class MentorshipSlotController {
   };
 
   /**
-   * Retrieves all slots for the authenticated instructor.
+   * Get instructor slots for the MentorshipSlot entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   getInstructorSlots = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
@@ -139,7 +152,10 @@ export class MentorshipSlotController {
   };
 
   /**
-   * Updates an existing mentorship slot.
+   * Update slot for the MentorshipSlot entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   updateSlot = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
@@ -167,7 +183,10 @@ export class MentorshipSlotController {
   };
 
   /**
-   * Deletes a mentorship slot.
+   * Delete slot for the MentorshipSlot entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   deleteSlot = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
@@ -185,7 +204,10 @@ export class MentorshipSlotController {
   };
 
   /**
-   * Retrieves available slots filtered by job title.
+   * Get slots by job title for the MentorshipSlot entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   getSlotsByJobTitle = async (req: Request, res: Response): Promise<void> => {
     const { jobTitle } = req.params;
@@ -199,7 +221,10 @@ export class MentorshipSlotController {
   };
 
   /**
-   * Retrieves unique tags from available mentorship slots.
+   * Get unique tags for the MentorshipSlot entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   getUniqueTags = async (req: Request, res: Response): Promise<void> => {
     const tags = await this._getUniqueTagsUseCase.execute();
@@ -207,7 +232,10 @@ export class MentorshipSlotController {
   };
 
   /**
-   * Retrieves all available slots with optional filters.
+   * Get available slots for the MentorshipSlot entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   getAvailableSlots = async (req: Request, res: Response): Promise<void> => {
     const {

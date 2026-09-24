@@ -19,12 +19,19 @@ import { AuthResponseDto } from '../../../auth/application/dtos/AuthResponseDto'
  */
 import { LoginRequestDto } from '../../../auth/application/dtos/LoginRequestDto';
 
+/** Executes the business logic for login instructor. */
 export class LoginInstructorUseCase implements ILoginInstructorUseCase {
   constructor(
     private _instructorRepo: IInstructorRepository,
     private _passwordHasher: IPasswordHasher = passwordHasher,
   ) {}
 
+  /**
+   * Execute for the LoginInstructor entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @returns The standardized HTTP response.
+   */
   async execute(dto: LoginRequestDto): Promise<{
     user: AuthResponseDto;
     accessToken: string;

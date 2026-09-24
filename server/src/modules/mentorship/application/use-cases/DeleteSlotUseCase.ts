@@ -4,14 +4,16 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { SlotStatus } from '../../domain/entities/MentorshipSlot';
 
-/**
- * Use case for deleting a mentorship slot.
- */
+/** Executes the business logic for delete slot. */
 export class DeleteSlotUseCase implements IDeleteSlotUseCase {
   constructor(private _slotRepo: IMentorshipSlotRepository) {}
 
+  /**
+   * Execute for the DeleteSlot entity.
+   *
+   * @param slotId - The unique identifier for the slot.
+   */
   async execute(slotId: string): Promise<void> {
-    // Check if slot exists
     const existingSlot = await this._slotRepo.findById(slotId);
     if (!existingSlot) {
       throw new HttpError('Slot not found', HttpStatusCode.NOT_FOUND);

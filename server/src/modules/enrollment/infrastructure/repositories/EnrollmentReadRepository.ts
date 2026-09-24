@@ -12,6 +12,7 @@ import { IStudentEnrollment } from '../../types/IStudentEnrollment';
 import { IEnrollmentFilters } from '../../types/IInstructorEnrollment';
 import { EnrollmentMapper } from '../mappers/EnrollmentMapper';
 
+/** Manages database operations for enrollment read. */
 export class EnrollmentReadRepository
   extends BaseRepository<IEnrollmentEntity, IEnrollmentDocument>
   implements IEnrollmentReadRepository
@@ -20,10 +21,23 @@ export class EnrollmentReadRepository
     super(EnrollmentModel);
   }
 
+  /**
+   * To entity for the EnrollmentRead entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   toEntity(doc: IEnrollmentDocument): IEnrollmentEntity {
     return EnrollmentMapper.toEntity(doc);
   }
 
+  /**
+   * Find enrollment for the EnrollmentRead entity.
+   *
+   * @param userId - The unique identifier for the user.
+   * @param courseId - The unique identifier for the course.
+   * @returns The result of the operation.
+   */
   async findEnrollment(
     userId: string,
     courseId: string,
@@ -32,6 +46,12 @@ export class EnrollmentReadRepository
     return doc ? this.toEntity(doc) : null;
   }
 
+  /**
+   * Find student ids by course id for the EnrollmentRead entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @returns The result of the operation.
+   */
   async findStudentIdsByCourseId(courseId: string): Promise<string[]> {
     const docs = await this.model
       .find({ courseId, status: EnrollmentStatus.ACTIVE })
@@ -40,6 +60,13 @@ export class EnrollmentReadRepository
     return docs.map((doc) => doc.userId.toString());
   }
 
+  /**
+   * Find enrollments for user for the EnrollmentRead entity.
+   *
+   * @param userId - The unique identifier for the user.
+   * @param courseIds - The unique identifier for the courses.
+   * @returns The result of the operation.
+   */
   async findEnrollmentsForUser(
     userId: string,
     courseIds: string[],
@@ -51,6 +78,15 @@ export class EnrollmentReadRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  /**
+   * Find enrollments by user for the EnrollmentRead entity.
+   *
+   * @param userId - The unique identifier for the user.
+   * @param page - The page information.
+   * @param limit - The limit information.
+   * @param filters - The filters information.
+   * @returns The result of the operation.
+   */
   async findEnrollmentsByUser(
     userId: string,
     page: number,
@@ -141,6 +177,15 @@ export class EnrollmentReadRepository
     return { data, totalCount };
   }
 
+  /**
+   * Find enrollments by instructor for the EnrollmentRead entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   * @param page - The page information.
+   * @param limit - The limit information.
+   * @param filters - The filters information.
+   * @returns The result of the operation.
+   */
   async findEnrollmentsByInstructor(
     instructorId: Types.ObjectId,
     page: number,

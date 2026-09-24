@@ -14,10 +14,7 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { InstructorProfileUpdateRequestDto } from '../../application/dtos/InstructorRequestDto';
 import { ChangeInstructorPasswordDto } from '../../entry-point/validations/ChangeInstructorPasswordValidation';
 
-/**
- * Controller for instructor profile operations.
- * Pure HTTP routing layer delegating all business logic to focused use cases.
- */
+/** Handles HTTP requests for instructor profile operations. */
 export class InstructorProfileController {
   constructor(
     private readonly _getInstructorProfileUseCase: IGetInstructorProfileUseCase,
@@ -29,6 +26,12 @@ export class InstructorProfileController {
     private readonly _changePasswordUc: IChangeInstructorPasswordUseCase,
   ) {}
 
+  /**
+   * Get profile for the InstructorProfile entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getProfile = async (req: Request, res: Response): Promise<void> => {
     const authenticatedRequest = req as AuthenticatedRequest;
     const instructorId = authenticatedRequest.user.id;
@@ -47,6 +50,12 @@ export class InstructorProfileController {
     );
   };
 
+  /**
+   * Update profile for the InstructorProfile entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   updateProfile = async (req: Request, res: Response): Promise<void> => {
     const authenticatedRequest = req as AuthenticatedRequest;
     const instructorId = authenticatedRequest.user.id;
@@ -56,6 +65,12 @@ export class InstructorProfileController {
     ApiResponseHelper.success(res, 'Profile updated successfully');
   };
 
+  /**
+   * Upload profile image for the InstructorProfile entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   uploadProfileImage = async (req: Request, res: Response): Promise<void> => {
     const authenticatedRequest = req as AuthenticatedRequest;
     const instructorId = authenticatedRequest.user.id;
@@ -73,6 +88,12 @@ export class InstructorProfileController {
     });
   };
 
+  /**
+   * Remove profile image for the InstructorProfile entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   removeProfileImage = async (req: Request, res: Response): Promise<void> => {
     const authenticatedRequest = req as AuthenticatedRequest;
     const instructorId = authenticatedRequest.user.id;
@@ -80,6 +101,12 @@ export class InstructorProfileController {
     ApiResponseHelper.success(res, 'Profile image removed');
   };
 
+  /**
+   * Create stripe onboarding link for the InstructorProfile entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   createStripeOnboardingLink = async (
     req: Request,
     res: Response,
@@ -93,6 +120,12 @@ export class InstructorProfileController {
     });
   };
 
+  /**
+   * Sync stripe status for the InstructorProfile entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   syncStripeStatus = async (req: Request, res: Response): Promise<void> => {
     const authenticatedRequest = req as AuthenticatedRequest;
     const instructorId = authenticatedRequest.user.id;
@@ -103,6 +136,12 @@ export class InstructorProfileController {
     });
   };
 
+  /**
+   * Change password for the InstructorProfile entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   changePassword = async (req: Request, res: Response): Promise<void> => {
     const authenticatedRequest = req as AuthenticatedRequest;
     const instructorId = authenticatedRequest.user.id;

@@ -8,6 +8,7 @@ export interface IConversationPopulationService {
   populateMany(conversations: IConversation[]): Promise<IConversation[]>;
 }
 
+/** Handles conversation population service functionality. */
 export class ConversationPopulationService
   implements IConversationPopulationService
 {
@@ -17,6 +18,12 @@ export class ConversationPopulationService
     private readonly courseRepository: ICourseRepository,
   ) {}
 
+  /**
+   * Populate one for the ConversationPopulationService entity.
+   *
+   * @param conversation - The conversation information.
+   * @returns The result of the operation.
+   */
   async populateOne(conversation: IConversation): Promise<IConversation> {
     const [student, instructor, course] = await Promise.all([
       this.studentRepository.findById(conversation.studentId),
@@ -32,6 +39,12 @@ export class ConversationPopulationService
     };
   }
 
+  /**
+   * Populate many for the ConversationPopulationService entity.
+   *
+   * @param conversations - The conversations information.
+   * @returns The result of the operation.
+   */
   async populateMany(conversations: IConversation[]): Promise<IConversation[]> {
     if (conversations.length === 0) return [];
 

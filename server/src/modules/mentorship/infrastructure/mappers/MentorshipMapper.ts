@@ -10,6 +10,7 @@ import {
 import { IMentorshipBookingDoc } from '../types/IMentorshipBookingDoc';
 import { IMentorshipSlotDoc } from '../types/IMentorshipSlotDoc';
 
+/** Handles mentorship mapper functionality. */
 export class MentorshipMapper {
   private static extractId(field: unknown): string {
     if (!field) return '';
@@ -20,6 +21,12 @@ export class MentorshipMapper {
     return String(field);
   }
 
+  /**
+   * To booking entity for the MentorshipMapper entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   static toBookingEntity(doc: IMentorshipBookingDoc): MentorshipBooking {
     const entity = new MentorshipBooking(
       MentorshipMapper.extractId(doc.slotId),
@@ -99,6 +106,12 @@ export class MentorshipMapper {
     return entity;
   }
 
+  /**
+   * To slot entity for the MentorshipMapper entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   static toSlotEntity(doc: IMentorshipSlotDoc): MentorshipSlot {
     const entity = new MentorshipSlot(
       doc.instructorId as string,

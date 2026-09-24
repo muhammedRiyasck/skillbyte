@@ -1,6 +1,7 @@
 import { Module } from '../entities/Module';
 import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
+/** Handles course functionality. */
 export class Course {
   constructor(
     public instructorId: string,

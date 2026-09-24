@@ -1,3 +1,4 @@
+/** Handles review functionality. */
 export class Review {
   constructor(
     public studentId: string,

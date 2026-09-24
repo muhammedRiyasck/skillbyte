@@ -5,9 +5,16 @@ import logger from '../../../../shared/utils/Logger';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
+/** Executes the business logic for generate video room. */
 export class GenerateVideoRoomUseCase implements IGenerateVideoRoomUseCase {
   constructor(private bookingRepo: IMentorshipBookingRepository) {}
 
+  /**
+   * Execute for the GenerateVideoRoom entity.
+   *
+   * @param bookingId - The unique identifier for the booking.
+   * @returns The result of the operation.
+   */
   async execute(
     bookingId: string,
   ): Promise<{ roomId: string; roomUrl: string }> {

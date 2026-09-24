@@ -10,15 +10,19 @@ import { IUpdateSlotUseCase } from '../interfaces/ISlotUseCases';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
-/**
- * Use case for updating an existing mentorship slot.
- */
+/** Executes the business logic for update slot. */
 export class UpdateSlotUseCase implements IUpdateSlotUseCase {
   constructor(private _slotRepo: IMentorshipSlotRepository) {}
 
+  /**
+   * Execute for the UpdateSlot entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @returns The standardized HTTP response.
+   */
   async execute(dto: UpdateSlotRequestDto): Promise<SlotResponseDto | null> {
     const { slotId, data } = dto;
-    // Check if slot exists
+
     const existingSlot = await this._slotRepo.findById(slotId);
     if (!existingSlot) {
       return null;
@@ -51,7 +55,6 @@ export class UpdateSlotUseCase implements IUpdateSlotUseCase {
       }
     }
 
-    // Check for conflicting slots if time or duration has changed
     if (data.scheduledAt || data.duration) {
       const newEndTime = new Date(
         newScheduledAt.getTime() + newDuration * 60000,
@@ -71,7 +74,6 @@ export class UpdateSlotUseCase implements IUpdateSlotUseCase {
       }
     }
 
-    // Create updated slot
     const updatedSlot = new MentorshipSlot(
       existingSlot.instructorId,
       data.title ?? existingSlot.title,

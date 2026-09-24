@@ -9,6 +9,7 @@ import { ReviewModel, IReviewDoc } from '../models/ReviewModel';
 import { ReviewMapper } from '../mappers/ReviewMapper';
 import mongoose from 'mongoose';
 
+/** Manages database operations for review. */
 export class ReviewRepository
   extends BaseRepository<Review, IReviewDoc>
   implements IReviewRepository
@@ -17,10 +18,26 @@ export class ReviewRepository
     super(ReviewModel);
   }
 
+  /**
+   * To entity for the Review entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   toEntity(doc: IReviewDoc): Review {
     return ReviewMapper.toEntity(doc);
   }
 
+  /**
+   * Find by target for the Review entity.
+   *
+   * @param targetType - The target type information.
+   * @param targetId - The unique identifier for the target.
+   * @param sort - The sort information.
+   * @param page - The page information.
+   * @param limit - The limit information.
+   * @returns The result of the operation.
+   */
   async findByTarget(
     targetType: string,
     targetId: string,
@@ -49,6 +66,13 @@ export class ReviewRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  /**
+   * Count by target for the Review entity.
+   *
+   * @param targetType - The target type information.
+   * @param targetId - The unique identifier for the target.
+   * @returns The result of the operation.
+   */
   async countByTarget(targetType: string, targetId: string): Promise<number> {
     const queryTargetId = mongoose.Types.ObjectId.isValid(targetId)
       ? { $in: [targetId, new mongoose.Types.ObjectId(targetId)] }
@@ -61,6 +85,14 @@ export class ReviewRepository
     });
   }
 
+  /**
+   * Find by student and target for the Review entity.
+   *
+   * @param studentId - The unique identifier for the student.
+   * @param targetType - The target type information.
+   * @param targetId - The unique identifier for the target.
+   * @returns The result of the operation.
+   */
   async findByStudentAndTarget(
     studentId: string,
     targetType: string,
@@ -70,6 +102,15 @@ export class ReviewRepository
     return doc ? this.toEntity(doc) : null;
   }
 
+  /**
+   * Find instructor reviews for the Review entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   * @param filters - The filters information.
+   * @param page - The page information.
+   * @param limit - The limit information.
+   * @returns The result of the operation.
+   */
   async findInstructorReviews(
     instructorId: string,
     filters: InstructorReviewFilters,
@@ -90,6 +131,13 @@ export class ReviewRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  /**
+   * Count instructor reviews for the Review entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   * @param filters - The filters information.
+   * @returns The result of the operation.
+   */
   async countInstructorReviews(
     instructorId: string,
     filters: InstructorReviewFilters,
@@ -137,6 +185,12 @@ export class ReviewRepository
     return { [sortBy]: sortOrder };
   }
 
+  /**
+   * Find student session ratings for the Review entity.
+   *
+   * @param studentId - The unique identifier for the student.
+   * @returns The result of the operation.
+   */
   async findStudentSessionRatings(studentId: string): Promise<
     Record<
       string,
@@ -176,6 +230,13 @@ export class ReviewRepository
     return ratings;
   }
 
+  /**
+   * Get average rating for the Review entity.
+   *
+   * @param targetType - The target type information.
+   * @param targetId - The unique identifier for the target.
+   * @returns The result of the operation.
+   */
   async getAverageRating(
     targetType: string,
     targetId: string,
@@ -235,6 +296,12 @@ export class ReviewRepository
     };
   }
 
+  /**
+   * Get instructor average rating for the Review entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   * @returns The result of the operation.
+   */
   async getInstructorAverageRating(
     instructorId: string,
   ): Promise<{ average: number; count: number }> {
@@ -260,24 +327,53 @@ export class ReviewRepository
     };
   }
 
+  /**
+   * Update review for the Review entity.
+   *
+   * @param reviewId - The unique identifier for the review.
+   * @param data - The data information.
+   */
   async updateReview(reviewId: string, data: Partial<Review>): Promise<void> {
     await this.model.findByIdAndUpdate(reviewId, data);
   }
 
+  /**
+   * Delete review for the Review entity.
+   *
+   * @param reviewId - The unique identifier for the review.
+   */
   async deleteReview(reviewId: string): Promise<void> {
     await this.model.findByIdAndDelete(reviewId);
   }
 
+  /**
+   * Increment helpful for the Review entity.
+   *
+   * @param reviewId - The unique identifier for the review.
+   * @param incrementBy - The increment by information.
+   */
   async incrementHelpful(reviewId: string, incrementBy: number): Promise<void> {
     await this.model.findByIdAndUpdate(reviewId, {
       $inc: { helpfulCount: incrementBy },
     });
   }
 
+  /**
+   * Hide review for the Review entity.
+   *
+   * @param reviewId - The unique identifier for the review.
+   */
   async hideReview(reviewId: string): Promise<void> {
     await this.model.findByIdAndUpdate(reviewId, { isHidden: true });
   }
 
+  /**
+   * Has user upvoted for the Review entity.
+   *
+   * @param reviewId - The unique identifier for the review.
+   * @param userId - The unique identifier for the user.
+   * @returns The result of the operation.
+   */
   async hasUserUpvoted(reviewId: string, userId: string): Promise<boolean> {
     const doc = await this.model.findOne({
       _id: reviewId,
@@ -286,18 +382,38 @@ export class ReviewRepository
     return !!doc;
   }
 
+  /**
+   * Add user upvote for the Review entity.
+   *
+   * @param reviewId - The unique identifier for the review.
+   * @param userId - The unique identifier for the user.
+   */
   async addUserUpvote(reviewId: string, userId: string): Promise<void> {
     await this.model.findByIdAndUpdate(reviewId, {
       $addToSet: { upvotedBy: userId },
     });
   }
 
+  /**
+   * Remove user upvote for the Review entity.
+   *
+   * @param reviewId - The unique identifier for the review.
+   * @param userId - The unique identifier for the user.
+   */
   async removeUserUpvote(reviewId: string, userId: string): Promise<void> {
     await this.model.findByIdAndUpdate(reviewId, {
       $pull: { upvotedBy: userId },
     });
   }
 
+  /**
+   * Find all for admin for the Review entity.
+   *
+   * @param filters - The filters information.
+   * @param page - The page information.
+   * @param limit - The limit information.
+   * @returns The result of the operation.
+   */
   async findAllForAdmin(
     filters: AdminReviewFilters,
     page: number,
@@ -318,14 +434,30 @@ export class ReviewRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  /**
+   * Count all for admin for the Review entity.
+   *
+   * @param filters - The filters information.
+   * @returns The result of the operation.
+   */
   async countAllForAdmin(filters: AdminReviewFilters): Promise<number> {
     return this.model.countDocuments(this._buildAdminQuery(filters));
   }
 
+  /**
+   * Unhide review for the Review entity.
+   *
+   * @param reviewId - The unique identifier for the review.
+   */
   async unhideReview(reviewId: string): Promise<void> {
     await this.model.findByIdAndUpdate(reviewId, { isHidden: false });
   }
 
+  /**
+   * Admin delete review for the Review entity.
+   *
+   * @param reviewId - The unique identifier for the review.
+   */
   async adminDeleteReview(reviewId: string): Promise<void> {
     await this.model.findByIdAndDelete(reviewId);
   }

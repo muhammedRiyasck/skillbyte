@@ -12,10 +12,7 @@ import {
 import { TempInstructorData } from '../../../../shared/services/otp/interfaces/ITempInstructorData ';
 import { TempStudentData } from '../../../../shared/services/otp/interfaces/ITempStudentData';
 
-/**
- * Controller for student authentication operations.
- * Handles student registration and OTP verification.
- */
+/** Handles HTTP requests for student auth operations. */
 export class StudentAuthController {
   /**
    * Constructs the StudentAuthController.
@@ -30,9 +27,10 @@ export class StudentAuthController {
   ) {}
 
   /**
-   * Registers a new student by storing temporary data and sending OTP.
-   * @param req - Express request object with student registration data.
-   * @param res - Express response object.
+   * Register student for the StudentAuth entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   registerStudent = async (req: Request, res: Response): Promise<void> => {
     const dto: StudentRegistrationRequestDto = req.body;
@@ -60,9 +58,10 @@ export class StudentAuthController {
   };
 
   /**
-   * Verifies the OTP and completes student registration.
-   * @param req - Express request object with OTP and email.
-   * @param res - Express response object.
+   * Verify otp for the StudentAuth entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   verifyOtp = async (req: Request, res: Response): Promise<void> => {
     const dto: StudentVerifyOtpRequestDto = req.body;

@@ -15,10 +15,7 @@ import { UserRole } from '../../../../shared/enums/UserRole';
 
 import { ForgotPasswordRequestDto } from '../dtos/ForgotPasswordRequestDto';
 
-/**
- * Use case for handling forgot password functionality.
- * This class generates a password reset token and sends a reset email to the user.
- */
+/** Executes the business logic for forgot password. */
 export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
   /**
    * Creates an instance of ForgotPasswordUseCase.
@@ -32,10 +29,10 @@ export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
   ) {}
 
   /**
-   * Executes the forgot password process.
-   * @param dto - The forgot password request DTO containing email and role.
-   * @returns A promise that resolves to false if the user is not found, or void if the process succeeds.
-   * @throws {HttpError} If the email or role is invalid, user ID is not found, or email sending fails.
+   * Execute for the ForgotPassword entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @returns The result of the operation.
    */
   async execute(dto: ForgotPasswordRequestDto): Promise<false | void> {
     const { email, role } = dto;

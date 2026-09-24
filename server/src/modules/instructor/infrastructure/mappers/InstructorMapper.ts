@@ -3,7 +3,14 @@
 import { Instructor } from '../../domain/entities/Instructor';
 import { IInstructor } from '../models/InstructorModel';
 
+/** Handles instructor mapper functionality. */
 export class InstructorMapper {
+  /**
+   * To entity for the InstructorMapper entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   static toEntity(doc: IInstructor): Instructor {
     return new Instructor(
       doc.name,
@@ -37,6 +44,12 @@ export class InstructorMapper {
   }
 
   // input
+  /**
+   * To persistence for the InstructorMapper entity.
+   *
+   * @param entity - The entity information.
+   * @returns The result of the operation.
+   */
   static toPersistence(entity: Instructor): Record<string, unknown> {
     return {
       name: entity.name,

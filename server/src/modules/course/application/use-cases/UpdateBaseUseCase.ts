@@ -6,10 +6,7 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
-/**
- * Use case for updating basic course information.
- * Handles the business logic for updating course details, including authorization checks.
- */
+/** Executes the business logic for update base. */
 export class UpdateBaseUseCase implements IUpdateBaseUseCase {
   /**
    * Constructs a new UpdateBaseUseCase instance.
@@ -18,13 +15,11 @@ export class UpdateBaseUseCase implements IUpdateBaseUseCase {
   constructor(private readonly _CourseRepo: ICourseRepository) {}
 
   /**
-   * Executes the course update logic.
-   * Validates the course exists and the instructor has permission, then updates the provided fields.
-   * @param courseId - The ID of the course to update.
-   * @param instructorId - The ID of the instructor making the update.
-   * @param validatedData - The raw Zod-validated update payload.
-   * @returns A promise that resolves when the update is complete.
-   * @throws HttpError with appropriate status code if validation fails or access is denied.
+   * Execute for the UpdateBase entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @param instructorId - The unique identifier for the instructor.
+   * @param validatedData - The unique identifier for the validatedData.
    */
   async execute(
     courseId: string,
@@ -42,7 +37,6 @@ export class UpdateBaseUseCase implements IUpdateBaseUseCase {
       );
     }
 
-    // Check if the instructor owns the course
     if (course.instructorId !== instructorId) {
       throw new HttpError(
         ERROR_MESSAGES.UNAUTHORIZED,
@@ -50,7 +44,6 @@ export class UpdateBaseUseCase implements IUpdateBaseUseCase {
       );
     }
 
-    // Update the course base information
     await this._CourseRepo.updateBaseInfo(courseId, data);
   }
 }

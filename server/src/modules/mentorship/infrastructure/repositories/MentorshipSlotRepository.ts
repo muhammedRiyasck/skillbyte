@@ -13,6 +13,7 @@ import {
 } from '../types/IQueryTypes';
 import { MentorshipMapper } from '../mappers/MentorshipMapper';
 
+/** Manages database operations for mentorship slot. */
 export class MentorshipSlotRepository
   extends BaseRepository<MentorshipSlot, IMentorshipSlotDoc>
   implements IMentorshipSlotRepository
@@ -21,10 +22,22 @@ export class MentorshipSlotRepository
     super(MentorshipSlotModel);
   }
 
+  /**
+   * To entity for the MentorshipSlot entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   toEntity(doc: IMentorshipSlotDoc): MentorshipSlot {
     return MentorshipMapper.toSlotEntity(doc);
   }
 
+  /**
+   * Save for the MentorshipSlot entity.
+   *
+   * @param entity - The entity information.
+   * @returns The result of the operation.
+   */
   async save(entity: MentorshipSlot): Promise<MentorshipSlot> {
     const data = {
       instructorId: entity.instructorId,
@@ -62,6 +75,13 @@ export class MentorshipSlotRepository
     return this.toEntity(doc as IMentorshipSlotDoc);
   }
 
+  /**
+   * Find by instructor id for the MentorshipSlot entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   * @param filters - The filters information.
+   * @returns The result of the operation.
+   */
   async findByInstructorId(
     instructorId: string,
     filters?: {
@@ -97,6 +117,12 @@ export class MentorshipSlotRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  /**
+   * Find available slots for the MentorshipSlot entity.
+   *
+   * @param filters - The filters information.
+   * @returns The result of the operation.
+   */
   async findAvailableSlots(filters?: {
     search?: string;
     jobTitle?: string;
@@ -208,6 +234,12 @@ export class MentorshipSlotRepository
     });
   }
 
+  /**
+   * Find by job title for the MentorshipSlot entity.
+   *
+   * @param jobTitle - The job title information.
+   * @returns The result of the operation.
+   */
   async findByJobTitle(jobTitle: string): Promise<MentorshipSlot[]> {
     const tomorrow = new Date();
     tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
@@ -224,10 +256,21 @@ export class MentorshipSlotRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  /**
+   * Update status for the MentorshipSlot entity.
+   *
+   * @param slotId - The unique identifier for the slot.
+   * @param status - The status information.
+   */
   async updateStatus(slotId: string, status: SlotStatus): Promise<void> {
     await this.model.findByIdAndUpdate(slotId, { status });
   }
 
+  /**
+   * Increment bookings for the MentorshipSlot entity.
+   *
+   * @param slotId - The unique identifier for the slot.
+   */
   async incrementBookings(slotId: string): Promise<void> {
     const slot = await this.model.findByIdAndUpdate(
       slotId,
@@ -240,6 +283,11 @@ export class MentorshipSlotRepository
     }
   }
 
+  /**
+   * Decrement bookings for the MentorshipSlot entity.
+   *
+   * @param slotId - The unique identifier for the slot.
+   */
   async decrementBookings(slotId: string): Promise<void> {
     const slot = await this.model.findByIdAndUpdate(
       slotId,
@@ -252,6 +300,11 @@ export class MentorshipSlotRepository
     }
   }
 
+  /**
+   * Get unique tags for the MentorshipSlot entity.
+   *
+   * @returns The result of the operation.
+   */
   async getUniqueTags(): Promise<string[]> {
     const tomorrow = new Date();
     tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
@@ -265,6 +318,12 @@ export class MentorshipSlotRepository
     return tags.filter((tag: string) => tag && tag.trim() !== '');
   }
 
+  /**
+   * Find upcoming slots for the MentorshipSlot entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   * @returns The result of the operation.
+   */
   async findUpcomingSlots(instructorId: string): Promise<MentorshipSlot[]> {
     const docs = await this.model
       .find({
@@ -276,6 +335,15 @@ export class MentorshipSlotRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  /**
+   * Has overlapping slot for the MentorshipSlot entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   * @param startTime - The start time information.
+   * @param endTime - The end time information.
+   * @param excludeSlotId - The unique identifier for the excludeSlot.
+   * @returns The result of the operation.
+   */
   async hasOverlappingSlot(
     instructorId: string,
     startTime: Date,
@@ -306,6 +374,12 @@ export class MentorshipSlotRepository
     return docs.length > 0;
   }
 
+  /**
+   * Save many for the MentorshipSlot entity.
+   *
+   * @param entities - The entities information.
+   * @returns The result of the operation.
+   */
   async saveMany(entities: MentorshipSlot[]): Promise<MentorshipSlot[]> {
     if (entities.length === 0) return [];
     const docsToInsert = entities.map((entity) => ({
@@ -335,6 +409,14 @@ export class MentorshipSlotRepository
     );
   }
 
+  /**
+   * Delete by recurrence group id for the MentorshipSlot entity.
+   *
+   * @param recurrenceGroupId - The unique identifier for the recurrenceGroup.
+   * @param instructorId - The unique identifier for the instructor.
+   * @param onlyUpcoming - The only upcoming information.
+   * @returns The result of the operation.
+   */
   async deleteByRecurrenceGroupId(
     recurrenceGroupId: string,
     instructorId: string,
@@ -353,6 +435,12 @@ export class MentorshipSlotRepository
     return { deletedCount: result.deletedCount || 0 };
   }
 
+  /**
+   * Find by recurrence group id for the MentorshipSlot entity.
+   *
+   * @param recurrenceGroupId - The unique identifier for the recurrenceGroup.
+   * @returns The result of the operation.
+   */
   async findByRecurrenceGroupId(
     recurrenceGroupId: string,
   ): Promise<MentorshipSlot[]> {

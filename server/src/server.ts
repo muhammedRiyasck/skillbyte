@@ -7,14 +7,12 @@ import { VideoSignalingService } from './shared/services/video-signaling/VideoSi
 
 const server = http.createServer(app);
 const videoSignaling = new VideoSignalingService();
-// Initialize Socket.io
 SocketService.getInstance().init(server, videoSignaling);
 import logger from './shared/utils/Logger';
 
 import connectToMongoDB from './shared/config/db/Mongodb';
 connectToMongoDB();
 
-// Initialize job queue processors
 import { JobQueueInitializer } from './shared/services/job-queue/JobQueueInitializer';
 JobQueueInitializer.initialize();
 

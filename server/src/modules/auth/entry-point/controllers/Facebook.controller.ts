@@ -5,7 +5,15 @@ import { generateAccessToken } from '../../../../shared/utils/AccessToken';
 import { generateRefreshToken } from '../../../../shared/utils/RefreshToken';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
+/** Handles HTTP requests for facebook operations. */
 export class facebookController {
+  /**
+   * Facebook auth for the facebook entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   * @param next - The next middleware function.
+   */
   static facebookAuth(req: Request, res: Response, next: NextFunction) {
     const { role } = req.query;
     passport.authenticate('facebook', {
@@ -14,6 +22,13 @@ export class facebookController {
     })(req, res, next);
   }
 
+  /**
+   * Facebook callback for the facebook entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   * @param next - The next middleware function.
+   */
   static facebookCallback(req: Request, res: Response, next: NextFunction) {
     passport.authenticate(
       'google',

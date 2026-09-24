@@ -11,6 +11,7 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { BookingStatus } from '../../../mentorship/domain/entities/MentorshipBooking';
 
+/** Executes the business logic for submit review. */
 export class SubmitReviewUseCase implements ISubmitReviewUseCase {
   constructor(
     private reviewRepository: IReviewRepository,
@@ -20,6 +21,16 @@ export class SubmitReviewUseCase implements ISubmitReviewUseCase {
     private instructorRepository: IInstructorRepository,
   ) {}
 
+  /**
+   * Execute for the SubmitReview entity.
+   *
+   * @param studentId - The unique identifier for the student.
+   * @param targetType - The target type information.
+   * @param targetId - The unique identifier for the target.
+   * @param rating - The rating information.
+   * @param comment - The comment information.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     studentId: string,
     targetType: 'course' | 'session',

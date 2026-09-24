@@ -6,7 +6,16 @@ import { Admin } from '../../../admin/domain/entities/Admin';
 import { UserRole } from '../../../../shared/enums/UserRole';
 import { AuthResponseDto, AuthUserData } from '../dtos/AuthResponseDto';
 
+/** Handles auth mapper functionality. */
 export class AuthMapper {
+  /**
+   * To auth response dto for the AuthMapper entity.
+   *
+   * @param user - The user information.
+   * @param role - The role information.
+   * @param id - The unique identifier for the id.
+   * @returns The standardized HTTP response.
+   */
   static toAuthResponseDto(
     user:
       | Student

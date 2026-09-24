@@ -7,11 +7,7 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import logger from '../../../../shared/utils/Logger';
 
-/**
- * Returns the Stripe client_secret for an existing PENDING paid booking so
- * the student can resume their interrupted Stripe checkout without cancelling
- * and rebooking.
- */
+/** Executes the business logic for get resume payment. */
 export class GetResumePaymentUseCase implements IGetResumePaymentUseCase {
   constructor(
     private readonly bookingRepo: IMentorshipBookingRepository,
@@ -19,6 +15,13 @@ export class GetResumePaymentUseCase implements IGetResumePaymentUseCase {
     private readonly stripeProvider: IStripeProvider,
   ) {}
 
+  /**
+   * Execute for the GetResumePayment entity.
+   *
+   * @param bookingId - The unique identifier for the booking.
+   * @param studentId - The unique identifier for the student.
+   * @returns The result of the operation.
+   */
   async execute(
     bookingId: string,
     studentId: string,

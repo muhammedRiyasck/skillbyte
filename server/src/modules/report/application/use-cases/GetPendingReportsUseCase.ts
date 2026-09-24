@@ -8,12 +8,19 @@ import { TargetDetails } from '../strategies/ITargetDetailStrategy';
 import { ReportMapper } from '../mappers/ReportMapper';
 import { PendingReportsResponseDto } from '../dtos/PendingReportsResponseDto';
 
+/** Executes the business logic for get pending reports. */
 export class GetPendingReportsUseCase implements IGetPendingReportsUseCase {
   constructor(
     private reportRepository: IReportRepository,
     private targetDetailRegistry: TargetDetailStrategyRegistry,
   ) {}
 
+  /**
+   * Execute for the GetPendingReports entity.
+   *
+   * @param filters - The filters information.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     filters: ReportFilterOptions,
   ): Promise<PendingReportsResponseDto> {

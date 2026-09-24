@@ -17,6 +17,7 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import logger from '../../../../shared/utils/Logger';
 
+/** Executes the business logic for cancel booking. */
 export class CancelBookingUseCase implements ICancelBookingUseCase {
   constructor(
     private bookingRepo: IMentorshipBookingRepository,
@@ -25,6 +26,11 @@ export class CancelBookingUseCase implements ICancelBookingUseCase {
     private refundPaymentUc: IRefundPaymentUseCase,
   ) {}
 
+  /**
+   * Execute for the CancelBooking entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   */
   async execute(dto: CancelBookingDto): Promise<void> {
     const { bookingId, cancelledBy } = dto;
 

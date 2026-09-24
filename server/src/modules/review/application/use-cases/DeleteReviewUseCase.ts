@@ -5,6 +5,7 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { IReviewRepository } from '../../domain/IRepositories/IReviewRepository';
 
+/** Executes the business logic for delete review. */
 export class DeleteReviewUseCase implements IDeleteReviewUseCase {
   constructor(
     private reviewRepository: IReviewRepository,
@@ -12,6 +13,12 @@ export class DeleteReviewUseCase implements IDeleteReviewUseCase {
     private instructorRepository: IInstructorRepository,
   ) {}
 
+  /**
+   * Execute for the DeleteReview entity.
+   *
+   * @param studentId - The unique identifier for the student.
+   * @param reviewId - The unique identifier for the review.
+   */
   async execute(studentId: string, reviewId: string): Promise<void> {
     const review = await this.reviewRepository.findById(reviewId);
     if (!review) {
@@ -29,7 +36,6 @@ export class DeleteReviewUseCase implements IDeleteReviewUseCase {
 
     await this.reviewRepository.deleteReview(reviewId);
 
-    // Update course aggregate
     if (targetType === 'course') {
       const stats = await this.reviewRepository.getAverageRating(
         'course',
@@ -41,7 +47,6 @@ export class DeleteReviewUseCase implements IDeleteReviewUseCase {
       });
     }
 
-    // Update instructor aggregate
     if (review.instructorId) {
       const insStats = await this.reviewRepository.getInstructorAverageRating(
         review.instructorId,

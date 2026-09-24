@@ -1,7 +1,14 @@
 import { MentorshipSlot } from '../../domain/entities/MentorshipSlot';
 import { SlotResponseDto } from '../dtos/SlotResponseDto';
 
+/** Handles slot response mapper functionality. */
 export class SlotResponseMapper {
+  /**
+   * To response dto for the SlotResponseMapper entity.
+   *
+   * @param slot - The slot information.
+   * @returns The standardized HTTP response.
+   */
   static toResponseDto(slot: MentorshipSlot): SlotResponseDto {
     return {
       slotId: slot.slotId!,

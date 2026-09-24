@@ -14,6 +14,7 @@ import { BookingStatus } from '../../domain/entities/MentorshipBooking';
 
 import { IGenerateVideoRoomUseCase } from '../interfaces/IBookingUseCases';
 
+/** Handles mentorship fulfillment service functionality. */
 export class MentorshipFulfillmentService {
   constructor(
     private bookingRepo: IMentorshipBookingRepository,

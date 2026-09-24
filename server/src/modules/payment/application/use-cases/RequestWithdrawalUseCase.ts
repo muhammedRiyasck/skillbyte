@@ -8,12 +8,19 @@ import { WithdrawalStatus } from '../../domain/entities/Withdrawal';
 import { IWithdrawalRepository } from '../../domain/IRepositories/IWithdrawalRepository';
 import { IRequestWithdrawal } from '../interfaces/IRequestWithdrawal';
 
+/** Executes the business logic for request withdrawal. */
 export class RequestWithdrawalUseCase implements IRequestWithdrawal {
   constructor(
     private withdrawalRepo: IWithdrawalRepository,
     private instructorRepo: IInstructorRepository,
   ) {}
 
+  /**
+   * Execute for the RequestWithdrawal entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @returns The standardized HTTP response.
+   */
   async execute(dto: RequestWithdrawalDto): Promise<WithdrawalResponseDto> {
     const { instructorId, amount } = dto;
     const instructor = await this.instructorRepo.findById(instructorId);
@@ -66,7 +73,6 @@ export class RequestWithdrawalUseCase implements IRequestWithdrawal {
       );
     }
 
-    // Create withdrawal request
     let withdrawal;
     try {
       withdrawal = await this.withdrawalRepo.save({

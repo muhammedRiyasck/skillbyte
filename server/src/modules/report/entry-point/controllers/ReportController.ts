@@ -7,6 +7,7 @@ import { IDismissReportUseCase } from '../../application/interfaces/IDismissRepo
 import { IActionReportUseCase } from '../../application/interfaces/IActionReportUseCase';
 import { SubmitReportRequestDto } from '../../application/dtos/SubmitReportRequestDto';
 
+/** Handles HTTP requests for report operations. */
 export class ReportController {
   constructor(
     private submitReportUseCase: ISubmitReportUseCase,
@@ -15,6 +16,12 @@ export class ReportController {
     private actionReportUseCase: IActionReportUseCase,
   ) {}
 
+  /**
+   * Submit report for the Report entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   submitReport = async (req: Request, res: Response) => {
     const authReq = req as AuthenticatedRequest;
     const reporterId = authReq.user.id;
@@ -39,6 +46,12 @@ export class ReportController {
     });
   };
 
+  /**
+   * Get pending reports for the Report entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getPendingReports = async (req: Request, res: Response) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 12;
@@ -83,12 +96,24 @@ export class ReportController {
     ApiResponseHelper.success(res, 'Reports retrieved successfully', data);
   };
 
+  /**
+   * Dismiss report for the Report entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   dismissReport = async (req: Request, res: Response) => {
     const { reportId } = req.params;
     await this.dismissReportUseCase.execute(reportId);
     ApiResponseHelper.success(res, 'Report dismissed successfully');
   };
 
+  /**
+   * Action report for the Report entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   actionReport = async (req: Request, res: Response) => {
     const { reportId } = req.params;
     await this.actionReportUseCase.execute(reportId);

@@ -27,7 +27,8 @@ export function registerCourseJobs(): void {
   jobQueueService.processJob(
     QUEUE_NAMES.COURSE,
     JOB_NAMES.VIDEO_TRANSCODE,
-    (job: Queue.Job<VideoTranscodeJobData>) => VideoTranscodeProcessor.process(job),
+    (job: Queue.Job<VideoTranscodeJobData>) =>
+      VideoTranscodeProcessor.process(job),
   );
 
   // Subscribe to domain event → enqueue video transcode job

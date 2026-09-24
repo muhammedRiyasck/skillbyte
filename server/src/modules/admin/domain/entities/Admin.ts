@@ -1,6 +1,7 @@
 import { UserRole } from '../../../../shared/enums/UserRole';
 import { AdminAccountStatus } from '../../../../shared/enums/AdminAccountStatus';
 
+/** Handles admin functionality. */
 export class Admin {
   constructor(
     public name: string,

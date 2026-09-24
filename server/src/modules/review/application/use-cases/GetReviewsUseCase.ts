@@ -3,9 +3,21 @@ import { IGetReviewsUseCase } from '../interfaces/IGetReviewsUseCase';
 import { ReviewResponseDto } from '../dtos/ReviewResponseDto';
 import { ReviewMapper } from '../mappers/ReviewMapper';
 
+/** Executes the business logic for get reviews. */
 export class GetReviewsUseCase implements IGetReviewsUseCase {
   constructor(private reviewRepository: IReviewRepository) {}
 
+  /**
+   * Execute for the GetReviews entity.
+   *
+   * @param targetType - The target type information.
+   * @param targetId - The unique identifier for the target.
+   * @param currentUserId - The unique identifier for the currentUser.
+   * @param sort - The sort information.
+   * @param page - The page information.
+   * @param limit - The limit information.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     targetType: string,
     targetId: string,

@@ -22,6 +22,7 @@ import logger from '../../../../shared/utils/Logger';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 
+/** Handles HTTP requests for mentorship operations. */
 export class MentorshipController {
   constructor(
     private _createSlotUseCase: ICreateSlotUseCase,
@@ -41,7 +42,10 @@ export class MentorshipController {
   ) {}
 
   /**
-   * Creates a new mentorship slot for an instructor.
+   * Create slot for the Mentorship entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   createSlot = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
@@ -61,7 +65,10 @@ export class MentorshipController {
   };
 
   /**
-   * Retrieves all slots for the authenticated instructor.
+   * Get instructor slots for the Mentorship entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   getInstructorSlots = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
@@ -84,7 +91,10 @@ export class MentorshipController {
   };
 
   /**
-   * Updates an existing mentorship slot.
+   * Update slot for the Mentorship entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   updateSlot = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
@@ -112,7 +122,10 @@ export class MentorshipController {
   };
 
   /**
-   * Deletes a mentorship slot.
+   * Delete slot for the Mentorship entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   deleteSlot = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
@@ -130,7 +143,10 @@ export class MentorshipController {
   };
 
   /**
-   * Retrieves available slots filtered by job title.
+   * Get slots by job title for the Mentorship entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   getSlotsByJobTitle = async (req: Request, res: Response): Promise<void> => {
     const { jobTitle } = req.params;
@@ -144,7 +160,10 @@ export class MentorshipController {
   };
 
   /**
-   * Retrieves unique tags from available mentorship slots.
+   * Get unique tags for the Mentorship entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   getUniqueTags = async (req: Request, res: Response): Promise<void> => {
     const tags = await this._getUniqueTagsUseCase.execute();
@@ -152,7 +171,10 @@ export class MentorshipController {
   };
 
   /**
-   * Retrieves all available slots with optional filters.
+   * Get available slots for the Mentorship entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   getAvailableSlots = async (req: Request, res: Response): Promise<void> => {
     const {
@@ -202,7 +224,10 @@ export class MentorshipController {
   };
 
   /**
-   * Books a mentorship slot and initiates payment.
+   * Book slot for the Mentorship entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   bookSlot = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
@@ -230,7 +255,10 @@ export class MentorshipController {
   };
 
   /**
-   * Cancels a booking.
+   * Cancel booking for the Mentorship entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   cancelBooking = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
@@ -251,7 +279,10 @@ export class MentorshipController {
   };
 
   /**
-   * Gets bookings for the authenticated student.
+   * Get student bookings for the Mentorship entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   getStudentBookings = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
@@ -272,7 +303,10 @@ export class MentorshipController {
   };
 
   /**
-   * Gets bookings for the authenticated instructor.
+   * Get instructor bookings for the Mentorship entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   getInstructorBookings = async (
     req: Request,
@@ -297,7 +331,10 @@ export class MentorshipController {
   };
 
   /**
-   * Generates a video room for a confirmed booking.
+   * Generate video room for the Mentorship entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   generateVideoRoom = async (req: Request, res: Response): Promise<void> => {
     const { bookingId } = req.params;
@@ -316,7 +353,10 @@ export class MentorshipController {
   };
 
   /**
-   * Validates video room access for a user.
+   * Validate video room access for the Mentorship entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   validateVideoRoomAccess = async (
     req: Request,
@@ -345,8 +385,10 @@ export class MentorshipController {
   };
 
   /**
-   * Returns the Stripe client_secret for a PENDING booking so the
-   * student can resume their interrupted Stripe checkout.
+   * Get resume payment for the Mentorship entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   getResumePayment = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;

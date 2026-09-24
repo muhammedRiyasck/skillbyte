@@ -9,9 +9,16 @@ import { WITHDRAWAL_EVENTS } from '../../../../shared/services/event-bus/Withdra
 import { IRejectWithdrawal } from '../interfaces/IRejectWithdrawal';
 import { IWithdrawalRepository } from '../../domain/IRepositories/IWithdrawalRepository';
 
+/** Executes the business logic for reject withdrawal. */
 export class RejectWithdrawalUseCase implements IRejectWithdrawal {
   constructor(private withdrawalRepo: IWithdrawalRepository) {}
 
+  /**
+   * Execute for the RejectWithdrawal entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @returns The standardized HTTP response.
+   */
   async execute(dto: RejectWithdrawalDto): Promise<WithdrawalResponseDto> {
     const { withdrawalId, reason } = dto;
     const adminNotes = reason;

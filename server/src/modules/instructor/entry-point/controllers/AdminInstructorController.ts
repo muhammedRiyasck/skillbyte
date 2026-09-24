@@ -14,10 +14,7 @@ import {
   ChangeInstructorStatusRequestDto,
 } from '../../application/dtos/AdminInstructorRequestDto';
 
-/**
- * Controller for admin operations on instructors.
- * Handles listing, approving, declining, status changes, deletion, and resume streaming.
- */
+/** Handles HTTP requests for admin instructor operations. */
 export class AdminInstructorController {
   constructor(
     private _listInstructorsUC: IlistInstructorsUC,
@@ -28,6 +25,12 @@ export class AdminInstructorController {
     private _streamResumeUC: IStreamInstructorResumeUseCase,
   ) {}
 
+  /**
+   * Get instructors for the AdminInstructor entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getInstructors = async (req: Request, res: Response): Promise<void> => {
     const query = req.query as unknown as AdminInstructorPaginationRequestDto;
 
@@ -43,6 +46,12 @@ export class AdminInstructorController {
     );
   };
 
+  /**
+   * Approve for the AdminInstructor entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   approve = async (req: Request, res: Response): Promise<void> => {
     const AuthenticatedReq = req as AuthenticatedRequest;
     const dto = req.body as ApproveInstructorRequestDto;
@@ -52,6 +61,12 @@ export class AdminInstructorController {
     ApiResponseHelper.success(res, 'Instructor approved');
   };
 
+  /**
+   * Decline for the AdminInstructor entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   decline = async (req: Request, res: Response): Promise<void> => {
     const AuthenticatedReq = req as AuthenticatedRequest;
     const dto = req.body as DeclineInstructorRequestDto;
@@ -63,6 +78,12 @@ export class AdminInstructorController {
     });
   };
 
+  /**
+   * Change instructor status for the AdminInstructor entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   changeInstructorStatus = async (
     req: Request,
     res: Response,
@@ -77,12 +98,24 @@ export class AdminInstructorController {
     );
   };
 
+  /**
+   * Delete instructor for the AdminInstructor entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   deleteInstructor = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     await this._deleteInstructorUC.execute(id);
     ApiResponseHelper.success(res, 'Instructor deleted successfully');
   };
 
+  /**
+   * Get instructor resume for the AdminInstructor entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getInstructorResume = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const { stream, contentType } = await this._streamResumeUC.execute(id);

@@ -5,11 +5,18 @@ import { BookingStatus } from '../../domain/entities/MentorshipBooking';
 import { BookingResponseDto } from '../dtos/BookingResponseDto';
 import { BookingResponseMapper } from '../mappers/BookingResponseMapper';
 
+/** Executes the business logic for get instructor bookings. */
 export class GetInstructorBookingsUseCase
   implements IGetInstructorBookingsUseCase
 {
   constructor(private bookingRepo: IMentorshipBookingRepository) {}
 
+  /**
+   * Execute for the GetInstructorBookings entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @returns The standardized HTTP response.
+   */
   async execute(dto: GetInstructorBookingsDto): Promise<BookingResponseDto[]> {
     const bookings = dto.upcoming
       ? await this.bookingRepo.findUpcomingByInstructorId(dto.instructorId)

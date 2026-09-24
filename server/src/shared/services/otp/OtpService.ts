@@ -14,6 +14,7 @@ import logger from '../../utils/Logger';
 
 import { IOtpRateLimiter } from './interfaces/IOtpRateLimiter';
 
+/** Handles redis otp service functionality. */
 export class RedisOtpService
   implements IOtpService<TempInstructorData | TempStudentData>
 {
@@ -28,6 +29,13 @@ export class RedisOtpService
     this._OTP_EXPIRE = time ?? 2 * 60;
   }
 
+  /**
+   * Send otp for the RedisOtpService entity.
+   *
+   * @param email - The email information.
+   * @param name - The name information.
+   * @param subject - The subject information.
+   */
   async sendOtp(email: string, name: string, subject: string): Promise<void> {
     logger.info('sendOtp: Checking rate limiter');
     const ttl = await this._rateLimiter.isBlocked(email);
@@ -46,7 +54,7 @@ export class RedisOtpService
     const otp = Math.floor(100000 + Math.random() * 900000)
       .toString()
       .slice(0, 4);
-    // console.log('OTP sent successfully');, otp);
+
     logger.info(`sendOtp: Setting OTP in Redis ${otp}`, otp);
     await this._redis.set(`otp:${email}`, otp, 'EX', this._OTP_EXPIRE);
     // Queue email sending instead of sending synchronously
@@ -70,6 +78,13 @@ export class RedisOtpService
     logger.info('sendOtp: Completed');
   }
 
+  /**
+   * Verify otp for the RedisOtpService entity.
+   *
+   * @param email - The email information.
+   * @param otp - The otp information.
+   * @returns The result of the operation.
+   */
   async verifyOtp(email: string, otp: string): Promise<boolean> {
     const stored = await this._redis.get(`otp:${email}`);
     if (!stored || stored !== otp) return false;
@@ -78,6 +93,12 @@ export class RedisOtpService
     return true;
   }
 
+  /**
+   * Store temp data for the RedisOtpService entity.
+   *
+   * @param email - The email information.
+   * @param data - The data information.
+   */
   async storeTempData(
     email: string,
     data: TempInstructorData | TempStudentData,
@@ -90,6 +111,12 @@ export class RedisOtpService
     );
   }
 
+  /**
+   * Get temp data for the RedisOtpService entity.
+   *
+   * @param email - The email information.
+   * @returns The result of the operation.
+   */
   async getTempData(
     email: string,
   ): Promise<TempInstructorData | TempStudentData | null> {
@@ -98,6 +125,11 @@ export class RedisOtpService
     return JSON.parse(raw);
   }
 
+  /**
+   * Delete temp data for the RedisOtpService entity.
+   *
+   * @param email - The email information.
+   */
   async deleteTempData(email: string): Promise<void> {
     await this._redis.del(`temp:instructor:${email}`);
   }

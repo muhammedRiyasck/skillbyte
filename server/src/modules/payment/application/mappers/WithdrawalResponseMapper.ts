@@ -1,7 +1,14 @@
 import { IWithdrawal } from '../../domain/entities/Withdrawal';
 import { WithdrawalResponseDto } from '../dtos/WithdrawalResponseDto';
 
+/** Handles withdrawal response mapper functionality. */
 export class WithdrawalResponseMapper {
+  /**
+   * To response dto for the WithdrawalResponseMapper entity.
+   *
+   * @param withdrawal - The withdrawal information.
+   * @returns The standardized HTTP response.
+   */
   static toResponseDto(withdrawal: IWithdrawal): WithdrawalResponseDto {
     return {
       _id: withdrawal.withdrawalId!, // Map to _id for frontend

@@ -4,11 +4,21 @@ import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
 import { StudentEnrollmentsResponseDto } from '../dtos/StudentEnrollmentsResponseDto';
 import { IStudentEnrollment } from '../../types/IStudentEnrollment';
 
+/** Executes the business logic for get student enrollments. */
 export class GetStudentEnrollmentsUseCase
   implements IGetStudentEnrollmentsUseCase
 {
   constructor(private enrollmentRepository: IEnrollmentReadRepository) {}
 
+  /**
+   * Execute for the GetStudentEnrollments entity.
+   *
+   * @param userId - The unique identifier for the user.
+   * @param page - The page information.
+   * @param limit - The limit information.
+   * @param filters - The filters information.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     userId: string,
     page: number,

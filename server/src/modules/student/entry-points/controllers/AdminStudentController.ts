@@ -7,9 +7,7 @@ import {
   ChangeStudentStatusRequestDto,
 } from '../../application/dtos/AdminStudentRequestDto';
 
-/**
- * Controller for admin student management operations.
- */
+/** Handles HTTP requests for admin student operations. */
 export class AdminStudentController {
   constructor(
     private _listStudentsUseCase: IGetPaginatedStudentsUseCase,
@@ -17,7 +15,10 @@ export class AdminStudentController {
   ) {}
 
   /**
-   * Retrieves a paginated list of all students based on query filters.
+   * Get all students for the AdminStudent entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   getAllStudents = async (req: Request, res: Response): Promise<void> => {
     const query = req.query as unknown as AdminStudentPaginationRequestDto;
@@ -32,7 +33,10 @@ export class AdminStudentController {
   };
 
   /**
-   * Changes the account status (ACTIVE/BLOCKED) of a specific student.
+   * Change student status for the AdminStudent entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   changeStudentStatus = async (req: Request, res: Response): Promise<void> => {
     const dto: ChangeStudentStatusRequestDto = req.body;

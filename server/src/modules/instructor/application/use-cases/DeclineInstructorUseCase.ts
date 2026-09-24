@@ -8,10 +8,7 @@ import {
 } from '../../../../shared/services/job-queue/JobTypes';
 import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
 
-/**
- * Use case for declining an instructor application.
- * Handles the decline process, including updating the instructor's status and sending a notification email with the reason.
- */
+/** Executes the business logic for decline instructor. */
 export class DeclineInstructorUseCase implements IDeclineInstructorUseCase {
   /**
    * Constructs the DeclineInstructorUseCase.
@@ -21,12 +18,11 @@ export class DeclineInstructorUseCase implements IDeclineInstructorUseCase {
   constructor(private _instructorRepo: IInstructorRepository) {}
 
   /**
-   * Executes the instructor decline process.
-   * Declines the instructor application, retrieves their details, and sends a decline email with the reason.
-   * @param id - The ID of the instructor to decline.
-   * @param adminId - The ID of the admin performing the decline.
-   * @param reason - The reason for declining the application.
-   * @throws Error if the decline or email sending fails.
+   * Execute for the DeclineInstructor entity.
+   *
+   * @param id - The unique identifier for the id.
+   * @param adminId - The unique identifier for the admin.
+   * @param reason - The reason information.
    */
   async execute(id: string, adminId: string, reason: string): Promise<void> {
     await this._instructorRepo.decline(id, adminId, reason);

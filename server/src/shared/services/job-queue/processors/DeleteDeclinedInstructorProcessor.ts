@@ -6,6 +6,7 @@ import logger from '../../../utils/Logger';
 import { IStorageService } from '../../file-upload/interfaces/IStorageService';
 import { InstructorAccountStatus } from '../../../../modules/instructor/../../shared/enums/InstructorAccountStatus';
 
+/** Handles delete declined instructor processor functionality. */
 export class DeleteDeclinedInstructorProcessor {
   constructor(
     private _instructorRepo: IInstructorRepository,
@@ -47,7 +48,6 @@ export class DeleteDeclinedInstructorProcessor {
         return;
       }
 
-      // Clean up media from cloud storage
       if (instructor.resumeUrl) {
         try {
           const resumeId = this._storageService.getIdentifierFromUrl(

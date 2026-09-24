@@ -10,8 +10,15 @@ import {
 } from '../dtos/CourseDetailsDtos';
 import { CreateCourseDto, UpdateCourseDto } from '../dtos/CourseDto';
 
+/** Handles course mapper functionality. */
 export class CourseMapper {
-  /** Maps the validated Zod create payload + instructor context → a plain DTO for the use case */
+  /**
+   * To create dto for the CourseMapper entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @param instructorId - The unique identifier for the instructor.
+   * @returns The result of the operation.
+   */
   static toCreateDto(
     dto: CreateBaseValidationType,
     instructorId: string,
@@ -32,6 +39,12 @@ export class CourseMapper {
     };
   }
 
+  /**
+   * To update dto for the CourseMapper entity.
+   *
+   * @param data - The data information.
+   * @returns The result of the operation.
+   */
   static toUpdateDto(data: UpdateBaseValidationType): UpdateCourseDto {
     const { access, customCategory, category, thumbnail, ...rest } = data;
 
@@ -54,7 +67,12 @@ export class CourseMapper {
     return updateDto;
   }
 
-  /** Maps a domain Course entity → a response DTO (strips internal/infra fields) */
+  /**
+   * To response dto for the CourseMapper entity.
+   *
+   * @param course - The course information.
+   * @returns The standardized HTTP response.
+   */
   static toResponseDto(course: Course): CourseResponseDto {
     return {
       id: course.courseId,
@@ -80,7 +98,12 @@ export class CourseMapper {
     };
   }
 
-  /** Maps a Course entity with optional includes → a full details response DTO */
+  /**
+   * To details response for the CourseMapper entity.
+   *
+   * @param course - The course information.
+   * @returns The standardized HTTP response.
+   */
   static toDetailsResponse(
     course: Course & { instructor?: unknown },
   ): CourseResponseDto {
@@ -96,7 +119,12 @@ export class CourseMapper {
     return response;
   }
 
-  /** Maps a paginated course list to PaginatedCourseResponseDto */
+  /**
+   * To paginated response for the CourseMapper entity.
+   *
+   * @param courses - The courses information.
+   * @returns The standardized HTTP response.
+   */
   static toPaginatedResponse(courses: {
     data: Course[];
     meta: PaginatedCourseResponseDto['meta'];

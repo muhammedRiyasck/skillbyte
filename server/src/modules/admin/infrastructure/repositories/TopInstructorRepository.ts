@@ -4,7 +4,13 @@ import {
 } from '../../domain/IRepositories/ITopInstructorRepository';
 import { TopInstructorModel } from '../models/TopInstructorModel';
 
+/** Manages database operations for top instructor. */
 export class TopInstructorRepository implements ITopInstructorRepository {
+  /**
+   * Replace top instructors for the TopInstructor entity.
+   *
+   * @param instructors - The instructors information.
+   */
   async replaceTopInstructors(
     instructors: ITopInstructorData[],
   ): Promise<void> {
@@ -14,6 +20,11 @@ export class TopInstructorRepository implements ITopInstructorRepository {
     }
   }
 
+  /**
+   * Get top instructors for the TopInstructor entity.
+   *
+   * @returns The result of the operation.
+   */
   async getTopInstructors(): Promise<ITopInstructorData[]> {
     const instructors = await TopInstructorModel.aggregate([
       { $sort: { createdAt: -1 } },

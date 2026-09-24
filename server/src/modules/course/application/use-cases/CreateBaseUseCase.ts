@@ -5,13 +5,21 @@ import { CourseMapper } from '../mappers/CourseMapper';
 import { CourseResponseDto } from '../dtos/CourseResponseDto';
 import { CreateBaseValidationType } from '../dtos/CourseDetailsDtos';
 
-/**
- * Use case for creating a new course.
- */
+/** Executes the business logic for create base. */
 export class CreateBaseUseCase implements ICreateBaseUseCase {
   constructor(private _courseRepo: ICourseRepository) {}
 
-  async execute(validatedData: CreateBaseValidationType, instructorId: string): Promise<CourseResponseDto> {
+  /**
+   * Execute for the CreateBase entity.
+   *
+   * @param validatedData - The unique identifier for the validatedData.
+   * @param instructorId - The unique identifier for the instructor.
+   * @returns The standardized HTTP response.
+   */
+  async execute(
+    validatedData: CreateBaseValidationType,
+    instructorId: string,
+  ): Promise<CourseResponseDto> {
     const dto = CourseMapper.toCreateDto(validatedData, instructorId);
     const course = new Course(
       dto.instructorId,

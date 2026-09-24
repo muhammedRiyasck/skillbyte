@@ -4,7 +4,14 @@ import { EnrollmentStatus } from '../../../../shared/enums/EnrollmentStatus';
 import { IStudentEnrollment } from '../../types/IStudentEnrollment';
 import { Types } from 'mongoose';
 
+/** Handles enrollment mapper functionality. */
 export class EnrollmentMapper {
+  /**
+   * To entity for the EnrollmentMapper entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   static toEntity(doc: IEnrollmentDocument): IEnrollmentEntity {
     return {
       enrollmentId: doc._id.toString(),
@@ -27,6 +34,12 @@ export class EnrollmentMapper {
     };
   }
 
+  /**
+   * To student enrollment for the EnrollmentMapper entity.
+   *
+   * @param item - The item information.
+   * @returns The result of the operation.
+   */
   static toStudentEnrollment(item: {
     enrolledAt: Date;
     progress: number;

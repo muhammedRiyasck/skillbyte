@@ -9,16 +9,19 @@ import { AdminCourseFilter } from '../../../../shared/enums/AdminCourseFilter';
 import { UserRole } from '../../../../shared/enums/UserRole';
 import { IEnrollment } from '../../../enrollment/domain/entities/Enrollment';
 
-/**
- * Use case for retrieving paginated courses with optional filters and sorting.
- * The query-building (filter/sort logic) and enrollment status enrichment lives here.
- */
+/** Executes the business logic for get paginated courses. */
 export class GetPaginatedCoursesUseCase implements IGetPaginatedCoursesUseCase {
   constructor(
     private _courseRepo: ICourseRepository,
     private _enrollmentRepo?: IEnrollmentReadRepository,
   ) {}
 
+  /**
+   * Execute for the GetPaginatedCourses entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     dto: GetCoursesQueryDto,
   ): Promise<PaginatedCourseResponseDto | null> {
@@ -112,7 +115,6 @@ export class GetPaginatedCoursesUseCase implements IGetPaginatedCoursesUseCase {
     const totalPages = Math.ceil(total / safeLimit);
     let courseDtos = data.map((c) => CourseMapper.toResponseDto(c));
 
-    // Check enrollment status for each course if user is a student
     if (
       userId &&
       userRole === UserRole.STUDENT &&

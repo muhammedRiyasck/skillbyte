@@ -5,7 +5,13 @@ import {
 import { StudentResponseDto } from '../dtos/StudentResponseDto';
 import { Student } from '../../domain/entities/Student';
 
+/** Handles student mapper functionality. */
 export class StudentMapper {
+  /**
+   * To register student entity for the StudentMapper entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   */
   static toRegisterStudentEntity(dto: StudentRegistrationRequestDto) {
     return {
       fullName: dto.fullName,
@@ -14,6 +20,11 @@ export class StudentMapper {
     };
   }
 
+  /**
+   * To verify otp entity for the StudentMapper entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   */
   static toVerifyOtpEntity(dto: StudentVerifyOtpRequestDto) {
     return {
       email: dto.email,
@@ -21,6 +32,12 @@ export class StudentMapper {
     };
   }
 
+  /**
+   * Calculate rank for the StudentMapper entity.
+   *
+   * @param xp - The xp information.
+   * @returns The result of the operation.
+   */
   static calculateRank(xp: number): string {
     if (xp >= 5001) return '💎 Master';
     if (xp >= 1001) return '🥇 Expert';
@@ -28,6 +45,12 @@ export class StudentMapper {
     return '🥉 Novice';
   }
 
+  /**
+   * To response dto for the StudentMapper entity.
+   *
+   * @param student - The student information.
+   * @returns The standardized HTTP response.
+   */
   static toResponseDto(student: Student): StudentResponseDto {
     return {
       id: student.studentId,

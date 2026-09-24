@@ -13,6 +13,7 @@ import { ConversationResponseMapper } from '../mappers/ConversationResponseMappe
 import { ConversationResponseDto } from '../dtos/ConversationResponseDto';
 import { IConversationPopulationService } from '../services/ConversationPopulationService';
 
+/** Executes the business logic for create conversation. */
 export class CreateConversationUseCase implements ICreateConversationUseCase {
   constructor(
     private conversationReadRepository: IConversationReadRepository,
@@ -22,6 +23,12 @@ export class CreateConversationUseCase implements ICreateConversationUseCase {
     private populationService: IConversationPopulationService,
   ) {}
 
+  /**
+   * Execute for the CreateConversation entity.
+   *
+   * @param data - The data information.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     data: ICreateConversationData,
   ): Promise<ConversationResponseDto> {
@@ -45,7 +52,6 @@ export class CreateConversationUseCase implements ICreateConversationUseCase {
       );
     }
 
-    // Check if conversation already exists
     const existingConversation =
       await this.conversationReadRepository.findByParticipants(
         studentId,
@@ -58,7 +64,6 @@ export class CreateConversationUseCase implements ICreateConversationUseCase {
       return ConversationResponseMapper.toDto(populatedConversation);
     }
 
-    // Create new conversation
     const newConversation: IConversation = {
       studentId,
       instructorId,

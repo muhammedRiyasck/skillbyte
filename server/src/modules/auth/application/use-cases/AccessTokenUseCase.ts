@@ -7,16 +7,13 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import logger from '../../../../shared/utils/Logger';
 import { HttpError } from '../../../../shared/types/HttpError';
 
-/**
- * Use case for generating a new access token using a refresh token.
- * This class handles the validation of the refresh token and generates a new access token.
- */
+/** Executes the business logic for access token. */
 export class AccessTokenUseCase implements IAccessTokenUseCase {
   /**
-   * Executes the access token generation process.
-   * @param refreshToken - The refresh token string to validate and use for generating the access token.
-   * @returns The newly generated access token string.
-   * @throws {HttpError} If the refresh token is missing, invalid, expired, or if the secret is not configured.
+   * Execute for the AccessToken entity.
+   *
+   * @param refreshToken - The refresh token information.
+   * @returns The result of the operation.
    */
   execute(refreshToken: string): string {
     if (!refreshToken) {

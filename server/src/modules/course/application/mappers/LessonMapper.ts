@@ -2,7 +2,14 @@ import { CreateLessonDto, LessonResponseDto } from '../dtos/LessonDtos';
 import { Lesson } from '../../domain/entities/Lesson';
 import { ContentType } from '../../../../shared/enums/ContentType';
 
+/** Handles lesson mapper functionality. */
 export class LessonMapper {
+  /**
+   * To create entity for the LessonMapper entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @param instructorId - The unique identifier for the instructor.
+   */
   static toCreateEntity(dto: CreateLessonDto, instructorId: string) {
     return {
       moduleId: dto.moduleId,
@@ -22,6 +29,12 @@ export class LessonMapper {
     };
   }
 
+  /**
+   * To response for the LessonMapper entity.
+   *
+   * @param lesson - The lesson information.
+   * @returns The standardized HTTP response.
+   */
   static toResponse(lesson: Lesson): LessonResponseDto {
     return {
       id: lesson.lessonId,
@@ -43,6 +56,11 @@ export class LessonMapper {
     };
   }
 
+  /**
+   * To update entity for the LessonMapper entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   */
   static toUpdateEntity(dto: Record<string, unknown>) {
     return dto;
   }

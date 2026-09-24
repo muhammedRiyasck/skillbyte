@@ -16,10 +16,7 @@ import {
 import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 import logger from '../../../../shared/utils/Logger';
 
-/**
- * Controller for instructor authentication operations.
- * Handles instructor registration and OTP verification.
- */
+/** Handles HTTP requests for instructor auth operations. */
 export class InstructorAuthController {
   /**
    * Constructs the InstructorAuthController.
@@ -38,11 +35,10 @@ export class InstructorAuthController {
   ) {}
 
   /**
-   * Registers a new instructor.
+   * Register instructor for the InstructorAuth entity.
    *
-   * The resume upload completes before temporary registration data is stored.
-   * This guarantees OTP verification cannot create an instructor without the
-   * required resume key.
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   registerInstructor = async (req: Request, res: Response): Promise<void> => {
     if (!req.file) {
@@ -91,7 +87,8 @@ export class InstructorAuthController {
       password: dto.password,
       phoneNumber: dto.phoneNumber,
       subject: dto.subject.trim() === 'Other' ? dto.customSubject : dto.subject,
-      jobTitle: dto.jobTitle.trim() === 'Other' ? dto.customJobTitle : dto.jobTitle,
+      jobTitle:
+        dto.jobTitle.trim() === 'Other' ? dto.customJobTitle : dto.jobTitle,
       socialMediaLink: dto.socialMediaLink,
       experience: dto.experience,
       portfolioLink: dto.portfolioLink,
@@ -115,7 +112,10 @@ export class InstructorAuthController {
   };
 
   /**
-   * Verifies the OTP and completes instructor registration.
+   * Verify otp for the InstructorAuth entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   verifyOtp = async (req: Request, res: Response): Promise<void> => {
     const dto: InstructorVerifyOtpRequestDto = req.body;
@@ -124,7 +124,9 @@ export class InstructorAuthController {
 
     await this._registerInstructorUseCase.execute(dto.email, dto.Otp);
 
-    logger.info('[VerifyOtp] Instructor registered successfully', { email: dto.email });
+    logger.info('[VerifyOtp] Instructor registered successfully', {
+      email: dto.email,
+    });
     ApiResponseHelper.created(
       res,
       "Successfully registered. You'll receive an email once approved.",
@@ -132,7 +134,10 @@ export class InstructorAuthController {
   };
 
   /**
-   * Re-applies a rejected instructor application.
+   * Reapply for the InstructorAuth entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   reapply = async (req: Request, res: Response): Promise<void> => {
     const dto: InstructorReapplyRequestDto = req.body;

@@ -22,6 +22,7 @@ import {
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
+/** Executes the business logic for book slot. */
 export class BookSlotUseCase implements IBookSlotUseCase {
   constructor(
     private slotRepo: IMentorshipSlotRepository,
@@ -31,6 +32,12 @@ export class BookSlotUseCase implements IBookSlotUseCase {
     private studentRepo: IStudentRepository,
   ) {}
 
+  /**
+   * Execute for the BookSlot entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @returns The standardized HTTP response.
+   */
   async execute(dto: BookSlotDto): Promise<{
     booking: BookingResponseDto;
     providerResponse: PaymentInitiationResponse;
@@ -187,7 +194,6 @@ export class BookSlotUseCase implements IBookSlotUseCase {
           studentEmail: student.email,
         });
 
-        // Update Booking with Payment ID
         if (savedBooking.bookingId) {
           await this.bookingRepo.updatePaymentId(
             savedBooking.bookingId,

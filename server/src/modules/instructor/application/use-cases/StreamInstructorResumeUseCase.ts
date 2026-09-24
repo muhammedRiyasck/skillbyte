@@ -10,6 +10,7 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import logger from '../../../../shared/utils/Logger';
 
+/** Executes the business logic for stream instructor resume. */
 export class StreamInstructorResumeUseCase
   implements IStreamInstructorResumeUseCase
 {
@@ -18,6 +19,12 @@ export class StreamInstructorResumeUseCase
     private readonly _storageService: IStorageService,
   ) {}
 
+  /**
+   * Execute for the StreamInstructorResume entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   * @returns The result of the operation.
+   */
   async execute(instructorId: string): Promise<StreamResumeResult> {
     logger.info('[StreamResume] Request to stream resume', { instructorId });
 

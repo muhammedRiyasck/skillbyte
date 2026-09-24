@@ -10,6 +10,7 @@ import { eventBus } from '../../../../shared/services/event-bus/EventBus';
 import { COURSE_EVENTS } from '../../../../shared/services/event-bus/CourseEvents';
 import logger from '../../../../shared/utils/Logger';
 
+/** Executes the business logic for enroll free course. */
 export class EnrollFreeCourseUseCase implements IEnrollFreeCourseUseCase {
   constructor(
     private _enrollmentReadRepo: IEnrollmentReadRepository,
@@ -17,6 +18,13 @@ export class EnrollFreeCourseUseCase implements IEnrollFreeCourseUseCase {
     private _courseRepo: ICourseRepository,
   ) {}
 
+  /**
+   * Execute for the EnrollFreeCourse entity.
+   *
+   * @param userId - The unique identifier for the user.
+   * @param courseId - The unique identifier for the course.
+   * @returns The result of the operation.
+   */
   async execute(
     userId: string,
     courseId: string,

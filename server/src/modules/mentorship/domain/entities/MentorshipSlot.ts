@@ -13,6 +13,7 @@ export interface RecurrenceRule {
   time: string; // HH:mm format
 }
 
+/** Handles mentorship slot functionality. */
 export class MentorshipSlot {
   constructor(
     public instructorId: string,

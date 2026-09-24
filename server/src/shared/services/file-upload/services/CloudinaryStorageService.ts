@@ -14,6 +14,7 @@ export interface UploadBufferResult {
   mimeType: string;
 }
 
+/** Handles cloudinary storage service functionality. */
 export class CloudinaryStorageService implements IStorageService {
   constructor() {
     cloudinary.config({
@@ -23,6 +24,13 @@ export class CloudinaryStorageService implements IStorageService {
     });
   }
 
+  /**
+   * Upload for the CloudinaryStorageService entity.
+   *
+   * @param filePath - The file path information.
+   * @param options - The options information.
+   * @returns The result of the operation.
+   */
   async upload(filePath: string, options: UploadOptions): Promise<string> {
     try {
       const result = await cloudinary.uploader.upload(filePath, {
@@ -42,8 +50,12 @@ export class CloudinaryStorageService implements IStorageService {
   }
 
   /**
-   * Satisfies the IStorageService interface.
-   * Resumes are stored in S3 (Backblaze), not Cloudinary — this method is not used.
+   * Upload buffer for the CloudinaryStorageService entity.
+   *
+   * @param _buffer - The _buffer information.
+   * @param _originalName - The _original name information.
+   * @param _options - The _options information.
+   * @returns The result of the operation.
    */
   async uploadBuffer(
     _buffer: Buffer,
@@ -57,9 +69,10 @@ export class CloudinaryStorageService implements IStorageService {
   }
 
   /**
-   * Uploads an in-memory buffer (e.g. from multer memoryStorage) to Cloudinary.
-   * Used by the chat module. Determines folder, resource_type, and message type
-   * from the file's MIME type.
+   * Upload chat buffer for the CloudinaryStorageService entity.
+   *
+   * @param file - The file information.
+   * @returns The result of the operation.
    */
   async uploadChatBuffer(
     file: Express.Multer.File,
@@ -127,6 +140,11 @@ export class CloudinaryStorageService implements IStorageService {
     };
   }
 
+  /**
+   * Delete for the CloudinaryStorageService entity.
+   *
+   * @param publicId - The unique identifier for the public.
+   */
   async delete(publicId: string): Promise<void> {
     try {
       await cloudinary.uploader.destroy(publicId);
@@ -139,6 +157,11 @@ export class CloudinaryStorageService implements IStorageService {
     }
   }
 
+  /**
+   * Delete folder for the CloudinaryStorageService entity.
+   *
+   * @param prefix - The prefix information.
+   */
   async deleteFolder(prefix: string): Promise<void> {
     // Cloudinary isn't currently used for HLS video storage, so we can just log this.
     // If needed in the future, we would use cloudinary.api.delete_resources_by_prefix
@@ -148,12 +171,23 @@ export class CloudinaryStorageService implements IStorageService {
     );
   }
 
+  /**
+   * Get signed url for the CloudinaryStorageService entity.
+   *
+   * @param publicId - The unique identifier for the public.
+   * @returns The result of the operation.
+   */
   async getSignedUrl(publicId: string): Promise<string> {
     // Cloudinary serves direct URLs for public assets,
     // now, returning the secure URL for a public asset.
     return cloudinary.url(publicId, { secure: true });
   }
 
+  /**
+   * Generate upload url for the CloudinaryStorageService entity.
+   *
+   * @returns The result of the operation.
+   */
   async generateUploadUrl(): Promise<{ signedUrl: string; publicUrl: string }> {
     throw new HttpError(
       'Method not implemented for Cloudinary',
@@ -161,6 +195,12 @@ export class CloudinaryStorageService implements IStorageService {
     );
   }
 
+  /**
+   * File exists for the CloudinaryStorageService entity.
+   *
+   * @param _key - The _key information.
+   * @returns The result of the operation.
+   */
   async fileExists(_key: string): Promise<boolean> {
     // Cloudinary is used for images/profiles, not for HLS video storage.
     // This method is only needed by S3StorageService for the transcode pipeline.
@@ -170,6 +210,12 @@ export class CloudinaryStorageService implements IStorageService {
     );
   }
 
+  /**
+   * Get identifier from url for the CloudinaryStorageService entity.
+   *
+   * @param url - The url information.
+   * @returns The result of the operation.
+   */
   getIdentifierFromUrl(url: string): string {
     const match = url.match(/\/upload\/v\d+\/(.*?)(\.\w+)?$/);
     if (match) {

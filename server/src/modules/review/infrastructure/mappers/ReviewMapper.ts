@@ -8,7 +8,14 @@ interface PopulatedStudent {
   profilePictureUrl?: string;
 }
 
+/** Handles review mapper functionality. */
 export class ReviewMapper {
+  /**
+   * To entity for the ReviewMapper entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   static toEntity(doc: IReviewDoc): Review {
     // studentId might be populated (an object), unpopulated (an ObjectId), or null (if student deleted)
     const isPopulated =

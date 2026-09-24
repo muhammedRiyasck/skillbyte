@@ -4,6 +4,7 @@ import { IQuizAttempt } from '../../domain/entities/QuizAttempt';
 import { QuizAttemptModel, IQuizAttemptDoc } from '../models/QuizAttemptModel';
 import { Model } from 'mongoose';
 
+/** Manages database operations for quiz attempt. */
 export class QuizAttemptRepository
   extends BaseRepository<IQuizAttempt, IQuizAttemptDoc>
   implements IQuizAttemptRepository
@@ -12,15 +13,34 @@ export class QuizAttemptRepository
     super(QuizAttemptModel as Model<IQuizAttemptDoc>);
   }
 
+  /**
+   * To entity for the QuizAttempt entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   toEntity(doc: IQuizAttemptDoc): IQuizAttempt {
     return this.mapToEntity(doc as unknown as Record<string, unknown>);
   }
 
+  /**
+   * Create for the QuizAttempt entity.
+   *
+   * @param attempt - The attempt information.
+   * @returns The result of the operation.
+   */
   async create(attempt: IQuizAttempt): Promise<IQuizAttempt> {
     const createdAttempt = await super.save(attempt);
     return createdAttempt;
   }
 
+  /**
+   * Update for the QuizAttempt entity.
+   *
+   * @param attemptId - The unique identifier for the attempt.
+   * @param updates - The updates information.
+   * @returns The result of the operation.
+   */
   async update(
     attemptId: string,
     updates: Partial<IQuizAttempt>,
@@ -33,10 +53,23 @@ export class QuizAttemptRepository
       : null;
   }
 
+  /**
+   * Find by id for the QuizAttempt entity.
+   *
+   * @param attemptId - The unique identifier for the attempt.
+   * @returns The result of the operation.
+   */
   async findById(attemptId: string): Promise<IQuizAttempt | null> {
     return super.findById(attemptId);
   }
 
+  /**
+   * Find latest by course and user for the QuizAttempt entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @param userId - The unique identifier for the user.
+   * @returns The result of the operation.
+   */
   async findLatestByCourseAndUser(
     courseId: string,
     userId: string,
@@ -50,10 +83,23 @@ export class QuizAttemptRepository
       : null;
   }
 
+  /**
+   * Count attempts by user for the QuizAttempt entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @param userId - The unique identifier for the user.
+   * @returns The result of the operation.
+   */
   async countAttemptsByUser(courseId: string, userId: string): Promise<number> {
     return this.model.countDocuments({ courseId, userId });
   }
 
+  /**
+   * Find all by course id for the QuizAttempt entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @returns The result of the operation.
+   */
   async findAllByCourseId(courseId: string): Promise<IQuizAttempt[]> {
     const attempts = await this.model.find({ courseId }).lean();
     return attempts.map((attempt) =>
@@ -61,6 +107,12 @@ export class QuizAttemptRepository
     );
   }
 
+  /**
+   * Delete attempts by course and user for the QuizAttempt entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @param userId - The unique identifier for the user.
+   */
   async deleteAttemptsByCourseAndUser(
     courseId: string,
     userId: string,
@@ -68,6 +120,13 @@ export class QuizAttemptRepository
     await this.model.deleteMany({ courseId, userId });
   }
 
+  /**
+   * Find all by course and user for the QuizAttempt entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @param userId - The unique identifier for the user.
+   * @returns The result of the operation.
+   */
   async findAllByCourseAndUser(
     courseId: string,
     userId: string,
@@ -81,6 +140,12 @@ export class QuizAttemptRepository
     );
   }
 
+  /**
+   * Find attempts with student details for the QuizAttempt entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @returns The result of the operation.
+   */
   async findAttemptsWithStudentDetails(courseId: string): Promise<unknown[]> {
     const attempts = await this.model
       .find({ courseId })

@@ -4,12 +4,19 @@ import { GetRevenueTrendByYearUseCase } from '../../application/use-cases/GetRev
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 
+/** Handles HTTP requests for admin dashboard operations. */
 export class AdminDashboardController {
   constructor(
     private _getDashboardDataUseCase: IGetDashboardDataUseCase,
     private _getRevenueTrendByYearUseCase: GetRevenueTrendByYearUseCase,
   ) {}
 
+  /**
+   * Get dashboard data for the AdminDashboard entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getDashboardData = async (req: Request, res: Response): Promise<void> => {
     const data = await this._getDashboardDataUseCase.execute();
     ApiResponseHelper.success(
@@ -20,6 +27,12 @@ export class AdminDashboardController {
     );
   };
 
+  /**
+   * Get revenue trend by year for the AdminDashboard entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getRevenueTrendByYear = async (
     req: Request,
     res: Response,

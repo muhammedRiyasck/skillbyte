@@ -8,9 +8,7 @@ import {
 } from '../../../../shared/services/event-bus/MentorshipEvents';
 import logger from '../../../../shared/utils/Logger';
 
-/**
- * Handles real-time mentorship-specific socket events for live UI updates
- */
+/** Handles mentorship socket service functionality. */
 export class MentorshipSocketService {
   private socketService: SocketService;
 

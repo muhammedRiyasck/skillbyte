@@ -1,7 +1,18 @@
 import { Report } from '../../domain/entities/Report';
 import { IReportDoc } from '../models/ReportModel';
 
+/** Handles report mapper functionality. */
 export class ReportMapper {
+  /**
+   * To entity for the ReportMapper entity.
+   *
+   * @param doc - The doc information.
+   * @param studentInfo - The student info information.
+   * @param targetDetails - The target details information.
+   * @param reporterRole - The reporter role information.
+   * @param instructorInfo - The instructor info information.
+   * @returns The result of the operation.
+   */
   static toEntity(
     doc: IReportDoc,
     studentInfo?: {

@@ -10,10 +10,7 @@ import { ModuleMapper } from '../mappers/ModuleMapper';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
-/**
- * Use case for creating a new module.
- * Handles the business logic for module creation, including validation of module ID and avoiding duplicates.
- */
+/** Executes the business logic for create module. */
 export class CreateModuleUseCase implements ICreateModuleUseCase {
   /**
    * Constructs a new CreateModuleUseCase instance.
@@ -26,11 +23,10 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
   ) {}
 
   /**
-   * Executes the module creation logic.
-   * Validates if the moduleId is a valid ObjectId. If not, creates a new module.
-   * If it is a valid ObjectId, checks if the module exists; if not, creates it to avoid redundancy when adding lessons.
-   * @param dto - The data transfer object containing module creation details.
-   * @returns A promise that resolves to the created ModuleResponseDto or null if no module was created.
+   * Execute for the CreateModule entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @returns The standardized HTTP response.
    */
   async execute(dto: CreateModuleDto): Promise<ModuleResponseDto | null> {
     const courseId = (dto.courseId || dto.id) as string;
@@ -46,7 +42,6 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
       }
     }
 
-    // Check if the provided moduleId is a valid MongoDB ObjectId
     const isObjectId =
       mongoose.Types.ObjectId.isValid(dto.moduleId) &&
       String(new mongoose.Types.ObjectId(dto.moduleId)) === dto.moduleId;
@@ -65,7 +60,6 @@ export class CreateModuleUseCase implements ICreateModuleUseCase {
       // If moduleId is valid, check if the module already exists
       const isModuleExist = await this._moduleRepo.findById(dto.moduleId);
 
-      // Create the module only if it does not exist, to prevent duplicates when adding lessons
       if (!isModuleExist) {
         savedModule = await this._moduleRepo.save({
           courseId: courseId,

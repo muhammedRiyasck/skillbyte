@@ -1,6 +1,12 @@
 import { AdminStudentPaginationRequestDto } from '../dtos/AdminStudentRequestDto';
 
+/** Handles admin student mapper functionality. */
 export class AdminStudentMapper {
+  /**
+   * To list all filter for the AdminStudentMapper entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   */
   static toListAllFilter(dto: AdminStudentPaginationRequestDto) {
     let query: Record<string, unknown> = {};
     const search = dto.search;
@@ -17,6 +23,12 @@ export class AdminStudentMapper {
     return query;
   }
 
+  /**
+   * To sort for the AdminStudentMapper entity.
+   *
+   * @param sortParam - The sort param information.
+   * @returns The result of the operation.
+   */
   static toSort(sortParam: string | undefined): Record<string, 1 | -1> {
     let sort: Record<string, 1 | -1> = { createdAt: -1 };
     if (sortParam) {

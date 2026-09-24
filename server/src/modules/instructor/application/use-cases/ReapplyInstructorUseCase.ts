@@ -11,6 +11,7 @@ import { passwordHasher } from '../../../../shared/services/password-hasher/Bcry
 import { InstructorMapper } from '../mappers/InstructorMapper';
 import { InstructorReapplyRequestDto } from '../dtos/InstructorRequestDto';
 
+/** Executes the business logic for reapply instructor. */
 export class ReapplyInstructorUseCase implements IReapplyInstructorUseCase {
   constructor(
     private readonly _instructorRepo: IInstructorRepository,
@@ -18,6 +19,12 @@ export class ReapplyInstructorUseCase implements IReapplyInstructorUseCase {
     private readonly _passwordHasher: IPasswordHasher = passwordHasher,
   ) {}
 
+  /**
+   * Execute for the ReapplyInstructor entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @param resumeFile - The resume file information.
+   */
   async execute(
     dto: InstructorReapplyRequestDto,
     resumeFile?: Express.Multer.File,

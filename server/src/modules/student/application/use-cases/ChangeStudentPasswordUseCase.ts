@@ -9,10 +9,7 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import logger from '../../../../shared/utils/Logger';
 
-/**
- * Use case for in-app password change for authenticated students.
- * Validates the current password, hashes the new one, persists, and sends a confirmation email.
- */
+/** Executes the business logic for change student password. */
 export class ChangeStudentPasswordUseCase
   implements IChangeStudentPasswordUseCase
 {
@@ -22,6 +19,12 @@ export class ChangeStudentPasswordUseCase
     private readonly _mailerService: IMailerService,
   ) {}
 
+  /**
+   * Execute for the ChangeStudentPassword entity.
+   *
+   * @param studentId - The unique identifier for the student.
+   * @param dto - The data transfer object containing request details.
+   */
   async execute(
     studentId: string,
     dto: ChangeStudentPasswordDto,

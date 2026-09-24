@@ -12,6 +12,7 @@ import {
 } from '../types/IQueryTypes';
 import { MentorshipMapper } from '../mappers/MentorshipMapper';
 
+/** Manages database operations for mentorship booking. */
 export class MentorshipBookingRepository
   extends BaseRepository<MentorshipBooking, IMentorshipBookingDoc>
   implements IMentorshipBookingRepository
@@ -20,10 +21,27 @@ export class MentorshipBookingRepository
     super(MentorshipBookingModel);
   }
 
+  /**
+   * To entity for the MentorshipBooking entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   toEntity(doc: IMentorshipBookingDoc): MentorshipBooking {
     return MentorshipMapper.toBookingEntity(doc);
   }
 
+  /**
+   * Find by student id for the MentorshipBooking entity.
+   *
+   * @param studentId - The unique identifier for the student.
+   * @param page - The page information.
+   * @param limit - The limit information.
+   * @param status - The status information.
+   * @param fromDate - The from date information.
+   * @param toDate - The to date information.
+   * @returns The result of the operation.
+   */
   async findByStudentId(
     studentId: string,
     page: number = 1,
@@ -55,6 +73,13 @@ export class MentorshipBookingRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  /**
+   * Find by student id and slot id for the MentorshipBooking entity.
+   *
+   * @param studentId - The unique identifier for the student.
+   * @param slotId - The unique identifier for the slot.
+   * @returns The result of the operation.
+   */
   async findByStudentIdAndSlotId(
     studentId: string,
     slotId: string,
@@ -70,6 +95,15 @@ export class MentorshipBookingRepository
     return doc ? this.toEntity(doc) : null;
   }
 
+  /**
+   * Find by instructor id for the MentorshipBooking entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   * @param page - The page information.
+   * @param limit - The limit information.
+   * @param status - The status information.
+   * @returns The result of the operation.
+   */
   async findByInstructorId(
     instructorId: string,
     page: number = 1,
@@ -93,15 +127,34 @@ export class MentorshipBookingRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  /**
+   * Find by slot id for the MentorshipBooking entity.
+   *
+   * @param slotId - The unique identifier for the slot.
+   * @returns The result of the operation.
+   */
   async findBySlotId(slotId: string): Promise<MentorshipBooking[]> {
     const docs = await this.model.find({ slotId });
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  /**
+   * Update status for the MentorshipBooking entity.
+   *
+   * @param bookingId - The unique identifier for the booking.
+   * @param status - The status information.
+   */
   async updateStatus(bookingId: string, status: BookingStatus): Promise<void> {
     await this.model.findByIdAndUpdate(bookingId, { status });
   }
 
+  /**
+   * Set video room for the MentorshipBooking entity.
+   *
+   * @param bookingId - The unique identifier for the booking.
+   * @param videoRoomId - The unique identifier for the videoRoom.
+   * @param videoRoomUrl - The unique identifier for the videoRoomUrl.
+   */
   async setVideoRoom(
     bookingId: string,
     videoRoomId: string,
@@ -113,10 +166,21 @@ export class MentorshipBookingRepository
     });
   }
 
+  /**
+   * Update payment id for the MentorshipBooking entity.
+   *
+   * @param bookingId - The unique identifier for the booking.
+   * @param paymentId - The unique identifier for the payment.
+   */
   async updatePaymentId(bookingId: string, paymentId: string): Promise<void> {
     await this.model.findByIdAndUpdate(bookingId, { paymentId });
   }
 
+  /**
+   * Mark as completed for the MentorshipBooking entity.
+   *
+   * @param bookingId - The unique identifier for the booking.
+   */
   async markAsCompleted(bookingId: string): Promise<void> {
     await this.model.findByIdAndUpdate(bookingId, {
       status: 'completed',
@@ -124,6 +188,12 @@ export class MentorshipBookingRepository
     });
   }
 
+  /**
+   * Mark as cancelled for the MentorshipBooking entity.
+   *
+   * @param bookingId - The unique identifier for the booking.
+   * @param cancelledBy - The cancelled by information.
+   */
   async markAsCancelled(
     bookingId: string,
     cancelledBy: 'student' | 'instructor' | 'system',
@@ -135,6 +205,12 @@ export class MentorshipBookingRepository
     });
   }
 
+  /**
+   * Find upcoming by student id for the MentorshipBooking entity.
+   *
+   * @param studentId - The unique identifier for the student.
+   * @returns The result of the operation.
+   */
   async findUpcomingByStudentId(
     studentId: string,
   ): Promise<MentorshipBooking[]> {
@@ -153,6 +229,12 @@ export class MentorshipBookingRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  /**
+   * Find upcoming by instructor id for the MentorshipBooking entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   * @returns The result of the operation.
+   */
   async findUpcomingByInstructorId(
     instructorId: string,
   ): Promise<MentorshipBooking[]> {
@@ -173,6 +255,12 @@ export class MentorshipBookingRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  /**
+   * Count pending by student id for the MentorshipBooking entity.
+   *
+   * @param studentId - The unique identifier for the student.
+   * @returns The result of the operation.
+   */
   async countPendingByStudentId(studentId: string): Promise<number> {
     return await this.model.countDocuments({
       studentId,
@@ -180,6 +268,12 @@ export class MentorshipBookingRepository
     });
   }
 
+  /**
+   * Find pending by student id for the MentorshipBooking entity.
+   *
+   * @param studentId - The unique identifier for the student.
+   * @returns The result of the operation.
+   */
   async findPendingByStudentId(
     studentId: string,
   ): Promise<MentorshipBooking | null> {
@@ -190,6 +284,12 @@ export class MentorshipBookingRepository
     return doc ? this.toEntity(doc) : null;
   }
 
+  /**
+   * Find stale pending bookings for the MentorshipBooking entity.
+   *
+   * @param now - The now information.
+   * @returns The result of the operation.
+   */
   async findStalePendingBookings(now: Date): Promise<MentorshipBooking[]> {
     const docs = await this.model.find({
       status: 'pending',
@@ -198,6 +298,12 @@ export class MentorshipBookingRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  /**
+   * Find confirmed past sessions for the MentorshipBooking entity.
+   *
+   * @param timeThreshold - The time threshold information.
+   * @returns The result of the operation.
+   */
   async findConfirmedPastSessions(
     timeThreshold: Date,
   ): Promise<MentorshipBooking[]> {
@@ -216,6 +322,13 @@ export class MentorshipBookingRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  /**
+   * Update scheduled at for the MentorshipBooking entity.
+   *
+   * @param bookingId - The unique identifier for the booking.
+   * @param scheduledAt - The scheduled at information.
+   * @returns The result of the operation.
+   */
   async updateScheduledAt(
     bookingId: string,
     scheduledAt: Date,
@@ -233,6 +346,12 @@ export class MentorshipBookingRepository
     return doc ? this.toEntity(doc) : null;
   }
 
+  /**
+   * Find by id populated for the MentorshipBooking entity.
+   *
+   * @param bookingId - The unique identifier for the booking.
+   * @returns The result of the operation.
+   */
   async findByIdPopulated(
     bookingId: string,
   ): Promise<MentorshipBooking | null> {

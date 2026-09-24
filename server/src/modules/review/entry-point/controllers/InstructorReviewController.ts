@@ -4,12 +4,19 @@ import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { IReplyToReviewUseCase } from '../../application/interfaces/IReplyToReviewUseCase';
 import { IGetInstructorReviewsUseCase } from '../../application/interfaces/IGetInstructorReviewsUseCase';
 
+/** Handles HTTP requests for instructor review operations. */
 export class InstructorReviewController {
   constructor(
     private replyToReviewUseCase: IReplyToReviewUseCase,
     private getInstructorReviewsUseCase: IGetInstructorReviewsUseCase,
   ) {}
 
+  /**
+   * Get instructor reviews for the InstructorReview entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getInstructorReviews = async (req: Request, res: Response): Promise<void> => {
     const instructorId = (req as AuthenticatedRequest).user.id;
     const page = parseInt(req.query.page as string) || 1;
@@ -44,6 +51,12 @@ export class InstructorReviewController {
     );
   };
 
+  /**
+   * Reply to review for the InstructorReview entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   replyToReview = async (req: Request, res: Response): Promise<void> => {
     const instructorId = (req as AuthenticatedRequest).user.id;
     const { reviewId } = req.params;

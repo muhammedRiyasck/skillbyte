@@ -19,6 +19,7 @@ import { IStudentRepository } from '../../../student/domain/IRepositories/IStude
 const XP_PER_CORRECT_ANSWER = 10;
 const XP_BONUS_PASS = 50;
 
+/** Executes the business logic for submit quiz attempt. */
 export class SubmitQuizAttemptUseCase implements ISubmitQuizAttemptUseCase {
   constructor(
     private quizAttemptRepository: IQuizAttemptRepository,
@@ -29,6 +30,14 @@ export class SubmitQuizAttemptUseCase implements ISubmitQuizAttemptUseCase {
     private studentRepository: IStudentRepository,
   ) {}
 
+  /**
+   * Execute for the SubmitQuizAttempt entity.
+   *
+   * @param attemptId - The unique identifier for the attempt.
+   * @param userId - The unique identifier for the user.
+   * @param answers - The answers information.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     attemptId: string,
     userId: string,

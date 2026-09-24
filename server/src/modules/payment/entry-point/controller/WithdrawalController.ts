@@ -7,6 +7,7 @@ import { WithdrawalResponseMapper } from '../../application/mappers/WithdrawalRe
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 
+/** Handles HTTP requests for withdrawal operations. */
 export class WithdrawalController {
   constructor(
     private requestWithdrawalUseCase: RequestWithdrawalUseCase,
@@ -15,6 +16,12 @@ export class WithdrawalController {
     private withdrawalRepo: IWithdrawalRepository,
   ) {}
 
+  /**
+   * Request withdrawal for the Withdrawal entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   requestWithdrawal = async (req: Request, res: Response): Promise<void> => {
     const instructorId = (req as AuthenticatedRequest).user.id;
 
@@ -31,6 +38,12 @@ export class WithdrawalController {
     );
   };
 
+  /**
+   * Get my withdrawals for the Withdrawal entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getMyWithdrawals = async (req: Request, res: Response): Promise<void> => {
     const instructorId = (req as AuthenticatedRequest).user.id;
     const page = parseInt(req.query.page as string) || 1;
@@ -48,6 +61,12 @@ export class WithdrawalController {
     });
   };
 
+  /**
+   * Get all withdrawals for the Withdrawal entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getAllWithdrawals = async (req: Request, res: Response): Promise<void> => {
     const { status, search } = req.query;
     const page = parseInt(req.query.page as string) || 1;
@@ -68,6 +87,12 @@ export class WithdrawalController {
     });
   };
 
+  /**
+   * Process withdrawal for the Withdrawal entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   processWithdrawal = async (req: Request, res: Response): Promise<void> => {
     const { withdrawalId } = req.params;
     const { adminNotes } = req.body;
@@ -80,6 +105,12 @@ export class WithdrawalController {
     ApiResponseHelper.success(res, 'Withdrawal processed successfully', result);
   };
 
+  /**
+   * Reject withdrawal for the Withdrawal entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   rejectWithdrawal = async (req: Request, res: Response): Promise<void> => {
     const { withdrawalId } = req.params;
     const { reason } = req.body;

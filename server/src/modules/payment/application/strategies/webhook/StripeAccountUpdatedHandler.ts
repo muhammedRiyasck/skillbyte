@@ -5,11 +5,17 @@ import { eventBus } from '../../../../../shared/services/event-bus/EventBus';
 import { WITHDRAWAL_EVENTS } from '../../../../../shared/services/event-bus/WithdrawalEvents';
 import logger from '../../../../../shared/utils/Logger';
 
+/** Handles stripe account updated handler functionality. */
 export class StripeAccountUpdatedHandler implements IStripeEventHandler {
   readonly eventType = 'account.updated';
 
   constructor(private instructorRepository: IInstructorRepository) {}
 
+  /**
+   * Handle for the StripeAccountUpdatedHandler entity.
+   *
+   * @param event - The event information.
+   */
   async handle(event: Stripe.Event): Promise<void> {
     const account = event.data.object as Stripe.Account;
 

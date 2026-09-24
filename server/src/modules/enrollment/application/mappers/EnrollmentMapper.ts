@@ -1,7 +1,14 @@
 import { IEnrollment } from '../../domain/entities/Enrollment';
 import { EnrollmentResponseDto } from '../dtos/EnrollmentResponseDto';
 
+/** Handles enrollment mapper functionality. */
 export class EnrollmentMapper {
+  /**
+   * To dto for the EnrollmentMapper entity.
+   *
+   * @param entity - The entity information.
+   * @returns The standardized HTTP response.
+   */
   static toDto(entity: IEnrollment): EnrollmentResponseDto {
     return {
       enrollmentId: entity.enrollmentId!,

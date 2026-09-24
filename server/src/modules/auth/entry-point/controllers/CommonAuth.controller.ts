@@ -18,6 +18,7 @@ import { ResendOtpRequestDto } from '../../application/dtos/ResendOtpRequestDto'
 import { ForgotPasswordRequestDto } from '../../application/dtos/ForgotPasswordRequestDto';
 import { ResetPasswordRequestDto } from '../../application/dtos/ResetPasswordRequestDto';
 
+/** Handles HTTP requests for common auth operations. */
 export class CommonAuthController {
   constructor(
     private readonly _studentLoginUC: ILoginStudentUseCase,
@@ -29,6 +30,12 @@ export class CommonAuthController {
     private readonly _amILoggedInUseCase: IAmILoggedInUseCase,
   ) {}
 
+  /**
+   * Am i logged in for the CommonAuth entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   amILoggedIn = async (req: Request, res: Response): Promise<void> => {
     logger.info(`AmILoggedIn check from IP: ${req.ip}`);
     const decodedUserData = req.user as { id: string; role: UserRole };
@@ -46,6 +53,12 @@ export class CommonAuthController {
     ApiResponseHelper.success(res, 'User is logged in', authResponse);
   };
 
+  /**
+   * Login for the CommonAuth entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   login = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Login attempt from IP: ${req.ip}`);
     const dto: LoginRequestDto = req.body;
@@ -97,6 +110,12 @@ export class CommonAuthController {
     ApiResponseHelper.success(res, 'Login successful', authResponse);
   };
 
+  /**
+   * Refresh token for the CommonAuth entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   refreshToken = (req: Request, res: Response): void => {
     logger.info(`Refresh token attempt from IP: ${req.ip}`);
     const refreshToken = req.cookies.refresh_token;
@@ -122,6 +141,12 @@ export class CommonAuthController {
     ApiResponseHelper.success(res, 'Access token refreshed');
   };
 
+  /**
+   * Resend otp for the CommonAuth entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   resendOtp = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Resend OTP attempt from IP: ${req.ip}`);
     const dto: ResendOtpRequestDto = req.body;
@@ -131,6 +156,12 @@ export class CommonAuthController {
     ApiResponseHelper.success(res, 'OTP resent successfully');
   };
 
+  /**
+   * Forgot password for the CommonAuth entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   forgotPassword = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Forgot password attempt from IP: ${req.ip}`);
     const dto: ForgotPasswordRequestDto = req.body;
@@ -150,6 +181,12 @@ export class CommonAuthController {
     );
   };
 
+  /**
+   * Reset password for the CommonAuth entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   resetPassword = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Reset password attempt from IP: ${req.ip}`);
     const dto: ResetPasswordRequestDto = req.body;
@@ -159,6 +196,12 @@ export class CommonAuthController {
     ApiResponseHelper.success(res, 'Password reset successfully');
   };
 
+  /**
+   * Logout for the CommonAuth entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   logout = (req: Request, res: Response): void => {
     logger.info(`Logout attempt from IP: ${req.ip}`);
 

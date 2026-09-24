@@ -11,6 +11,7 @@ import { StudentRegistrationSchema } from '../../../../shared/validations/Studen
 import { IPasswordHasher } from '../../../../shared/services/password-hasher/IPasswordHasher';
 import { passwordHasher } from '../../../../shared/services/password-hasher/BcryptPasswordHasher';
 
+/** Executes the business logic for register student. */
 export class RegisterStudentUseCase implements IRegisterStudentUseCase {
   constructor(
     private _studentRepo: IStudentRepository,
@@ -21,9 +22,10 @@ export class RegisterStudentUseCase implements IRegisterStudentUseCase {
   ) {}
 
   /**
-   * Checks if a student with the given email already exists.
-   * @param email - The email address to check.
-   * @returns A promise that resolves to true if the student exists, false otherwise.
+   * Is user exists for the RegisterStudent entity.
+   *
+   * @param email - The email information.
+   * @returns The result of the operation.
    */
   async isUserExists(email: string): Promise<boolean> {
     const student = await this._studentRepo.findByEmail(email);
@@ -31,11 +33,10 @@ export class RegisterStudentUseCase implements IRegisterStudentUseCase {
   }
 
   /**
-   * Executes the student registration process.
-   * Validates OTP length, retrieves temporary data, verifies OTP, validates data completeness, and saves the new student.
-   * @param email - The email address of the student.
-   * @param otp - The OTP for verification.
-   * @throws HttpError with appropriate status code if registration fails.
+   * Execute for the RegisterStudent entity.
+   *
+   * @param email - The email information.
+   * @param otp - The otp information.
    */
   async execute(email: string, otp: string): Promise<void> {
     if (otp.length !== 4) {

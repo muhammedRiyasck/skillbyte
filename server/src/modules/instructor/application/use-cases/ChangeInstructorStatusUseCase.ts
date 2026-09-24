@@ -13,10 +13,7 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
 import { SocketService } from '../../../../shared/services/socket/SocketService';
 
-/**
- * Use case for changing an instructor's status (activate or suspend).
- * Updates the instructor's status and sends a notification email accordingly.
- */
+/** Executes the business logic for change instructor status. */
 export class ChangeInstructorStatusUseCase
   implements IChangeInstructorStatusUseCase
 {
@@ -28,12 +25,11 @@ export class ChangeInstructorStatusUseCase
   constructor(private _instructorRepo: IInstructorRepository) {}
 
   /**
-   * Executes the status change for an instructor.
-   * Updates the instructor's status, retrieves their details, and sends an appropriate email notification.
-   * @param id - The ID of the instructor whose status is to be changed.
-   * @param status - The new status: 'active' to activate or 'suspend' to suspend.
-   * @param note - Optional note for the status change.
-   * @throws Error if the status change or email sending fails.
+   * Execute for the ChangeInstructorStatus entity.
+   *
+   * @param id - The unique identifier for the id.
+   * @param status - The status information.
+   * @param note - The note information.
    */
   async execute(
     id: string,

@@ -9,6 +9,7 @@ import { CertificateResponseDto } from '../dtos/CertificateResponseDto';
 import { IVerifyCertificateUseCase } from '../interfaces/IVerifyCertificateUseCase';
 import { CertificateMapper } from '../mappers/CertificateMapper';
 
+/** Executes the business logic for verify certificate. */
 export class VerifyCertificateUseCase implements IVerifyCertificateUseCase {
   constructor(
     private certificateRepo: ICertificateRepository,
@@ -18,6 +19,12 @@ export class VerifyCertificateUseCase implements IVerifyCertificateUseCase {
     private enrollmentReadRepo: IEnrollmentReadRepository,
   ) {}
 
+  /**
+   * Execute for the VerifyCertificate entity.
+   *
+   * @param verificationCode - The verification code information.
+   * @returns The standardized HTTP response.
+   */
   async execute(verificationCode: string): Promise<CertificateResponseDto> {
     const certificate =
       await this.certificateRepo.findByVerificationCode(verificationCode);

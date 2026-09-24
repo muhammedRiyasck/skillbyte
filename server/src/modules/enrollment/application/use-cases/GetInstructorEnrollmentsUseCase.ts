@@ -8,11 +8,21 @@ import {
 } from '../dtos/InstructorEnrollmentsResponseDto';
 import { InstructorEnrollmentFiltersDto } from '../dtos/InstructorEnrollmentFiltersDto';
 
+/** Executes the business logic for get instructor enrollments. */
 export class GetInstructorEnrollmentsUseCase
   implements IGetInstructorEnrollmentsUseCase
 {
   constructor(private enrollmentRepository: IEnrollmentReadRepository) {}
 
+  /**
+   * Execute for the GetInstructorEnrollments entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   * @param page - The page information.
+   * @param limit - The limit information.
+   * @param filters - The filters information.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     instructorId: string,
     page: number,

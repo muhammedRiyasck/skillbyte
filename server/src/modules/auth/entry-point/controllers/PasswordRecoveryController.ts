@@ -8,6 +8,7 @@ import { ResendOtpRequestDto } from '../../application/dtos/ResendOtpRequestDto'
 import { ForgotPasswordRequestDto } from '../../application/dtos/ForgotPasswordRequestDto';
 import { ResetPasswordRequestDto } from '../../application/dtos/ResetPasswordRequestDto';
 
+/** Handles HTTP requests for password recovery operations. */
 export class PasswordRecoveryController {
   constructor(
     private readonly _resendOtpUseCase: IResendOtpUseCase,
@@ -15,6 +16,12 @@ export class PasswordRecoveryController {
     private readonly _resetPasswordUseCase: IResetPasswordUseCase,
   ) {}
 
+  /**
+   * Resend otp for the PasswordRecovery entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   resendOtp = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Resend OTP attempt from IP: ${req.ip}`);
     const dto: ResendOtpRequestDto = req.body;
@@ -24,6 +31,12 @@ export class PasswordRecoveryController {
     ApiResponseHelper.success(res, 'OTP resent successfully');
   };
 
+  /**
+   * Forgot password for the PasswordRecovery entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   forgotPassword = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Forgot password attempt from IP: ${req.ip}`);
     const dto: ForgotPasswordRequestDto = req.body;
@@ -43,6 +56,12 @@ export class PasswordRecoveryController {
     );
   };
 
+  /**
+   * Reset password for the PasswordRecovery entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   resetPassword = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Reset password attempt from IP: ${req.ip}`);
     const dto: ResetPasswordRequestDto = req.body;

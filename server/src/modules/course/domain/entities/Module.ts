@@ -1,5 +1,6 @@
 import { Lesson } from './Lesson';
 
+/** Handles module functionality. */
 export class Module {
   constructor(
     public courseId: string,

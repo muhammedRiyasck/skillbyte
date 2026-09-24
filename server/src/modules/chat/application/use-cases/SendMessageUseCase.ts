@@ -13,6 +13,7 @@ import { IChatNotifier } from '../interfaces/IChatNotifier';
 import { MessageResponseMapper } from '../mappers/MessageResponseMapper';
 import { MessageResponseDto } from '../dtos/MessageResponseDto';
 
+/** Executes the business logic for send message. */
 export class SendMessageUseCase implements ISendMessageUseCase {
   constructor(
     private messageWriteRepository: IMessageWriteRepository,
@@ -22,6 +23,12 @@ export class SendMessageUseCase implements ISendMessageUseCase {
     private createNotificationUseCase?: ICreateNotificationUseCase,
   ) {}
 
+  /**
+   * Execute for the SendMessage entity.
+   *
+   * @param data - The data information.
+   * @returns The standardized HTTP response.
+   */
   async execute(data: ISendMessageData): Promise<MessageResponseDto> {
     const {
       conversationId,
@@ -34,7 +41,6 @@ export class SendMessageUseCase implements ISendMessageUseCase {
     } = data;
     const messageContent = content?.trim();
 
-    // Create message
     const message: IMessage = {
       conversationId,
       senderId,
@@ -49,7 +55,6 @@ export class SendMessageUseCase implements ISendMessageUseCase {
     const savedMessage = await this.messageWriteRepository.save(message);
     const messageDto = MessageResponseMapper.toDto(savedMessage);
 
-    // Update conversation's last message
     await this.conversationWriteRepository.updateLastMessage(conversationId, {
       content: messageContent || 'Sent a file',
       senderId,
@@ -63,7 +68,6 @@ export class SendMessageUseCase implements ISendMessageUseCase {
       recipientRole,
     );
 
-    // Fetch conversation details to get recipientId
     const conversation =
       await this.conversationReadRepository.findById(conversationId);
 

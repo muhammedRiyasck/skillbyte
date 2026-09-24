@@ -1,17 +1,7 @@
-/**
- * Custom error class for HTTP-related errors with status codes.
- * This class extends the built-in Error class and includes a status property for HTTP status codes.
- */
+/** Handles http error functionality. */
 export class HttpError extends Error {
-  /**
-   * The HTTP status code associated with the error.
-   */
   public status: number;
 
-  /**
-   * Optional structured data to include in the error response.
-   * Use this to provide actionable context (e.g. the pending booking that is blocking a new one).
-   */
   public data?: Record<string, unknown>;
 
   /**

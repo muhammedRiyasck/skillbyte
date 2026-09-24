@@ -11,6 +11,7 @@ import { ICertificateCodeGenerator } from '../interfaces/ICertificateCodeGenerat
 import { IIssueCertificateUseCase } from '../interfaces/IIssueCertificateUseCase';
 import { CertificateMapper } from '../mappers/CertificateMapper';
 
+/** Executes the business logic for issue certificate. */
 export class IssueCertificateUseCase implements IIssueCertificateUseCase {
   constructor(
     private certificateRepo: ICertificateRepository,
@@ -21,6 +22,13 @@ export class IssueCertificateUseCase implements IIssueCertificateUseCase {
     private codeGenerator: ICertificateCodeGenerator,
   ) {}
 
+  /**
+   * Execute for the IssueCertificate entity.
+   *
+   * @param userId - The unique identifier for the user.
+   * @param courseId - The unique identifier for the course.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     userId: string,
     courseId: string,

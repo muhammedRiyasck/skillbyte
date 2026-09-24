@@ -12,9 +12,15 @@ import { IDashboardRepository } from '../../domain/IRepositories/IDashboardRepos
 import { IAdminDashboardData } from '../../domain/interfaces/IDashboardData';
 import { CurrencyConverter } from '../../../../shared/utils/CurrencyConverter';
 
+/** Manages database operations for dashboard. */
 export class DashboardRepository implements IDashboardRepository {
   private readonly exchangeRate = CurrencyConverter.USD_TO_INR_RATE;
 
+  /**
+   * Get stats for the Dashboard entity.
+   *
+   * @returns The result of the operation.
+   */
   async getStats(): Promise<IAdminDashboardData['stats']> {
     const [payments, students, instructors, courses, withdrawals] =
       await Promise.all([
@@ -134,6 +140,12 @@ export class DashboardRepository implements IDashboardRepository {
     };
   }
 
+  /**
+   * Get revenue trend for the Dashboard entity.
+   *
+   * @param since - The since information.
+   * @returns The result of the operation.
+   */
   async getRevenueTrend(
     since: Date,
   ): Promise<IAdminDashboardData['revenueTrend']> {
@@ -174,6 +186,12 @@ export class DashboardRepository implements IDashboardRepository {
     ]);
   }
 
+  /**
+   * Get revenue trend by year for the Dashboard entity.
+   *
+   * @param year - The year information.
+   * @returns The result of the operation.
+   */
   async getRevenueTrendByYear(
     year: number,
   ): Promise<IAdminDashboardData['revenueTrend']> {
@@ -247,6 +265,11 @@ export class DashboardRepository implements IDashboardRepository {
     });
   }
 
+  /**
+   * Get recent payments for the Dashboard entity.
+   *
+   * @returns The result of the operation.
+   */
   async getRecentPayments(): Promise<IAdminDashboardData['recentPayments']> {
     const payments = await PaymentModel.find({ status: 'succeeded' })
       .sort({ createdAt: -1 })
@@ -263,6 +286,11 @@ export class DashboardRepository implements IDashboardRepository {
     }));
   }
 
+  /**
+   * Get category distribution for the Dashboard entity.
+   *
+   * @returns The result of the operation.
+   */
   async getCategoryDistribution(): Promise<
     IAdminDashboardData['categoryDistribution']
   > {
@@ -278,6 +306,11 @@ export class DashboardRepository implements IDashboardRepository {
     ]);
   }
 
+  /**
+   * Get platform health for the Dashboard entity.
+   *
+   * @returns The result of the operation.
+   */
   async getPlatformHealth(): Promise<IAdminDashboardData['platformHealth']> {
     const [avgProgress, avgRating, mentorshipStats] = await Promise.all([
       EnrollmentModel.aggregate([
@@ -310,11 +343,21 @@ export class DashboardRepository implements IDashboardRepository {
     };
   }
 
+  /**
+   * Get courses awaiting review for the Dashboard entity.
+   *
+   * @returns The result of the operation.
+   */
   async getCoursesAwaitingReview(): Promise<number> {
     // Counts courses with draft status — instructors submit drafts for admin to review
     return CourseModel.countDocuments({ status: 'draft' });
   }
 
+  /**
+   * Get pending reports for the Dashboard entity.
+   *
+   * @returns The result of the operation.
+   */
   async getPendingReports(): Promise<number> {
     return ReportModel.countDocuments({ status: 'pending' });
   }

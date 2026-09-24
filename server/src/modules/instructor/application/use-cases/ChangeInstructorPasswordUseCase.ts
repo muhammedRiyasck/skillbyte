@@ -9,10 +9,7 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import logger from '../../../../shared/utils/Logger';
 
-/**
- * Use case for in-app password change for authenticated instructors.
- * Validates the current password, hashes the new one, persists, and sends a confirmation email.
- */
+/** Executes the business logic for change instructor password. */
 export class ChangeInstructorPasswordUseCase
   implements IChangeInstructorPasswordUseCase
 {
@@ -22,6 +19,12 @@ export class ChangeInstructorPasswordUseCase
     private readonly _mailerService: IMailerService,
   ) {}
 
+  /**
+   * Execute for the ChangeInstructorPassword entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   * @param dto - The data transfer object containing request details.
+   */
   async execute(
     instructorId: string,
     dto: ChangeInstructorPasswordDto,

@@ -7,6 +7,7 @@ import {
 import logger from '../../../../shared/utils/Logger';
 import { CurrencyConverter } from '../../../../shared/utils/CurrencyConverter';
 
+/** Handles instructor earnings service functionality. */
 export class InstructorEarningsService {
   constructor(private instructorRepo: IInstructorRepository) {
     this.registerEventListeners();
@@ -54,6 +55,7 @@ export class InstructorEarningsService {
     }
   }
 
+  /** Unregister event listeners for the InstructorEarningsService entity. */
   public unregisterEventListeners() {
     eventBus.off(
       PAYMENT_EVENTS.PAYMENT_SUCCEEDED,

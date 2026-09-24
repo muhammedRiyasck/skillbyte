@@ -5,9 +5,18 @@ import { IQuizConfigRepository } from '../../domain/IRepositories/IQuizConfigRep
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
+/** Executes the business logic for get quiz config. */
 export class GetQuizConfigUseCase implements IGetQuizConfigUseCase {
   constructor(private quizConfigRepository: IQuizConfigRepository) {}
 
+  /**
+   * Execute for the GetQuizConfig entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @param userId - The unique identifier for the user.
+   * @param role - The role information.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     courseId: string,
     userId: string,

@@ -16,7 +16,8 @@ interface PopulatedUser {
 }
 
 /** IReportDoc with its reference fields optionally populated */
-interface PopulatedReportDoc extends Omit<IReportDoc, 'reportedBy' | 'instructorId'> {
+interface PopulatedReportDoc
+  extends Omit<IReportDoc, 'reportedBy' | 'instructorId'> {
   reportedBy: mongoose.Types.ObjectId | PopulatedUser;
   instructorId?: mongoose.Types.ObjectId | PopulatedUser;
   reporterRole: 'student' | 'instructor';
@@ -34,6 +35,7 @@ interface ReportSaveData {
   status: IReportDoc['status'];
 }
 
+/** Manages database operations for report. */
 export class ReportRepository
   extends BaseRepository<Report, IReportDoc>
   implements IReportRepository
@@ -42,6 +44,12 @@ export class ReportRepository
     super(ReportModel);
   }
 
+  /**
+   * Save for the Report entity.
+   *
+   * @param entity - The entity information.
+   * @returns The result of the operation.
+   */
   override async save(entity: Report): Promise<Report> {
     const data: ReportSaveData = {
       reportedBy:
@@ -65,6 +73,12 @@ export class ReportRepository
     return this.toEntity(created);
   }
 
+  /**
+   * To entity for the Report entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   toEntity(doc: IReportDoc): Report {
     return ReportMapper.toEntity(doc);
   }
@@ -72,7 +86,8 @@ export class ReportRepository
   private mapDocs(docs: IReportDoc[]): Report[] {
     return docs.map((document) => {
       const doc = document as PopulatedReportDoc;
-      const reporterRole: 'student' | 'instructor' = doc.reporterRole ?? 'student';
+      const reporterRole: 'student' | 'instructor' =
+        doc.reporterRole ?? 'student';
 
       // Resolve reporter info based on role
       let studentInfo: { name: string; profilePictureUrl?: string } | undefined;
@@ -82,9 +97,10 @@ export class ReportRepository
       let reportedById: mongoose.Types.ObjectId;
 
       if (reporterRole === 'instructor') {
-        const populated = doc.instructorId && 'name' in doc.instructorId
-          ? doc.instructorId as PopulatedUser
-          : undefined;
+        const populated =
+          doc.instructorId && 'name' in doc.instructorId
+            ? (doc.instructorId as PopulatedUser)
+            : undefined;
         if (populated) {
           instructorInfo = {
             name: populated.name || 'Unknown Instructor',
@@ -92,12 +108,15 @@ export class ReportRepository
           };
           reportedById = populated._id;
         } else {
-          reportedById = (doc.instructorId as mongoose.Types.ObjectId | undefined) || new mongoose.Types.ObjectId();
+          reportedById =
+            (doc.instructorId as mongoose.Types.ObjectId | undefined) ||
+            new mongoose.Types.ObjectId();
         }
       } else {
-        const populated = doc.reportedBy && 'name' in doc.reportedBy
-          ? doc.reportedBy as PopulatedUser
-          : undefined;
+        const populated =
+          doc.reportedBy && 'name' in doc.reportedBy
+            ? (doc.reportedBy as PopulatedUser)
+            : undefined;
         if (populated) {
           studentInfo = {
             name: populated.name || 'Unknown Student',
@@ -105,7 +124,9 @@ export class ReportRepository
           };
           reportedById = populated._id;
         } else {
-          reportedById = (doc.reportedBy as mongoose.Types.ObjectId) || new mongoose.Types.ObjectId();
+          reportedById =
+            (doc.reportedBy as mongoose.Types.ObjectId) ||
+            new mongoose.Types.ObjectId();
         }
       }
 
@@ -124,7 +145,14 @@ export class ReportRepository
     });
   }
 
-  /** Convenience wrapper kept for backwards compat */
+  /**
+   * Find by status for the Report entity.
+   *
+   * @param status - The status information.
+   * @param page - The page information.
+   * @param limit - The limit information.
+   * @returns The result of the operation.
+   */
   async findByStatus(
     status: 'pending' | 'dismissed' | 'actioned',
     page: number,
@@ -133,6 +161,12 @@ export class ReportRepository
     return this.findWithFilters({ status, page, limit });
   }
 
+  /**
+   * Find with filters for the Report entity.
+   *
+   * @param filters - The filters information.
+   * @returns The result of the operation.
+   */
   async findWithFilters(
     filters: ReportFilterOptions,
   ): Promise<{ reports: Report[]; total: number }> {
@@ -187,6 +221,14 @@ export class ReportRepository
     return { reports: this.mapDocs(docs as IReportDoc[]), total };
   }
 
+  /**
+   * Has user reported target for the Report entity.
+   *
+   * @param reporterId - The unique identifier for the reporter.
+   * @param targetType - The target type information.
+   * @param targetId - The unique identifier for the target.
+   * @returns The result of the operation.
+   */
   async hasUserReportedTarget(
     reporterId: string,
     targetType: string,
@@ -203,6 +245,12 @@ export class ReportRepository
     return count > 0;
   }
 
+  /**
+   * Update status for the Report entity.
+   *
+   * @param reportId - The unique identifier for the report.
+   * @param status - The status information.
+   */
   async updateStatus(
     reportId: string,
     status: 'pending' | 'dismissed' | 'actioned',
@@ -210,6 +258,12 @@ export class ReportRepository
     await this.model.findByIdAndUpdate(reportId, { status });
   }
 
+  /**
+   * Delete many by target for the Report entity.
+   *
+   * @param targetType - The target type information.
+   * @param targetId - The unique identifier for the target.
+   */
   async deleteManyByTarget(
     targetType: string,
     targetId: string,

@@ -15,9 +15,7 @@ import { GetCourseDto } from '../dtos/CourseDto';
 import { CourseResponseDto } from '../dtos/CourseResponseDto';
 import { CourseMapper } from '../mappers/CourseMapper';
 
-/**
- * Use case for retrieving detailed course information with optional includes.
- */
+/** Executes the business logic for get course detail. */
 export class GetCourseDetailUseCase implements IGetCourseUseCase {
   constructor(
     private _courseRepo: ICourseRepository,
@@ -28,6 +26,12 @@ export class GetCourseDetailUseCase implements IGetCourseUseCase {
     private _enrollmentRepo: IEnrollmentReadRepository,
   ) {}
 
+  /**
+   * Execute for the GetCourseDetail entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @returns The standardized HTTP response.
+   */
   async execute(dto: GetCourseDto): Promise<CourseResponseDto | null> {
     const { courseId, role, include, userId } = dto;
 

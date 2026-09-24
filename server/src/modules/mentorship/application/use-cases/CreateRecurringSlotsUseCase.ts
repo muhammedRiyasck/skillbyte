@@ -13,6 +13,7 @@ import { ICreateRecurringSlotsUseCase } from '../interfaces/ISlotUseCases';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
+/** Executes the business logic for create recurring slots. */
 export class CreateRecurringSlotsUseCase
   implements ICreateRecurringSlotsUseCase
 {
@@ -21,6 +22,12 @@ export class CreateRecurringSlotsUseCase
     private _instructorRepo: IInstructorRepository,
   ) {}
 
+  /**
+   * Execute for the CreateRecurringSlots entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     dto: CreateRecurringSlotDto,
   ): Promise<CreateRecurringSlotResponseDto> {

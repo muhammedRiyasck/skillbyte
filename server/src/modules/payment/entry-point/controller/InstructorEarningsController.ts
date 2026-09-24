@@ -3,13 +3,16 @@ import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequ
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { IGetInstructorEarnings } from '../../application/interfaces/IGetInstructorEarnings';
 
-/**
- * Controller for instructor earnings and payout analytics.
- * SRP: Only reason to change is if the earnings/payout analytics API contract changes.
- */
+/** Handles HTTP requests for instructor earnings operations. */
 export class InstructorEarningsController {
   constructor(private _getInstructorEarningsUc: IGetInstructorEarnings) {}
 
+  /**
+   * Get instructor earnings for the InstructorEarnings entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getInstructorEarnings = async (
     req: Request,
     res: Response,

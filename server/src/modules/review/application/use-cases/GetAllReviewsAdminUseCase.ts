@@ -10,6 +10,7 @@ import {
 import { ICourseRepository } from '../../../course/domain/IRepositories/ICourseRepository';
 import { IMentorshipBookingRepository } from '../../../mentorship/domain/IRepositories/IMentorshipBookingRepository';
 
+/** Executes the business logic for get all reviews admin. */
 export class GetAllReviewsAdminUseCase implements IGetAllReviewsAdminUseCase {
   constructor(
     private reviewRepository: IReviewRepository,
@@ -17,6 +18,14 @@ export class GetAllReviewsAdminUseCase implements IGetAllReviewsAdminUseCase {
     private bookingRepository?: IMentorshipBookingRepository,
   ) {}
 
+  /**
+   * Execute for the GetAllReviewsAdmin entity.
+   *
+   * @param filters - The filters information.
+   * @param page - The page information.
+   * @param limit - The limit information.
+   * @returns The result of the operation.
+   */
   async execute(
     filters: AdminReviewFilters,
     page: number,

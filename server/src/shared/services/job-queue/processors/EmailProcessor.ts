@@ -4,6 +4,7 @@ import { EmailJobData, JOB_NAMES, QUEUE_NAMES } from '../JobTypes';
 import { NodeMailerService } from '../../mail/NodeMailerService';
 import logger from '../../../utils/Logger';
 
+/** Handles email processor functionality. */
 export class EmailProcessor {
   constructor(private readonly _nodeMailer: NodeMailerService) {
     this._registerProcessor();

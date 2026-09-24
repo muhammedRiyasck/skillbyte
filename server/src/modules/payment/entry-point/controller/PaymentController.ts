@@ -5,16 +5,16 @@ import { IGetUserPurchases } from '../../application/interfaces/IGetUserPurchase
 import { DateRange } from '../../../../shared/enums/DateRange';
 import { PaymentStatus } from '../../../../shared/enums/PaymentStatus';
 
-/**
- * Controller for student payment history (purchase listing).
- * SRP: Only reason to change is if the student purchase history API contract changes.
- *
- * @see PaymentWebhookController – for Stripe webhook and PayPal capture
- * @see InstructorEarningsController – for instructor earnings analytics
- */
+/** Handles HTTP requests for payment operations. */
 export class PaymentController {
   constructor(private _getUserPurchasesUc: IGetUserPurchases) {}
 
+  /**
+   * Get user purchases for the Payment entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getUserPurchases = async (req: Request, res: Response): Promise<void> => {
     const userId = (req as AuthenticatedRequest).user.id;
     if (!userId) {

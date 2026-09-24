@@ -6,18 +6,11 @@ import { registerAdminJobs } from '../../../modules/admin/entry-points/dependenc
 import { registerCourseJobs } from '../../../modules/course/entry-point/dependencyInjection/CourseJobRegistrar';
 import { registerSharedJobs } from './SharedJobRegistrar';
 
-/**
- * Thin bootstrap orchestrator for all background job queues.
- *
- * Each domain module is responsible for registering its own processors,
- * recurring jobs, and event-bus subscriptions via its own `*JobRegistrar`
- * function. This class simply calls each registrar in order and is therefore
- * Open for extension (add a new registrar import + call) and Closed for
- * modification (no domain-specific logic lives here).
- */
+/** Handles job queue initializer functionality. */
 export class JobQueueInitializer {
   private static _initialized = false;
 
+  /** Initialize for the JobQueueInitializer entity. */
   static initialize(): void {
     if (this._initialized) {
       logger.info('Job queue already initialized');
@@ -39,6 +32,7 @@ export class JobQueueInitializer {
     }
   }
 
+  /** Close for the JobQueueInitializer entity. */
   static async close(): Promise<void> {
     if (this._initialized) {
       await jobQueueService.closeAll();

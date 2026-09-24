@@ -6,13 +6,16 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
 const MAX_FILE_SIZE_MB = 300;
 
-/**
- * Handles chat file/image upload requests.
- * Delegates the actual upload to UploadChatFileUseCase.
- */
+/** Handles HTTP requests for chat upload operations. */
 export class ChatUploadController {
   constructor(private readonly uploadChatFileUseCase: UploadChatFileUseCase) {}
 
+  /**
+   * Upload file for the ChatUpload entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   uploadFile = async (req: Request, res: Response): Promise<void> => {
     const file = req.file;
     if (!file) {

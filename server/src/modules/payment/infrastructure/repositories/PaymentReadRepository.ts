@@ -8,6 +8,7 @@ import { IPaymentDocument } from '../types/IPaymentDocument';
 import { PaymentMapper } from '../mappers/PaymentMapper';
 import { CurrencyConverter } from '../../../../shared/utils/CurrencyConverter';
 
+/** Manages database operations for payment read. */
 export class PaymentReadRepository
   extends BaseRepository<IPayment, IPaymentDocument>
   implements IPaymentReadRepository
@@ -16,10 +17,22 @@ export class PaymentReadRepository
     super(PaymentModel);
   }
 
+  /**
+   * To entity for the PaymentRead entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   toEntity(doc: IPaymentDocument): IPayment {
     return PaymentMapper.toEntity(doc);
   }
 
+  /**
+   * Find payment by intent id for the PaymentRead entity.
+   *
+   * @param paymentIntentId - The unique identifier for the paymentIntent.
+   * @returns The result of the operation.
+   */
   async findPaymentByIntentId(
     paymentIntentId: string,
   ): Promise<IPayment | null> {
@@ -29,11 +42,26 @@ export class PaymentReadRepository
     return doc ? this.toEntity(doc) : null;
   }
 
+  /**
+   * Find payment by pay pal order id for the PaymentRead entity.
+   *
+   * @param orderId - The unique identifier for the order.
+   * @returns The result of the operation.
+   */
   async findPaymentByPayPalOrderId(orderId: string): Promise<IPayment | null> {
     const doc = await this.model.findOne({ paypalOrderId: orderId });
     return doc ? this.toEntity(doc) : null;
   }
 
+  /**
+   * Find payments by user for the PaymentRead entity.
+   *
+   * @param userId - The unique identifier for the user.
+   * @param page - The page information.
+   * @param limit - The limit information.
+   * @param filters - The filters information.
+   * @returns The result of the operation.
+   */
   async findPaymentsByUser(
     userId: string,
     page: number,
@@ -100,6 +128,15 @@ export class PaymentReadRepository
     return { data, totalCount };
   }
 
+  /**
+   * Find payments by instructor for the PaymentRead entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   * @param page - The page information.
+   * @param limit - The limit information.
+   * @param options - The options information.
+   * @returns The result of the operation.
+   */
   async findPaymentsByInstructor(
     instructorId: string,
     page: number,
@@ -212,6 +249,13 @@ export class PaymentReadRepository
     return { data, totalCount, totalRevenue, totalProfit };
   }
 
+  /**
+   * Find instructor earnings trend for the PaymentRead entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   * @param days - The days information.
+   * @returns The result of the operation.
+   */
   async findInstructorEarningsTrend(
     instructorId: string,
     days: number,
@@ -277,6 +321,15 @@ export class PaymentReadRepository
     return result;
   }
 
+  /**
+   * Find payment by user and product for the PaymentRead entity.
+   *
+   * @param userId - The unique identifier for the user.
+   * @param courseId - The unique identifier for the course.
+   * @param mentorshipBookingId - The unique identifier for the mentorshipBooking.
+   * @param status - The status information.
+   * @returns The result of the operation.
+   */
   async findPaymentByUserAndProduct(
     userId: string,
     courseId?: string,

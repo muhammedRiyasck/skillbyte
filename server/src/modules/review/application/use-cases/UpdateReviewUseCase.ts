@@ -8,6 +8,7 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ICourseRepository } from '../../../course/domain/IRepositories/ICourseRepository';
 import { IInstructorRepository } from '../../../instructor/domain/IRepositories/IInstructorRepository';
 
+/** Executes the business logic for update review. */
 export class UpdateReviewUseCase implements IUpdateReviewUseCase {
   constructor(
     private reviewRepository: IReviewRepository,
@@ -15,6 +16,15 @@ export class UpdateReviewUseCase implements IUpdateReviewUseCase {
     private instructorRepository: IInstructorRepository,
   ) {}
 
+  /**
+   * Execute for the UpdateReview entity.
+   *
+   * @param studentId - The unique identifier for the student.
+   * @param reviewId - The unique identifier for the review.
+   * @param rating - The rating information.
+   * @param comment - The comment information.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     studentId: string,
     reviewId: string,
@@ -40,7 +50,6 @@ export class UpdateReviewUseCase implements IUpdateReviewUseCase {
 
     const updatedReview = await this.reviewRepository.findById(reviewId);
 
-    // Update aggregate if target is course
     if (updatedReview && updatedReview.targetType === 'course') {
       const stats = await this.reviewRepository.getAverageRating(
         'course',
@@ -52,7 +61,6 @@ export class UpdateReviewUseCase implements IUpdateReviewUseCase {
       });
     }
 
-    // Update instructor aggregate
     if (updatedReview && updatedReview.instructorId) {
       const insStats = await this.reviewRepository.getInstructorAverageRating(
         updatedReview.instructorId,

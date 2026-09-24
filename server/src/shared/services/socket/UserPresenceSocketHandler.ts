@@ -2,7 +2,15 @@ import { Server, Socket } from 'socket.io';
 import { SocketUser } from './SocketAuthMiddleware';
 import logger from '../../utils/Logger';
 
+/** Handles user presence socket handler functionality. */
 export class UserPresenceSocketHandler {
+  /**
+   * Register for the UserPresenceSocketHandler entity.
+   *
+   * @param io - The io information.
+   * @param socket - The socket information.
+   * @param userSockets - The user sockets information.
+   */
   static register(
     io: Server,
     socket: Socket,

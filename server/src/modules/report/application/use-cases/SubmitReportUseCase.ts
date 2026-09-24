@@ -6,9 +6,21 @@ import { Report } from '../../domain/entities/Report';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
+/** Executes the business logic for submit report. */
 export class SubmitReportUseCase implements ISubmitReportUseCase {
   constructor(private reportRepository: IReportRepository) {}
 
+  /**
+   * Execute for the SubmitReport entity.
+   *
+   * @param reporterId - The unique identifier for the reporter.
+   * @param targetType - The target type information.
+   * @param targetId - The unique identifier for the target.
+   * @param reason - The reason information.
+   * @param description - The description information.
+   * @param reporterRole - The reporter role information.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     reporterId: string,
     targetType: 'review' | 'course' | 'lesson',

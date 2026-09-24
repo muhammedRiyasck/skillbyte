@@ -15,10 +15,7 @@ import { passwordHasher } from '../../../../shared/services/password-hasher/Bcry
 
 import { ResetPasswordRequestDto } from '../dtos/ResetPasswordRequestDto';
 
-/**
- * Use case for resetting a user's password.
- * Handles token validation, password hashing, and notification via email.
- */
+/** Executes the business logic for reset password. */
 export class ResetPasswordUseCase implements IResetPasswordUseCase {
   /**
    * Constructs the ResetPasswordUseCase.
@@ -35,9 +32,9 @@ export class ResetPasswordUseCase implements IResetPasswordUseCase {
   ) {}
 
   /**
-   * Executes the password reset process.
-   * @param dto - The reset password request DTO.
-   * @throws Error if the token is invalid, expired, or if password reset fails.
+   * Execute for the ResetPassword entity.
+   *
+   * @param dto - The data transfer object containing request details.
    */
   async execute(dto: ResetPasswordRequestDto): Promise<void> {
     const { token, password, role } = dto;

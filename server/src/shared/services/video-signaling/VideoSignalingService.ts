@@ -7,9 +7,16 @@ import { VideoRoomManager, VideoRoomParticipant } from './VideoRoomManager';
 
 export { VideoRoomParticipant } from './VideoRoomManager';
 
+/** Handles video signaling service functionality. */
 export class VideoSignalingService implements IVideoSignalingService {
   constructor(private roomManager: VideoRoomManager = new VideoRoomManager()) {}
 
+  /**
+   * Register handlers for the VideoSignalingService entity.
+   *
+   * @param io - The io information.
+   * @param socket - The socket information.
+   */
   public registerHandlers(io: Server, socket: Socket): void {
     // User joins video room
     socket.on(
@@ -407,8 +414,10 @@ export class VideoSignalingService implements IVideoSignalingService {
   }
 
   /**
-   * Returns all participants currently in a given video room.
-   * Delegates to VideoRoomManager (SRP: state lives in the manager).
+   * Get room participants for the VideoSignalingService entity.
+   *
+   * @param roomId - The unique identifier for the room.
+   * @returns The result of the operation.
    */
   public getRoomParticipants(roomId: string): VideoRoomParticipant[] {
     const room = this.roomManager.getRoom(roomId);

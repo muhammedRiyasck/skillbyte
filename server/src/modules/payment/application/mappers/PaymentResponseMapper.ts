@@ -1,7 +1,14 @@
 import { IPayment } from '../../domain/entities/Payment';
 import { PaymentResponseDto } from '../dtos/PaymentResponseDto';
 
+/** Handles payment response mapper functionality. */
 export class PaymentResponseMapper {
+  /**
+   * To response dto for the PaymentResponseMapper entity.
+   *
+   * @param payment - The payment information.
+   * @returns The standardized HTTP response.
+   */
   static toResponseDto(payment: IPayment): PaymentResponseDto {
     return {
       id: payment.paymentId!,

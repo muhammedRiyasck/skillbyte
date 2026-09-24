@@ -1,7 +1,14 @@
 import { Student } from '../../domain/entities/Student';
 import { IStudent as IStudentDocument } from '../models/StudentModel';
 
+/** Handles student mapper functionality. */
 export class StudentMapper {
+  /**
+   * To entity for the StudentMapper entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   static toEntity(doc: IStudentDocument): Student {
     return new Student(
       doc.name,

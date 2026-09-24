@@ -2,7 +2,15 @@ import { IChatNotifier } from '../../application/interfaces/IChatNotifier';
 import { MessageResponseDto } from '../../application/dtos/MessageResponseDto';
 import { SocketService } from '../../../../shared/services/socket/SocketService';
 
+/** Handles socket chat notifier functionality. */
 export class SocketChatNotifier implements IChatNotifier {
+  /**
+   * Notify new message for the SocketChatNotifier entity.
+   *
+   * @param recipientId - The unique identifier for the recipient.
+   * @param conversationId - The unique identifier for the conversation.
+   * @param message - The message information.
+   */
   notifyNewMessage(
     recipientId: string,
     conversationId: string,
@@ -22,6 +30,12 @@ export class SocketChatNotifier implements IChatNotifier {
     );
   }
 
+  /**
+   * Notify conversation updated for the SocketChatNotifier entity.
+   *
+   * @param userId - The unique identifier for the user.
+   * @param conversationId - The unique identifier for the conversation.
+   */
   notifyConversationUpdated(userId: string, conversationId: string): void {
     SocketService.getInstance().emitToUser(
       userId,
@@ -30,6 +44,12 @@ export class SocketChatNotifier implements IChatNotifier {
     );
   }
 
+  /**
+   * Notify messages read for the SocketChatNotifier entity.
+   *
+   * @param conversationId - The unique identifier for the conversation.
+   * @param readerUserId - The unique identifier for the readerUser.
+   */
   notifyMessagesRead(conversationId: string, readerUserId: string): void {
     SocketService.getInstance().emitToConversation(
       conversationId,

@@ -7,11 +7,13 @@ export interface IceServer {
   credential?: string;
 }
 
-/**
- * Keeps Metered credentials on the server. They are returned only after a
- * participant has passed the video-room access check.
- */
+/** Handles metered turn service functionality. */
 export class MeteredTurnService {
+  /**
+   * Get ice servers for the MeteredTurnService entity.
+   *
+   * @returns The result of the operation.
+   */
   getIceServers(): IceServer[] {
     const username = process.env.METERED_TURN_USERNAME;
     const credential = process.env.METERED_TURN_CREDENTIAL;

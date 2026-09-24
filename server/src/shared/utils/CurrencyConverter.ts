@@ -1,17 +1,15 @@
+/** Handles currency converter functionality. */
 export class CurrencyConverter {
-  /**
-   * Fixed exchange rate for sandbox testing.
-   * 1 USD = 83 INR
-   */
   public static readonly USD_TO_INR_RATE = 83;
   private static readonly INR_TO_USD_RATE =
     1 / CurrencyConverter.USD_TO_INR_RATE;
 
   /**
-   * Converts an amount from a source currency to USD ($).
-   * @param amount The amount in the source currency
-   * @param fromCurrency The ISO currency code (e.g., 'INR')
-   * @returns The converted amount in USD, rounded to 2 decimal places
+   * Convert to u s d for the CurrencyConverter entity.
+   *
+   * @param amount - The amount information.
+   * @param fromCurrency - The from currency information.
+   * @returns The result of the operation.
    */
   public static convertToUSD(amount: number, fromCurrency: string): number {
     if (fromCurrency.toUpperCase() === 'USD') {

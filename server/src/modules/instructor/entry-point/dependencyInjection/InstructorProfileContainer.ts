@@ -18,7 +18,6 @@ const storageService = new CloudinaryStorageService();
 const stripeProvider = new StripeProvider();
 const nodeMailer = new NodeMailerService();
 
-// Initialize earnings service to start listening for events
 new InstructorEarningsService(instructorRepository);
 
 const getInstructorProfileUseCase = new GetInstructorProfileUseCase(

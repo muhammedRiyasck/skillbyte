@@ -3,17 +3,19 @@ import { IHandleStripeWebhook } from '../../application/interfaces/IHandleStripe
 import { ICapturePayPalPayment } from '../../application/interfaces/ICapturePayPalPayment';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 
-/**
- * Controller responsible solely for payment provider webhook/capture ingress.
- * Handles Stripe webhook verification and PayPal payment capture.
- * SRP: Only reason to change is if the webhook/capture contract changes.
- */
+/** Handles HTTP requests for payment webhook operations. */
 export class PaymentWebhookController {
   constructor(
     private _handleStripeWebhookUc: IHandleStripeWebhook,
     private _capturePayPalPaymentUc: ICapturePayPalPayment,
   ) {}
 
+  /**
+   * Handle stripe webhook for the PaymentWebhook entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   handleStripeWebhook = async (req: Request, res: Response): Promise<void> => {
     const sig = req.headers['stripe-signature'];
     const payload = req.body;
@@ -27,6 +29,12 @@ export class PaymentWebhookController {
     ApiResponseHelper.success(res, 'Webhook received', { received: true });
   };
 
+  /**
+   * Capture pay pal payment for the PaymentWebhook entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   capturePayPalPayment = async (req: Request, res: Response): Promise<void> => {
     const { orderId } = req.body;
 

@@ -11,10 +11,7 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { ChangeStudentPasswordDto } from '../../entry-points/validations/ChangeStudentPasswordValidation';
 
-/**
- * Controller for student profile operations.
- * Pure HTTP routing layer delegating all business logic to focused use cases.
- */
+/** Handles HTTP requests for student profile operations. */
 export class StudentProfileController {
   constructor(
     private readonly _getProfileUc: IGetStudentProfileUseCase,
@@ -24,6 +21,12 @@ export class StudentProfileController {
     private readonly _changePasswordUc: IChangeStudentPasswordUseCase,
   ) {}
 
+  /**
+   * Get profile for the StudentProfile entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getProfile = async (req: Request, res: Response): Promise<void> => {
     const studentId = (req as AuthenticatedRequest).user.id;
     const student = await this._getProfileUc.execute(studentId);
@@ -35,6 +38,12 @@ export class StudentProfileController {
     });
   };
 
+  /**
+   * Update profile for the StudentProfile entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   updateProfile = async (req: Request, res: Response): Promise<void> => {
     const studentId = (req as AuthenticatedRequest).user.id;
     const {
@@ -65,6 +74,12 @@ export class StudentProfileController {
     ApiResponseHelper.success(res, 'Profile updated successfully');
   };
 
+  /**
+   * Upload profile image for the StudentProfile entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   uploadProfileImage = async (req: Request, res: Response): Promise<void> => {
     const studentId = (req as AuthenticatedRequest).user.id;
     const file = (req as AuthenticatedRequest).file;
@@ -81,12 +96,24 @@ export class StudentProfileController {
     });
   };
 
+  /**
+   * Remove profile image for the StudentProfile entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   removeProfileImage = async (req: Request, res: Response): Promise<void> => {
     const studentId = (req as AuthenticatedRequest).user.id;
     await this._removeAvatarUc.execute(studentId);
     ApiResponseHelper.success(res, 'Profile image removed');
   };
 
+  /**
+   * Change password for the StudentProfile entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   changePassword = async (req: Request, res: Response): Promise<void> => {
     const studentId = (req as AuthenticatedRequest).user.id;
     const dto = req.body as ChangeStudentPasswordDto;

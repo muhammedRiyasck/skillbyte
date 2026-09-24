@@ -7,6 +7,7 @@ import { ICreateNotificationUseCase } from '../../../application/interfaces/ICre
 import logger from '../../../../../shared/utils/Logger';
 import { NotificationType } from '../../../../../shared/enums/NotificationType';
 
+/** Handles withdrawal notification listener functionality. */
 export class WithdrawalNotificationListener {
   constructor(private createNotificationUseCase: ICreateNotificationUseCase) {
     this.registerListeners();

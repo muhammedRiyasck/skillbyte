@@ -9,6 +9,7 @@ import { eventBus } from '../../../../shared/services/event-bus/EventBus';
 import { COURSE_EVENTS } from '../../../../shared/services/event-bus/CourseEvents';
 import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
+/** Executes the business logic for update course status. */
 export class UpdateCourseStatusUseCase implements IUpdateCourseStatusUseCase {
   constructor(
     private _courseRepo: ICourseRepository,
@@ -16,6 +17,13 @@ export class UpdateCourseStatusUseCase implements IUpdateCourseStatusUseCase {
     private _lesson: ILessonRepository,
   ) {}
 
+  /**
+   * Execute for the UpdateCourseStatus entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @param instructorId - The unique identifier for the instructor.
+   * @param status - The status information.
+   */
   async execute(
     courseId: string,
     instructorId: string,

@@ -11,16 +11,7 @@ import { IPasswordHasher } from '../../../../shared/services/password-hasher/IPa
 import { passwordHasher } from '../../../../shared/services/password-hasher/BcryptPasswordHasher';
 import logger from '../../../../shared/utils/Logger';
 
-/**
- * Use case for registering a new instructor.
- * Verifies OTP, validates data, and creates a new instructor account.
- *
- * Resume flow:
- *   The controller uploads the file to S3 as a fire-and-forget operation and
- *   patches the Redis temp data with the resolved S3 key.
- *   This use case simply reads that key and persists it on the instructor
- *   document — no background job or event bus required.
- */
+/** Executes the business logic for register instructor. */
 export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
   /**
    * @param _instructorRepo - The instructor repository for data operations.
@@ -33,15 +24,22 @@ export class RegisterInstructorUseCase implements IRegisterInstructorUseCase {
     private readonly _passwordHasher: IPasswordHasher = passwordHasher,
   ) {}
 
-  /** Returns true if an instructor with this email already exists. */
+  /**
+   * Is user exists for the RegisterInstructor entity.
+   *
+   * @param email - The email information.
+   * @returns The result of the operation.
+   */
   async isUserExists(email: string): Promise<boolean> {
     const instructor = await this._instructorRepo.findByEmail(email);
     return !!instructor;
   }
 
   /**
-   * Verifies OTP, builds the Instructor entity (with resumeKey from Redis),
-   * and persists it to the database.
+   * Execute for the RegisterInstructor entity.
+   *
+   * @param email - The email information.
+   * @param otp - The otp information.
    */
   async execute(email: string, otp: string): Promise<void> {
     logger.info('[RegisterUseCase] execute() called', { email });

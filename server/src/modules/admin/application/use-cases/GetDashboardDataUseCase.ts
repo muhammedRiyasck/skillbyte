@@ -3,12 +3,18 @@ import { AdminDashboardResponseDto } from '../dtos/AdminResponseDto';
 import { ITopInstructorRepository } from '../../domain/IRepositories/ITopInstructorRepository';
 import { IDashboardRepository } from '../../domain/IRepositories/IDashboardRepository';
 
+/** Executes the business logic for get dashboard data. */
 export class GetDashboardDataUseCase implements IGetDashboardDataUseCase {
   constructor(
     private readonly dashboardRepository: IDashboardRepository,
     private readonly topInstructorRepository: ITopInstructorRepository,
   ) {}
 
+  /**
+   * Execute for the GetDashboardData entity.
+   *
+   * @returns The standardized HTTP response.
+   */
   async execute(): Promise<AdminDashboardResponseDto> {
     const today = new Date();
     const twelveMonthsAgo = new Date();

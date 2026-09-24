@@ -11,17 +11,20 @@ import { ICreateSlotUseCase } from '../interfaces/ISlotUseCases';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
-/**
- * Use case for creating a new mentorship slot.
- */
+/** Executes the business logic for create slot. */
 export class CreateSlotUseCase implements ICreateSlotUseCase {
   constructor(
     private _slotRepo: IMentorshipSlotRepository,
     private _instructorRepo: IInstructorRepository,
   ) {}
 
+  /**
+   * Execute for the CreateSlot entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @returns The standardized HTTP response.
+   */
   async execute(dto: CreateSlotDto): Promise<SlotResponseDto> {
-    // Check for overlapping slots
     const startTime = new Date(dto.scheduledAt);
     const endTime = new Date(startTime.getTime() + dto.duration * 60000);
     const hasOverlap = await this._slotRepo.hasOverlappingSlot(

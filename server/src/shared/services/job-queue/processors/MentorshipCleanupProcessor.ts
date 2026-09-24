@@ -9,6 +9,7 @@ import logger from '../../../utils/Logger';
 import { BookingStatus } from '../../../../modules/mentorship/domain/entities/MentorshipBooking';
 import { CancelledBy } from '../../../../modules/mentorship/domain/entities/MentorshipBooking';
 
+/** Handles mentorship cleanup processor functionality. */
 export class MentorshipCleanupProcessor {
   constructor(
     private readonly _bookingRepo: IMentorshipBookingRepository,

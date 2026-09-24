@@ -2,7 +2,14 @@ import { Report } from '../../domain/entities/Report';
 import { ReportResponseDto } from '../dtos/ReportResponseDto';
 import { PendingReportsResponseDto } from '../dtos/PendingReportsResponseDto';
 
+/** Handles report mapper functionality. */
 export class ReportMapper {
+  /**
+   * To dto for the ReportMapper entity.
+   *
+   * @param entity - The entity information.
+   * @returns The standardized HTTP response.
+   */
   static toDto(entity: Report): ReportResponseDto {
     return {
       _id: entity._id!,
@@ -21,6 +28,13 @@ export class ReportMapper {
     };
   }
 
+  /**
+   * To pending reports dto for the ReportMapper entity.
+   *
+   * @param reports - The reports information.
+   * @param total - The total information.
+   * @returns The standardized HTTP response.
+   */
   static toPendingReportsDto(
     reports: Report[],
     total: number,

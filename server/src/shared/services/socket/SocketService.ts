@@ -8,6 +8,7 @@ import { SocketAuthMiddleware, SocketUser } from './SocketAuthMiddleware';
 import { ChatSocketHandler } from './ChatSocketHandler';
 import { UserPresenceSocketHandler } from './UserPresenceSocketHandler';
 
+/** Handles socket service functionality. */
 export class SocketService {
   private static instance: SocketService;
   private io: Server | null = null;
@@ -16,6 +17,11 @@ export class SocketService {
 
   private constructor() {}
 
+  /**
+   * Get instance for the SocketService entity.
+   *
+   * @returns The result of the operation.
+   */
   public static getInstance(): SocketService {
     if (!SocketService.instance) {
       SocketService.instance = new SocketService();
@@ -23,6 +29,12 @@ export class SocketService {
     return SocketService.instance;
   }
 
+  /**
+   * Init for the SocketService entity.
+   *
+   * @param httpServer - The http server information.
+   * @param videoSignaling - The unique identifier for the videoSignaling.
+   */
   public init(
     httpServer: HttpServer,
     videoSignaling: IVideoSignalingService,
@@ -60,6 +72,11 @@ export class SocketService {
     });
   }
 
+  /**
+   * Get i o for the SocketService entity.
+   *
+   * @returns The result of the operation.
+   */
   public getIO(): Server {
     if (!this.io) {
       throw new HttpError(
@@ -70,6 +87,13 @@ export class SocketService {
     return this.io;
   }
 
+  /**
+   * Emit to user for the SocketService entity.
+   *
+   * @param userId - The unique identifier for the user.
+   * @param event - The event information.
+   * @param data - The data information.
+   */
   public emitToUser<T>(userId: string, event: string, data: T): void {
     const socketId = this.userSockets.get(userId);
     if (socketId && this.io) {
@@ -77,6 +101,13 @@ export class SocketService {
     }
   }
 
+  /**
+   * Emit to conversation for the SocketService entity.
+   *
+   * @param conversationId - The unique identifier for the conversation.
+   * @param event - The event information.
+   * @param data - The data information.
+   */
   public emitToConversation<T>(
     conversationId: string,
     event: string,

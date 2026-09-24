@@ -12,9 +12,17 @@ import logger from '../../../../shared/utils/Logger';
  */
 const signedUrlCache = new Map<string, { url: string; expiresAt: number }>();
 
+/** Executes the business logic for stream lesson hls. */
 export class StreamLessonHlsUseCase implements IStreamLessonHlsUseCase {
   constructor(private readonly _storageService: IStorageService) {}
 
+  /**
+   * Execute for the StreamLessonHls entity.
+   *
+   * @param lessonId - The unique identifier for the lesson.
+   * @param file - The file information.
+   * @returns The result of the operation.
+   */
   async execute(lessonId: string, file: string): Promise<StreamHlsResult> {
     const b2Key = `lessons/${lessonId}/hls/${file}`;
     const isPlaylist = file.endsWith('.m3u8');
@@ -66,6 +74,11 @@ export class StreamLessonHlsUseCase implements IStreamLessonHlsUseCase {
     };
   }
 
+  /**
+   * Prewarm for the StreamLessonHls entity.
+   *
+   * @param lessonId - The unique identifier for the lesson.
+   */
   prewarm(lessonId: string): void {
     const now = Date.now();
     const ttl = 3600;

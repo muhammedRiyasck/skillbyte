@@ -1,7 +1,14 @@
 import { IMessage } from '../../domain/entities/Message';
 import { MessageResponseDto } from '../dtos/MessageResponseDto';
 
+/** Handles message response mapper functionality. */
 export class MessageResponseMapper {
+  /**
+   * To dto for the MessageResponseMapper entity.
+   *
+   * @param message - The message information.
+   * @returns The standardized HTTP response.
+   */
   static toDto(message: IMessage): MessageResponseDto {
     return {
       messageId: message.messageId!,

@@ -1,7 +1,14 @@
 import { ICertificate as CertificateEntity } from '../../domain/entities/Certificate';
 import { ICertificate as CertificateDocument } from '../models/CertificateModel';
 
+/** Handles certificate mapper functionality. */
 export class CertificateMapper {
+  /**
+   * To entity for the CertificateMapper entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   static toEntity(doc: CertificateDocument): CertificateEntity {
     return {
       certificateId: doc._id.toString(),

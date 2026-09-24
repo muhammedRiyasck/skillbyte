@@ -12,9 +12,7 @@ import { IGetMySessionRatingsUseCase } from '../../application/interfaces/IGetMy
 import { SubmitReviewRequestDto } from '../../application/dtos/SubmitReviewRequestDto';
 import { UpdateReviewRequestDto } from '../../application/dtos/UpdateReviewRequestDto';
 
-/**
- * Controller dedicated to student and public review actions (CRUD, helpful votes, rating summaries).
- */
+/** Handles HTTP requests for review operations. */
 export class ReviewController {
   constructor(
     private submitReviewUseCase: ISubmitReviewUseCase,
@@ -27,6 +25,12 @@ export class ReviewController {
     private getMySessionRatingsUseCase: IGetMySessionRatingsUseCase,
   ) {}
 
+  /**
+   * Submit review for the Review entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   submitReview = async (req: Request, res: Response): Promise<void> => {
     const studentId = (req as AuthenticatedRequest).user.id;
     const { targetType, targetId, rating, comment } =
@@ -45,6 +49,12 @@ export class ReviewController {
     });
   };
 
+  /**
+   * Update review for the Review entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   updateReview = async (req: Request, res: Response): Promise<void> => {
     const studentId = (req as AuthenticatedRequest).user.id;
     const { reviewId } = req.params;
@@ -60,6 +70,12 @@ export class ReviewController {
     ApiResponseHelper.success(res, 'Review updated successfully', { review });
   };
 
+  /**
+   * Delete review for the Review entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   deleteReview = async (req: Request, res: Response): Promise<void> => {
     const studentId = (req as AuthenticatedRequest).user.id;
     const { reviewId } = req.params;
@@ -67,6 +83,12 @@ export class ReviewController {
     ApiResponseHelper.success(res, 'Review deleted successfully');
   };
 
+  /**
+   * Get reviews for the Review entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getReviews = async (req: Request, res: Response): Promise<void> => {
     const currentUserId = (req as AuthenticatedRequest).user?.id;
     const { targetType, targetId } = req.params;
@@ -86,6 +108,12 @@ export class ReviewController {
     ApiResponseHelper.success(res, 'Reviews retrieved successfully', data);
   };
 
+  /**
+   * Get rating summary for the Review entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getRatingSummary = async (req: Request, res: Response): Promise<void> => {
     const { targetType, targetId } = req.params;
     const summary = await this.getCourseRatingSummaryUseCase.execute(
@@ -99,6 +127,12 @@ export class ReviewController {
     );
   };
 
+  /**
+   * Toggle helpful for the Review entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   toggleHelpful = async (req: Request, res: Response): Promise<void> => {
     const studentId = (req as AuthenticatedRequest).user.id;
     const { reviewId } = req.params;
@@ -109,12 +143,24 @@ export class ReviewController {
     ApiResponseHelper.success(res, 'Helpful toggle updated', { isHelpful });
   };
 
+  /**
+   * Report review for the Review entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   reportReview = async (req: Request, res: Response): Promise<void> => {
     const { reviewId } = req.params;
     await this.reportReviewUseCase.execute(reviewId);
     ApiResponseHelper.success(res, 'Review reported successfully');
   };
 
+  /**
+   * Get my session ratings for the Review entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getMySessionRatings = async (req: Request, res: Response): Promise<void> => {
     const studentId = (req as AuthenticatedRequest).user.id;
     const ratings = await this.getMySessionRatingsUseCase.execute(studentId);

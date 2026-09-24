@@ -6,15 +6,20 @@ import { IGetAvailableSlotsUseCase } from '../interfaces/ISlotUseCases';
 
 import { IMentorshipBookingRepository } from '../../domain/IRepositories/IMentorshipBookingRepository';
 
-/**
- * Use case for retrieving available slots with optional filters.
- */
+/** Executes the business logic for get available slots. */
 export class GetAvailableSlotsUseCase implements IGetAvailableSlotsUseCase {
   constructor(
     private _slotRepo: IMentorshipSlotRepository,
     private _bookingRepo: IMentorshipBookingRepository,
   ) {}
 
+  /**
+   * Execute for the GetAvailableSlots entity.
+   *
+   * @param filters - The filters information.
+   * @param studentId - The unique identifier for the student.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     filters?: SlotFiltersDto,
     studentId?: string,

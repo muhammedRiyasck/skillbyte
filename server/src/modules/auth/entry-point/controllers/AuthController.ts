@@ -11,6 +11,7 @@ import { UserRole } from '../../../../shared/enums/UserRole';
 import { AuthResponseDto } from '../../application/dtos/AuthResponseDto';
 import { LoginRequestDto } from '../../application/dtos/LoginRequestDto';
 
+/** Handles HTTP requests for auth operations. */
 export class AuthController {
   constructor(
     private readonly _studentLoginUC: ILoginStudentUseCase,
@@ -18,6 +19,12 @@ export class AuthController {
     private readonly _amILoggedInUseCase: IAmILoggedInUseCase,
   ) {}
 
+  /**
+   * Am i logged in for the Auth entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   amILoggedIn = async (req: Request, res: Response): Promise<void> => {
     logger.info(`AmILoggedIn check from IP: ${req.ip}`);
     const decodedUserData = req.user as { id: string; role: UserRole };
@@ -35,6 +42,12 @@ export class AuthController {
     ApiResponseHelper.success(res, 'User is logged in', authResponse);
   };
 
+  /**
+   * Login for the Auth entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   login = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Login attempt from IP: ${req.ip}`);
     const dto: LoginRequestDto = req.body;
@@ -86,6 +99,12 @@ export class AuthController {
     ApiResponseHelper.success(res, 'Login successful', authResponse);
   };
 
+  /**
+   * Logout for the Auth entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   logout = (req: Request, res: Response): void => {
     logger.info(`Logout attempt from IP: ${req.ip}`);
 

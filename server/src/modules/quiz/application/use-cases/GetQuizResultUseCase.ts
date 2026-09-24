@@ -4,14 +4,21 @@ import { QuizAttemptResponseDto } from '../dtos/QuizAttemptResponseDto';
 import { QuizAttemptMapper } from '../mappers/QuizAttemptMapper';
 import { QuizStatus } from '../../../../shared/enums/QuizStatus';
 
+/** Executes the business logic for get quiz result. */
 export class GetQuizResultUseCase implements IGetQuizResultUseCase {
   constructor(private quizAttemptRepository: IQuizAttemptRepository) {}
 
+  /**
+   * Execute for the GetQuizResult entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @param userId - The unique identifier for the user.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     courseId: string,
     userId: string,
   ): Promise<QuizAttemptResponseDto | null> {
-    // Fetch all attempts sorted by attemptNumber ascending so we can pick the best
     const attempts = await this.quizAttemptRepository.findAllByCourseAndUser(
       courseId,
       userId,
@@ -24,7 +31,6 @@ export class GetQuizResultUseCase implements IGetQuizResultUseCase {
     // Priority: 1) passed attempt (best score), 2) latest completed, 3) latest overall
     const passedAttempts = attempts.filter((a) => a.passed);
     if (passedAttempts.length > 0) {
-      // Return the highest-scoring passed attempt
       const best = passedAttempts.reduce((prev, curr) =>
         curr.score > prev.score ? curr : prev,
       );
@@ -36,7 +42,6 @@ export class GetQuizResultUseCase implements IGetQuizResultUseCase {
         a.status === QuizStatus.COMPLETED || a.status === QuizStatus.TIMED_OUT,
     );
     if (completedAttempts.length > 0) {
-      // Return the last completed attempt
       return QuizAttemptMapper.toDto(
         completedAttempts[completedAttempts.length - 1],
       );

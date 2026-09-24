@@ -2,11 +2,15 @@ import Queue from 'bull';
 
 // Removed JobData interface to use generics directly
 
+/** Handles job queue service functionality. */
 export class JobQueueService {
   private _queues: Map<string, Queue.Queue> = new Map();
 
   /**
-   * Creates or gets an existing queue
+   * Get queue for the JobQueueService entity.
+   *
+   * @param queueName - The queue name information.
+   * @returns The result of the operation.
    */
   getQueue<T>(queueName: string): Queue.Queue<T> {
     if (!this._queues.has(queueName)) {
@@ -30,7 +34,13 @@ export class JobQueueService {
   }
 
   /**
-   * Adds a job to the specified queue
+   * Add job for the JobQueueService entity.
+   *
+   * @param queueName - The queue name information.
+   * @param jobName - The job name information.
+   * @param data - The data information.
+   * @param options - The options information.
+   * @returns The result of the operation.
    */
   async addJob<T>(
     queueName: string,
@@ -43,7 +53,11 @@ export class JobQueueService {
   }
 
   /**
-   * Processes jobs in the specified queue
+   * Process job for the JobQueueService entity.
+   *
+   * @param queueName - The queue name information.
+   * @param jobName - The job name information.
+   * @param processor - The processor information.
    */
   processJob<T>(
     queueName: string,
@@ -55,9 +69,13 @@ export class JobQueueService {
   }
 
   /**
-   * Registers a repeatable (cron) job for the given queue.
-   * Modules should call this during their own bootstrapping so that
-   * JobQueueInitializer does not need to know about domain-specific schedules.
+   * Register recurring job for the JobQueueService entity.
+   *
+   * @param queueName - The queue name information.
+   * @param jobName - The job name information.
+   * @param cronExpression - The cron expression information.
+   * @param data - The data information.
+   * @param jobId - The unique identifier for the job.
    */
   async registerRecurringJob<T>(
     queueName: string,
@@ -72,9 +90,7 @@ export class JobQueueService {
     });
   }
 
-  /**
-   * Closes all queues
-   */
+  /** Close all for the JobQueueService entity. */
   async closeAll(): Promise<void> {
     const closePromises = Array.from(this._queues.values()).map((queue) =>
       queue.close(),
@@ -84,7 +100,10 @@ export class JobQueueService {
   }
 
   /**
-   * Gets queue statistics
+   * Get queue stats for the JobQueueService entity.
+   *
+   * @param queueName - The queue name information.
+   * @returns The result of the operation.
    */
   async getQueueStats(queueName: string): Promise<{
     waiting: number;

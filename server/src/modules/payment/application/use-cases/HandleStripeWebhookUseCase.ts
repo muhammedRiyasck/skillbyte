@@ -6,12 +6,19 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { StripeWebhookRegistry } from '../strategies/webhook/StripeWebhookRegistry';
 
+/** Executes the business logic for handle stripe webhook. */
 export class HandleStripeWebhookUseCase implements IHandleStripeWebhook {
   constructor(
     private _stripeProvider: IStripeProvider,
     private _webhookRegistry: StripeWebhookRegistry,
   ) {}
 
+  /**
+   * Execute for the HandleStripeWebhook entity.
+   *
+   * @param signature - The signature information.
+   * @param payload - The payload information.
+   */
   async execute(signature: string, payload: Buffer): Promise<void> {
     let event: Stripe.Event;
 

@@ -8,9 +8,16 @@ import {
 } from '../interfaces/ICreateNotificationUseCase';
 import { NotificationType } from '../../../../shared/enums/NotificationType';
 
+/** Executes the business logic for create notification. */
 export class CreateNotificationUseCase implements ICreateNotificationUseCase {
   constructor(private notificationRepository: INotificationWriteRepository) {}
 
+  /**
+   * Execute for the CreateNotification entity.
+   *
+   * @param data - The data information.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     data: ICreateNotificationData,
   ): Promise<NotificationResponseDto> {

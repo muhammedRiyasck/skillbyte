@@ -2,7 +2,14 @@ import { IPayment as IPaymentEntity } from '../../domain/entities/Payment';
 import { IPaymentDocument } from '../types/IPaymentDocument';
 import { PaymentStatus } from '../../../../shared/enums/PaymentStatus';
 
+/** Handles payment mapper functionality. */
 export class PaymentMapper {
+  /**
+   * To entity for the PaymentMapper entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   static toEntity(doc: IPaymentDocument): IPaymentEntity {
     return {
       paymentId: doc._id.toString(),

@@ -4,6 +4,7 @@ import { IGetAllReviewsAdminUseCase } from '../../application/interfaces/IGetAll
 import { IAdminToggleHideReviewUseCase } from '../../application/interfaces/IAdminToggleHideReviewUseCase';
 import { IAdminDeleteReviewUseCase } from '../../application/interfaces/IAdminDeleteReviewUseCase';
 
+/** Handles HTTP requests for admin review operations. */
 export class AdminReviewController {
   constructor(
     private getAllReviewsAdminUseCase: IGetAllReviewsAdminUseCase,
@@ -11,6 +12,12 @@ export class AdminReviewController {
     private adminDeleteReviewUseCase: IAdminDeleteReviewUseCase,
   ) {}
 
+  /**
+   * Get all reviews admin for the AdminReview entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getAllReviewsAdmin = async (req: Request, res: Response): Promise<void> => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 15;
@@ -44,6 +51,12 @@ export class AdminReviewController {
     ApiResponseHelper.success(res, 'Reviews retrieved successfully', result);
   };
 
+  /**
+   * Admin toggle hide review for the AdminReview entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   adminToggleHideReview = async (
     req: Request,
     res: Response,
@@ -57,6 +70,12 @@ export class AdminReviewController {
     );
   };
 
+  /**
+   * Admin delete review for the AdminReview entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   adminDeleteReview = async (req: Request, res: Response): Promise<void> => {
     const { reviewId } = req.params;
     await this.adminDeleteReviewUseCase.execute(reviewId);

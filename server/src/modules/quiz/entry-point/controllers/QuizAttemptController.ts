@@ -14,6 +14,7 @@ interface IUserRequest extends Request {
   };
 }
 
+/** Handles HTTP requests for quiz attempt operations. */
 export class QuizAttemptController {
   constructor(
     private startQuizAttemptUseCase: IStartQuizAttemptUseCase,
@@ -22,6 +23,12 @@ export class QuizAttemptController {
     private getAllQuizAttemptsUseCase: IGetAllQuizAttemptsUseCase,
   ) {}
 
+  /**
+   * Start attempt for the QuizAttempt entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   startAttempt = async (req: Request, res: Response): Promise<void> => {
     const userId = (req as unknown as IUserRequest).user?.id;
     const { courseId } = req.params;
@@ -38,6 +45,12 @@ export class QuizAttemptController {
     ApiResponseHelper.created(res, 'Quiz started', attempt);
   };
 
+  /**
+   * Submit attempt for the QuizAttempt entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   submitAttempt = async (req: Request, res: Response): Promise<void> => {
     const userId = (req as unknown as IUserRequest).user?.id;
     const { attemptId } = req.params;
@@ -56,6 +69,12 @@ export class QuizAttemptController {
     ApiResponseHelper.success(res, 'Quiz submitted successfully', attempt);
   };
 
+  /**
+   * Get result for the QuizAttempt entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getResult = async (req: Request, res: Response): Promise<void> => {
     const userId = (req as unknown as IUserRequest).user?.id;
     const { courseId } = req.params;
@@ -69,6 +88,12 @@ export class QuizAttemptController {
     ApiResponseHelper.success(res, 'Quiz result retrieved', result);
   };
 
+  /**
+   * Get all attempts for the QuizAttempt entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getAllAttempts = async (req: Request, res: Response): Promise<void> => {
     const userId = (req as unknown as IUserRequest).user?.id;
     const { courseId } = req.params;

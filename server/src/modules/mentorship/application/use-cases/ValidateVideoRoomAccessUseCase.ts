@@ -7,6 +7,7 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { UserRole } from '../../../../shared/enums/UserRole';
 import { BookingStatus } from '../../domain/entities/MentorshipBooking';
 
+/** Executes the business logic for validate video room access. */
 export class ValidateVideoRoomAccessUseCase
   implements IValidateVideoRoomAccessUseCase
 {
@@ -17,6 +18,12 @@ export class ValidateVideoRoomAccessUseCase
 
   constructor(private bookingRepo: IMentorshipBookingRepository) {}
 
+  /**
+   * Execute for the ValidateVideoRoomAccess entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @returns The result of the operation.
+   */
   async execute(
     dto: ValidateVideoRoomAccessDto,
   ): Promise<{ bookingId: string; isValid: boolean; status?: string }> {
@@ -31,7 +38,6 @@ export class ValidateVideoRoomAccessUseCase
       throw new HttpError('Invalid room ID format', HttpStatusCode.BAD_REQUEST);
     }
 
-    // Get booking
     const booking = await this.bookingRepo.findById(bookingId);
     if (!booking) {
       throw new HttpError('Booking not found', HttpStatusCode.NOT_FOUND);
@@ -73,7 +79,6 @@ export class ValidateVideoRoomAccessUseCase
       scheduledAt.getTime() - this.EARLY_JOIN_MINUTES * 60 * 1000,
     );
 
-    // Get slot duration (assuming you have this in booking or need to fetch slot)
     // For now, using a default of 60 minutes if not available
     const durationMinutes = 60; // TODO: Get from slot if needed
     const lateJoinTime = new Date(

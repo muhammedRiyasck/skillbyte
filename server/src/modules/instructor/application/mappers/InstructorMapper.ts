@@ -9,7 +9,14 @@ import {
 import { InstructorResponseDto } from '../dtos/InstructorResponseDto';
 import { Instructor } from '../../domain/entities/Instructor';
 
+/** Handles instructor mapper functionality. */
 export class InstructorMapper {
+  /**
+   * To register instructor entity for the InstructorMapper entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @param resumeKey - The resume key information.
+   */
   static toRegisterInstructorEntity(
     dto: InstructorRegistrationRequestDto,
     resumeKey?: string,
@@ -34,6 +41,11 @@ export class InstructorMapper {
     };
   }
 
+  /**
+   * To verify otp entity for the InstructorMapper entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   */
   static toVerifyOtpEntity(dto: InstructorVerifyOtpRequestDto) {
     return {
       email: dto.email,
@@ -41,6 +53,11 @@ export class InstructorMapper {
     };
   }
 
+  /**
+   * To reapply entity for the InstructorMapper entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   */
   static toReapplyEntity(dto: InstructorReapplyRequestDto) {
     const { email } = dto;
     const updates: Partial<Instructor> = {};
@@ -65,6 +82,11 @@ export class InstructorMapper {
     return { email, updates };
   }
 
+  /**
+   * To update profile entity for the InstructorMapper entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   */
   static toUpdateProfileEntity(dto: InstructorProfileUpdateRequestDto) {
     const updates: Record<string, unknown> = {};
     if (dto.name !== undefined) updates.name = dto.name;
@@ -83,6 +105,12 @@ export class InstructorMapper {
     return updates;
   }
 
+  /**
+   * To response dto for the InstructorMapper entity.
+   *
+   * @param instructor - The instructor information.
+   * @returns The standardized HTTP response.
+   */
   static toResponseDto(instructor: Instructor): InstructorResponseDto {
     return {
       id: instructor.instructorId,

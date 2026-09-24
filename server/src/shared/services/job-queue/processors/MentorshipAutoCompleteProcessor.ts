@@ -4,6 +4,7 @@ import { JOB_NAMES, QUEUE_NAMES } from '../JobTypes';
 import { AutoCompleteBookingsUseCase } from '../../../../modules/mentorship/application/use-cases/AutoCompleteBookingsUseCase';
 import logger from '../../../utils/Logger';
 
+/** Handles mentorship auto complete processor functionality. */
 export class MentorshipAutoCompleteProcessor {
   constructor(private readonly _autoCompleteUC: AutoCompleteBookingsUseCase) {
     this._registerProcessor();

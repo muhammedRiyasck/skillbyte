@@ -16,15 +16,19 @@ import {
 import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
 import logger from '../../../../shared/utils/Logger';
 
-/**
- * Use case for instructors to reschedule confirmed bookings without conflict.
- */
+/** Executes the business logic for reschedule booking. */
 export class RescheduleBookingUseCase implements IRescheduleBookingUseCase {
   constructor(
     private _bookingRepo: IMentorshipBookingRepository,
     private _slotRepo: IMentorshipSlotRepository,
   ) {}
 
+  /**
+   * Execute for the RescheduleBooking entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @returns The standardized HTTP response.
+   */
   async execute(dto: RescheduleBookingDto): Promise<BookingResponseDto> {
     const { bookingId, instructorId, newScheduledAt, reason } = dto;
 

@@ -10,6 +10,7 @@ import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequ
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { MeteredTurnService } from '../../../../shared/services/video-signaling/MeteredTurnService';
 
+/** Handles HTTP requests for mentorship video operations. */
 export class MentorshipVideoController {
   constructor(
     private _generateVideoRoomUseCase: IGenerateVideoRoomUseCase,
@@ -18,7 +19,10 @@ export class MentorshipVideoController {
   ) {}
 
   /**
-   * Generates a video room for a confirmed booking.
+   * Generate video room for the MentorshipVideo entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   generateVideoRoom = async (req: Request, res: Response): Promise<void> => {
     const { bookingId } = req.params;
@@ -37,7 +41,10 @@ export class MentorshipVideoController {
   };
 
   /**
-   * Validates video room access for a user.
+   * Validate video room access for the MentorshipVideo entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   validateVideoRoomAccess = async (
     req: Request,

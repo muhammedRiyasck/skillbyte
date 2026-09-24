@@ -18,12 +18,19 @@ import { UserRole } from '../../../../shared/enums/UserRole';
  */
 import { LoginRequestDto } from '../../../auth/application/dtos/LoginRequestDto';
 
+/** Executes the business logic for login student. */
 export class LoginStudentUseCase implements ILoginStudentUseCase {
   constructor(
     private _studentRepo: IStudentRepository,
     private _passwordHasher: IPasswordHasher = passwordHasher,
   ) {}
 
+  /**
+   * Execute for the LoginStudent entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @returns The standardized HTTP response.
+   */
   async execute(dto: LoginRequestDto): Promise<{
     user: AuthResponseDto;
     accessToken: string;

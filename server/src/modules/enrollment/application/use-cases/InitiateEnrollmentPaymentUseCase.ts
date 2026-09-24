@@ -8,6 +8,7 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
+/** Executes the business logic for initiate enrollment payment. */
 export class InitiateEnrollmentPaymentUseCase
   implements IInitiateEnrollmentPaymentUseCase
 {
@@ -18,6 +19,14 @@ export class InitiateEnrollmentPaymentUseCase
     private _initiatePaymentUc: IInitiatePayment,
   ) {}
 
+  /**
+   * Execute for the InitiateEnrollmentPayment entity.
+   *
+   * @param userId - The unique identifier for the user.
+   * @param courseId - The unique identifier for the course.
+   * @param providerName - The unique identifier for the providerName.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     userId: string,
     courseId: string,

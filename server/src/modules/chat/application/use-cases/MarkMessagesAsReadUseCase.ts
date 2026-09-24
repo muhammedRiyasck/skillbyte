@@ -6,6 +6,7 @@ import { IMessageWriteRepository } from '../../domain/IRepositories/IMessageRepo
 import { IConversationWriteRepository } from '../../domain/IRepositories/IConversationWriteRepository';
 import { IChatNotifier } from '../interfaces/IChatNotifier';
 
+/** Executes the business logic for mark messages as read. */
 export class MarkMessagesAsReadUseCase implements IMarkMessagesAsReadUseCase {
   constructor(
     private messageWriteRepository: IMessageWriteRepository,
@@ -13,6 +14,11 @@ export class MarkMessagesAsReadUseCase implements IMarkMessagesAsReadUseCase {
     private chatNotifier: IChatNotifier,
   ) {}
 
+  /**
+   * Execute for the MarkMessagesAsRead entity.
+   *
+   * @param data - The data information.
+   */
   async execute(data: IMarkMessagesAsReadData): Promise<void> {
     const { conversationId, userId, role } = data;
 

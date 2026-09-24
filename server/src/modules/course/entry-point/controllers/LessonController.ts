@@ -19,6 +19,7 @@ import {
 } from '../../entry-point/validations/CourseValidation';
 import logger from '../../../../shared/utils/Logger';
 
+/** Handles HTTP requests for lesson operations. */
 export class LessonController {
   constructor(
     private _createUseCase: ICreateLessonUseCase,
@@ -32,7 +33,10 @@ export class LessonController {
   ) {}
 
   /**
-   * Creates a new lesson.
+   * Create lesson for the Lesson entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   createLesson = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
@@ -50,7 +54,10 @@ export class LessonController {
   };
 
   /**
-   * Generates a signed URL for uploading a file.
+   * Get upload url for the Lesson entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   getUploadUrl = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Get upload URL attempt from IP: ${req.ip}`);
@@ -63,7 +70,10 @@ export class LessonController {
   };
 
   /**
-   * Generates signed URLs for multiple video files.
+   * Get video signed urls for the Lesson entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   getVideoSignedUrls = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Get video signed URLs attempt from IP: ${req.ip}`);
@@ -80,7 +90,10 @@ export class LessonController {
   };
 
   /**
-   * Streams HLS playlists and segments.
+   * Stream hls for the Lesson entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   streamHls = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -102,7 +115,10 @@ export class LessonController {
   };
 
   /**
-   * Updates an existing lesson.
+   * Update lesson for the Lesson entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   updateLesson = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Update lesson attempt from IP: ${req.ip}`);
@@ -117,7 +133,10 @@ export class LessonController {
   };
 
   /**
-   * Deletes a lesson.
+   * Delete lesson for the Lesson entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   deleteLesson = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Delete lesson attempt from IP: ${req.ip}`);
@@ -132,7 +151,10 @@ export class LessonController {
   };
 
   /**
-   * Blocks or unblocks a lesson.
+   * Block lesson for the Lesson entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   blockLesson = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Block lesson attempt from IP: ${req.ip}`);
@@ -153,7 +175,10 @@ export class LessonController {
   };
 
   /**
-   * Gets the signed play URL for a lesson video.
+   * Get lesson play url for the Lesson entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   getLessonPlayUrl = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Get lesson play URL attempt from IP: ${req.ip}`);

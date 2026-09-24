@@ -12,14 +12,12 @@ import {
 
 const router = express.Router();
 
-// Check Enrollment Status - Protected Route
 router.get(
   '/check/:id',
   authenticate,
   asyncHandler(enrollmentController.checkEnrollmentStatus),
 );
 
-// Get Student Enrolled Courses - Protected Route
 router.get(
   '/my-enrollments',
   authenticate,
@@ -33,7 +31,6 @@ router.get(
   asyncHandler(enrollmentController.getInstructorEnrollments),
 );
 
-// Update Lesson Progress - Protected Route (supports PATCH and POST for navigator.sendBeacon)
 router.patch(
   '/:enrollmentId/lesson-progress',
   authenticate,

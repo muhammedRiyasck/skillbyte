@@ -9,15 +9,23 @@ import {
 import { ICapturePayPalPayment } from '../interfaces/ICapturePayPalPayment';
 import { PaymentMapper } from '../mappers/PaymentMapper';
 
+/** Executes the business logic for capture pay pal payment. */
 export class CapturePayPalPaymentUseCase implements ICapturePayPalPayment {
   constructor(
     private _paymentRepository: IPaymentWriteRepository,
     private _paypalProvider: IPayPalProvider,
   ) {}
 
-  async execute(
-    orderId: string,
-  ): Promise<{ success: boolean; payment?: ReturnType<typeof PaymentMapper.toResponse> }> {
+  /**
+   * Execute for the CapturePayPalPayment entity.
+   *
+   * @param orderId - The unique identifier for the order.
+   * @returns The standardized HTTP response.
+   */
+  async execute(orderId: string): Promise<{
+    success: boolean;
+    payment?: ReturnType<typeof PaymentMapper.toResponse>;
+  }> {
     try {
       // 1. Capture the PayPal payment
       const captureData = await this._paypalProvider.capturePayment(orderId);

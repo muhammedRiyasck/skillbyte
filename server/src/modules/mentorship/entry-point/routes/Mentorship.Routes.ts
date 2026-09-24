@@ -20,7 +20,6 @@ const router = Router();
 
 // ==================== Instructor Slot Routes ====================
 
-// Create a new mentorship slot
 router.post(
   '/slots',
   authenticate,
@@ -29,7 +28,6 @@ router.post(
   asyncHandler(mentorshipSlotController.createSlot),
 );
 
-// Create recurring mentorship slots
 router.post(
   '/slots/recurring',
   authenticate,
@@ -38,7 +36,6 @@ router.post(
   asyncHandler(mentorshipSlotController.createRecurringSlots),
 );
 
-// Delete recurring mentorship slots by recurrence group ID
 router.delete(
   '/slots/recurring/:recurrenceGroupId',
   authenticate,
@@ -46,7 +43,6 @@ router.delete(
   asyncHandler(mentorshipSlotController.deleteRecurringSlots),
 );
 
-// Get all slots for the authenticated instructor
 router.get(
   '/slots/instructor',
   authenticate,
@@ -54,7 +50,6 @@ router.get(
   asyncHandler(mentorshipSlotController.getInstructorSlots),
 );
 
-// Update a mentorship slot
 router.put(
   '/slots/:slotId',
   authenticate,
@@ -63,7 +58,6 @@ router.put(
   asyncHandler(mentorshipSlotController.updateSlot),
 );
 
-// Delete a mentorship slot
 router.delete(
   '/slots/:slotId',
   authenticate,
@@ -73,7 +67,6 @@ router.delete(
 
 // ==================== Student Slot Routes ====================
 
-// Get available slots with optional filters
 router.get(
   '/slots/tags',
   authenticate,
@@ -81,7 +74,6 @@ router.get(
   asyncHandler(mentorshipSlotController.getUniqueTags),
 );
 
-// Get all available slots (with optional filters)
 router.get(
   '/slots',
   authenticate,
@@ -89,7 +81,6 @@ router.get(
   asyncHandler(mentorshipSlotController.getAvailableSlots),
 );
 
-// Get available slots by job title
 router.get(
   '/slots/job-title/:jobTitle',
   authenticate,
@@ -114,7 +105,6 @@ router.post(
   asyncHandler(mentorshipBookingController.cancelBooking),
 );
 
-// Get Student Bookings
 router.get(
   '/bookings/student',
   authenticate,
@@ -122,7 +112,6 @@ router.get(
   asyncHandler(mentorshipBookingController.getStudentBookings),
 );
 
-// Get Instructor Bookings
 router.get(
   '/bookings/instructor',
   authenticate,

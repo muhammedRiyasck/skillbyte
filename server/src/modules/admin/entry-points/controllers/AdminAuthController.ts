@@ -4,10 +4,7 @@ import { LoginAdminRequestDto } from '../../application/dtos/AdminRequestDto';
 import logger from '../../../../shared/utils/Logger';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 
-/**
- * Controller for admin authentication.
- * Handles admin login operations with standardized responses.
- */
+/** Handles HTTP requests for admin auth operations. */
 export class AdminAuthController {
   /**
    * Constructs the AdminAuthController.
@@ -16,10 +13,10 @@ export class AdminAuthController {
   constructor(private readonly _loginAdminUseCase: ILoginAdminUseCase) {}
 
   /**
-   * Handles admin login.
-   * Validates input, authenticates admin, and sets authentication cookies.
-   * @param req - Express request object.
-   * @param res - Express response object.
+   * Login for the AdminAuth entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   login = async (req: Request, res: Response): Promise<void> => {
     logger.info(`Admin login attempt from IP: ${req.ip}`);

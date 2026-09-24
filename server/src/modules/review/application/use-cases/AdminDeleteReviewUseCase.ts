@@ -4,9 +4,15 @@ import { IReviewRepository } from '../../domain/IRepositories/IReviewRepository'
 
 import { IAdminDeleteReviewUseCase } from '../interfaces/IAdminDeleteReviewUseCase';
 
+/** Executes the business logic for admin delete review. */
 export class AdminDeleteReviewUseCase implements IAdminDeleteReviewUseCase {
   constructor(private reviewRepository: IReviewRepository) {}
 
+  /**
+   * Execute for the AdminDeleteReview entity.
+   *
+   * @param reviewId - The unique identifier for the review.
+   */
   async execute(reviewId: string): Promise<void> {
     const review = await this.reviewRepository.findById(reviewId);
     if (!review)

@@ -8,6 +8,7 @@ import {
 
 import { EnrollmentMapper } from '../mappers/EnrollmentMapper';
 
+/** Manages database operations for enrollment write. */
 export class EnrollmentWriteRepository
   extends BaseRepository<IEnrollmentEntity, IEnrollmentDocument>
   implements IEnrollmentWriteRepository
@@ -16,10 +17,23 @@ export class EnrollmentWriteRepository
     super(EnrollmentModel);
   }
 
+  /**
+   * To entity for the EnrollmentWrite entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   toEntity(doc: IEnrollmentDocument): IEnrollmentEntity {
     return EnrollmentMapper.toEntity(doc);
   }
 
+  /**
+   * Update enrollment status for the EnrollmentWrite entity.
+   *
+   * @param enrollmentId - The unique identifier for the enrollment.
+   * @param status - The status information.
+   * @returns The result of the operation.
+   */
   async updateEnrollmentStatus(
     enrollmentId: string,
     status: string,
@@ -32,6 +46,14 @@ export class EnrollmentWriteRepository
     return doc ? this.toEntity(doc) : null;
   }
 
+  /**
+   * Update lesson progress for the EnrollmentWrite entity.
+   *
+   * @param enrollmentId - The unique identifier for the enrollment.
+   * @param lessonId - The unique identifier for the lesson.
+   * @param progressData - The progress data information.
+   * @returns The result of the operation.
+   */
   async updateLessonProgress(
     enrollmentId: string,
     lessonId: string,
@@ -112,6 +134,15 @@ export class EnrollmentWriteRepository
     return doc ? this.toEntity(doc) : null;
   }
 
+  /**
+   * Update progress for the EnrollmentWrite entity.
+   *
+   * @param enrollmentId - The unique identifier for the enrollment.
+   * @param progress - The progress information.
+   * @param status - The status information.
+   * @param completedAt - The completed at information.
+   * @returns The result of the operation.
+   */
   async updateProgress(
     enrollmentId: string,
     progress: number,

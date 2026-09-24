@@ -6,12 +6,22 @@ import { IQuizAttempt } from '../../domain/entities/QuizAttempt';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
+/** Executes the business logic for get quiz analytics. */
 export class GetQuizAnalyticsUseCase implements IGetQuizAnalyticsUseCase {
   constructor(
     private quizAttemptRepository: IQuizAttemptRepository,
     private quizConfigRepository: IQuizConfigRepository,
   ) {}
 
+  /**
+   * Execute for the GetQuizAnalytics entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @param instructorId - The unique identifier for the instructor.
+   * @param page - The page information.
+   * @param limit - The limit information.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     courseId: string,
     instructorId: string,

@@ -12,6 +12,7 @@ import { EnrollmentResponseDto } from '../dtos/EnrollmentResponseDto';
 import { UpdateLessonProgressRequestDto } from '../dtos/UpdateLessonProgressRequestDto';
 import logger from '../../../../shared/utils/Logger';
 
+/** Executes the business logic for update lesson progress. */
 export class UpdateLessonProgressUseCase
   implements IUpdateLessonProgressUseCase
 {
@@ -23,6 +24,14 @@ export class UpdateLessonProgressUseCase
     private quizConfigRepo?: IQuizConfigRepository,
   ) {}
 
+  /**
+   * Execute for the UpdateLessonProgress entity.
+   *
+   * @param enrollmentId - The unique identifier for the enrollment.
+   * @param lessonId - The unique identifier for the lesson.
+   * @param progressData - The progress data information.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     enrollmentId: string,
     lessonId: string,
@@ -85,7 +94,6 @@ export class UpdateLessonProgressUseCase
     const allLessonsCompleted =
       totalLessonsInCourse > 0 && completedLessons >= totalLessonsInCourse;
 
-    // Check if course has an active quiz enabled
     const quizConfig = this.quizConfigRepo
       ? await this.quizConfigRepo.findActiveByCourseId(
           updatedEnrollment.courseId,

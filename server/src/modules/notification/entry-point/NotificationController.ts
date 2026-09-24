@@ -8,6 +8,7 @@ import { NotificationPaginationSchema } from './validations/NotificationValidati
 import { AuthenticatedRequest } from '../../../shared/types/AuthenticatedRequestType';
 import { ApiResponseHelper } from '../../../shared/utils/ApiResponseHelper';
 
+/** Handles HTTP requests for notification operations. */
 export class NotificationController {
   constructor(
     private _getUserNotificationsUseCase: IGetUserNotificationsUseCase,
@@ -17,6 +18,12 @@ export class NotificationController {
     private _createNotificationUseCase: ICreateNotificationUseCase,
   ) {}
 
+  /**
+   * Get user notifications for the Notification entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getUserNotifications = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const userId = authenticatedReq.user.id;
@@ -51,6 +58,12 @@ export class NotificationController {
     });
   };
 
+  /**
+   * Mark as read for the Notification entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   markAsRead = async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
     const notification = await this._markNotificationAsReadUseCase.execute(id);
@@ -61,6 +74,12 @@ export class NotificationController {
     ApiResponseHelper.success(res, 'Notification marked as read', notification);
   };
 
+  /**
+   * Mark all as read for the Notification entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   markAllAsRead = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const userId = authenticatedReq.user.id;

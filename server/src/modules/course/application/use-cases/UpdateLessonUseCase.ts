@@ -7,10 +7,7 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
-/**
- * Use case for updating lesson information.
- * Handles the business logic for updating lesson details, including validation of ownership through module and course.
- */
+/** Executes the business logic for update lesson. */
 export class UpdateLessonUseCase implements IUpdateLessonUseCase {
   /**
    * Constructs a new UpdateLessonUseCase instance.
@@ -25,14 +22,11 @@ export class UpdateLessonUseCase implements IUpdateLessonUseCase {
   ) {}
 
   /**
-   * Executes the lesson update logic.
-   * Validates the lesson exists, the module exists, and the instructor owns the course, then updates the lesson.
-   * Also validates ownership of the new module if moduleId is being changed.
-   * @param lessonId - The ID of the lesson to update.
-   * @param instructorId - The ID of the instructor making the update.
-   * @param updates - The partial lesson data to update.
-   * @returns A promise that resolves when the update is complete.
-   * @throws HttpError with appropriate status code if validation fails or access is denied.
+   * Execute for the UpdateLesson entity.
+   *
+   * @param lessonId - The unique identifier for the lesson.
+   * @param instructorId - The unique identifier for the instructor.
+   * @param updates - The updates information.
    */
   async execute(
     lessonId: string,
@@ -89,7 +83,6 @@ export class UpdateLessonUseCase implements IUpdateLessonUseCase {
       }
     }
 
-    // Update the lesson with the provided data
     await this._lessonRepo.updateLessonById(lessonId, updates);
   }
 }

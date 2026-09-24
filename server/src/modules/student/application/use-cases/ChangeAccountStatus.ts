@@ -3,10 +3,7 @@ import { IChangeStudentStatusUseCase } from '../interfaces/IChangeStudentStatusU
 import { UserAccountStatus } from '../../../../shared/enums/UserAccountStatus';
 import { SocketService } from '../../../../shared/services/socket/SocketService';
 
-/**
- * Use case for changing a student's account status.
- * Handles activation or blocking of student accounts.
- */
+/** Executes the business logic for change student status. */
 export class ChangeStudentStatusUseCase implements IChangeStudentStatusUseCase {
   /**
    * Constructs the ChangeStudentStatusUseCase.
@@ -15,12 +12,10 @@ export class ChangeStudentStatusUseCase implements IChangeStudentStatusUseCase {
   constructor(private _studentRepo: IStudentRepository) {}
 
   /**
-   * Executes the status change for a student.
-   * Updates the student's account status to active or blocked.
-   * If blocked, notifies the student in real-time via socket.
-   * @param id - The ID of the student.
-   * @param status - The new status ('active' or 'blocked').
-   * @throws Error if the status change fails.
+   * Execute for the ChangeStudentStatus entity.
+   *
+   * @param id - The unique identifier for the id.
+   * @param status - The status information.
    */
   async execute(id: string, status: UserAccountStatus): Promise<void> {
     await this._studentRepo.changeStatus(id, status);

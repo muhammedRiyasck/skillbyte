@@ -7,7 +7,14 @@ export type SocketUser = JwtPayload & {
   role?: string;
 };
 
+/** Handles socket auth middleware functionality. */
 export class SocketAuthMiddleware {
+  /**
+   * Authenticate for the SocketAuthMiddleware entity.
+   *
+   * @param socket - The socket information.
+   * @param next - The next middleware function.
+   */
   static authenticate(socket: Socket, next: (err?: Error) => void): void {
     const token = SocketAuthMiddleware.getHandshakeToken(socket);
 

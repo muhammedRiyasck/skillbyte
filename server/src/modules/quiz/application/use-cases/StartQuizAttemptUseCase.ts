@@ -21,6 +21,7 @@ function shuffleArray<T>(arr: T[]): T[] {
   return arr;
 }
 
+/** Executes the business logic for start quiz attempt. */
 export class StartQuizAttemptUseCase implements IStartQuizAttemptUseCase {
   constructor(
     private quizAttemptRepository: IQuizAttemptRepository,
@@ -30,6 +31,13 @@ export class StartQuizAttemptUseCase implements IStartQuizAttemptUseCase {
     private courseRepo: ICourseRepository,
   ) {}
 
+  /**
+   * Execute for the StartQuizAttempt entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @param userId - The unique identifier for the user.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     courseId: string,
     userId: string,
@@ -72,7 +80,6 @@ export class StartQuizAttemptUseCase implements IStartQuizAttemptUseCase {
         // Reuse the existing in-progress attempt
         return QuizAttemptMapper.toDto(latestAttempt);
       } else {
-        // Delete the corrupted attempt so a fresh one can be generated
         await this.quizAttemptRepository.deleteAttemptsByCourseAndUser(
           courseId,
           userId,
@@ -99,14 +106,12 @@ export class StartQuizAttemptUseCase implements IStartQuizAttemptUseCase {
       ? config.cachedQuestions.slice(startIndex, endIndex)
       : [];
 
-    // Check if the slice we got is valid and has enough questions
     const hasEnoughQuestions = questionsToUse.length === config.questionCount;
     const hasCorruptedSlice = questionsToUse.some(
       (q: { questionId?: string } | undefined) => !q?.questionId,
     );
 
     if (!hasEnoughQuestions || hasCorruptedSlice) {
-      // Fetch course title for better AI context
       const course = await this.courseRepo.findById(courseId);
       const courseTitle = course?.title || `Course ${courseId}`;
 

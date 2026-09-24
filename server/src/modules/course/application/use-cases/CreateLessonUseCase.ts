@@ -11,10 +11,7 @@ import { COURSE_EVENTS } from '../../../../shared/services/event-bus/CourseEvent
 import { LessonMapper } from '../mappers/LessonMapper';
 import { CreateLessonDto, LessonResponseDto } from '../dtos/LessonDtos';
 
-/**
- * Use case for creating a new lesson.
- * Handles validation of module and course ownership, then creates and saves the lesson.
- */
+/** Executes the business logic for create lesson. */
 export class CreateLessonUseCase implements ICreateLessonUseCase {
   /**
    * Constructs a new CreateLessonUseCase instance.
@@ -29,14 +26,16 @@ export class CreateLessonUseCase implements ICreateLessonUseCase {
   ) {}
 
   /**
-   * Executes the lesson creation logic.
-   * Maps the raw DTO to a domain entity, validates module/course ownership, and saves.
-   * @param dto - Raw lesson creation DTO from the controller.
-   * @param instructorId - The authenticated instructor's ID.
-   * @returns A promise that resolves to the created LessonResponseDto.
-   * @throws HttpError with appropriate status code if validation fails.
+   * Execute for the CreateLesson entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @param instructorId - The unique identifier for the instructor.
+   * @returns The standardized HTTP response.
    */
-  async execute(dto: CreateLessonDto, instructorId: string): Promise<LessonResponseDto> {
+  async execute(
+    dto: CreateLessonDto,
+    instructorId: string,
+  ): Promise<LessonResponseDto> {
     const lessonEntity = LessonMapper.toCreateEntity(dto, instructorId);
 
     const module = await this._moduleRepo.findById(lessonEntity.moduleId);

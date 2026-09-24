@@ -4,9 +4,17 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { Review } from '../../domain/entities/Review';
 
+/** Executes the business logic for reply to review. */
 export class ReplyToReviewUseCase implements IReplyToReviewUseCase {
   constructor(private reviewRepository: IReviewRepository) {}
 
+  /**
+   * Execute for the ReplyToReview entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   * @param reviewId - The unique identifier for the review.
+   * @param reply - The reply information.
+   */
   async execute(
     instructorId: string,
     reviewId: string,

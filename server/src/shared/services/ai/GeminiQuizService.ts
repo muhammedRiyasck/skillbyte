@@ -16,6 +16,7 @@ import {
   QUIZ_GENERATION_MIN_PADDING,
 } from '../../constants/QuizConstants';
 
+/** Handles gemini quiz service functionality. */
 export class GeminiQuizService implements IAIQuizService {
   private genAIInstances: GoogleGenerativeAI[] = [];
   private currentKeyIndex: number = 0;
@@ -56,6 +57,12 @@ export class GeminiQuizService implements IAIQuizService {
     return instance;
   }
 
+  /**
+   * Generate questions for the GeminiQuizService entity.
+   *
+   * @param input - The input information.
+   * @returns The result of the operation.
+   */
   async generateQuestions(
     input: IGenerateQuestionsInput,
   ): Promise<QuizQuestion[]> {
@@ -206,6 +213,12 @@ Return strictly JSON.`;
     };
   }
 
+  /**
+   * Generate feedback summary for the GeminiQuizService entity.
+   *
+   * @param input - The input information.
+   * @returns The result of the operation.
+   */
   async generateFeedbackSummary(
     input: import('./IAIQuizService').IGenerateFeedbackInput,
   ): Promise<string> {

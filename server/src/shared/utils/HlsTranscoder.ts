@@ -10,12 +10,14 @@ export interface TranscodeResult {
   resolutions: string[];
 }
 
+/** Handles hls transcoder functionality. */
 export class HlsTranscoder {
   /**
-   * Transcodes an MP4 video into an HLS stream with multiple resolutions.
-   * Generates: master.m3u8, 1080p.m3u8, 720p.m3u8, 480p.m3u8, 144p.m3u8 + .ts chunks.
-   * Uses separate ffmpeg runs per quality to avoid complex multi-stream output issues.
-   * Only transcodes to resolutions equal to or below the original video's height.
+   * Transcode for the HlsTranscoder entity.
+   *
+   * @param inputPath - The input path information.
+   * @param outputFolder - The output folder information.
+   * @returns The result of the operation.
    */
   static async transcode(
     inputPath: string,

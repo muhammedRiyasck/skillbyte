@@ -1,3 +1,4 @@
+/** Handles report functionality. */
 export class Report {
   constructor(
     public reportedBy: string, // Student or Instructor ID

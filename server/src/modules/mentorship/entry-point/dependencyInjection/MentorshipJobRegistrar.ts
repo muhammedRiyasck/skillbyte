@@ -67,9 +67,8 @@ export function registerMentorshipJobs(): void {
       {},
       'mentorship-auto-complete-singleton',
     )
-    .catch(
-      (err: unknown) =>
-        logger.error('Failed to register mentorship auto-complete cron:', err),
+    .catch((err: unknown) =>
+      logger.error('Failed to register mentorship auto-complete cron:', err),
     );
 
   logger.info('Mentorship job processors registered');

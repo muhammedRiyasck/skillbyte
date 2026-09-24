@@ -15,7 +15,6 @@ import {
 
 const router = Router();
 
-// Create or get conversation
 router.post(
   '/conversations',
   authenticate,
@@ -24,7 +23,6 @@ router.post(
   asyncHandler(chatController.createConversation),
 );
 
-// Get all conversations for current user
 router.get(
   '/conversations',
   authenticate,
@@ -41,7 +39,6 @@ router.post(
   asyncHandler(chatController.sendMessage),
 );
 
-// Get messages for a conversation
 router.get(
   '/conversations/:conversationId/messages',
   authenticate,

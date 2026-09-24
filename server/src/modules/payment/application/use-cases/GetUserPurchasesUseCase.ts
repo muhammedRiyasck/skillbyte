@@ -4,9 +4,16 @@ import { GetUserPurchasesDto } from '../dtos/PaymentDto';
 import { PaymentResponseDto } from '../dtos/PaymentResponseDto';
 import { IGetUserPurchases } from '../interfaces/IGetUserPurchases';
 
+/** Executes the business logic for get user purchases. */
 export class GetUserPurchasesUseCase implements IGetUserPurchases {
   constructor(private paymentRepository: IPaymentReadRepository) {}
 
+  /**
+   * Execute for the GetUserPurchases entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     dto: GetUserPurchasesDto,
   ): Promise<{ data: PaymentResponseDto[]; totalCount: number }> {

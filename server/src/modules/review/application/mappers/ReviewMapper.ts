@@ -1,7 +1,16 @@
 import { Review } from '../../domain/entities/Review';
 import { ReviewResponseDto } from '../dtos/ReviewResponseDto';
 
+/** Handles review mapper functionality. */
 export class ReviewMapper {
+  /**
+   * To dto for the ReviewMapper entity.
+   *
+   * @param review - The review information.
+   * @param studentInfo - The student info information.
+   * @param isUpvotedByCurrentUser - The is upvoted by current user information.
+   * @returns The standardized HTTP response.
+   */
   static toDto(
     review: Review,
     studentInfo?: { name: string; profileImageUrl?: string },
@@ -27,6 +36,14 @@ export class ReviewMapper {
   }
 
   // Backward-compat alias
+  /**
+   * To response dto for the ReviewMapper entity.
+   *
+   * @param review - The review information.
+   * @param studentInfo - The student info information.
+   * @param isUpvotedByCurrentUser - The is upvoted by current user information.
+   * @returns The standardized HTTP response.
+   */
   static toResponseDto(
     review: Review,
     studentInfo?: { name: string; profileImageUrl?: string },

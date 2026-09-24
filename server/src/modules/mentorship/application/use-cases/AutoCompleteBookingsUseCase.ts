@@ -5,6 +5,7 @@ import { ICancelBookingUseCase } from '../interfaces/IBookingUseCases';
 import { CancelledBy } from '../../domain/entities/MentorshipBooking';
 import { IStudentRepository } from '../../../student/domain/IRepositories/IStudentRepository';
 
+/** Executes the business logic for auto complete bookings. */
 export class AutoCompleteBookingsUseCase
   implements IAutoCompleteBookingsUseCase
 {
@@ -14,6 +15,7 @@ export class AutoCompleteBookingsUseCase
     private studentRepo: IStudentRepository,
   ) {}
 
+  /** Execute for the AutoCompleteBookings entity. */
   async execute(): Promise<void> {
     await Promise.all([
       this._autoCompleteConfirmedSessions(),

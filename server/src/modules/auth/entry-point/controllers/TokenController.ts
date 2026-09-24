@@ -6,9 +6,16 @@ import logger from '../../../../shared/utils/Logger';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 
+/** Handles HTTP requests for token operations. */
 export class TokenController {
   constructor(private readonly _accessTokenUseCase: IAccessTokenUseCase) {}
 
+  /**
+   * Refresh token for the Token entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   refreshToken = (req: Request, res: Response): void => {
     logger.info(`Refresh token attempt from IP: ${req.ip}`);
     const refreshToken = req.cookies.refresh_token;

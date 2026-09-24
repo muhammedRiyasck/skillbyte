@@ -5,6 +5,7 @@ import { CourseModel, ICourseDoc } from '../models/CourseModel';
 import { CourseMapper } from '../mappers/CourseMapper';
 import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
+/** Manages database operations for course. */
 export class CourseRepository
   extends BaseRepository<Course, ICourseDoc>
   implements ICourseRepository
@@ -13,10 +14,22 @@ export class CourseRepository
     super(CourseModel);
   }
 
+  /**
+   * To entity for the Course entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   toEntity(doc: ICourseDoc): Course {
     return CourseMapper.toEntity(doc);
   }
 
+  /**
+   * Find published courses for the Course entity.
+   *
+   * @param filters - The filters information.
+   * @returns The result of the operation.
+   */
   async findPublishedCourses(filters: {
     search?: string;
     category?: string;
@@ -39,6 +52,12 @@ export class CourseRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  /**
+   * Find by ids for the Course entity.
+   *
+   * @param ids - The unique identifier for the ids.
+   * @returns The result of the operation.
+   */
   async findByIds(ids: string[]): Promise<Course[]> {
     if (!ids.length) return [];
 
@@ -49,6 +68,12 @@ export class CourseRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  /**
+   * Find all for admin for the Course entity.
+   *
+   * @param filters - The filters information.
+   * @returns The result of the operation.
+   */
   async findAllForAdmin(filters: {
     instructorId?: string;
     status?: string;
@@ -81,6 +106,12 @@ export class CourseRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  /**
+   * Update base info for the Course entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @param updatedFields - The updated fields information.
+   */
   async updateBaseInfo(
     courseId: string,
     updatedFields: Partial<Course>,
@@ -88,14 +119,31 @@ export class CourseRepository
     await this.model.findByIdAndUpdate(courseId, updatedFields, { new: true });
   }
 
+  /**
+   * Update status for the Course entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @param status - The status information.
+   */
   async updateStatus(courseId: string, status: CourseStatus): Promise<void> {
     await this.model.findByIdAndUpdate(courseId, { status });
   }
 
+  /**
+   * Block course for the Course entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @param isBlocked - The is blocked information.
+   */
   async blockCourse(courseId: string, isBlocked: boolean): Promise<void> {
     await this.model.findByIdAndUpdate(courseId, { isBlocked });
   }
 
+  /**
+   * Get categories for the Course entity.
+   *
+   * @returns The result of the operation.
+   */
   async getCategories(): Promise<string[]> {
     const categories = await this.model.distinct('category');
     return categories.filter((c): c is string => typeof c === 'string');

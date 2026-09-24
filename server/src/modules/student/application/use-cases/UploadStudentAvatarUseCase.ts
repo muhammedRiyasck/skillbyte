@@ -3,12 +3,20 @@ import { IStorageService } from '../../../../shared/services/file-upload/interfa
 import { IUploadStudentAvatarUseCase } from '../interfaces/IUploadStudentAvatarUseCase';
 import logger from '../../../../shared/utils/Logger';
 
+/** Executes the business logic for upload student avatar. */
 export class UploadStudentAvatarUseCase implements IUploadStudentAvatarUseCase {
   constructor(
     private readonly _studentRepo: IStudentRepository,
     private readonly _storageService: IStorageService,
   ) {}
 
+  /**
+   * Execute for the UploadStudentAvatar entity.
+   *
+   * @param studentId - The unique identifier for the student.
+   * @param filePath - The file path information.
+   * @returns The result of the operation.
+   */
   async execute(studentId: string, filePath: string): Promise<string> {
     const student = await this._studentRepo.findById(studentId);
     if (student?.profilePictureUrl) {

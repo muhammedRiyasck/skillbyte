@@ -6,6 +6,7 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import logger from '../../../../shared/utils/Logger';
 
+/** Executes the business logic for remove instructor avatar. */
 export class RemoveInstructorAvatarUseCase
   implements IRemoveInstructorAvatarUseCase
 {
@@ -14,6 +15,11 @@ export class RemoveInstructorAvatarUseCase
     private readonly _storageService: IStorageService,
   ) {}
 
+  /**
+   * Execute for the RemoveInstructorAvatar entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   */
   async execute(instructorId: string): Promise<void> {
     const instructor = await this._instructorRepo.findById(instructorId);
     if (!instructor) {

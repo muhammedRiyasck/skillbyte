@@ -5,7 +5,18 @@ import { Course } from '../../../course/domain/entities/Course';
 import { Instructor } from '../../../instructor/domain/entities/Instructor';
 import { Student } from '../../../student/domain/entities/Student';
 
+/** Handles certificate mapper functionality. */
 export class CertificateMapper {
+  /**
+   * To dto for the CertificateMapper entity.
+   *
+   * @param certificate - The certificate information.
+   * @param student - The student information.
+   * @param course - The course information.
+   * @param enrollment - The enrollment information.
+   * @param instructor - The instructor information.
+   * @returns The standardized HTTP response.
+   */
   static toDto(
     certificate: ICertificate,
     student: Student,

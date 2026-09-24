@@ -4,13 +4,26 @@ import { MessageModel } from '../models/MessageModel';
 
 import { ChatDocumentMapper } from '../mappers/ChatDocumentMapper';
 
+/** Manages database operations for message write. */
 export class MessageWriteRepository implements IMessageWriteRepository {
+  /**
+   * Save for the MessageWrite entity.
+   *
+   * @param message - The message information.
+   * @returns The result of the operation.
+   */
   async save(message: IMessage): Promise<IMessage> {
     const doc = new MessageModel(message);
     const saved = await doc.save();
     return ChatDocumentMapper.toMessageEntity(saved);
   }
 
+  /**
+   * Mark all as read for the MessageWrite entity.
+   *
+   * @param conversationId - The unique identifier for the conversation.
+   * @param userId - The unique identifier for the user.
+   */
   async markAllAsRead(conversationId: string, userId: string): Promise<void> {
     await MessageModel.updateMany(
       {

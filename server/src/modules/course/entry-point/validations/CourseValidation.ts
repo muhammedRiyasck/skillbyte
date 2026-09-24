@@ -4,6 +4,10 @@ import { CourseLevel } from '../../../../shared/enums/CourseLevel';
 import { CourseDuration } from '../../../../shared/enums/CourseDuration';
 import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
+/**
+ * Base validation schema for creating a new course.
+ * Defines the required fields and constraints for a course draft or published course.
+ */
 export const CreateBaseSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   thumbnail: z.string().nullable().optional(),

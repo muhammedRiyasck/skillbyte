@@ -4,6 +4,7 @@ import { IQuestionGradingStrategy } from '../strategies/IQuestionGradingStrategy
 import { McqGradingStrategy } from '../strategies/McqGradingStrategy';
 import { TrueFalseGradingStrategy } from '../strategies/TrueFalseGradingStrategy';
 
+/** Handles quiz grader functionality. */
 export class QuizGrader {
   private static strategies: Map<string, IQuestionGradingStrategy> = new Map([
     ['mcq', new McqGradingStrategy()],
@@ -11,7 +12,10 @@ export class QuizGrader {
   ]);
 
   /**
-   * Registers a new grading strategy for a question type (enables OCP extension).
+   * Register strategy for the QuizGrader entity.
+   *
+   * @param type - The type information.
+   * @param strategy - The strategy information.
    */
   static registerStrategy(
     type: string,
@@ -21,11 +25,11 @@ export class QuizGrader {
   }
 
   /**
-   * Grades a single student answer against the corresponding quiz question.
+   * Grade answer for the QuizGrader entity.
    *
-   * @param question The quiz question object containing correct answer details
-   * @param answer The student's submitted answer
-   * @returns true if the answer is correct, false otherwise
+   * @param question - The question information.
+   * @param answer - The answer information.
+   * @returns The result of the operation.
    */
   static gradeAnswer(question: QuizQuestion, answer: StudentAnswer): boolean {
     if (question.type !== answer.type) return false;

@@ -12,6 +12,7 @@ export enum CancelledBy {
   SYSTEM = 'system',
 }
 
+/** Handles mentorship booking functionality. */
 export class MentorshipBooking {
   constructor(
     public slotId: string,

@@ -7,6 +7,7 @@ import { eventBus } from '../../../../../shared/services/event-bus/EventBus';
 import { WITHDRAWAL_EVENTS } from '../../../../../shared/services/event-bus/WithdrawalEvents';
 import logger from '../../../../../shared/utils/Logger';
 
+/** Handles transfer reversed handler functionality. */
 export class TransferReversedHandler implements IStripeEventHandler {
   readonly eventType = 'transfer.reversed';
 
@@ -15,6 +16,11 @@ export class TransferReversedHandler implements IStripeEventHandler {
     private instructorRepository: IInstructorRepository,
   ) {}
 
+  /**
+   * Handle for the TransferReversedHandler entity.
+   *
+   * @param event - The event information.
+   */
   async handle(event: Stripe.Event): Promise<void> {
     const transfer = event.data.object as Stripe.Transfer;
 

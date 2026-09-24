@@ -5,6 +5,7 @@ import {
   PaymentInitiationResponse,
 } from './interfaces/IPaymentProvider';
 
+/** Handles stripe provider functionality. */
 export class StripeProvider implements IStripeProvider, IPaymentProvider {
   private stripe: Stripe;
 
@@ -14,6 +15,14 @@ export class StripeProvider implements IStripeProvider, IPaymentProvider {
     });
   }
 
+  /**
+   * Initiate for the StripeProvider entity.
+   *
+   * @param amount - The amount information.
+   * @param currency - The currency information.
+   * @param metadata - The metadata information.
+   * @returns The standardized HTTP response.
+   */
   async initiate(
     amount: number,
     currency: string,
@@ -38,6 +47,12 @@ export class StripeProvider implements IStripeProvider, IPaymentProvider {
     };
   }
 
+  /**
+   * Normalize amount for the StripeProvider entity.
+   *
+   * @param amount - The amount information.
+   * @param currency - The currency information.
+   */
   normalizeAmount(amount: number, currency: string) {
     return {
       chargeAmount: amount,
@@ -45,10 +60,24 @@ export class StripeProvider implements IStripeProvider, IPaymentProvider {
     };
   }
 
+  /**
+   * Map provider transaction id for the StripeProvider entity.
+   *
+   * @param responseId - The unique identifier for the response.
+   * @returns The result of the operation.
+   */
   mapProviderTransactionId(responseId: string): Record<string, string> {
     return { stripePaymentIntentId: responseId };
   }
 
+  /**
+   * Construct event for the StripeProvider entity.
+   *
+   * @param payload - The payload information.
+   * @param header - The header information.
+   * @param secret - The secret information.
+   * @returns The result of the operation.
+   */
   constructEvent(
     payload: string | Buffer,
     header: string,
@@ -57,6 +86,12 @@ export class StripeProvider implements IStripeProvider, IPaymentProvider {
     return this.stripe.webhooks.constructEvent(payload, header, secret);
   }
 
+  /**
+   * Refund for the StripeProvider entity.
+   *
+   * @param paymentIntentId - The unique identifier for the paymentIntent.
+   * @returns The result of the operation.
+   */
   async refund(paymentIntentId: string): Promise<boolean> {
     try {
       await this.stripe.refunds.create({
@@ -69,6 +104,12 @@ export class StripeProvider implements IStripeProvider, IPaymentProvider {
     }
   }
 
+  /**
+   * Create account for the StripeProvider entity.
+   *
+   * @param email - The email information.
+   * @returns The result of the operation.
+   */
   async createAccount(email: string): Promise<Stripe.Account> {
     return this.stripe.accounts.create({
       type: 'express',
@@ -80,6 +121,14 @@ export class StripeProvider implements IStripeProvider, IPaymentProvider {
     });
   }
 
+  /**
+   * Create account link for the StripeProvider entity.
+   *
+   * @param stripeAccountId - The unique identifier for the stripeAccount.
+   * @param returnUrl - The return url information.
+   * @param refreshUrl - The refresh url information.
+   * @returns The result of the operation.
+   */
   async createAccountLink(
     stripeAccountId: string,
     returnUrl: string,
@@ -93,6 +142,14 @@ export class StripeProvider implements IStripeProvider, IPaymentProvider {
     });
   }
 
+  /**
+   * Payout for the StripeProvider entity.
+   *
+   * @param amount - The amount information.
+   * @param currency - The currency information.
+   * @param destination - The destination information.
+   * @returns The result of the operation.
+   */
   async payout(
     amount: number,
     currency: string,
@@ -107,6 +164,12 @@ export class StripeProvider implements IStripeProvider, IPaymentProvider {
     return transfer.id;
   }
 
+  /**
+   * Validate destination for the StripeProvider entity.
+   *
+   * @param destination - The destination information.
+   * @returns The result of the operation.
+   */
   async validateDestination(
     destination: string,
   ): Promise<{ isValid: boolean; reason?: string }> {
@@ -131,18 +194,41 @@ export class StripeProvider implements IStripeProvider, IPaymentProvider {
     }
   }
 
+  /**
+   * Retrieve account for the StripeProvider entity.
+   *
+   * @param accountId - The unique identifier for the account.
+   * @returns The result of the operation.
+   */
   async retrieveAccount(accountId: string): Promise<Stripe.Account> {
     return this.stripe.accounts.retrieve(accountId);
   }
 
+  /**
+   * Create login link for the StripeProvider entity.
+   *
+   * @param accountId - The unique identifier for the account.
+   * @returns The result of the operation.
+   */
   createLoginLink(accountId: string): Promise<Stripe.LoginLink> {
     return this.stripe.accounts.createLoginLink(accountId);
   }
 
+  /**
+   * Get platform balance for the StripeProvider entity.
+   *
+   * @returns The result of the operation.
+   */
   async getPlatformBalance(): Promise<Stripe.Balance> {
     return this.stripe.balance.retrieve();
   }
 
+  /**
+   * Cancel payment intent for the StripeProvider entity.
+   *
+   * @param paymentIntentId - The unique identifier for the paymentIntent.
+   * @returns The result of the operation.
+   */
   async cancelPaymentIntent(paymentIntentId: string): Promise<boolean> {
     try {
       await this.stripe.paymentIntents.cancel(paymentIntentId);
@@ -155,6 +241,12 @@ export class StripeProvider implements IStripeProvider, IPaymentProvider {
     }
   }
 
+  /**
+   * Retrieve payment intent client secret for the StripeProvider entity.
+   *
+   * @param paymentIntentId - The unique identifier for the paymentIntent.
+   * @returns The result of the operation.
+   */
   async retrievePaymentIntentClientSecret(
     paymentIntentId: string,
   ): Promise<string | null> {
@@ -170,6 +262,13 @@ export class StripeProvider implements IStripeProvider, IPaymentProvider {
     }
   }
 
+  /**
+   * Validate balance for the StripeProvider entity.
+   *
+   * @param amount - The amount information.
+   * @param currency - The currency information.
+   * @returns The result of the operation.
+   */
   async validateBalance(
     amount: number,
     currency: string,

@@ -7,10 +7,7 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
-/**
- * Use case for deleting a lesson.
- * Handles the business logic for lesson deletion, ensuring the lesson exists and the instructor owns the associated course.
- */
+/** Executes the business logic for delete lesson. */
 export class DeleteLessonUseCase implements IDeleteLessonUseCase {
   /**
    * Constructs a new DeleteLessonUseCase instance.
@@ -26,11 +23,10 @@ export class DeleteLessonUseCase implements IDeleteLessonUseCase {
   ) {}
 
   /**
-   * Executes the lesson deletion logic.
-   * Validates the lesson exists, the module exists, and the instructor owns the course before deleting the lesson.
-   * @param lessonId - The ID of the lesson to delete.
-   * @param instructorId - The ID of the instructor attempting the deletion.
-   * @throws HttpError with appropriate status code if validation fails.
+   * Execute for the DeleteLesson entity.
+   *
+   * @param lessonId - The unique identifier for the lesson.
+   * @param instructorId - The unique identifier for the instructor.
    */
   async execute(lessonId: string, instructorId: string): Promise<void> {
     // Find the lesson to ensure it exists
@@ -60,7 +56,6 @@ export class DeleteLessonUseCase implements IDeleteLessonUseCase {
       );
     }
 
-    // Delete the lesson record from the database immediately
     await this._lessonRepo.deleteById(lessonId);
 
     // Fire-and-forget cloud cleanup — does NOT block the HTTP response

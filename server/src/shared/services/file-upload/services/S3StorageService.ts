@@ -16,6 +16,7 @@ import { HttpError } from '../../../types/HttpError';
 import { HttpStatusCode } from '../../../enums/HttpStatusCodes';
 import logger from '../../../utils/Logger';
 
+/** Handles s3 storage service functionality. */
 export class S3StorageService implements IStorageService {
   private bucket: string;
   private endpoint: string;
@@ -25,6 +26,13 @@ export class S3StorageService implements IStorageService {
     this.endpoint = process.env.B2_S3_ENDPOINT!;
   }
 
+  /**
+   * Upload for the S3StorageService entity.
+   *
+   * @param filePath - The file path information.
+   * @param options - The options information.
+   * @returns The result of the operation.
+   */
   async upload(filePath: string, options: UploadOptions): Promise<string> {
     try {
       const fileContent = await fs.readFile(filePath);
@@ -63,8 +71,12 @@ export class S3StorageService implements IStorageService {
   }
 
   /**
-   * Upload a Buffer directly to S3 without touching the local filesystem.
-   * Uses the original filename to derive the extension and content type.
+   * Upload buffer for the S3StorageService entity.
+   *
+   * @param buffer - The buffer information.
+   * @param originalName - The original name information.
+   * @param options - The options information.
+   * @returns The result of the operation.
    */
   async uploadBuffer(
     buffer: Buffer,
@@ -116,6 +128,11 @@ export class S3StorageService implements IStorageService {
     }
   }
 
+  /**
+   * Delete for the S3StorageService entity.
+   *
+   * @param key - The key information.
+   */
   async delete(key: string): Promise<void> {
     if (!key) return;
     try {
@@ -131,6 +148,11 @@ export class S3StorageService implements IStorageService {
     }
   }
 
+  /**
+   * Delete folder for the S3StorageService entity.
+   *
+   * @param prefix - The prefix information.
+   */
   async deleteFolder(prefix: string): Promise<void> {
     if (!prefix) return;
     try {
@@ -171,6 +193,12 @@ export class S3StorageService implements IStorageService {
     }
   }
 
+  /**
+   * Download for the S3StorageService entity.
+   *
+   * @param key - The key information.
+   * @param destinationPath - The destination path information.
+   */
   async download(key: string, destinationPath: string): Promise<void> {
     try {
       const command = new GetObjectCommand({
@@ -197,6 +225,13 @@ export class S3StorageService implements IStorageService {
     }
   }
 
+  /**
+   * Get signed url for the S3StorageService entity.
+   *
+   * @param key - The key information.
+   * @param expiresIn - The expires in information.
+   * @returns The result of the operation.
+   */
   async getSignedUrl(key: string, expiresIn: number = 3600): Promise<string> {
     try {
       const command = new GetObjectCommand({
@@ -213,6 +248,12 @@ export class S3StorageService implements IStorageService {
     }
   }
 
+  /**
+   * File exists for the S3StorageService entity.
+   *
+   * @param key - The key information.
+   * @returns The result of the operation.
+   */
   async fileExists(key: string): Promise<boolean> {
     if (!key) return false;
     try {
@@ -232,6 +273,13 @@ export class S3StorageService implements IStorageService {
     }
   }
 
+  /**
+   * Generate upload url for the S3StorageService entity.
+   *
+   * @param fileName - The file name information.
+   * @param contentType - The content type information.
+   * @returns The result of the operation.
+   */
   async generateUploadUrl(
     fileName: string,
     contentType: string = 'video',
@@ -256,6 +304,12 @@ export class S3StorageService implements IStorageService {
     }
   }
 
+  /**
+   * Get identifier from url for the S3StorageService entity.
+   *
+   * @param url - The url information.
+   * @returns The result of the operation.
+   */
   getIdentifierFromUrl(url: string): string {
     try {
       const urlObj = new URL(url);

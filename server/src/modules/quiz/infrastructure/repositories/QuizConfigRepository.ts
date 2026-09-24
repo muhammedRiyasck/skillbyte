@@ -4,6 +4,7 @@ import { IQuizConfig } from '../../domain/entities/QuizConfig';
 import { QuizConfigModel, IQuizConfigDoc } from '../models/QuizConfigModel';
 import { Model } from 'mongoose';
 
+/** Manages database operations for quiz config. */
 export class QuizConfigRepository
   extends BaseRepository<IQuizConfig, IQuizConfigDoc>
   implements IQuizConfigRepository
@@ -12,15 +13,34 @@ export class QuizConfigRepository
     super(QuizConfigModel as Model<IQuizConfigDoc>);
   }
 
+  /**
+   * To entity for the QuizConfig entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   toEntity(doc: IQuizConfigDoc): IQuizConfig {
     return this.mapToEntity(doc as unknown as Record<string, unknown>);
   }
 
+  /**
+   * Create for the QuizConfig entity.
+   *
+   * @param config - The config information.
+   * @returns The result of the operation.
+   */
   async create(config: IQuizConfig): Promise<IQuizConfig> {
     const createdConfig = await super.save(config);
     return createdConfig;
   }
 
+  /**
+   * Update for the QuizConfig entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @param updates - The updates information.
+   * @returns The result of the operation.
+   */
   async update(
     courseId: string,
     updates: Partial<IQuizConfig>,
@@ -34,6 +54,12 @@ export class QuizConfigRepository
       : null;
   }
 
+  /**
+   * Find by course id for the QuizConfig entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @returns The result of the operation.
+   */
   async findByCourseId(courseId: string): Promise<IQuizConfig | null> {
     const config = await this.model.findOne({ courseId }).lean();
     return config
@@ -41,6 +67,12 @@ export class QuizConfigRepository
       : null;
   }
 
+  /**
+   * Find active by course id for the QuizConfig entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @returns The result of the operation.
+   */
   async findActiveByCourseId(courseId: string): Promise<IQuizConfig | null> {
     const config = await this.model
       .findOne({ courseId, isEnabled: true })

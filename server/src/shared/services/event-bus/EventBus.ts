@@ -51,6 +51,7 @@ export interface AppEvents {
   [INSTRUCTOR_EVENTS.RESUME_UPLOAD_REQUESTED]: ResumeUploadRequestedEvent;
 }
 
+/** Handles event bus functionality. */
 export class EventBus {
   private static instance: EventBus;
   private emitter: EventEmitter;
@@ -60,6 +61,11 @@ export class EventBus {
     this.emitter.setMaxListeners(20);
   }
 
+  /**
+   * Get instance for the EventBus entity.
+   *
+   * @returns The result of the operation.
+   */
   public static getInstance(): EventBus {
     if (!EventBus.instance) {
       EventBus.instance = new EventBus();
@@ -67,6 +73,13 @@ export class EventBus {
     return EventBus.instance as EventBus;
   }
 
+  /**
+   * Emit for the EventBus entity.
+   *
+   * @param event - The event information.
+   * @param payload - The payload information.
+   * @returns The result of the operation.
+   */
   public emit<K extends keyof AppEvents>(
     event: K,
     payload: AppEvents[K],
@@ -74,6 +87,13 @@ export class EventBus {
     return this.emitter.emit(event as string, payload);
   }
 
+  /**
+   * On for the EventBus entity.
+   *
+   * @param event - The event information.
+   * @param listener - The listener information.
+   * @returns The result of the operation.
+   */
   public on<K extends keyof AppEvents>(
     event: K,
     listener: (payload: AppEvents[K]) => void,
@@ -82,6 +102,13 @@ export class EventBus {
     return this;
   }
 
+  /**
+   * Off for the EventBus entity.
+   *
+   * @param event - The event information.
+   * @param listener - The listener information.
+   * @returns The result of the operation.
+   */
   public off<K extends keyof AppEvents>(
     event: K,
     listener: (payload: AppEvents[K]) => void,
@@ -90,6 +117,13 @@ export class EventBus {
     return this;
   }
 
+  /**
+   * Once for the EventBus entity.
+   *
+   * @param event - The event information.
+   * @param listener - The listener information.
+   * @returns The result of the operation.
+   */
   public once<K extends keyof AppEvents>(
     event: K,
     listener: (payload: AppEvents[K]) => void,

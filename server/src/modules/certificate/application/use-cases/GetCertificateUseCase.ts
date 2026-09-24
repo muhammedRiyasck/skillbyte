@@ -9,6 +9,7 @@ import { CertificateResponseDto } from '../dtos/CertificateResponseDto';
 import { IGetCertificateUseCase } from '../interfaces/IGetCertificateUseCase';
 import { CertificateMapper } from '../mappers/CertificateMapper';
 
+/** Executes the business logic for get certificate. */
 export class GetCertificateUseCase implements IGetCertificateUseCase {
   constructor(
     private certificateRepo: ICertificateRepository,
@@ -18,6 +19,13 @@ export class GetCertificateUseCase implements IGetCertificateUseCase {
     private enrollmentReadRepo: IEnrollmentReadRepository,
   ) {}
 
+  /**
+   * Execute for the GetCertificate entity.
+   *
+   * @param certificateId - The unique identifier for the certificate.
+   * @param userId - The unique identifier for the user.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     certificateId: string,
     userId?: string,

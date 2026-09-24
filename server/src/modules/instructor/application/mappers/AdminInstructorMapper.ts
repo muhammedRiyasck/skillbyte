@@ -2,7 +2,13 @@ import { AdminInstructorPaginationRequestDto } from '../dtos/AdminInstructorRequ
 import { AdminInstructorFilter } from '../../../../shared/enums/AdminInstructorFilter';
 import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
 
+/** Handles admin instructor mapper functionality. */
 export class AdminInstructorMapper {
+  /**
+   * To get instructors filter for the AdminInstructorMapper entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   */
   static toGetInstructorsFilter(dto: AdminInstructorPaginationRequestDto) {
     let query: Record<string, unknown> = {};
     const status = dto.status;
@@ -39,6 +45,12 @@ export class AdminInstructorMapper {
     return query;
   }
 
+  /**
+   * To sort for the AdminInstructorMapper entity.
+   *
+   * @param sortParam - The sort param information.
+   * @returns The result of the operation.
+   */
   static toSort(sortParam: string | undefined): Record<string, 1 | -1> {
     let sort: Record<string, 1 | -1> = { createdAt: -1 };
     if (sortParam) {

@@ -7,6 +7,7 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import { StudentMapper } from '../mappers/StudentMapper';
 import { SocketService } from '../../../../shared/services/socket/SocketService';
 
+/** Manages database operations for student. */
 export class StudentRepository
   extends BaseRepository<Student, IStudent>
   implements IStudentRepository
@@ -15,16 +16,34 @@ export class StudentRepository
     super(StudentModel);
   }
 
+  /**
+   * To entity for the Student entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   toEntity(doc: IStudent): Student {
     return StudentMapper.toEntity(doc);
   }
 
+  /**
+   * Find by email for the Student entity.
+   *
+   * @param email - The email information.
+   * @returns The result of the operation.
+   */
   async findByEmail(email: string): Promise<Student | null> {
     const doc = await this.model.findOne({ email });
     if (!doc) return null;
     return this.toEntity(doc);
   }
 
+  /**
+   * Find by ids for the Student entity.
+   *
+   * @param ids - The unique identifier for the ids.
+   * @returns The result of the operation.
+   */
   async findByIds(ids: string[]): Promise<Student[]> {
     if (!ids.length) return [];
 
@@ -37,6 +56,13 @@ export class StudentRepository
     return docs.map((doc) => this.toEntity(doc));
   }
 
+  /**
+   * Find by id and update password for the Student entity.
+   *
+   * @param id - The unique identifier for the id.
+   * @param passwordHash - The password hash information.
+   * @returns The result of the operation.
+   */
   async findByIdAndUpdatePassword(
     id: string,
     passwordHash: string,
@@ -57,10 +83,22 @@ export class StudentRepository
     }
   }
 
+  /**
+   * Change status for the Student entity.
+   *
+   * @param id - The unique identifier for the id.
+   * @param status - The status information.
+   */
   async changeStatus(id: string, status: 'active' | 'blocked'): Promise<void> {
     await this.model.findByIdAndUpdate(id, { accountStatus: status });
   }
 
+  /**
+   * Update profile for the Student entity.
+   *
+   * @param id - The unique identifier for the id.
+   * @param updates - The updates information.
+   */
   async updateProfile(id: string, updates: Partial<Student>): Promise<void> {
     const doc: Record<string, unknown> = {};
     if (updates.name !== undefined) doc.name = updates.name;
@@ -86,6 +124,13 @@ export class StudentRepository
     await this.model.findByIdAndUpdate(id, { $set: doc });
   }
 
+  /**
+   * Record activity for the Student entity.
+   *
+   * @param id - The unique identifier for the id.
+   * @param xpEarned - The xp earned information.
+   * @returns The result of the operation.
+   */
   async recordActivity(id: string, xpEarned: number = 0): Promise<Student> {
     const updated = await this.model.findByIdAndUpdate(
       id,

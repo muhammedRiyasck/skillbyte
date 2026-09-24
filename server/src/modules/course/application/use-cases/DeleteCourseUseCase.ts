@@ -7,11 +7,7 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
-/**
- * Use case for deleting a course.
- * Handles the business logic for course deletion, including cascading deletes of modules and lessons.
- * Ensures only the course instructor can delete the course.
- */
+/** Executes the business logic for delete course. */
 export class DeleteCourseUseCase implements IDeleteCourseUseCase {
   /**
    * Constructs a new DeleteCourseUseCase instance.
@@ -27,11 +23,10 @@ export class DeleteCourseUseCase implements IDeleteCourseUseCase {
   ) {}
 
   /**
-   * Executes the course deletion logic.
-   * Validates the course exists and the instructor owns it, then deletes lessons, modules, and the course in cascade.
-   * @param courseId - The ID of the course to delete.
-   * @param instructorId - The ID of the instructor attempting the deletion.
-   * @throws HttpError with appropriate status code if validation fails.
+   * Execute for the DeleteCourse entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @param instructorId - The unique identifier for the instructor.
    */
   async execute(courseId: string, instructorId: string): Promise<void> {
     // Find the course to ensure it exists
@@ -57,13 +52,10 @@ export class DeleteCourseUseCase implements IDeleteCourseUseCase {
       .map((m) => m.moduleId)
       .filter((id): id is string => typeof id === 'string');
 
-    // Delete all lessons under the modules to avoid orphaned data
     await this._lessonRepo.deleteManyByModuleIds(moduleIds);
 
-    // Delete all modules associated with the course
     await this._moduleRepo.deleteManyByCourseId(courseId);
 
-    // Delete course thumbnail from cloud storage
     if (course.thumbnailUrl) {
       try {
         const thumbnailId = this._storageService.getIdentifierFromUrl(

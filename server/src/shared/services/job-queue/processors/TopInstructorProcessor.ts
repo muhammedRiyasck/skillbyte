@@ -4,6 +4,7 @@ import { QUEUE_NAMES, JOB_NAMES } from '../JobTypes';
 import logger from '../../../utils/Logger';
 import Queue from 'bull';
 
+/** Handles top instructor processor functionality. */
 export class TopInstructorProcessor {
   constructor(
     private refreshTopInstructorsUseCase: IRefreshTopInstructorsUseCase,

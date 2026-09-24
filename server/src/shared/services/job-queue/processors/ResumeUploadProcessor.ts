@@ -5,6 +5,7 @@ import { IInstructorRepository } from '../../../../modules/instructor/domain/IRe
 import logger from '../../../utils/Logger';
 import { IStorageService } from '../../file-upload/interfaces/IStorageService';
 
+/** Handles resume upload processor functionality. */
 export class ResumeUploadProcessor {
   constructor(
     private readonly _instructorRepo: IInstructorRepository,

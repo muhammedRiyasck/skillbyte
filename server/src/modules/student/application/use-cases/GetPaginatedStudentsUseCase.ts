@@ -6,10 +6,7 @@ import { StudentMapper } from '../mappers/StudentMapper';
 import { AdminStudentMapper } from '../mappers/AdminStudentMapper';
 import { AdminStudentPaginationRequestDto } from '../dtos/AdminStudentRequestDto';
 
-/**
- * Use case for retrieving paginated students with optional filters and sorting.
- * Handles the business logic for fetching students in a paginated manner, including validation of pagination parameters.
- */
+/** Executes the business logic for get paginated students. */
 export class GetPaginatedStudentsUseCase
   implements IGetPaginatedStudentsUseCase
 {
@@ -20,12 +17,12 @@ export class GetPaginatedStudentsUseCase
   constructor(private _studentRepo: IStudentRepository) {}
 
   /**
-   * Executes the paginated student retrieval logic.
-   * Validates and sanitizes pagination parameters, applies filters and sorting, and returns paginated results.
-   * @param query - Raw pagination/filter DTO from the controller.
-   * @param page - The page number to retrieve (defaults to 1 if invalid).
-   * @param limit - The number of items per page (defaults to 6, max 50).
-   * @returns A promise that resolves to a PaginatedResult containing the students and pagination metadata.
+   * Execute for the GetPaginatedStudents entity.
+   *
+   * @param query - The query information.
+   * @param page - The page information.
+   * @param limit - The limit information.
+   * @returns The standardized HTTP response.
    */
   async execute(
     query: AdminStudentPaginationRequestDto,
@@ -42,7 +39,6 @@ export class GetPaginatedStudentsUseCase
     const safeLimit =
       Number.isFinite(limit) && limit > 0 ? Math.min(limit, 50) : 6;
 
-    // Fetch paginated data from the repository
     const { data, total } = await this._studentRepo.paginatedList(
       filter,
       safePage,
@@ -53,7 +49,6 @@ export class GetPaginatedStudentsUseCase
     // Calculate total pages
     const totalPages = Math.ceil(total / safeLimit);
 
-    // Return the paginated result with metadata
     return {
       data: data.map((student) => StudentMapper.toResponseDto(student)),
       meta: {

@@ -13,9 +13,7 @@ import { AdminAccountStatus } from '../../../../shared/enums/AdminAccountStatus'
 import { LoginAdminResponseDto } from '../dtos/AdminResponseDto';
 import { AdminMapper } from '../mappers/AdminMapper';
 
-/**
- * Use case for handling admin login.
- */
+/** Executes the business logic for login admin. */
 export class LoginAdminUseCase implements ILoginAdminUseCase {
   /**
    * Constructs the LoginAdminUseCase with the required repository.
@@ -28,10 +26,10 @@ export class LoginAdminUseCase implements ILoginAdminUseCase {
   ) {}
 
   /**
-   * Executes the admin login logic.
-   * @param dto - The login data transfer object containing email and password.
-   * @returns A promise resolving to the admin entity, access token, and refresh token.
-   * @throws Error if credentials are invalid or account is blocked.
+   * Execute for the LoginAdmin entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @returns The standardized HTTP response.
    */
   async execute(dto: LoginAdminRequestDto): Promise<LoginAdminResponseDto> {
     const admin = await this._adminRepo.findByEmail(dto.email);

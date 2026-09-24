@@ -1,7 +1,14 @@
 import { IQuizAttempt } from '../../domain/entities/QuizAttempt';
 import { QuizAttemptResponseDto } from '../dtos/QuizAttemptResponseDto';
 
+/** Handles quiz attempt mapper functionality. */
 export class QuizAttemptMapper {
+  /**
+   * To dto for the QuizAttemptMapper entity.
+   *
+   * @param entity - The entity information.
+   * @returns The standardized HTTP response.
+   */
   static toDto(entity: IQuizAttempt): QuizAttemptResponseDto {
     return {
       attemptId: entity.attemptId!,

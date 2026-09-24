@@ -18,6 +18,7 @@ interface IUserRequest extends Request {
   };
 }
 
+/** Handles HTTP requests for quiz config operations. */
 export class QuizConfigController {
   constructor(
     private createQuizConfigUseCase: ICreateQuizConfigUseCase,
@@ -27,6 +28,12 @@ export class QuizConfigController {
     private resetStudentAttemptsUseCase: IResetStudentQuizAttemptsUseCase,
   ) {}
 
+  /**
+   * Create config for the QuizConfig entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   createConfig = async (req: Request, res: Response): Promise<void> => {
     const instructorId = (req as unknown as IUserRequest).user?.id;
     if (!instructorId) {
@@ -45,6 +52,12 @@ export class QuizConfigController {
     );
   };
 
+  /**
+   * Update config for the QuizConfig entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   updateConfig = async (req: Request, res: Response): Promise<void> => {
     const instructorId = (req as unknown as IUserRequest).user?.id;
     const { courseId } = req.params;
@@ -68,6 +81,12 @@ export class QuizConfigController {
     );
   };
 
+  /**
+   * Get config for the QuizConfig entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getConfig = async (req: Request, res: Response): Promise<void> => {
     const userId = (req as unknown as IUserRequest).user?.id;
     const role = (req as unknown as IUserRequest).user?.role;
@@ -93,6 +112,12 @@ export class QuizConfigController {
     );
   };
 
+  /**
+   * Get analytics for the QuizConfig entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getAnalytics = async (req: Request, res: Response): Promise<void> => {
     const instructorId = (req as unknown as IUserRequest).user?.id;
     const { courseId } = req.params;
@@ -113,6 +138,12 @@ export class QuizConfigController {
     ApiResponseHelper.success(res, 'Quiz analytics retrieved', analytics);
   };
 
+  /**
+   * Reset student attempts for the QuizConfig entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   resetStudentAttempts = async (req: Request, res: Response): Promise<void> => {
     const instructorId = (req as unknown as IUserRequest).user?.id;
     const { courseId, userId } = req.params;

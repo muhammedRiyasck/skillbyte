@@ -14,6 +14,7 @@ import { UserRole } from '../../../../shared/enums/UserRole';
 
 type ChatParticipantRole = UserRole.STUDENT | UserRole.INSTRUCTOR;
 
+/** Handles HTTP requests for chat operations. */
 export class ChatController {
   constructor(
     private createConversationUseCase: ICreateConversationUseCase,
@@ -23,6 +24,12 @@ export class ChatController {
     private markMessagesAsReadUseCase: IMarkMessagesAsReadUseCase,
   ) {}
 
+  /**
+   * Create conversation for the Chat entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   createConversation = async (req: Request, res: Response): Promise<void> => {
     const authenticatedUser = req as AuthenticatedRequest;
     // Security: studentId is always derived from the authenticated token.
@@ -38,6 +45,12 @@ export class ChatController {
     ApiResponseHelper.created(res, 'Conversation created', conversation);
   };
 
+  /**
+   * Get conversations for the Chat entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getConversations = async (req: Request, res: Response): Promise<void> => {
     const authenticatedUser = req as AuthenticatedRequest;
     const userId = authenticatedUser.user.id;
@@ -56,6 +69,12 @@ export class ChatController {
     ApiResponseHelper.success(res, 'Conversations fetched', conversations);
   };
 
+  /**
+   * Send message for the Chat entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   sendMessage = async (req: Request, res: Response): Promise<void> => {
     const { conversationId } = req.params;
     const { content, type, fileUrl, fileName } =
@@ -82,6 +101,12 @@ export class ChatController {
     ApiResponseHelper.created(res, 'Message sent', message);
   };
 
+  /**
+   * Get messages for the Chat entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getMessages = async (req: Request, res: Response): Promise<void> => {
     const { conversationId } = req.params;
     const authenticatedUser = req as AuthenticatedRequest;
@@ -104,6 +129,12 @@ export class ChatController {
     ApiResponseHelper.success(res, 'Messages fetched', messages);
   };
 
+  /**
+   * Mark as read for the Chat entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   markAsRead = async (req: Request, res: Response): Promise<void> => {
     const { conversationId } = req.params;
     const authenticatedUser = req as AuthenticatedRequest;

@@ -12,6 +12,7 @@ import { IEnrollmentReadRepository } from '../../../../enrollment/domain/IReposi
 import logger from '../../../../../shared/utils/Logger';
 import { NotificationType } from '../../../../../shared/enums/NotificationType';
 
+/** Handles course notification listener functionality. */
 export class CourseNotificationListener {
   constructor(
     private createNotificationUseCase: ICreateNotificationUseCase,

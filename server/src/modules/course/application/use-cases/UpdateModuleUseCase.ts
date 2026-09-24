@@ -6,10 +6,7 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
-/**
- * Use case for updating module information.
- * Handles the business logic for updating module details, including validation of ownership through course.
- */
+/** Executes the business logic for update module. */
 export class UpdateModuleUseCase implements IUpdateModuleUseCase {
   /**
    * Constructs a new UpdateModuleUseCase instance.
@@ -22,13 +19,11 @@ export class UpdateModuleUseCase implements IUpdateModuleUseCase {
   ) {}
 
   /**
-   * Executes the module update logic.
-   * Validates the module exists and the instructor owns the course, then updates the module.
-   * @param moduleId - The ID of the module to update.
-   * @param instructorId - The ID of the instructor making the update.
-   * @param updates - The partial module data to update.
-   * @returns A promise that resolves when the update is complete.
-   * @throws HttpError with appropriate status code if validation fails or access is denied.
+   * Execute for the UpdateModule entity.
+   *
+   * @param moduleId - The unique identifier for the module.
+   * @param instructorId - The unique identifier for the instructor.
+   * @param updates - The updates information.
    */
   async execute(
     moduleId: string,
@@ -53,7 +48,6 @@ export class UpdateModuleUseCase implements IUpdateModuleUseCase {
       );
     }
 
-    // Update the module with the provided data
     await this._moduleRepo.updateModuleById(moduleId, updates);
   }
 }

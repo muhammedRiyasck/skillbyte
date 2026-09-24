@@ -11,6 +11,7 @@ import { eventBus } from '../../../../shared/services/event-bus/EventBus';
 import { WITHDRAWAL_EVENTS } from '../../../../shared/services/event-bus/WithdrawalEvents';
 import { IProcessWithdrawal } from '../interfaces/IProcessWithdrawal';
 
+/** Executes the business logic for process withdrawal. */
 export class ProcessWithdrawalUseCase implements IProcessWithdrawal {
   constructor(
     private withdrawalRepo: IWithdrawalRepository,
@@ -18,6 +19,13 @@ export class ProcessWithdrawalUseCase implements IProcessWithdrawal {
     private paymentProviderFactory: PaymentProviderFactory,
   ) {}
 
+  /**
+   * Execute for the ProcessWithdrawal entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @param adminNotes - The admin notes information.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     dto: ProcessWithdrawalDto,
     adminNotes?: string,

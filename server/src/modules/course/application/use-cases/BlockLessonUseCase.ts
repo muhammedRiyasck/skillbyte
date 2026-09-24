@@ -5,9 +5,17 @@ import { IBlockLessonUseCase } from '../interfaces/IBlockLessonUseCase';
 import { LessonResponseDto } from '../dtos/LessonDtos';
 import { LessonMapper } from '../mappers/LessonMapper';
 
+/** Executes the business logic for block lesson. */
 export class BlockLessonUseCase implements IBlockLessonUseCase {
   constructor(private _lessonRepository: ILessonRepository) {}
 
+  /**
+   * Execute for the BlockLesson entity.
+   *
+   * @param lessonId - The unique identifier for the lesson.
+   * @param isBlocked - The is blocked information.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     lessonId: string,
     isBlocked: boolean,

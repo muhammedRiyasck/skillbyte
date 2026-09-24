@@ -23,6 +23,7 @@ import { ERROR_MESSAGES } from '../../../../shared/constants/messages';
 import { GetCategories } from '../../application/use-cases/GetCategoriesUseCase';
 import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
+/** Handles HTTP requests for course operations. */
 export class CourseController {
   constructor(
     private _createCourseUseCase: ICreateBaseUseCase,
@@ -36,6 +37,12 @@ export class CourseController {
     private _uploadThumbnailUseCase: IUploadCourseThumbnailUseCase,
   ) {}
 
+  /**
+   * Create base for the Course entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   createBase = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     logger.info(`Create course base attempt from IP: ${authenticatedReq.ip}`);
@@ -43,7 +50,10 @@ export class CourseController {
     const validatedData = CreateBaseSchema.parse(authenticatedReq.body);
     const instructorId = authenticatedReq.user.id;
 
-    const course = await this._createCourseUseCase.execute(validatedData, instructorId);
+    const course = await this._createCourseUseCase.execute(
+      validatedData,
+      instructorId,
+    );
 
     logger.info(
       `Course base created successfully for instructor ${instructorId}`,
@@ -53,6 +63,12 @@ export class CourseController {
     });
   };
 
+  /**
+   * Upload thumbnail for the Course entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   uploadThumbnail = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const { id } = authenticatedReq.params;
@@ -83,6 +99,12 @@ export class CourseController {
     });
   };
 
+  /**
+   * Update base for the Course entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   updateBase = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const id = authenticatedReq.params.id;
@@ -94,6 +116,12 @@ export class CourseController {
     ApiResponseHelper.success(res, 'Course updated successfully');
   };
 
+  /**
+   * Update course status for the Course entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   updateCourseStatus = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const id = authenticatedReq.params.id;
@@ -104,6 +132,12 @@ export class CourseController {
     ApiResponseHelper.success(res, `Course ${status} successfully`);
   };
 
+  /**
+   * Block course for the Course entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   blockCourse = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const id = authenticatedReq.params.id;
@@ -116,6 +150,12 @@ export class CourseController {
     );
   };
 
+  /**
+   * Get course by id for the Course entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getCourseById = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const id = authenticatedReq.params.id;
@@ -140,6 +180,12 @@ export class CourseController {
     ApiResponseHelper.success(res, 'Course retrieved successfully', course);
   };
 
+  /**
+   * Get published courses for the Course entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getPublishedCourses = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const validatedQuery = PaginationQuerySchema.parse(req.query);
@@ -165,6 +211,12 @@ export class CourseController {
     });
   };
 
+  /**
+   * Get categories for the Course entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getCategories = async (req: Request, res: Response): Promise<void> => {
     const categories = await this._getCategoriesUseCase.execute();
     ApiResponseHelper.success(
@@ -174,6 +226,12 @@ export class CourseController {
     );
   };
 
+  /**
+   * Get instructor courses for the Course entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getInstructorCourses = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const instructorId = authenticatedReq.user.id;
@@ -193,6 +251,12 @@ export class CourseController {
     });
   };
 
+  /**
+   * Get all courses for the Course entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getAllCourses = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const validatedQuery = PaginationQuerySchema.parse(authenticatedReq.query);
@@ -211,6 +275,12 @@ export class CourseController {
     });
   };
 
+  /**
+   * Delete course for the Course entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   deleteCourse = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
     const id = authenticatedReq.params.id;

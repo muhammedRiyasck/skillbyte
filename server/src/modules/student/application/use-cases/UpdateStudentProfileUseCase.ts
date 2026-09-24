@@ -2,14 +2,18 @@ import { IStudentRepository } from '../../domain/IRepositories/IStudentRepositor
 import { IUpdateStudentProfileUseCase } from '../interfaces/IUpdateStudentProfileUseCase';
 import { Student } from '../../domain/entities/Student';
 
-/**
- * Use case for updating a student's profile (name and/or profile picture).
- */
+/** Executes the business logic for update student profile. */
 export class UpdateStudentProfileUseCase
   implements IUpdateStudentProfileUseCase
 {
   constructor(private readonly _studentRepo: IStudentRepository) {}
 
+  /**
+   * Execute for the UpdateStudentProfile entity.
+   *
+   * @param id - The unique identifier for the id.
+   * @param updates - The updates information.
+   */
   async execute(id: string, updates: Partial<Student>): Promise<void> {
     await this._studentRepo.updateProfile(id, updates);
   }

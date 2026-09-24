@@ -76,11 +76,16 @@ async function withRetry<T>(
   throw lastError;
 }
 
+/** Handles video transcode processor functionality. */
 export class VideoTranscodeProcessor {
+  /**
+   * Process for the VideoTranscodeProcessor entity.
+   *
+   * @param job - The job information.
+   */
   static async process(job: Queue.Job<VideoTranscodeJobData>): Promise<void> {
     const { lessonId, sourceKey } = job.data;
 
-    // Fetch the lesson to know which phase already completed (for resuming)
     const lesson = await LessonModel.findById(lessonId);
     if (!lesson) {
       logger.error(`Lesson ${lessonId} not found for transcode job.`);
@@ -239,7 +244,10 @@ export class VideoTranscodeProcessor {
 
       // Persist the failure message for debugging via the API / MongoDB
       await LessonModel.findByIdAndUpdate(lessonId, {
-        transcodeError: error instanceof Error ? error.message : 'Unknown error during transcoding',
+        transcodeError:
+          error instanceof Error
+            ? error.message
+            : 'Unknown error during transcoding',
       }).catch((dbErr) =>
         logger.error(`Failed to save transcodeError:`, dbErr),
       );

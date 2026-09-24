@@ -2,10 +2,7 @@ import { IInstructorRepository } from '../../domain/IRepositories/IInstructorRep
 import { IDeleteInstructorUseCase } from '../interfaces/IDeleteInstructorUseCase';
 import { IStorageService } from '../../../../shared/services/file-upload/interfaces/IStorageService';
 
-/**
- * Use case for deleting an instructor.
- * Handles the deletion of an instructor by their ID.
- */
+/** Executes the business logic for delete instructor. */
 export class DeleteInstructorUseCase implements IDeleteInstructorUseCase {
   /**
    * Constructs the DeleteInstructorUseCase.
@@ -17,16 +14,14 @@ export class DeleteInstructorUseCase implements IDeleteInstructorUseCase {
   ) {}
 
   /**
-   * Executes the instructor deletion.
-   * Deletes the instructor with the specified ID.
-   * @param id - The ID of the instructor to delete.
-   * @throws Error if the deletion fails.
+   * Execute for the DeleteInstructor entity.
+   *
+   * @param id - The unique identifier for the id.
    */
   async execute(id: string): Promise<void> {
     const instructor = await this._instructorRepo.findById(id);
 
     if (instructor) {
-      // Delete resume from cloud storage
       if (instructor.resumeUrl) {
         try {
           const resumeId = this._storageService.getIdentifierFromUrl(
@@ -41,7 +36,6 @@ export class DeleteInstructorUseCase implements IDeleteInstructorUseCase {
         }
       }
 
-      // Delete profile picture from cloud storage
       if (instructor.profilePictureUrl) {
         try {
           const profilePicId = this._storageService.getIdentifierFromUrl(

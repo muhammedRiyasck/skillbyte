@@ -10,6 +10,7 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import logger from '../../../../shared/utils/Logger';
 
+/** Executes the business logic for create quiz config. */
 export class CreateQuizConfigUseCase implements ICreateQuizConfigUseCase {
   constructor(
     private quizConfigRepository: IQuizConfigRepository,
@@ -17,6 +18,12 @@ export class CreateQuizConfigUseCase implements ICreateQuizConfigUseCase {
     private courseRepository: ICourseRepository,
   ) {}
 
+  /**
+   * Execute for the CreateQuizConfig entity.
+   *
+   * @param data - The data information.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     data: CreateQuizConfigRequestDto & { instructorId: string },
   ): Promise<QuizConfigResponseDto> {

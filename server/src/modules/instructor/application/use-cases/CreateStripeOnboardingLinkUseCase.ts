@@ -5,6 +5,7 @@ import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import logger from '../../../../shared/utils/Logger';
 import { ICreateStripeOnboardingLinkUseCase } from '../interfaces/ICreateStripeOnboardingLinkUseCase';
 
+/** Executes the business logic for create stripe onboarding link. */
 export class CreateStripeOnboardingLinkUseCase
   implements ICreateStripeOnboardingLinkUseCase
 {
@@ -13,6 +14,12 @@ export class CreateStripeOnboardingLinkUseCase
     private stripeProvider: IStripeProvider,
   ) {}
 
+  /**
+   * Execute for the CreateStripeOnboardingLink entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   * @returns The result of the operation.
+   */
   async execute(instructorId: string): Promise<string> {
     const instructor = await this.instructorRepo.findById(instructorId);
 

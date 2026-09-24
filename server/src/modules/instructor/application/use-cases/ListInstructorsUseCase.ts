@@ -5,10 +5,7 @@ import { InstructorMapper } from '../mappers/InstructorMapper';
 import { AdminInstructorMapper } from '../mappers/AdminInstructorMapper';
 import { AdminInstructorPaginationRequestDto } from '../dtos/AdminInstructorRequestDto';
 
-/**
- * Use case for listing instructors with pagination and sorting.
- * Retrieves a paginated list of instructors based on query filters.
- */
+/** Executes the business logic for list instructors. */
 export class ListInstructorsUseCase implements IlistInstructorsUC {
   /**
    * Constructs the ListInstructorsUseCase.
@@ -17,13 +14,12 @@ export class ListInstructorsUseCase implements IlistInstructorsUC {
   constructor(private _instructorRepo: IInstructorRepository) {}
 
   /**
-   * Executes the listing of instructors.
-   * Maps the raw query DTO to filter/sort, applies safe pagination defaults,
-   * fetches paginated data, and returns with metadata.
-   * @param query - Raw pagination/filter DTO from the controller.
-   * @param page - The page number for pagination (defaults to 1 if invalid).
-   * @param limit - The number of items per page (defaults to 6, max 50).
-   * @returns A promise that resolves to an object containing data and pagination metadata.
+   * Execute for the ListInstructors entity.
+   *
+   * @param query - The query information.
+   * @param page - The page information.
+   * @param limit - The limit information.
+   * @returns The standardized HTTP response.
    */
   async execute(
     query: AdminInstructorPaginationRequestDto,

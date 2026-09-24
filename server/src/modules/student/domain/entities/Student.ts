@@ -5,10 +5,7 @@ export interface ISocialLinks {
   twitter?: string;
 }
 
-/**
- * Represents a Student entity in the domain layer.
- * Encapsulates student data and business logic.
- */
+/** Handles student functionality. */
 export class Student {
   constructor(
     public name: string,

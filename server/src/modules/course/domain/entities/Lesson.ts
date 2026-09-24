@@ -1,5 +1,6 @@
 import { ContentType } from '../../../../shared/enums/ContentType';
 
+/** Handles lesson functionality. */
 export class Lesson {
   constructor(
     public moduleId: string,

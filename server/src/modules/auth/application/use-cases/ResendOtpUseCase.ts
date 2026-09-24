@@ -8,6 +8,7 @@ import { TempStudentData } from '../../../../shared/services/otp/interfaces/ITem
 
 import { ResendOtpRequestDto } from '../dtos/ResendOtpRequestDto';
 
+/** Executes the business logic for resend otp. */
 export class ResendOtpUseCase implements IResendOtpUseCase {
   constructor(
     private _otpService: IOtpService<TempInstructorData | TempStudentData>,
@@ -15,9 +16,9 @@ export class ResendOtpUseCase implements IResendOtpUseCase {
   ) {}
 
   /**
-   * Executes the resend OTP process.
-   * @param dto - The resend OTP request DTO.
-   * @throws {HttpError} If the email is invalid, no data is found, or rate limiting is in effect.
+   * Execute for the ResendOtp entity.
+   *
+   * @param dto - The data transfer object containing request details.
    */
   async execute(dto: ResendOtpRequestDto): Promise<void> {
     const { email } = dto;

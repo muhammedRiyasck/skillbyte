@@ -3,10 +3,7 @@ import { IGetInstructorProfileUseCase } from '../interfaces/IGetInstructorProfil
 import { InstructorResponseDto } from '../dtos/InstructorResponseDto';
 import { InstructorMapper } from '../mappers/InstructorMapper';
 
-/**
- * Use case for retrieving an instructor's profile.
- * Fetches the instructor details by their ID.
- */
+/** Executes the business logic for get instructor profile. */
 export class GetInstructorProfileUseCase
   implements IGetInstructorProfileUseCase
 {
@@ -17,11 +14,10 @@ export class GetInstructorProfileUseCase
   constructor(private readonly _instructorRepo: IInstructorRepository) {}
 
   /**
-   * Executes the retrieval of an instructor's profile.
-   * Finds and returns the instructor with the specified ID.
-   * @param id - The ID of the instructor to retrieve.
-   * @returns A promise that resolves to the InstructorResponseDto or null if not found.
-   * @throws Error if the retrieval fails.
+   * Execute for the GetInstructorProfile entity.
+   *
+   * @param id - The unique identifier for the id.
+   * @returns The standardized HTTP response.
    */
   async execute(id: string): Promise<InstructorResponseDto | null> {
     const instructor = await this._instructorRepo.findById(id);

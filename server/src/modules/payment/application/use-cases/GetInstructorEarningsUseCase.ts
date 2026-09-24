@@ -5,9 +5,16 @@ import { PaymentResponseDto } from '../dtos/PaymentResponseDto';
 import { IGetInstructorEarnings } from '../interfaces/IGetInstructorEarnings';
 import { InstructorEarningsTrendPointDto } from '../dtos/InstructorEarningsTrendPointDto';
 
+/** Executes the business logic for get instructor earnings. */
 export class GetInstructorEarningsUseCase implements IGetInstructorEarnings {
   constructor(private paymentRepository: IPaymentReadRepository) {}
 
+  /**
+   * Execute for the GetInstructorEarnings entity.
+   *
+   * @param dto - The data transfer object containing request details.
+   * @returns The standardized HTTP response.
+   */
   async execute(dto: GetInstructorEarningsDto): Promise<{
     data: PaymentResponseDto[];
     totalCount: number;

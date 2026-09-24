@@ -9,6 +9,7 @@ import { UserRole } from '../../../../shared/enums/UserRole';
 
 import { ChatDocumentMapper } from '../mappers/ChatDocumentMapper';
 
+/** Manages database operations for conversation read. */
 export class ConversationReadRepository
   extends BaseRepository<IConversation, IConversationDocument>
   implements IConversationReadRepository
@@ -17,10 +18,24 @@ export class ConversationReadRepository
     super(ConversationModel);
   }
 
+  /**
+   * To entity for the ConversationRead entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   toEntity(doc: IConversationDocument): IConversation {
     return ChatDocumentMapper.toConversationEntity(doc);
   }
 
+  /**
+   * Find by participants for the ConversationRead entity.
+   *
+   * @param studentId - The unique identifier for the student.
+   * @param instructorId - The unique identifier for the instructor.
+   * @param courseId - The unique identifier for the course.
+   * @returns The result of the operation.
+   */
   async findByParticipants(
     studentId: string,
     instructorId: string,
@@ -39,6 +54,13 @@ export class ConversationReadRepository
     return doc ? this.toEntity(doc) : null;
   }
 
+  /**
+   * Find all by user id for the ConversationRead entity.
+   *
+   * @param userId - The unique identifier for the user.
+   * @param role - The role information.
+   * @returns The result of the operation.
+   */
   async findAllByUserId(
     userId: string,
     role: UserRole.STUDENT | UserRole.INSTRUCTOR,

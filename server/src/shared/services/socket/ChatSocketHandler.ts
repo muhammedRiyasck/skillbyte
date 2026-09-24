@@ -1,7 +1,14 @@
 import { Server, Socket } from 'socket.io';
 import logger from '../../utils/Logger';
 
+/** Handles chat socket handler functionality. */
 export class ChatSocketHandler {
+  /**
+   * Register for the ChatSocketHandler entity.
+   *
+   * @param io - The io information.
+   * @param socket - The socket information.
+   */
   static register(io: Server, socket: Socket): void {
     socket.on('chat:join-conversation', (conversationId: string) => {
       socket.join(`conversation:${conversationId}`);

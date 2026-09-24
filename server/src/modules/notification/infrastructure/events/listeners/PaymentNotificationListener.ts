@@ -8,6 +8,7 @@ import { ICreateNotificationUseCase } from '../../../application/interfaces/ICre
 import logger from '../../../../../shared/utils/Logger';
 import { NotificationType } from '../../../../../shared/enums/NotificationType';
 
+/** Handles payment notification listener functionality. */
 export class PaymentNotificationListener {
   constructor(private createNotificationUseCase: ICreateNotificationUseCase) {
     this.registerListeners();

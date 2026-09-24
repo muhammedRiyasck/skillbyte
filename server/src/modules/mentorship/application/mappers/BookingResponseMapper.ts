@@ -1,7 +1,14 @@
 import { MentorshipBooking } from '../../domain/entities/MentorshipBooking';
 import { BookingResponseDto } from '../dtos/BookingResponseDto';
 
+/** Handles booking response mapper functionality. */
 export class BookingResponseMapper {
+  /**
+   * To response dto for the BookingResponseMapper entity.
+   *
+   * @param booking - The booking information.
+   * @returns The standardized HTTP response.
+   */
   static toResponseDto(booking: MentorshipBooking): BookingResponseDto {
     return {
       bookingId: booking.bookingId!,

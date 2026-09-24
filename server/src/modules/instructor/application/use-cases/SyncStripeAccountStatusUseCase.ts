@@ -5,6 +5,7 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import logger from '../../../../shared/utils/Logger';
 
+/** Executes the business logic for sync stripe account status. */
 export class SyncStripeAccountStatusUseCase
   implements ISyncStripeAccountStatusUseCase
 {
@@ -13,6 +14,12 @@ export class SyncStripeAccountStatusUseCase
     private stripeProvider: IStripeProvider,
   ) {}
 
+  /**
+   * Execute for the SyncStripeAccountStatus entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   * @returns The result of the operation.
+   */
   async execute(instructorId: string): Promise<boolean> {
     const instructor = await this.instructorRepo.findById(instructorId);
     if (!instructor) {

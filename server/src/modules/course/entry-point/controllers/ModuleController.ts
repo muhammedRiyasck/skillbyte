@@ -13,10 +13,7 @@ import {
   UpdateModuleSchema,
 } from '../../entry-point/validations/CourseValidation';
 
-/**
- * Interface for authenticated request with user data.
- */
-
+/** Handles HTTP requests for module operations. */
 export class ModuleController {
   constructor(
     private _createUseCase: ICreateModuleUseCase,
@@ -26,9 +23,10 @@ export class ModuleController {
   ) {}
 
   /**
-   * Creates a new module for a course.
-   * @param req - Authenticated request object.
-   * @param res - Express response object.
+   * Create module for the Module entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   createModule = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
@@ -53,9 +51,10 @@ export class ModuleController {
   };
 
   /**
-   * Updates an existing module.
-   * @param req - Authenticated request object.
-   * @param res - Express response object.
+   * Update module for the Module entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   updateModule = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
@@ -65,15 +64,20 @@ export class ModuleController {
     const instructorId = authenticatedReq.user.id;
     const validatedUpdates = UpdateModuleSchema.parse(authenticatedReq.body);
 
-    await this._updateModuleUseCase.execute(moduleId, instructorId, validatedUpdates);
+    await this._updateModuleUseCase.execute(
+      moduleId,
+      instructorId,
+      validatedUpdates,
+    );
     logger.info(`Module ${moduleId} updated successfully`);
     ApiResponseHelper.success(res, 'Module updated successfully');
   };
 
   /**
-   * Deletes a module.
-   * @param req - Authenticated request object.
-   * @param res - Express response object.
+   * Delete module for the Module entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   deleteModule = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;

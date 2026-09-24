@@ -1,7 +1,14 @@
 import { INotification as INotificationEntity } from '../../domain/entities/Notification';
 import { NotificationResponseDto } from '../dtos/NotificationDto';
 
+/** Handles notification mapper functionality. */
 export class NotificationMapper {
+  /**
+   * To response for the NotificationMapper entity.
+   *
+   * @param notification - The notification information.
+   * @returns The standardized HTTP response.
+   */
   static toResponse(
     notification: INotificationEntity,
   ): NotificationResponseDto {
@@ -17,6 +24,12 @@ export class NotificationMapper {
     };
   }
 
+  /**
+   * To response list for the NotificationMapper entity.
+   *
+   * @param notifications - The notifications information.
+   * @returns The standardized HTTP response.
+   */
   static toResponseList(
     notifications: INotificationEntity[],
   ): NotificationResponseDto[] {

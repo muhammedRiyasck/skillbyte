@@ -6,11 +6,21 @@ import { IGetInstructorReviewsUseCase } from '../interfaces/IGetInstructorReview
 import { ReviewResponseDto } from '../dtos/ReviewResponseDto';
 import { ReviewMapper } from '../mappers/ReviewMapper';
 
+/** Executes the business logic for get instructor reviews. */
 export class GetInstructorReviewsUseCase
   implements IGetInstructorReviewsUseCase
 {
   constructor(private reviewRepository: IReviewRepository) {}
 
+  /**
+   * Execute for the GetInstructorReviews entity.
+   *
+   * @param instructorId - The unique identifier for the instructor.
+   * @param filters - The filters information.
+   * @param page - The page information.
+   * @param limit - The limit information.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     instructorId: string,
     filters: InstructorReviewFilters,

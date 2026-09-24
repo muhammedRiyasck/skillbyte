@@ -8,10 +8,7 @@ import { UserRole } from '../../../../shared/enums/UserRole';
 import { AuthResponseDto } from '../dtos/AuthResponseDto';
 import { AuthMapper } from '../mappers/AuthMapper';
 
-/**
- * Use case for checking if a user is logged in by retrieving their data based on ID and role.
- * This class handles the logic to fetch user information from the appropriate repository.
- */
+/** Executes the business logic for am i logged in. */
 export class AmILoggedInUseCase implements IAmILoggedInUseCase {
   /**
    * Creates an instance of AmILoggedInUseCase.
@@ -25,11 +22,11 @@ export class AmILoggedInUseCase implements IAmILoggedInUseCase {
   ) {}
 
   /**
-   * Executes the use case to retrieve user data.
-   * @param id - The unique identifier of the user.
-   * @param role - The role of the user ('student' or 'instructor').
-   * @returns A promise that resolves to the user data (Student or Instructor) or null if not found.
-   * @throws {HttpError} If the ID or role is missing or invalid.
+   * Execute for the AmILoggedIn entity.
+   *
+   * @param id - The unique identifier for the id.
+   * @param role - The role information.
+   * @returns The standardized HTTP response.
    */
   async execute(id: string, role: UserRole): Promise<AuthResponseDto | null> {
     if (!id || !role) {

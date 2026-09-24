@@ -4,12 +4,18 @@ import { ReportActionStrategyRegistry } from '../strategies/ReportActionStrategy
 import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 
+/** Executes the business logic for action report. */
 export class ActionReportUseCase implements IActionReportUseCase {
   constructor(
     private reportRepository: IReportRepository,
     private actionStrategyRegistry: ReportActionStrategyRegistry,
   ) {}
 
+  /**
+   * Execute for the ActionReport entity.
+   *
+   * @param reportId - The unique identifier for the report.
+   */
   async execute(reportId: string): Promise<void> {
     const report = await this.reportRepository.findById(reportId);
     if (!report) {

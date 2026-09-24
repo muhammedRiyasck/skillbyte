@@ -11,6 +11,7 @@ import { EnrollmentStatus } from '../../../shared/enums/EnrollmentStatus';
 import { UpdateLessonProgressRequestDto } from '../application/dtos/UpdateLessonProgressRequestDto';
 import { InitiatePaymentRequestDto } from '../application/dtos/InitiatePaymentRequestDto';
 
+/** Handles HTTP requests for enrollment operations. */
 export class EnrollmentController {
   constructor(
     private _checkEnrollmentUc: ICheckEnrollmentUseCase,
@@ -21,6 +22,12 @@ export class EnrollmentController {
     private _enrollFreeCourseUc: IEnrollFreeCourseUseCase,
   ) {}
 
+  /**
+   * Check enrollment status for the Enrollment entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   checkEnrollmentStatus = async (
     req: Request,
     res: Response,
@@ -41,6 +48,12 @@ export class EnrollmentController {
     });
   };
 
+  /**
+   * Get instructor enrollments for the Enrollment entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getInstructorEnrollments = async (
     req: Request,
     res: Response,
@@ -72,6 +85,12 @@ export class EnrollmentController {
     ApiResponseHelper.success(res, 'Enrollments fetched', enrollments);
   };
 
+  /**
+   * Update progress for the Enrollment entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   updateProgress = async (req: Request, res: Response): Promise<void> => {
     const dto: UpdateLessonProgressRequestDto = req.body;
     const { enrollmentId } = req.params;
@@ -91,6 +110,12 @@ export class EnrollmentController {
     ApiResponseHelper.success(res, 'Progress updated', result);
   };
 
+  /**
+   * Get student enrollments for the Enrollment entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getStudentEnrollments = async (
     req: Request,
     res: Response,
@@ -118,6 +143,12 @@ export class EnrollmentController {
     ApiResponseHelper.success(res, 'Enrollments fetched', result);
   };
 
+  /**
+   * Initiate payment for the Enrollment entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   initiatePayment = async (req: Request, res: Response): Promise<void> => {
     const dto: InitiatePaymentRequestDto = req.body;
     const userId = (req as AuthenticatedRequest).user.id;
@@ -136,6 +167,12 @@ export class EnrollmentController {
     ApiResponseHelper.success(res, 'Payment initiated', result);
   };
 
+  /**
+   * Enroll free course for the Enrollment entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   enrollFreeCourse = async (req: Request, res: Response): Promise<void> => {
     const { courseId } = req.body;
     const userId = (req as AuthenticatedRequest).user.id;

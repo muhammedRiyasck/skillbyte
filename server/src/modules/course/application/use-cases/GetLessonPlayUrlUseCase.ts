@@ -9,6 +9,7 @@ import { IStorageService } from '../../../../shared/services/file-upload/interfa
 import { IStreamLessonHlsUseCase } from '../interfaces/IStreamLessonHlsUseCase';
 import { UserRole } from '../../../../shared/enums/UserRole';
 
+/** Executes the business logic for get lesson play url. */
 export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
   constructor(
     private _lessonRepo: ILessonRepository,
@@ -18,6 +19,14 @@ export class GetLessonPlayUrlUseCase implements IGetLessonPlayUrlUseCase {
     private _streamHlsUseCase?: IStreamLessonHlsUseCase,
   ) {}
 
+  /**
+   * Execute for the GetLessonPlayUrl entity.
+   *
+   * @param userId - The unique identifier for the user.
+   * @param lessonId - The unique identifier for the lesson.
+   * @param role - The role information.
+   * @returns The result of the operation.
+   */
   async execute(
     userId: string,
     lessonId: string,

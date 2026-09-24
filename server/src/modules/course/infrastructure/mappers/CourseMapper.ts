@@ -2,7 +2,14 @@ import { Course } from '../../domain/entities/Course';
 import { ICourseDoc } from '../models/CourseModel';
 import { CourseStatus } from '../../../../shared/enums/CourseStatus';
 
+/** Handles course mapper functionality. */
 export class CourseMapper {
+  /**
+   * To entity for the CourseMapper entity.
+   *
+   * @param doc - The doc information.
+   * @returns The result of the operation.
+   */
   static toEntity(doc: ICourseDoc): Course {
     return new Course(
       doc.instructorId.toString(),

@@ -8,10 +8,7 @@ import {
 } from '../../../../shared/services/job-queue/JobTypes';
 import { jobQueueService } from '../../../../shared/services/job-queue/JobQueueService';
 
-/**
- * Use case for approving an instructor.
- * Handles the approval process, including updating the instructor's status and sending a notification email.
- */
+/** Executes the business logic for approve instructor. */
 export class ApproveInstructorUseCase implements IApproveInstructorUseCase {
   /**
    * Constructs the ApproveInstructorUseCase.
@@ -21,11 +18,10 @@ export class ApproveInstructorUseCase implements IApproveInstructorUseCase {
   constructor(private _instructorRepo: IInstructorRepository) {}
 
   /**
-   * Executes the instructor approval process.
-   * Approves the instructor, retrieves their details, and sends an approval email.
-   * @param id - The ID of the instructor to approve.
-   * @param adminId - The ID of the admin performing the approval.
-   * @throws Error if the approval or email sending fails.
+   * Execute for the ApproveInstructor entity.
+   *
+   * @param id - The unique identifier for the id.
+   * @param adminId - The unique identifier for the admin.
    */
   async execute(id: string, adminId: string): Promise<void> {
     await this._instructorRepo.approve(id, adminId);

@@ -2,18 +2,16 @@ import { Response } from 'express';
 import { ApiSuccessResponse, ApiErrorResponse } from '../types/ApiResponse';
 import { HttpStatusCode } from '../enums/HttpStatusCodes';
 
-/**
- * Helper class for creating standardized API responses.
- * Provides methods to generate consistent success and error responses.
- */
+/** Handles api response helper functionality. */
 export class ApiResponseHelper {
   /**
-   * Creates a success response.
-   * @param res - Express response object
-   * @param message - Success message
-   * @param data - Optional data payload
-   * @param statusCode - HTTP status code (default: 200)
-   * @returns Express response object
+   * Success for the ApiResponseHelper entity.
+   *
+   * @param res - The Express response object.
+   * @param message - The message information.
+   * @param data - The data information.
+   * @param statusCode - The status code information.
+   * @returns The standardized HTTP response.
    */
   static success<T = unknown>(
     res: Response,
@@ -31,12 +29,13 @@ export class ApiResponseHelper {
   }
 
   /**
-   * Creates an error response.
-   * @param res - Express response object
-   * @param message - Error message
-   * @param error - Optional detailed error information
-   * @param statusCode - HTTP status code (default: 500)
-   * @returns Express response object
+   * Error for the ApiResponseHelper entity.
+   *
+   * @param res - The Express response object.
+   * @param message - The message information.
+   * @param error - The error information.
+   * @param statusCode - The status code information.
+   * @returns The standardized HTTP response.
    */
   static error(
     res: Response,
@@ -54,11 +53,12 @@ export class ApiResponseHelper {
   }
 
   /**
-   * Creates a created response (for POST operations).
-   * @param res - Express response object
-   * @param message - Success message
-   * @param data - Optional data payload
-   * @returns Express response object
+   * Created for the ApiResponseHelper entity.
+   *
+   * @param res - The Express response object.
+   * @param message - The message information.
+   * @param data - The data information.
+   * @returns The standardized HTTP response.
    */
   static created<T = unknown>(
     res: Response,
@@ -69,10 +69,11 @@ export class ApiResponseHelper {
   }
 
   /**
-   * Creates a no content response (for DELETE operations).
-   * @param res - Express response object
-   * @param message - Success message
-   * @returns Express response object
+   * No content for the ApiResponseHelper entity.
+   *
+   * @param res - The Express response object.
+   * @param message - The message information.
+   * @returns The standardized HTTP response.
    */
   static noContent(
     res: Response,
@@ -87,11 +88,12 @@ export class ApiResponseHelper {
   }
 
   /**
-   * Creates a bad request error response.
-   * @param res - Express response object
-   * @param message - Error message
-   * @param error - Optional detailed error information
-   * @returns Express response object
+   * Bad request for the ApiResponseHelper entity.
+   *
+   * @param res - The Express response object.
+   * @param message - The message information.
+   * @param error - The error information.
+   * @returns The standardized HTTP response.
    */
   static badRequest(
     res: Response,
@@ -102,11 +104,12 @@ export class ApiResponseHelper {
   }
 
   /**
-   * Creates an unauthorized error response.
-   * @param res - Express response object
-   * @param message - Error message
-   * @param error - Optional detailed error information
-   * @returns Express response object
+   * Unauthorized for the ApiResponseHelper entity.
+   *
+   * @param res - The Express response object.
+   * @param message - The message information.
+   * @param error - The error information.
+   * @returns The standardized HTTP response.
    */
   static unauthorized(
     res: Response,
@@ -117,11 +120,12 @@ export class ApiResponseHelper {
   }
 
   /**
-   * Creates a forbidden error response.
-   * @param res - Express response object
-   * @param message - Error message
-   * @param error - Optional detailed error information
-   * @returns Express response object
+   * Forbidden for the ApiResponseHelper entity.
+   *
+   * @param res - The Express response object.
+   * @param message - The message information.
+   * @param error - The error information.
+   * @returns The standardized HTTP response.
    */
   static forbidden(
     res: Response,
@@ -132,11 +136,12 @@ export class ApiResponseHelper {
   }
 
   /**
-   * Creates a not found error response.
-   * @param res - Express response object
-   * @param message - Error message
-   * @param error - Optional detailed error information
-   * @returns Express response object
+   * Not found for the ApiResponseHelper entity.
+   *
+   * @param res - The Express response object.
+   * @param message - The message information.
+   * @param error - The error information.
+   * @returns The standardized HTTP response.
    */
   static notFound(
     res: Response,
@@ -147,11 +152,12 @@ export class ApiResponseHelper {
   }
 
   /**
-   * Creates a conflict error response.
-   * @param res - Express response object
-   * @param message - Error message
-   * @param error - Optional detailed error information
-   * @returns Express response object
+   * Conflict for the ApiResponseHelper entity.
+   *
+   * @param res - The Express response object.
+   * @param message - The message information.
+   * @param error - The error information.
+   * @returns The standardized HTTP response.
    */
   static conflict(
     res: Response,

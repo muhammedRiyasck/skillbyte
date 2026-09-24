@@ -8,6 +8,7 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import logger from '../../../../shared/utils/Logger';
 
+/** Executes the business logic for refund payment. */
 export class RefundPaymentUseCase implements IRefundPaymentUseCase {
   constructor(
     private paymentReadRepo: IPaymentReadRepository,
@@ -16,6 +17,12 @@ export class RefundPaymentUseCase implements IRefundPaymentUseCase {
     private paypalProvider: IPayPalProvider & IPaymentProvider,
   ) {}
 
+  /**
+   * Execute for the RefundPayment entity.
+   *
+   * @param paymentId - The unique identifier for the payment.
+   * @returns The result of the operation.
+   */
   async execute(paymentId: string): Promise<boolean> {
     const payment = await this.paymentReadRepo.findById(paymentId);
     if (!payment) {

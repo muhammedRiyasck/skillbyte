@@ -1,5 +1,6 @@
 import { InstructorAccountStatus } from '../../../../shared/enums/InstructorAccountStatus';
 
+/** Handles instructor functionality. */
 export class Instructor {
   constructor(
     public name: string,

@@ -10,6 +10,7 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { HttpStatusCode } from '../../../../shared/enums/HttpStatusCodes';
 import logger from '../../../../shared/utils/Logger';
 
+/** Executes the business logic for update quiz config. */
 export class UpdateQuizConfigUseCase implements IUpdateQuizConfigUseCase {
   constructor(
     private quizConfigRepository: IQuizConfigRepository,
@@ -17,6 +18,14 @@ export class UpdateQuizConfigUseCase implements IUpdateQuizConfigUseCase {
     private courseRepository: ICourseRepository,
   ) {}
 
+  /**
+   * Execute for the UpdateQuizConfig entity.
+   *
+   * @param courseId - The unique identifier for the course.
+   * @param instructorId - The unique identifier for the instructor.
+   * @param updates - The updates information.
+   * @returns The standardized HTTP response.
+   */
   async execute(
     courseId: string,
     instructorId: string,

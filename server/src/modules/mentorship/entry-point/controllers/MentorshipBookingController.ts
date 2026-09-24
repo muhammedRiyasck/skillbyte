@@ -12,6 +12,7 @@ import { HttpError } from '../../../../shared/types/HttpError';
 import { AuthenticatedRequest } from '../../../../shared/types/AuthenticatedRequestType';
 import { ApiResponseHelper } from '../../../../shared/utils/ApiResponseHelper';
 
+/** Handles HTTP requests for mentorship booking operations. */
 export class MentorshipBookingController {
   constructor(
     private _bookSlotUseCase: IBookSlotUseCase,
@@ -23,7 +24,10 @@ export class MentorshipBookingController {
   ) {}
 
   /**
-   * Books a mentorship slot and initiates payment.
+   * Book slot for the MentorshipBooking entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   bookSlot = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
@@ -51,7 +55,10 @@ export class MentorshipBookingController {
   };
 
   /**
-   * Cancels a booking.
+   * Cancel booking for the MentorshipBooking entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   cancelBooking = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
@@ -71,7 +78,10 @@ export class MentorshipBookingController {
   };
 
   /**
-   * Gets bookings for the authenticated student.
+   * Get student bookings for the MentorshipBooking entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   getStudentBookings = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
@@ -92,7 +102,10 @@ export class MentorshipBookingController {
   };
 
   /**
-   * Gets bookings for the authenticated instructor.
+   * Get instructor bookings for the MentorshipBooking entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   getInstructorBookings = async (
     req: Request,
@@ -117,8 +130,10 @@ export class MentorshipBookingController {
   };
 
   /**
-   * Returns the Stripe client_secret for a PENDING booking so the
-   * student can resume their interrupted Stripe checkout.
+   * Get resume payment for the MentorshipBooking entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   getResumePayment = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;
@@ -142,7 +157,10 @@ export class MentorshipBookingController {
   };
 
   /**
-   * Reschedules a confirmed mentorship booking (instructor only).
+   * Reschedule booking for the MentorshipBooking entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
    */
   rescheduleBooking = async (req: Request, res: Response): Promise<void> => {
     const authenticatedReq = req as AuthenticatedRequest;

@@ -23,6 +23,7 @@ interface IUserRequest extends Request {
   };
 }
 
+/** Handles HTTP requests for quiz operations. */
 export class QuizController {
   constructor(
     private createQuizConfigUseCase: ICreateQuizConfigUseCase,
@@ -36,8 +37,14 @@ export class QuizController {
     private resetStudentAttemptsUseCase: IResetStudentQuizAttemptsUseCase,
   ) {}
 
+  /**
+   * Create config for the Quiz entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   createConfig = async (req: Request, res: Response): Promise<void> => {
-    const instructorId = (req as unknown as IUserRequest).user?.id; // Assuming auth middleware attaches user
+    const instructorId = (req as unknown as IUserRequest).user?.id;
     if (!instructorId) {
       ApiResponseHelper.unauthorized(res, 'Unauthorized');
       return;
@@ -54,6 +61,12 @@ export class QuizController {
     );
   };
 
+  /**
+   * Update config for the Quiz entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   updateConfig = async (req: Request, res: Response): Promise<void> => {
     const instructorId = (req as unknown as IUserRequest).user?.id;
     const { courseId } = req.params;
@@ -77,6 +90,12 @@ export class QuizController {
     );
   };
 
+  /**
+   * Get config for the Quiz entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getConfig = async (req: Request, res: Response): Promise<void> => {
     const userId = (req as unknown as IUserRequest).user?.id;
     const role = (req as unknown as IUserRequest).user?.role;
@@ -103,6 +122,12 @@ export class QuizController {
   };
 
   // Student Endpoints
+  /**
+   * Start attempt for the Quiz entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   startAttempt = async (req: Request, res: Response): Promise<void> => {
     const userId = (req as unknown as IUserRequest).user?.id;
     const { courseId } = req.params;
@@ -119,6 +144,12 @@ export class QuizController {
     ApiResponseHelper.created(res, 'Quiz started', attempt);
   };
 
+  /**
+   * Submit attempt for the Quiz entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   submitAttempt = async (req: Request, res: Response): Promise<void> => {
     const userId = (req as unknown as IUserRequest).user?.id;
     const { attemptId } = req.params;
@@ -137,6 +168,12 @@ export class QuizController {
     ApiResponseHelper.success(res, 'Quiz submitted successfully', attempt);
   };
 
+  /**
+   * Get result for the Quiz entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getResult = async (req: Request, res: Response): Promise<void> => {
     const userId = (req as unknown as IUserRequest).user?.id;
     const { courseId } = req.params;
@@ -150,6 +187,12 @@ export class QuizController {
     ApiResponseHelper.success(res, 'Quiz result retrieved', result);
   };
 
+  /**
+   * Get all attempts for the Quiz entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getAllAttempts = async (req: Request, res: Response): Promise<void> => {
     const userId = (req as unknown as IUserRequest).user?.id;
     const { courseId } = req.params;
@@ -167,6 +210,12 @@ export class QuizController {
   };
 
   // Instructor Analytics
+  /**
+   * Get analytics for the Quiz entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   getAnalytics = async (req: Request, res: Response): Promise<void> => {
     const instructorId = (req as unknown as IUserRequest).user?.id;
     const { courseId } = req.params;
@@ -187,6 +236,12 @@ export class QuizController {
     ApiResponseHelper.success(res, 'Quiz analytics retrieved', analytics);
   };
 
+  /**
+   * Reset student attempts for the Quiz entity.
+   *
+   * @param req - The Express request object.
+   * @param res - The Express response object.
+   */
   resetStudentAttempts = async (req: Request, res: Response): Promise<void> => {
     const instructorId = (req as unknown as IUserRequest).user?.id;
     const { courseId, userId } = req.params;
