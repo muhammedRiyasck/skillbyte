@@ -98,9 +98,9 @@ export const isValidResume = (resume: File | null) => {
   if (!resume) {
     return { success: false, message: "Resume is required." };
   }
-  const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+  const allowedTypes = ['application/pdf'];
   if (!allowedTypes.includes(resume.type)) {
-    return { success: false, message: "Resume must be a PDF, DOC, or DOCX file." };
+    return { success: false, message: "Resume must be a PDF file." };
   }
   const maxSize = 10 * 1024 * 1024; // 10MB
   if (resume.size > maxSize) {

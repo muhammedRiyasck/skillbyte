@@ -49,13 +49,13 @@ export default function ProfessionalDetailsStep({
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                   {watchedValues.resume ? 'Change file' : 'Click to upload'}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-500">PDF, DOC, DOCX up to 10MB</p>
+                <p className="text-xs text-gray-500 dark:text-gray-500">PDF up to 10MB</p>
               </div>
             </label>
             <input
               id="resume"
               type="file"
-              accept=".pdf,.doc,.docx"
+              accept=".pdf"
               {...register("resume", {
                 required: isReapply ? false : "Resume is required",
                 validate: (value) => {
@@ -311,22 +311,15 @@ export default function ProfessionalDetailsStep({
         <div className="p-4">
           <h3 className="text-lg font-semibold mb-4">Resume Preview</h3>
           {watchedValues.resume && (
-            watchedValues.resume.name.endsWith('.pdf') ? (
-              <object
-                data={URL.createObjectURL(watchedValues.resume)}
-                type="application/pdf"
-                width="100%"
-                height="600"
-                className="border rounded"
-              >
-                <p>Your browser does not support previewing PDF files. <a href={URL.createObjectURL(watchedValues.resume)} download={watchedValues.resume.name}>Download to view</a></p>
-              </object>
-            ) : (
-              <div className="text-center">
-                <p className="mb-4">Preview not available for this file type ({watchedValues.resume.name.split('.').pop()?.toUpperCase()}).</p>
-
-              </div>
-            )
+            <object
+              data={URL.createObjectURL(watchedValues.resume)}
+              type="application/pdf"
+              width="100%"
+              height="600"
+              className="border rounded"
+            >
+              <p>Your browser does not support previewing PDF files. <a href={URL.createObjectURL(watchedValues.resume)} download={watchedValues.resume.name}>Download to view</a></p>
+            </object>
           )}
         </div>
       </Modal>
