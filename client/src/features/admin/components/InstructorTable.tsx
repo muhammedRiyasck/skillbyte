@@ -44,6 +44,8 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
   const [selectedInstructor, setSelectedInstructor] = useState<{ id: string; name: string }>({ id: "", name: "" });
   const [reason, setReason] = useState("");
   const [modalError, setModalError] = useState("");
+  const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
+  const [currentResumeUrl, setCurrentResumeUrl] = useState("");
 
   const instructorsWithIndex = useMemo(() => {
     return data?.data?.data?.map((inst: Instructor, index: number) => ({
@@ -54,7 +56,9 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
 
   const handleViewResume = useCallback(async (instructorId: string) => {
     try {
-      window.open(`${api.defaults.baseURL}/instructors/${instructorId}/resume`, '_blank');
+      const resumeUrl = `${api.defaults.baseURL}/instructors/${instructorId}/resume`;
+      setCurrentResumeUrl(resumeUrl);
+      setIsResumeModalOpen(true);
     } catch (error) {
       console.error('Error opening resume:', error);
     }
@@ -182,15 +186,16 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
     {
       header: "Portfolio",
       accessor: (row: Instructor) => (
-        <a
-          href={row.portfolio || "#"}
+        row.portfolio?<a
+          href={row.portfolio}
           target="_blank"
           rel="noopener noreferrer"
           className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center"
         >
           <Eye className="w-4 h-4 mr-1" />
           View
-        </a>
+        </a>:
+        <span className="text-gray-500 dark:text-gray-400">N/A</span>
       ),
       className: "hidden lg:table-cell",
     },
@@ -370,6 +375,22 @@ const InstructorTable: React.FC<InstructorTableProps> = ({
           </p>
         </Modal>
       ) : null}
+
+      <Modal
+        isOpen={isResumeModalOpen}
+        onClose={() => setIsResumeModalOpen(false)}
+        title="View Resume"
+        maxWidthClass="max-w-4xl"
+        cancelLabel="Close"
+      >
+        <div className="w-full h-[75vh]">
+          <iframe
+            src={currentResumeUrl}
+            className="w-full h-full border-0 rounded-md bg-gray-50 dark:bg-gray-900"
+            title="Instructor Resume"
+          />
+        </div>
+      </Modal>
     </>
   );
 };

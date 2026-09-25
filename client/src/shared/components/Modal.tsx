@@ -10,6 +10,7 @@ interface BaseModalProps {
   confirmLabel?: string | undefined;
   cancelLabel?: string | undefined;
   children?: ReactNode | undefined;
+  maxWidthClass?: string;
 }
 
 export default function Modal({
@@ -20,6 +21,7 @@ export default function Modal({
   confirmLabel = "Confirm",
   cancelLabel = "Cancel",
   children,
+  maxWidthClass = "max-w-md",
 }: BaseModalProps) {
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -49,7 +51,7 @@ export default function Modal({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all">
+              <Dialog.Panel className={`w-full ${maxWidthClass} transform overflow-hidden rounded-xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all`}>
                 {title && (
                   <Dialog.Title
                     as="h3"
