@@ -18,7 +18,7 @@ const INSTRUCTOR_OPTIONS = [
   AdminInstructorFilter.SUSPENDED,
   AdminInstructorFilter.REJECTED,
 ];
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 6;
 
 const InstructorManagement: React.FC = () => {
   const queryClient = useQueryClient();
