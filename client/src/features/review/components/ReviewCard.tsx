@@ -7,7 +7,7 @@ import { toggleHelpful, submitReport, deleteReview, submitInstructorReport } fro
 import { toast } from 'sonner';
 import { useQueryClient, useMutation, type InfiniteData } from '@tanstack/react-query';
 import ReportModal from '@/shared/components/ReportModal';
-import AdminConfirmModal from '@/shared/components/AdminConfirmModal';
+import AdminConfirmModal from '@/shared/components/ConfirmModal';
 import MotionDiv from '@/shared/components/MotionDiv';
 
 interface ReviewCardProps {

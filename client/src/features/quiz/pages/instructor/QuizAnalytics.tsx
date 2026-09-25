@@ -19,7 +19,7 @@ import Spiner from '@/shared/components/Spiner';
 import { toast } from 'sonner';
 import type { IStudentQuizSummary, IAttemptDetail } from '../../types/quiz.types';
 import Pagination from '@/shared/components/Pagination';
-import AdminConfirmModal from '@/shared/components/AdminConfirmModal';
+import AdminConfirmModal from '@/shared/components/ConfirmModal';
 
 interface StatCardProps {
   icon: React.ElementType;
