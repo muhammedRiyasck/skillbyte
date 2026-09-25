@@ -4,11 +4,11 @@ import type { LessonType } from "../../types/ILesson";
 
 import LessonItem from "./LessonItem";
 import { validateModule } from "../../validation/ModuleValidation";
-import ErrorMessage from "@shared/ui/ErrorMessage";
+import ErrorMessage from "@/shared/components/ErrorMessage";
 import { useState, useCallback } from "react";
 import { createModule, updateModule, deleteModule } from "../../services/CourseModule";
 import { useQueryClient } from "@tanstack/react-query";
-import { Modal } from "@/shared/ui";
+import { Modal } from "@/shared/components";
 import { toast } from "sonner";
 
 interface Props {

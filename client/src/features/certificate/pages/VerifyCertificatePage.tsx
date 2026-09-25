@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { 
-  CalendarDays, 
-  CheckCircle2, 
-  Hash, 
-  ShieldCheck, 
+import {
+  CalendarDays,
+  CheckCircle2,
+  Hash,
+  ShieldCheck,
   User,
   ExternalLink,
   BookOpen
 } from "lucide-react";
-import ErrorPage from "@shared/ui/ErrorPage";
+import ErrorPage from "@/shared/components/ErrorPage";
 import { verifyCertificate } from "../services/CertificateService";
 
 const formatDate = (date?: string) => {
@@ -98,7 +98,7 @@ const VerifyCertificatePage: React.FC = () => {
       <style>{styles}</style>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 px-4 py-16 flex items-center justify-center font-sans">
         <div className="w-full max-w-4xl space-y-8">
-          
+
           {/* Header Area */}
           <div className="flex justify-between items-end px-2 anim-reveal">
             <div className="text-right">
@@ -110,7 +110,7 @@ const VerifyCertificatePage: React.FC = () => {
           {/* Main Layout Card */}
           <div className="bg-white dark:bg-gray-800 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.04)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.2)] border border-gray-100 dark:border-gray-700/50 overflow-hidden anim-reveal anim-delay-1">
             <div className="grid md:grid-cols-5 gap-0">
-              
+
               {/* Left Panel: Status & Student */}
               <div className="md:col-span-2 bg-gray-50/50 dark:bg-gray-900/20 p-8 md:p-12 border-b md:border-b-0 md:border-r border-gray-100 dark:border-gray-700/50 flex flex-col justify-center text-center">
                 <div className="mx-auto mb-8 relative">
@@ -119,16 +119,16 @@ const VerifyCertificatePage: React.FC = () => {
                     <ShieldCheck className="w-16 h-16 text-green-500" />
                   </div>
                 </div>
-                
+
                 <span className="inline-block mx-auto mb-4 px-4 py-1.5 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 text-xs font-bold uppercase tracking-widest border border-green-500/20">
                   Verified Authentic
                 </span>
-                
+
                 <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-2">Issued To</h2>
                 <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-4">
                   {data!.student.name}
                 </h1>
-                
+
                 <div className="mt-6 pt-6 border-t border-gray-200/50 dark:border-gray-700/50">
                   <p className="text-xs text-gray-400 mb-1 italic">Certificate ID</p>
                   <p className="font-mono text-xs font-medium text-gray-500 break-all bg-white dark:bg-gray-800 py-2 px-3 rounded-lg border border-gray-100 dark:border-gray-700/50">
@@ -139,7 +139,7 @@ const VerifyCertificatePage: React.FC = () => {
 
               {/* Right Panel: Content Details */}
               <div className="md:col-span-3 p-8 md:p-12 space-y-10">
-                
+
                 {/* Course Info */}
                 <div className="anim-reveal anim-delay-2">
                   <div className="flex items-center gap-2 mb-3">
@@ -170,7 +170,7 @@ const VerifyCertificatePage: React.FC = () => {
                       {data!.instructor?.name || "Skillbyte Faculty"}
                     </p>
                   </div>
-                  
+
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 text-gray-400">
                       <CalendarDays className="w-4 h-4" />
@@ -213,7 +213,7 @@ const VerifyCertificatePage: React.FC = () => {
               Secure Validation via Skillbyte Infrastructure
             </p>
             <div className="flex gap-4">
-              <button 
+              <button
                 onClick={() => window.location.href = '/'}
                 className="text-xs font-bold text-gray-500 hover:text-indigo-600 transition-colors uppercase tracking-widest flex items-center gap-1.5"
               >

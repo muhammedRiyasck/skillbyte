@@ -1,4 +1,4 @@
-import { ErrorMessage, Modal, TextInput } from "@shared/ui";
+import { ErrorMessage, Modal, TextInput } from "@/shared/components";
 import { useResumeUpload } from "../hooks/useResumeUpload";
 import { useFormContext } from "react-hook-form";
 import { isValidSubject, isValidJobTitle, isValidExperience, isValidSocialMedia, isValidPortfolio, isValidBio, isValidResume } from "../InstructorValidation";

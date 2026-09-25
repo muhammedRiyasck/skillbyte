@@ -4,8 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { quizService } from '../../services/quizService';
 import type { IQuizConfig, QuestionType, QuizDifficulty } from '../../types/quiz.types';
-import Spiner from '@shared/ui/Spiner';
-import Modal from '@shared/ui/Modal';
+import Spiner from '@/shared/components/Spiner';
+import Modal from '@/shared/components/Modal';
 import { ArrowLeft, Settings, BrainCircuit, Plus, X } from 'lucide-react';
 
 const QuizConfig: React.FC = () => {
@@ -68,11 +68,11 @@ const QuizConfig: React.FC = () => {
       }
       const submitData = { ...formData, isEnabled };
       if (!submitData.topics || submitData.topics.length === 0) {
-          throw new Error('Please add at least one topic before enabling');
+        throw new Error('Please add at least one topic before enabling');
       }
       return quizService.createConfig({ ...submitData, courseId: courseId! });
     },
-    onSuccess: ( variables) => {
+    onSuccess: (variables) => {
       toast.success(`Assessment ${variables ? 'enabled' : 'disabled'} successfully`);
       queryClient.invalidateQueries({ queryKey: ['quizConfig', courseId] });
     },
@@ -183,8 +183,8 @@ const QuizConfig: React.FC = () => {
 
             {/* Enable/Disable Toggle */}
             <div className={`flex items-center justify-between p-6 rounded-2xl border transition-all duration-500 ${formData.isEnabled
-                ? 'bg-indigo-50/50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-900/30'
-                : 'bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-700'
+              ? 'bg-indigo-50/50 dark:bg-indigo-900/20 border-indigo-100 dark:border-indigo-900/30'
+              : 'bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-700'
               }`}>
               <div className="max-w-[70%]">
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white">Enable Assessment</h3>
@@ -342,8 +342,8 @@ const QuizConfig: React.FC = () => {
                   <label className="block text-sm font-bold text-gray-700 dark:text-gray-300">Allowed Question Formats</label>
                   <div className="flex flex-wrap gap-4">
                     <label className={`flex-1 min-w-[150px] p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-center gap-3 ${formData.questionTypes?.includes('mcq')
-                        ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
-                        : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                      ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
+                      : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                       }`}>
                       <input
                         type="checkbox"
@@ -354,8 +354,8 @@ const QuizConfig: React.FC = () => {
                       <span className="font-bold">Multiple Choice</span>
                     </label>
                     <label className={`flex-1 min-w-[150px] p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-center gap-3 ${formData.questionTypes?.includes('true_false')
-                        ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
-                        : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                      ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
+                      : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-400'
                       }`}>
                       <input
                         type="checkbox"
@@ -415,7 +415,7 @@ const QuizConfig: React.FC = () => {
         cancelLabel="Cancel"
       >
         <p className="text-gray-600 dark:text-gray-400">
-          {pendingToggleState 
+          {pendingToggleState
             ? 'Are you sure you want to enable the AI Final Quiz? Students who have completed 100% of the course will now be able to take it.'
             : 'Are you sure you want to disable the AI Final Quiz? Students will no longer be able to access the assessment.'}
         </p>

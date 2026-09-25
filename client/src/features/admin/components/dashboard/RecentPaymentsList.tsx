@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import { Activity, DollarSign } from 'lucide-react';
-import Pulse from '@/shared/ui/Pulse';
+import Pulse from '@/shared/components/Pulse';
 
 interface RecentPayment {
     _id: string;
@@ -21,7 +21,7 @@ interface Props {
 
 const RecentPaymentsList: React.FC<Props> = ({ payments, itemVariants }) => {
     return (
-        <motion.div 
+        <motion.div
             {...(itemVariants && { variants: itemVariants })}
             className="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700/50 overflow-hidden"
         >

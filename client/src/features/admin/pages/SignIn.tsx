@@ -1,11 +1,11 @@
-import React, { useState,   } from "react";
-import {  useNavigate } from "react-router-dom";
+import React, { useState, } from "react";
+import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@core/router/paths";
-import Spiner from "@shared/ui/Spiner";
+import Spiner from "@/shared/components/Spiner";
 import { toast } from "sonner";
 
-import TextInput from "@shared/ui/TextInput";
-import ErrorMessage from "@shared/ui/ErrorMessage";
+import TextInput from "@/shared/components/TextInput";
+import ErrorMessage from "@/shared/components/ErrorMessage";
 
 import login from "../services/LoginService";
 import isEmailValid from "@shared/validation/Email";
@@ -15,7 +15,7 @@ import ShowPassword from "../../auth/components/ShowPassword";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../auth/AuthSlice";
 import type { AppDispatch } from "@core/store/Index";
-import MotionDiv from "@shared/ui/MotionDiv";
+import MotionDiv from "@/shared/components/MotionDiv";
 
 /**
  * Admin sign-in page component.
@@ -25,7 +25,7 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [formErrors, setFormErrors] = useState({ emailError: "", passwordError: ""});
+  const [formErrors, setFormErrors] = useState({ emailError: "", passwordError: "" });
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate()
   const dispatch = useDispatch<AppDispatch>()
@@ -40,12 +40,12 @@ const Login: React.FC = () => {
         passwordError: passwordValidation.success ? "" : passwordValidation.message,
       });
 
-      if (emailValidation.success && passwordValidation.success ){
+      if (emailValidation.success && passwordValidation.success) {
         setLoading(true);
-          const response = await login({email,password})
-          dispatch(setUser(response?.data))
-          navigate(ROUTES.admin.dashboard)
-          toast.success(response.message)
+        const response = await login({ email, password })
+        dispatch(setUser(response?.data))
+        navigate(ROUTES.admin.dashboard)
+        toast.success(response.message)
       }
 
     } catch (err) {
@@ -58,13 +58,13 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50  px-4  dark:dark:bg-gray-800 ">
-      {loading && <Spiner/>}
+      {loading && <Spiner />}
       <MotionDiv
         className="w-full max-w-lg bg-white p-8 rounded-lg shadow-2xl dark:bg-gray-800 text-black dark:text-white"
       >
         <h2 className="text-2xl font-semibold text-center  text-indigo-600 dark:text-white mb-1">Welcome Back Admin</h2>
         <p className="text-gray-500 text-center  text-sm">Sign in to access control</p>
-{/* 
+        {/* 
         <button
           onClick={handleGoogleLogin}
           className="w-full flex items-center justify-center border border-gray-300 rounded-md py-2 text-sm font-medium  hover:cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
@@ -76,7 +76,7 @@ const Login: React.FC = () => {
         <div className="flex items-center my-4">
           <div className="flex-grow border-gray-200"></div>
           {/* <span className="mx-2 text-gray-400 text-sm">OR</span> */}
-     
+
         </div>
 
         <form onSubmit={handleEmailLogin} className="space-y-6 ">
@@ -107,7 +107,7 @@ const Login: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               showPassword={showPassword}
-              icon={ (
+              icon={(
                 <ShowPassword
                   showPassword={showPassword}
                   setShowPassword={(value: boolean) => setShowPassword(value)}
@@ -117,19 +117,19 @@ const Login: React.FC = () => {
             {formErrors.passwordError && <ErrorMessage error={formErrors.passwordError} />}
           </div>
 
-        
-        <div className="text-center">      
-          <button
-            type="submit"
-            disabled={loading}
-            className={`w-2/3  bg-indigo-600 cursor-pointer text-white rounded-md py-2 mt-3 font-medium hover:bg-indigo-700 transition disabled:opacity-50`}
-          >
-            {loading ? "Signing In..." : "Sign In With Email"}
-          </button>
+
+          <div className="text-center">
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-2/3  bg-indigo-600 cursor-pointer text-white rounded-md py-2 mt-3 font-medium hover:bg-indigo-700 transition disabled:opacity-50`}
+            >
+              {loading ? "Signing In..." : "Sign In With Email"}
+            </button>
           </div>
         </form>
 
-      
+
       </MotionDiv>
     </div>
   );

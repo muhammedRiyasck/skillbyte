@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import {motion} from 'framer-motion'
+import { motion } from 'framer-motion'
 import { toast } from "sonner";
 import { getStudentBookings, cancelBooking, generateVideoRoom, getResumePaymentSecret } from "../services/BookingServices";
 import { getMySessionRatings, type ISessionReview } from "../../review/services/ReviewService";
@@ -8,7 +8,7 @@ import { BookingCard } from "../components/BookingCard";
 import { RefreshCw, Filter } from "lucide-react";
 import { ROUTES } from "@/core/router/paths";
 import { useNavigate } from "react-router-dom";
-import Modal from "@shared/ui/Modal";
+import Modal from "@/shared/components/Modal";
 import { BookingStatus } from "../../../shared/enums/BookingStatus";
 import { UserRole } from "../../../shared/enums/UserRole";
 import ReviewForm from "@features/review/components/ReviewForm";
@@ -28,7 +28,7 @@ const StudentBookingsPage = () => {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [statusFilter, setStatusFilter] = useState<string>('all');
-    
+
 
     const [userRatings, setUserRatings] = useState<Record<string, number | ISessionReview>>(() => {
         try {
@@ -38,7 +38,7 @@ const StudentBookingsPage = () => {
             return {};
         }
     });
-    
+
     const observer = useRef<IntersectionObserver | null>(null);
 
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -243,28 +243,28 @@ const StudentBookingsPage = () => {
 
     const selectedBooking = bookings.find(b => b.bookingId === bookingToCancel);
 
-  return (
-    <div className="min-h-screen bg-white dark:bg-[#050914] text-gray-900 dark:text-white pb-10">
+    return (
+        <div className="min-h-screen bg-white dark:bg-[#050914] text-gray-900 dark:text-white pb-10">
 
-        {/* =========================================================
+            {/* =========================================================
             HEADER
         ========================================================= */}
-        <div className="lg:sticky lg:top-0 z-20 bg-white/95 dark:bg-[#050914]/95 backdrop-blur-xl">
+            <div className="lg:sticky lg:top-0 z-20 bg-white/95 dark:bg-[#050914]/95 backdrop-blur-xl">
 
-            <div className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-5 lg:pt-6">
+                <div className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-5 lg:pt-6">
 
-                <div className="flex items-center justify-between gap-3 mb-5">
+                    <div className="flex items-center justify-between gap-3 mb-5">
 
-                    {/* Title */}
-                    <div className="min-w-0">
-                        <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400 mb-1">
-                            Mentorship
-                        </p>
+                        {/* Title */}
+                        <div className="min-w-0">
+                            <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-600 dark:text-blue-400 mb-1">
+                                Mentorship
+                            </p>
 
-                        <motion.h1 initial={{ opacity: 0, y: 12 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.15 }}
-                            className="text-2xl
+                            <motion.h1 initial={{ opacity: 0, y: 12 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.15 }}
+                                className="text-2xl
                                 sm:text-3xl
                                 md:text-4xl
                                 font-bold
@@ -274,20 +274,20 @@ const StudentBookingsPage = () => {
                                 flex
                                 items-center
                                 gap-3"
-                        >
-                            <span>My Bookings</span>
-                        </motion.h1>
-                    </div>
+                            >
+                                <span>My Bookings</span>
+                            </motion.h1>
+                        </div>
 
-                    {/* Controls */}
-                    <div className="flex items-center gap-3">
+                        {/* Controls */}
+                        <div className="flex items-center gap-3">
 
-                        {/* Filter */}
-                        <div className="relative">
-                            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                            {/* Filter */}
+                            <div className="relative">
+                                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
 
-                            <select
-                                className="
+                                <select
+                                    className="
                                     w-36 sm:w-48
                                     appearance-none
                                     pl-9 pr-4 h-10
@@ -303,24 +303,24 @@ const StudentBookingsPage = () => {
                                     focus:border-blue-500
                                     focus:ring-2 focus:ring-blue-500/10
                                 "
-                                value={statusFilter}
-                                onChange={(e) => handleStatusChange(e.target.value)}
-                            >
-                                <option value="all">All Status</option>
-                                <option value={BookingStatus.PENDING}>Pending</option>
-                                <option value={BookingStatus.CONFIRMED}>Confirmed</option>
-                                <option value={BookingStatus.CANCELLED}>Cancelled</option>
-                                <option value={BookingStatus.COMPLETED}>Completed</option>
-                            </select>
-                        </div>
+                                    value={statusFilter}
+                                    onChange={(e) => handleStatusChange(e.target.value)}
+                                >
+                                    <option value="all">All Status</option>
+                                    <option value={BookingStatus.PENDING}>Pending</option>
+                                    <option value={BookingStatus.CONFIRMED}>Confirmed</option>
+                                    <option value={BookingStatus.CANCELLED}>Cancelled</option>
+                                    <option value={BookingStatus.COMPLETED}>Completed</option>
+                                </select>
+                            </div>
 
-                        {/* Refresh */}
-                        <button
-                            onClick={() => {
-                                refreshBookings();
-                                toast.success("Bookings refreshed");
-                            }}
-                            className="
+                            {/* Refresh */}
+                            <button
+                                onClick={() => {
+                                    refreshBookings();
+                                    toast.success("Bookings refreshed");
+                                }}
+                                className="
                                 shrink-0
                                 inline-flex
                                 items-center
@@ -349,42 +349,42 @@ const StudentBookingsPage = () => {
                                 duration-300
                                 cursor-pointer
                             "
-                        >
-                            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-                            <span className="hidden sm:inline">Refresh</span>
-                        </button>
+                            >
+                                <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+                                <span className="hidden sm:inline">Refresh</span>
+                            </button>
+                        </div>
                     </div>
+
+                    {/* Bottom border */}
+                    <div className="border-b border-gray-200 dark:border-gray-800" />
                 </div>
-
-                {/* Bottom border */}
-                <div className="border-b border-gray-200 dark:border-gray-800" />
             </div>
-        </div>
 
 
-        {/* =========================================================
+            {/* =========================================================
             CONTENT
         ========================================================= */}
-        <main className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-6">
+            <main className="max-w-[1600px] mx-auto px-4 sm:px-6 pt-6">
 
-            {initialLoading ? (
+                {initialLoading ? (
 
-                /* =====================================================
-                   INITIAL LOADING
-                ===================================================== */
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="
+                    /* =====================================================
+                       INITIAL LOADING
+                    ===================================================== */
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="
                         min-h-[280px]
                         flex flex-col items-center justify-center
                         rounded-2xl
                         border border-gray-200 dark:border-gray-800
                         bg-white dark:bg-[#0b1220]
                     "
-                >
-                    <div className="relative">
-                        <div className="
+                    >
+                        <div className="relative">
+                            <div className="
                             h-10 w-10
                             rounded-full
                             border-2
@@ -392,29 +392,29 @@ const StudentBookingsPage = () => {
                             border-t-blue-600 dark:border-t-blue-400
                             animate-spin"/>
 
-                        <div className="
+                            <div className="
                             absolute inset-0
                             rounded-full
                             bg-blue-500/10
                             blur-xl
                         " />
-                    </div>
+                        </div>
 
-                    <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-                        Loading your bookings...
-                    </p>
-                </motion.div>
+                        <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                            Loading your bookings...
+                        </p>
+                    </motion.div>
 
-            ) : bookings.length === 0 ? (
+                ) : bookings.length === 0 ? (
 
-                /* =====================================================
-                   EMPTY STATE
-                ===================================================== */
-                <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.45, ease: "easeOut" }}
-                    className="
+                    /* =====================================================
+                       EMPTY STATE
+                    ===================================================== */
+                    <motion.div
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.45, ease: "easeOut" }}
+                        className="
                         relative
                         overflow-hidden
                         rounded-2xl
@@ -423,9 +423,9 @@ const StudentBookingsPage = () => {
                         px-6 py-16 sm:py-20
                         text-center
                     "
-                >
-                    {/* Subtle background glow */}
-                    <div className="
+                    >
+                        {/* Subtle background glow */}
+                        <div className="
                         absolute
                         -top-32
                         left-1/2
@@ -437,14 +437,14 @@ const StudentBookingsPage = () => {
                         pointer-events-none
                     " />
 
-                    <motion.div
-                        initial={{ scale: 0.85, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{
-                            duration: 0.4,
-                            delay: 0.1,
-                        }}
-                        className="
+                        <motion.div
+                            initial={{ scale: 0.85, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{
+                                duration: 0.4,
+                                delay: 0.1,
+                            }}
+                            className="
                             relative
                             mx-auto mb-6
                             flex h-16 w-16
@@ -453,33 +453,33 @@ const StudentBookingsPage = () => {
                             bg-blue-50 dark:bg-blue-500/10
                             border border-blue-100 dark:border-blue-500/20
                         "
-                    >
-                        <Filter className="w-7 h-7 text-blue-600 dark:text-blue-400" />
-                    </motion.div>
+                        >
+                            <Filter className="w-7 h-7 text-blue-600 dark:text-blue-400" />
+                        </motion.div>
 
-                    <div className="relative">
-                        <h2 className="text-xl font-bold text-gray-950 dark:text-white">
-                            {statusFilter !== "all"
-                                ? `No ${statusFilter} bookings`
-                                : "No bookings yet"}
-                        </h2>
+                        <div className="relative">
+                            <h2 className="text-xl font-bold text-gray-950 dark:text-white">
+                                {statusFilter !== "all"
+                                    ? `No ${statusFilter} bookings`
+                                    : "No bookings yet"}
+                            </h2>
 
-                        <p className="mt-2 max-w-md mx-auto text-sm leading-6 text-gray-500 dark:text-gray-400">
-                            {statusFilter !== "all"
-                                ? `There are no ${statusFilter} mentorship bookings matching your current filter.`
-                                : "Book a session with an instructor and get personalized guidance for your learning journey."}
-                        </p>
+                            <p className="mt-2 max-w-md mx-auto text-sm leading-6 text-gray-500 dark:text-gray-400">
+                                {statusFilter !== "all"
+                                    ? `There are no ${statusFilter} mentorship bookings matching your current filter.`
+                                    : "Book a session with an instructor and get personalized guidance for your learning journey."}
+                            </p>
 
-                        {statusFilter === "all" && (
-                            <motion.button
-                                whileHover={{ y: -2 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() =>
-                                    navigate(
-                                        ROUTES.student.mentorship.browse
-                                    )
-                                }
-                                className="
+                            {statusFilter === "all" && (
+                                <motion.button
+                                    whileHover={{ y: -2 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() =>
+                                        navigate(
+                                            ROUTES.student.mentorship.browse
+                                        )
+                                    }
+                                    className="
                                     mt-7
                                     inline-flex items-center justify-center
                                     rounded-xl
@@ -491,19 +491,19 @@ const StudentBookingsPage = () => {
                                     transition-all duration-200
                                     cursor-pointer
                                 "
-                            >
-                                Browse Instructors
-                            </motion.button>
-                        )}
+                                >
+                                    Browse Instructors
+                                </motion.button>
+                            )}
 
-                        {statusFilter !== "all" && (
-                            <motion.button
-                                whileHover={{ y: -1 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() =>
-                                    handleStatusChange("all")
-                                }
-                                className="
+                            {statusFilter !== "all" && (
+                                <motion.button
+                                    whileHover={{ y: -1 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() =>
+                                        handleStatusChange("all")
+                                    }
+                                    className="
                                     mt-7
                                     inline-flex items-center justify-center
                                     rounded-xl
@@ -518,72 +518,72 @@ const StudentBookingsPage = () => {
                                     transition-all duration-200
                                     cursor-pointer
                                 "
-                            >
-                                Clear Filters
-                            </motion.button>
-                        )}
-                    </div>
-                </motion.div>
-
-            ) : (
-
-                /* =====================================================
-                   BOOKINGS
-                ===================================================== */
-                <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-                        {bookings.map((booking, index) => {
-                            const isLast = bookings.length === index + 1;
-
-                            return (
-                                <motion.div
-                                    key={booking.bookingId}
-                                    ref={isLast ? lastBookingElementRef : undefined}
-                                    initial={{
-                                        opacity: 0,
-                                        y: 12,
-                                    }}
-                                    animate={{
-                                        opacity: 1,
-                                        y: 0,
-                                    }}
-                                    transition={{
-                                        duration: 0.6,
-                                        ease: "easeOut",
-                                        delay: index * 0.1,
-                                    }}
-                                    whileHover={{
-                                        y: -4,
-                                    }}
-                                    className="h-full flex flex-col"
                                 >
-                                    <BookingCard
-                                        booking={booking}
-                                        onCancel={handleCancelClick}
-                                        onJoinSession={handleJoinSession}
-                                        onRate={handleRateClick}
-                                        onResumePayment={handleResumePayment}
-                                        userRole={UserRole.STUDENT}
-                                        existingRating={
-                                            userRatings[booking.bookingId]
-                                        }
-                                    />
-                                </motion.div>
-                            );
-                        })}
-                    </div>
+                                    Clear Filters
+                                </motion.button>
+                            )}
+                        </div>
+                    </motion.div>
+
+                ) : (
+
+                    /* =====================================================
+                       BOOKINGS
+                    ===================================================== */
+                    <>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                            {bookings.map((booking, index) => {
+                                const isLast = bookings.length === index + 1;
+
+                                return (
+                                    <motion.div
+                                        key={booking.bookingId}
+                                        ref={isLast ? lastBookingElementRef : undefined}
+                                        initial={{
+                                            opacity: 0,
+                                            y: 12,
+                                        }}
+                                        animate={{
+                                            opacity: 1,
+                                            y: 0,
+                                        }}
+                                        transition={{
+                                            duration: 0.6,
+                                            ease: "easeOut",
+                                            delay: index * 0.1,
+                                        }}
+                                        whileHover={{
+                                            y: -4,
+                                        }}
+                                        className="h-full flex flex-col"
+                                    >
+                                        <BookingCard
+                                            booking={booking}
+                                            onCancel={handleCancelClick}
+                                            onJoinSession={handleJoinSession}
+                                            onRate={handleRateClick}
+                                            onResumePayment={handleResumePayment}
+                                            userRole={UserRole.STUDENT}
+                                            existingRating={
+                                                userRatings[booking.bookingId]
+                                            }
+                                        />
+                                    </motion.div>
+                                );
+                            })}
+                        </div>
 
 
-                    {/* =================================================
+                        {/* =================================================
                         LOAD MORE
                     ================================================= */}
-                    {loading && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="flex justify-center py-8"
-                        >
-                            <div className="
+                        {loading && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="flex justify-center py-8"
+                            >
+                                <div className="
                                 h-8 w-8
                                 rounded-full
                                 border-2
@@ -591,65 +591,65 @@ const StudentBookingsPage = () => {
                                 border-t-blue-600 dark:border-t-blue-400
                                 animate-spin
                             " />
-                        </motion.div>
-                    )}
+                            </motion.div>
+                        )}
 
 
-                    {/* =================================================
+                        {/* =================================================
                         END OF LIST
                     ================================================= */}
-                    {!hasMore && bookings.length > 0 && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="
+                        {!hasMore && bookings.length > 0 && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="
                                 flex items-center justify-center gap-3
                                 py-8
                             "
-                        >
-                            <div className="h-px w-16 bg-gray-200 dark:bg-gray-800" />
+                            >
+                                <div className="h-px w-16 bg-gray-200 dark:bg-gray-800" />
 
-                            <span className="
+                                <span className="
                                 text-xs
                                 font-medium
                                 text-gray-400 dark:text-gray-500
                             ">
-                                No more bookings
-                            </span>
+                                    No more bookings
+                                </span>
 
-                            <div className="h-px w-16 bg-gray-200 dark:bg-gray-800" />
-                        </motion.div>
-                    )}
-                </>
-            )}
-        </main>
+                                <div className="h-px w-16 bg-gray-200 dark:bg-gray-800" />
+                            </motion.div>
+                        )}
+                    </>
+                )}
+            </main>
 
 
-        {/* =============================================================
+            {/* =============================================================
             CANCEL BOOKING MODAL
         ============================================================= */}
-        <Modal
-            isOpen={isConfirmOpen}
-            onClose={() =>
-                !isCancelling && setIsConfirmOpen(false)
-            }
-            title="Cancel Booking"
-            onConfirm={confirmCancel}
-            confirmLabel={
-                isCancelling ? "Cancelling..." : "Yes, Cancel"
-            }
-            cancelLabel="Keep Booking"
-        >
-            <div className="space-y-4">
+            <Modal
+                isOpen={isConfirmOpen}
+                onClose={() =>
+                    !isCancelling && setIsConfirmOpen(false)
+                }
+                title="Cancel Booking"
+                onConfirm={confirmCancel}
+                confirmLabel={
+                    isCancelling ? "Cancelling..." : "Yes, Cancel"
+                }
+                cancelLabel="Keep Booking"
+            >
+                <div className="space-y-4">
 
-                <p className="text-sm leading-6 text-gray-600 dark:text-gray-400">
-                    Are you sure you want to cancel this mentorship session?
-                </p>
+                    <p className="text-sm leading-6 text-gray-600 dark:text-gray-400">
+                        Are you sure you want to cancel this mentorship session?
+                    </p>
 
-                {selectedBooking?.amount &&
-                selectedBooking.amount > 0 &&
-                selectedBooking.status === BookingStatus.CONFIRMED ? (
-                    <div className="
+                    {selectedBooking?.amount &&
+                        selectedBooking.amount > 0 &&
+                        selectedBooking.status === BookingStatus.CONFIRMED ? (
+                        <div className="
                         p-4
                         rounded-xl
                         bg-green-50 dark:bg-green-500/10
@@ -657,38 +657,38 @@ const StudentBookingsPage = () => {
                         text-sm
                         text-green-700 dark:text-green-400
                     ">
-                        <p className="font-semibold">
-                            You are eligible for a full refund.
-                        </p>
+                            <p className="font-semibold">
+                                You are eligible for a full refund.
+                            </p>
 
-                        <p className="text-xs mt-1.5 opacity-80">
-                            Cancellation is more than 24 hours before
-                            the session.
-                        </p>
-                    </div>
-                ) : null}
+                            <p className="text-xs mt-1.5 opacity-80">
+                                Cancellation is more than 24 hours before
+                                the session.
+                            </p>
+                        </div>
+                    ) : null}
 
-                <p className="text-xs text-gray-500 dark:text-gray-500">
-                    This action cannot be undone.
-                </p>
-            </div>
-        </Modal>
+                    <p className="text-xs text-gray-500 dark:text-gray-500">
+                        This action cannot be undone.
+                    </p>
+                </div>
+            </Modal>
 
 
-        {/* =============================================================
+            {/* =============================================================
             NO REFUND MODAL
         ============================================================= */}
-        <Modal
-            isOpen={cantRefund}
-            onClose={() => setCantRefund(false)}
-            title="No Refund"
-            onConfirm={() => setCantRefund(false)}
-            confirmLabel="Understood"
-            cancelLabel="Close"
-        >
-            <div className="space-y-4">
+            <Modal
+                isOpen={cantRefund}
+                onClose={() => setCantRefund(false)}
+                title="No Refund"
+                onConfirm={() => setCantRefund(false)}
+                confirmLabel="Understood"
+                cancelLabel="Close"
+            >
+                <div className="space-y-4">
 
-                <div className="
+                    <div className="
                     p-4
                     rounded-xl
                     bg-amber-50 dark:bg-amber-500/10
@@ -696,17 +696,17 @@ const StudentBookingsPage = () => {
                     text-sm
                     text-amber-700 dark:text-amber-400
                 ">
-                    <p className="font-semibold">
-                        No refund will be issued.
-                    </p>
+                        <p className="font-semibold">
+                            No refund will be issued.
+                        </p>
 
-                    <p className="text-xs mt-1.5 opacity-80">
-                        Cancellation is within 24 hours of the
-                        session start time.
-                    </p>
-                </div>
+                        <p className="text-xs mt-1.5 opacity-80">
+                            Cancellation is within 24 hours of the
+                            session start time.
+                        </p>
+                    </div>
 
-                <div className="
+                    <div className="
                     p-4
                     rounded-xl
                     bg-gray-50 dark:bg-[#101827]
@@ -714,93 +714,93 @@ const StudentBookingsPage = () => {
                     text-sm
                     text-gray-700 dark:text-gray-300
                 ">
-                    <p className="font-semibold">
-                        No further action is required at this time.
-                    </p>
+                        <p className="font-semibold">
+                            No further action is required at this time.
+                        </p>
 
-                    <p className="text-sm mt-1.5 text-gray-500 dark:text-gray-400">
-                        No changes were made due to the cancellation timing.
-                    </p>
+                        <p className="text-sm mt-1.5 text-gray-500 dark:text-gray-400">
+                            No changes were made due to the cancellation timing.
+                        </p>
+                    </div>
                 </div>
-            </div>
-        </Modal>
+            </Modal>
 
 
-        {/* =============================================================
+            {/* =============================================================
             REVIEW MODAL
         ============================================================= */}
-        <Modal
-            isOpen={isReviewOpen}
-            onClose={() => setIsReviewOpen(false)}
-            title="Rate Mentorship Session"
-        >
-            <div className="pt-2">
-                {bookingToReview && (
-                    <ReviewForm
-                        targetType="session"
-                        targetId={bookingToReview}
-                        onSuccess={(rating) => {
+            <Modal
+                isOpen={isReviewOpen}
+                onClose={() => setIsReviewOpen(false)}
+                title="Rate Mentorship Session"
+            >
+                <div className="pt-2">
+                    {bookingToReview && (
+                        <ReviewForm
+                            targetType="session"
+                            targetId={bookingToReview}
+                            onSuccess={(rating) => {
 
-                            setUserRatings((prev) => {
-                                const next = {
-                                    ...prev,
-                                    [bookingToReview]: { rating },
-                                };
+                                setUserRatings((prev) => {
+                                    const next = {
+                                        ...prev,
+                                        [bookingToReview]: { rating },
+                                    };
 
-                                localStorage.setItem(
-                                    "student_session_ratings",
-                                    JSON.stringify(next)
-                                );
+                                    localStorage.setItem(
+                                        "student_session_ratings",
+                                        JSON.stringify(next)
+                                    );
 
-                                return next;
-                            });
+                                    return next;
+                                });
 
-                            refreshBookings();
-                            setIsReviewOpen(false);
-                        }}
-                        onCancel={() => setIsReviewOpen(false)}
-                    />
-                )}
-            </div>
-        </Modal>
+                                refreshBookings();
+                                setIsReviewOpen(false);
+                            }}
+                            onCancel={() => setIsReviewOpen(false)}
+                        />
+                    )}
+                </div>
+            </Modal>
 
 
-        {/* =============================================================
+            {/* =============================================================
             RESUME PAYMENT MODAL
         ============================================================= */}
-        {resumeClientSecret && (
-            <Modal
-                isOpen={!!resumeClientSecret}
-                onClose={() => setResumeClientSecret(null)}
-                title="Complete Payment"
-            >
-                <Elements
-                    stripe={stripePromise}
-                    options={{
-                        clientSecret: resumeClientSecret,
-                    }}
+            {resumeClientSecret && (
+                <Modal
+                    isOpen={!!resumeClientSecret}
+                    onClose={() => setResumeClientSecret(null)}
+                    title="Complete Payment"
                 >
-                    <MentorshipCheckoutForm
-                        onSuccess={() => {
-                            toast.success("Booking confirmed!");
-                            setResumeClientSecret(null);
-                            refreshBookings();
+                    <Elements
+                        stripe={stripePromise}
+                        options={{
+                            clientSecret: resumeClientSecret,
                         }}
-                    />
-                </Elements>
-            </Modal>
-        )}
+                    >
+                        <MentorshipCheckoutForm
+                            onSuccess={() => {
+                                toast.success("Booking confirmed!");
+                                setResumeClientSecret(null);
+                                refreshBookings();
+                            }}
+                        />
+                    </Elements>
+                </Modal>
+            )}
 
 
-        {/* =============================================================
+            {/* =============================================================
             PAYMENT LOADING TOAST
         ============================================================= */}
-        {isResumingPayment && (
-            <motion.div
-                initial={{ opacity: 0, y: 15, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 15, scale: 0.96 }}
-                className="
+            {isResumingPayment && (
+                <motion.div
+                    initial={{ opacity: 0, y: 15, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 15, scale: 0.96 }}
+                    className="
                     fixed
                     bottom-5 right-5
                     z-50
@@ -813,8 +813,8 @@ const StudentBookingsPage = () => {
                     text-white
                     shadow-xl shadow-black/20
                 "
-            >
-                <div className="
+                >
+                    <div className="
                     h-4 w-4
                     rounded-full
                     border-2
@@ -823,11 +823,11 @@ const StudentBookingsPage = () => {
                     animate-spin
                 " />
 
-                Loading payment details...
-            </motion.div>
-        )}
-    </div>
-);
+                    Loading payment details...
+                </motion.div>
+            )}
+        </div>
+    );
 };
 
 export default StudentBookingsPage;

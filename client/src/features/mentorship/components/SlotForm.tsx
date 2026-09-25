@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
-import TextInput from '@shared/ui/TextInput';
-import ErrorMessage from '@shared/ui/ErrorMessage';
+import TextInput from '@/shared/components/TextInput';
+import ErrorMessage from '@/shared/components/ErrorMessage';
 import type {
   CreateSlotRequest,
   CreateRecurringSlotRequest,
@@ -204,11 +204,10 @@ export const SlotForm = ({
           <button
             type="button"
             onClick={() => setSlotType('single')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
-              slotType === 'single'
+            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all cursor-pointer ${slotType === 'single'
                 ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-white shadow-sm'
                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-            }`}
+              }`}
           >
             <Calendar size={16} />
             One-Time Slot
@@ -216,11 +215,10 @@ export const SlotForm = ({
           <button
             type="button"
             onClick={() => setSlotType('recurring')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
-              slotType === 'recurring'
+            className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-semibold transition-all cursor-pointer ${slotType === 'recurring'
                 ? 'bg-white dark:bg-gray-700 text-indigo-600 dark:text-white shadow-sm'
                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-            }`}
+              }`}
           >
             <Repeat size={16} />
             Recurring Slots
@@ -359,22 +357,20 @@ export const SlotForm = ({
               <button
                 type="button"
                 onClick={() => setFrequency('weekly')}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  frequency === 'weekly'
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${frequency === 'weekly'
                     ? 'bg-indigo-600 text-white shadow-sm'
                     : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700'
-                }`}
+                  }`}
               >
                 Weekly
               </button>
               <button
                 type="button"
                 onClick={() => setFrequency('daily')}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                  frequency === 'daily'
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${frequency === 'daily'
                     ? 'bg-indigo-600 text-white shadow-sm'
                     : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700'
-                }`}
+                  }`}
               >
                 Daily
               </button>
@@ -395,11 +391,10 @@ export const SlotForm = ({
                       key={day.value}
                       type="button"
                       onClick={() => toggleDay(day.value)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-                        isSelected
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${isSelected
                           ? 'bg-indigo-600 text-white shadow-sm'
                           : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-indigo-300'
-                      }`}
+                        }`}
                     >
                       {day.label}
                     </button>

@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Card from "@shared/shimmer/Card";
 import api from "@shared/utils/AxiosInstance";
-import ErrorPage from "@shared/ui/ErrorPage";
-import DropDown from "@shared/ui/DropDown";
+import ErrorPage from "@/shared/components/ErrorPage";
+import DropDown from "@/shared/components/DropDown";
 import { BookOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import CourseRender from "../components/CourseRender";
@@ -18,13 +18,13 @@ type CourseFilterOption = typeof options[number];
 const AdminCourses: React.FC = () => {
   const [page, setPage] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
-  
+
   const [searchParams] = useSearchParams();
   const initialStatusParam = searchParams.get('status') as CourseFilterOption;
   const initialStatus = options.includes(initialStatusParam) ? initialStatusParam : options[0];
-  
+
   const [selectedStatus, setSelectedStatus] = useState<CourseFilterOption>(initialStatus);
-  
+
   useEffect(() => {
     const statusParam = searchParams.get('status') as CourseFilterOption;
     const resolved = statusParam && options.includes(statusParam) ? statusParam : options[0];

@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { UserRole } from '@shared/enums/UserRole';
 import { ContentType } from '@shared/enums/ContentType';
-import ToggleSwitch from '@/shared/ui/ToggleSwitch';
+import ToggleSwitch from '@/shared/components/ToggleSwitch';
 import type { ModuleType } from '../types/IModule';
 import type { EnrollmentStatusResponse } from '../types/CourseDetails';
 
@@ -130,8 +130,8 @@ export const CourseModuleAccordion: React.FC<CourseModuleAccordionProps> = ({
                           const label = lessonProg?.isCompleted
                             ? 'Replay'
                             : (lessonProg?.lastWatchedSecond || 0) > 0
-                            ? 'Resume'
-                            : 'Watch';
+                              ? 'Resume'
+                              : 'Watch';
 
                           return (
                             <button
@@ -163,15 +163,15 @@ export const CourseModuleAccordion: React.FC<CourseModuleAccordionProps> = ({
                           (p) => p.lessonId === lesson.id
                         );
 
-                      const pct =  prog?Math.min(
-                              100,
-                              Math.max(
-                                0,
-                                (prog.lastWatchedSecond /
-                                  (prog.totalDuration || lesson.duration || 1)) *
-                                  100
-                              )
-                            )
+                      const pct = prog ? Math.min(
+                        100,
+                        Math.max(
+                          0,
+                          (prog.lastWatchedSecond /
+                            (prog.totalDuration || lesson.duration || 1)) *
+                          100
+                        )
+                      )
                         : 0;
 
                       if (!prog && pct === 0) {
@@ -185,9 +185,8 @@ export const CourseModuleAccordion: React.FC<CourseModuleAccordionProps> = ({
                               initial={{ width: 0 }}
                               animate={{ width: `${pct}%` }}
                               transition={{ duration: 0.5 }}
-                              className={`h-full rounded-full ${
-                                prog?.isCompleted ? 'bg-green-500' : 'bg-blue-500'
-                              }`}
+                              className={`h-full rounded-full ${prog?.isCompleted ? 'bg-green-500' : 'bg-blue-500'
+                                }`}
                             />
                           </div>
 

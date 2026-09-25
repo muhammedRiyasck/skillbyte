@@ -11,7 +11,7 @@ import { validateVideoRoomAccess } from '../services/videoCallServices';
 import { toast } from 'sonner';
 import { Loader2, Star } from 'lucide-react';
 import { Lobby } from '../components/Lobby';
-import Modal from '@shared/ui/Modal';
+import Modal from '@/shared/components/Modal';
 import ReviewForm from '@features/review/components/ReviewForm';
 import { UserRole } from '@shared/enums/UserRole';
 import { BookingStatus } from '@shared/enums/BookingStatus';
@@ -399,14 +399,14 @@ export const VideoCallPage = () => {
           <div className="text-center pb-2">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Session Ended</h2>
             <p className="text-md text-gray-600 dark:text-gray-300">
-              Your session time hasn't officially concluded yet. 
+              Your session time hasn't officially concluded yet.
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
               Once the scheduled time finishes, the session will be marked as completed automatically. You'll then be able to review and rate this session from your <strong> Bookings</strong> page.
             </p>
           </div>
           <div className="flex justify-center mt-6">
-        
+
           </div>
         </div>
       </Modal>

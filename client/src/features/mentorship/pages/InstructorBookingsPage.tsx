@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Filter, RefreshCw, Calendar } from "lucide-r
 import { getInstructorBookings, cancelBooking, generateVideoRoom, rescheduleBooking } from "../services/BookingServices";
 import type { IMentorshipBooking, InstructorBookingFilters } from "../types/mentorshipTypes";
 import { BookingCard } from "../components/BookingCard";
-import Modal from "@shared/ui/Modal";
+import Modal from "@/shared/components/Modal";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "@/core/router/paths";
 import { BookingStatus } from "../../../shared/enums/BookingStatus";

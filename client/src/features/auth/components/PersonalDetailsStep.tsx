@@ -1,4 +1,4 @@
-import { ErrorMessage, TextInput } from "@shared/ui";
+import { ErrorMessage, TextInput } from "@/shared/components";
 import ShowPassword from "./ShowPassword";
 import { useFormContext } from "react-hook-form";
 
@@ -131,8 +131,8 @@ export default function PersonalDetailsStep({
             {...register("confirmPassword", {
               required: isReapply ? false : "Please confirm your password",
               validate: (value) => {
-                 if (isReapply && !value && !watchedValues.password) return true;
-                 return value === watchedValues.password || "Passwords do not match"
+                if (isReapply && !value && !watchedValues.password) return true;
+                return value === watchedValues.password || "Passwords do not match"
               },
             })}
           />

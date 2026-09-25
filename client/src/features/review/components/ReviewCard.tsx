@@ -7,8 +7,8 @@ import { toggleHelpful, submitReport, deleteReview, submitInstructorReport } fro
 import { toast } from 'sonner';
 import { useQueryClient, useMutation, type InfiniteData } from '@tanstack/react-query';
 import ReportModal from '@/shared/components/ReportModal';
-import AdminConfirmModal from '@/shared/ui/AdminConfirmModal';
-import MotionDiv from '@/shared/ui/MotionDiv';
+import AdminConfirmModal from '@/shared/components/AdminConfirmModal';
+import MotionDiv from '@/shared/components/MotionDiv';
 
 interface ReviewCardProps {
   review: IReview;
@@ -38,8 +38,8 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
 
   const handleHelpfulClick = async () => {
     if (!currentUserId) {
-        toast.error('Please log in to vote');
-        return;
+      toast.error('Please log in to vote');
+      return;
     }
     const prevUpvoted = isUpvoted;
     const prevCount = helpfulCount;
@@ -104,15 +104,15 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
       );
 
       queryClient.invalidateQueries({ queryKey: ['ratingSummary', review.targetType, review.targetId] });
-      
-      onUpdate(); 
+
+      onUpdate();
     } catch {
       toast.error('Failed to delete review');
     }
   };
 
   const replyMutation = useMutation({
-    mutationFn: ({ reviewId, reply }: { reviewId: string; reply: string }) => 
+    mutationFn: ({ reviewId, reply }: { reviewId: string; reply: string }) =>
       import('../services/ReviewService').then(m => m.replyToReview(reviewId, reply)),
     onMutate: async ({ reviewId, reply }) => {
       await queryClient.cancelQueries({ queryKey: ['instructor-reviews'] });
@@ -125,9 +125,9 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
           ...old,
           pages: old.pages.map((page) => ({
             ...page,
-            reviews: page.reviews.map((r) => 
-              r.reviewId === reviewId 
-                ? { ...r, instructorReply: reply, repliedAt: new Date().toISOString() } 
+            reviews: page.reviews.map((r) =>
+              r.reviewId === reviewId
+                ? { ...r, instructorReply: reply, repliedAt: new Date().toISOString() }
                 : r
             )
           }))
@@ -168,19 +168,18 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
   };
 
   return (
-    <div className={`relative p-6 rounded-xl border shadow-sm transition-all ${
-      isOwner
-        ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-300 dark:border-indigo-700 ring-1 ring-indigo-300 dark:ring-indigo-700'
-        : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700'
-    }`}>
+    <div className={`relative p-6 rounded-xl border shadow-sm transition-all ${isOwner
+      ? 'bg-indigo-50 dark:bg-indigo-950/30 border-indigo-300 dark:border-indigo-700 ring-1 ring-indigo-300 dark:ring-indigo-700'
+      : 'bg-white dark:bg-gray-800 border-gray-100 dark:border-gray-700'
+      }`}>
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center overflow-hidden">
             {review.student?.profileImageUrl && !imgError ? (
-              <img 
-                src={review.student.profileImageUrl} 
-                alt="avatar" 
-                className="w-full h-full object-cover" 
+              <img
+                src={review.student.profileImageUrl}
+                alt="avatar"
+                className="w-full h-full object-cover"
                 onError={() => setImgError(true)}
               />
             ) : (
@@ -216,48 +215,48 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
 
         {/* Menu Dropdown */}
         <div className="relative">
-          <button 
+          <button
             onClick={() => setShowMenu(!showMenu)}
             className="p-1 text-gray-400 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
             <MoreVertical className="w-5 h-5" />
           </button>
-          
+
           {showMenu && (
             <>
-                <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)}></div>
-                <div className="absolute right-0 mt-1 w-36 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-100 dark:border-gray-700 z-20 py-1">
+              <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)}></div>
+              <div className="absolute right-0 mt-1 w-36 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-100 dark:border-gray-700 z-20 py-1">
                 {isOwner ? (
-                    <>
-                    <button 
-                        onClick={() => { setShowMenu(false); onEditRequest?.(review); }}
-                        className="w-full text-left cursor-pointer px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 "
+                  <>
+                    <button
+                      onClick={() => { setShowMenu(false); onEditRequest?.(review); }}
+                      className="w-full text-left cursor-pointer px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2 "
                     >
-                        <Edit className="w-4 h-4" /> Edit
+                      <Edit className="w-4 h-4" /> Edit
                     </button>
-                    <button 
-                        onClick={() => { setShowMenu(false); handleDelete(); }}
-                        className="w-full text-left cursor-pointer px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2"
+                    <button
+                      onClick={() => { setShowMenu(false); handleDelete(); }}
+                      className="w-full text-left cursor-pointer px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2"
                     >
-                        <Trash2 className="w-4 h-4" /> Delete
+                      <Trash2 className="w-4 h-4" /> Delete
                     </button>
-                    </>
+                  </>
                 ) : isInstructorViewing ? (
-                    <button 
-                        onClick={() => { setShowMenu(false); setIsInstructorReportModalOpen(true); }}
-                        className="w-full text-left cursor-pointer px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 flex items-center gap-2"
-                    >
+                  <button
+                    onClick={() => { setShowMenu(false); setIsInstructorReportModalOpen(true); }}
+                    className="w-full text-left cursor-pointer px-4 py-2 text-sm text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 flex items-center gap-2"
+                  >
                     <Flag className="w-4 h-4" /> Report Review
-                    </button>
+                  </button>
                 ) : (
-                    <button 
-                        onClick={() => { setShowMenu(false); setIsReportModalOpen(true); }}
-                        className="w-full text-left cursor-pointer px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
-                    >
+                  <button
+                    onClick={() => { setShowMenu(false); setIsReportModalOpen(true); }}
+                    className="w-full text-left cursor-pointer px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
+                  >
                     <Flag className="w-4 h-4" /> Report
-                    </button>
+                  </button>
                 )}
-                </div>
+              </div>
             </>
           )}
         </div>
@@ -284,16 +283,16 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
                 </span>
               )}
             </div>
-            
+
             {isInstructorViewing && (
               <div className="flex gap-2">
-                <button 
+                <button
                   onClick={() => { setReplyText(review.instructorReply || ''); setIsReplying(true); }}
                   className="text-xs font-bold text-slate-400 hover:text-indigo-600 transition-colors cursor-pointer"
                 >
                   Edit
                 </button>
-                <button 
+                <button
                   onClick={() => setIsDeleteModalOpen(true)}
                   className="text-xs font-bold text-slate-400 hover:text-red-600 transition-colors cursor-pointer"
                 >
@@ -302,7 +301,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
               </div>
             )}
           </div>
-          
+
           <AdminConfirmModal
             isOpen={isDeleteModalOpen}
             onClose={() => setIsDeleteModalOpen(false)}
@@ -369,11 +368,10 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
           <button
             onClick={handleHelpfulClick}
             disabled={isHelpfulLoading}
-            className={`flex items-center cursor-pointer gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${
-              isUpvoted 
-                ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-900/30 dark:border-indigo-800 dark:text-indigo-400' 
-                : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700'
-            }`}
+            className={`flex items-center cursor-pointer gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors border ${isUpvoted
+              ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-900/30 dark:border-indigo-800 dark:text-indigo-400'
+              : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700'
+              }`}
           >
             <ThumbsUp className={`w-3.5 h-3.5 ${isUpvoted ? 'fill-current' : ''}`} />
             Helpful {helpfulCount > 0 && `(${helpfulCount})`}

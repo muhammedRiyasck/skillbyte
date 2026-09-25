@@ -29,8 +29,8 @@ import {
   uploadStudentProfileImage,
   removeStudentProfileImage,
   type UpdateStudentProfileData,
-  } from '../services/StudentService';
-import CropImageModal from '@shared/ui/CropImageModal';
+} from '../services/StudentService';
+import CropImageModal from '@/shared/components/CropImageModal';
 import getCroppedImg from '@shared/utils/GetCroppedImg';
 import default_profile from '@assets/default_profile.svg';
 import ChangePasswordModal from './ChangePasswordModal';
@@ -398,11 +398,10 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ isOpen, onClo
                       <button
                         type="button"
                         onClick={() => setActiveTab('general')}
-                        className={`pb-3 px-4 text-sm font-medium border-b-2 transition-colors cursor-pointer relative ${
-                          activeTab === 'general'
+                        className={`pb-3 px-4 text-sm font-medium border-b-2 transition-colors cursor-pointer relative ${activeTab === 'general'
                             ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
                             : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-                        }`}
+                          }`}
                       >
                         General Info
                         {hasGeneralErrors && <span className="absolute top-2 right-1 w-2 h-2 rounded-full bg-red-500"></span>}
@@ -410,11 +409,10 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ isOpen, onClo
                       <button
                         type="button"
                         onClick={() => setActiveTab('learning')}
-                        className={`pb-3 px-4 text-sm font-medium border-b-2 transition-colors cursor-pointer relative ${
-                          activeTab === 'learning'
+                        className={`pb-3 px-4 text-sm font-medium border-b-2 transition-colors cursor-pointer relative ${activeTab === 'learning'
                             ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
                             : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-                        }`}
+                          }`}
                       >
                         Learning Preferences
                         {hasLearningErrors && <span className="absolute top-2 right-1 w-2 h-2 rounded-full bg-red-500"></span>}
@@ -422,11 +420,10 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ isOpen, onClo
                       <button
                         type="button"
                         onClick={() => setActiveTab('social')}
-                        className={`pb-3 px-4 text-sm font-medium border-b-2 transition-colors cursor-pointer relative ${
-                          activeTab === 'social'
+                        className={`pb-3 px-4 text-sm font-medium border-b-2 transition-colors cursor-pointer relative ${activeTab === 'social'
                             ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400'
                             : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-                        }`}
+                          }`}
                       >
                         Social & Contact
                         {hasSocialErrors && <span className="absolute top-2 right-1 w-2 h-2 rounded-full bg-red-500"></span>}
@@ -465,7 +462,7 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ isOpen, onClo
                                   Full Name
                                 </label>
                                 <input
-                                  {...register('name', { 
+                                  {...register('name', {
                                     required: 'Name is required',
                                     minLength: { value: 2, message: 'Name must be at least 2 characters' },
                                     maxLength: { value: 50, message: 'Name must be at most 50 characters' },

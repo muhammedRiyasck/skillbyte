@@ -5,7 +5,7 @@ import { ROUTES } from "@core/router/paths";
 
 import { studentVerifyOtp, instructorVerifyOtp, resendOtp } from "../services/AuthService";
 import { toast } from "sonner";
-import { Spiner } from "@shared/ui";
+import { Spiner } from "@/shared/components";
 
 /**
  * OTP Verification Page.
@@ -179,17 +179,16 @@ function Otp() {
               />
             ))}
           </div>
-         {error && <p className="text-red-600 text-center py-2">{error}</p>}
+          {error && <p className="text-red-600 text-center py-2">{error}</p>}
           {/* Verify Button */}
           <button
             type="submit"
             onClick={handleVerify}
             disabled={time <= 0}
-            className={`mt-6 w-full py-3 rounded-lg font-medium transition-colors  ${
-              time <= 0
+            className={`mt-6 w-full py-3 rounded-lg font-medium transition-colors  ${time <= 0
                 ? "bg-gray-400 cursor-not-allowed text-gray-200"
                 : " bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
-            }`}
+              }`}
           >
             Verify
           </button>

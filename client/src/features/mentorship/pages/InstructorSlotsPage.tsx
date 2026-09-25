@@ -3,7 +3,7 @@ import { Plus, RefreshCw, ChevronLeft, ChevronRight, Filter, Clock } from "lucid
 import { toast } from "sonner";
 import { SlotList } from "../components/SlotList";
 import { SlotForm } from "../components/SlotForm";
-import Modal from "@shared/ui/Modal";
+import Modal from "@/shared/components/Modal";
 import type {
     CreateSlotRequest,
     CreateRecurringSlotRequest,
@@ -270,8 +270,8 @@ const InstructorSlotsPage = () => {
                                     onClick={() => handlePageChange((filters.page || 1) - 1)}
                                     disabled={(filters.page || 1) <= 1 || loading}
                                     className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${(filters.page || 1) <= 1
-                                            ? 'text-gray-300 dark:text-gray-600 bg-gray-50 dark:bg-gray-800/50 cursor-not-allowed'
-                                            : 'text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm cursor-pointer'
+                                        ? 'text-gray-300 dark:text-gray-600 bg-gray-50 dark:bg-gray-800/50 cursor-not-allowed'
+                                        : 'text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm cursor-pointer'
                                         }`}
                                 >
                                     <ChevronLeft size={16} />
@@ -286,8 +286,8 @@ const InstructorSlotsPage = () => {
                                     onClick={() => handlePageChange((filters.page || 1) + 1)}
                                     disabled={!hasMore || loading}
                                     className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium transition-all ${!hasMore
-                                            ? 'text-gray-300 dark:text-gray-600 bg-gray-50 dark:bg-gray-800/50 cursor-not-allowed'
-                                            : 'text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm cursor-pointer'
+                                        ? 'text-gray-300 dark:text-gray-600 bg-gray-50 dark:bg-gray-800/50 cursor-not-allowed'
+                                        : 'text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 shadow-sm cursor-pointer'
                                         }`}
                                 >
                                     Next

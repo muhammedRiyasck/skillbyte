@@ -2,14 +2,14 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { getInstructorEarnings } from '../../enrollment/services/EnrollmentService';
 import { getInstructorProfile, getMyWithdrawals, createStripeOnboardingLink } from '../../instructor/services/InstructorDashboardService';
 import { toast } from 'sonner';
-import Spiner from '@shared/ui/Spiner';
+import Spiner from '@/shared/components/Spiner';
 import { RefreshCw, TrendingUp, Users, DollarSign, ArrowUpRight, Wallet, Clock, Search } from 'lucide-react';
 import { useSocket } from '../../../context/SocketContext';
 
 interface Earnings {
   id: string;
   studentName: string;
-  studentEmail: string;   
+  studentEmail: string;
   productName: string;
   productImage?: string;
   amount: number;
@@ -49,11 +49,11 @@ const EarningsHistory: React.FC = () => {
       const payload = result?.data;
       setEarnings(payload?.data || []);
       setTotalCount(payload?.totalCount || 0);
-      setTotalRevenue(payload?.totalRevenue || 0);      
+      setTotalRevenue(payload?.totalRevenue || 0);
       setWithdrawnAmount(profileRes?.withdrawnAmount || 0);
       setTotalEarnings(profileRes?.totalEarnings || 0);
       setIsStripeVerified(profileRes?.isStripeVerified || false);
-      
+
       const withdrawals = withdrawalsRes?.data || [];
       const pending = withdrawals
         .filter((w: { status: string; amount: number; }) => w?.status === 'PENDING')
@@ -130,7 +130,7 @@ const EarningsHistory: React.FC = () => {
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
- 
+
   if (loading && earnings.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center dark:bg-gray-800">
@@ -167,7 +167,7 @@ const EarningsHistory: React.FC = () => {
               <h3 className="font-bold text-indigo-900 dark:text-indigo-100 text-lg mb-1">Action Required: Set up Payouts</h3>
               <p className="text-indigo-600 dark:text-indigo-300 text-sm">You need to connect your bank account via Stripe to receive your earnings and request withdrawals.</p>
             </div>
-            <button 
+            <button
               onClick={handleSetupPayouts}
               disabled={isOnboarding}
               className="whitespace-nowrap bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold text-sm transition-all shadow-lg shadow-indigo-500/30 active:scale-95 disabled:opacity-50"
@@ -181,45 +181,45 @@ const EarningsHistory: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <div className="bg-white dark:bg-gray-700 p-8 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-600">
             <div className="flex items-center gap-4 mb-4">
-               <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-2xl text-green-600">
-                  <TrendingUp className="w-6 h-6" />
-               </div>
-               <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">Total Sales</span>
+              <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-2xl text-green-600">
+                <TrendingUp className="w-6 h-6" />
+              </div>
+              <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">Total Sales</span>
             </div>
             <div className="flex items-baseline gap-2">
               <span className="text-4xl font-black text-gray-900 dark:text-gray-100">{formatCurrency(totalRevenue, 'USD')}</span>
               <span className="text-sm text-green-500 font-bold bg-green-50 px-2 py-0.5 rounded-lg">+12%</span>
             </div>
             <div className="text-sm font-medium text-gray-400 mt-1">
-               {formatCurrency(totalRevenue * 83, 'INR')}
+              {formatCurrency(totalRevenue * 83, 'INR')}
             </div>
           </div>
 
           <div className="bg-white dark:bg-gray-700 p-8 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-600">
             <div className="flex items-center gap-4 mb-4">
-               <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-2xl text-blue-600">
-                  <DollarSign className="w-6 h-6" />
-               </div>
-               <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">Net Profit</span>
+              <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-2xl text-blue-600">
+                <DollarSign className="w-6 h-6" />
+              </div>
+              <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">Net Profit</span>
             </div>
             <div className="text-4xl font-black text-gray-900 dark:text-gray-100">{formatCurrency(totalEarnings, 'USD')}</div>
             <div className="text-sm font-medium text-gray-400 mt-1">
-               {formatCurrency(totalEarnings * 83, 'INR')}
+              {formatCurrency(totalEarnings * 83, 'INR')}
             </div>
           </div>
 
           <div className="bg-white dark:bg-gray-700 p-8 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-600 ring-2 ring-indigo-500/20">
             <div className="flex items-center gap-4 mb-4">
-               <div className="bg-indigo-100 dark:bg-indigo-900/30 p-3 rounded-2xl text-indigo-600">
-                  <Wallet className="w-6 h-6" />
-               </div>
-               <span className="text-sm font-bold text-indigo-500 uppercase tracking-widest">Available Balance</span>
+              <div className="bg-indigo-100 dark:bg-indigo-900/30 p-3 rounded-2xl text-indigo-600">
+                <Wallet className="w-6 h-6" />
+              </div>
+              <span className="text-sm font-bold text-indigo-500 uppercase tracking-widest">Available Balance</span>
             </div>
             <div className="text-4xl font-black text-indigo-600 dark:text-indigo-400">
               {formatCurrency(Math.max(0, totalEarnings - withdrawnAmount), 'USD')}
             </div>
             <div className="text-sm font-medium text-indigo-400/70 mt-1">
-               {formatCurrency(Math.max(0, totalEarnings - withdrawnAmount) * 83, 'INR')}
+              {formatCurrency(Math.max(0, totalEarnings - withdrawnAmount) * 83, 'INR')}
             </div>
           </div>
         </div>
@@ -228,36 +228,36 @@ const EarningsHistory: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           <div className="bg-white dark:bg-gray-700 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-600">
             <div className="flex items-center gap-4 mb-3">
-               <div className="bg-emerald-100 dark:bg-emerald-900/30 p-2.5 rounded-2xl text-emerald-600">
-                  <ArrowUpRight className="w-5 h-5" />
-               </div>
-               <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Withdrawn</span>
+              <div className="bg-emerald-100 dark:bg-emerald-900/30 p-2.5 rounded-2xl text-emerald-600">
+                <ArrowUpRight className="w-5 h-5" />
+              </div>
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Withdrawn</span>
             </div>
             <div className="text-2xl font-black text-gray-900 dark:text-gray-100">{formatCurrency(withdrawnAmount, 'USD')}</div>
             <div className="text-xs font-medium text-gray-400 mt-1">
-               {formatCurrency(withdrawnAmount * 83, 'INR')}
+              {formatCurrency(withdrawnAmount * 83, 'INR')}
             </div>
           </div>
 
           <div className="bg-white dark:bg-gray-700 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-600">
             <div className="flex items-center gap-4 mb-3">
-               <div className="bg-amber-100 dark:bg-amber-900/30 p-2.5 rounded-2xl text-amber-600">
-                  <Clock className="w-5 h-5" />
-               </div>
-               <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Pending Requests</span>
+              <div className="bg-amber-100 dark:bg-amber-900/30 p-2.5 rounded-2xl text-amber-600">
+                <Clock className="w-5 h-5" />
+              </div>
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Pending Requests</span>
             </div>
             <div className="text-2xl font-black text-gray-900 dark:text-gray-100">{formatCurrency(pendingAmount, 'USD')}</div>
             <div className="text-xs font-medium text-gray-400 mt-1">
-               {formatCurrency(pendingAmount * 83, 'INR')}
+              {formatCurrency(pendingAmount * 83, 'INR')}
             </div>
           </div>
 
           <div className="bg-white dark:bg-gray-700 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-600">
             <div className="flex items-center gap-4 mb-3">
-               <div className="bg-purple-100 dark:bg-purple-900/30 p-2.5 rounded-2xl text-purple-600">
-                  <Users className="w-5 h-5" />
-               </div>
-               <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Students</span>
+              <div className="bg-purple-100 dark:bg-purple-900/30 p-2.5 rounded-2xl text-purple-600">
+                <Users className="w-5 h-5" />
+              </div>
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Students</span>
             </div>
             <div className="text-2xl font-black text-gray-900 dark:text-gray-100">{totalCount}</div>
           </div>
@@ -362,7 +362,7 @@ const EarningsHistory: React.FC = () => {
                         <div className="flex flex-col">
                           <span className="font-medium text-gray-600 dark:text-gray-400">{formatCurrency(item.amount, item.currency)}</span>
                           <span className="text-xs text-gray-400">
-                            {item.currency.toUpperCase() === 'INR' 
+                            {item.currency.toUpperCase() === 'INR'
                               ? formatCurrency(item.amount / 83, 'USD')
                               : formatCurrency(item.amount * 83, 'INR')}
                           </span>
@@ -372,7 +372,7 @@ const EarningsHistory: React.FC = () => {
                         <div className="flex flex-col">
                           <span className="text-sm text-red-400 font-medium">-{formatCurrency(item.adminFee, item.currency)}</span>
                           <span className="text-xs text-red-300/70">
-                            -{item.currency.toUpperCase() === 'INR' 
+                            -{item.currency.toUpperCase() === 'INR'
                               ? formatCurrency(item.adminFee / 83, 'USD')
                               : formatCurrency(item.adminFee * 83, 'INR')}
                           </span>
@@ -385,7 +385,7 @@ const EarningsHistory: React.FC = () => {
                             <ArrowUpRight className="w-4 h-4" />
                           </div>
                           <span className="text-xs text-green-600/60 dark:text-green-400/60 font-semibold mt-0.5">
-                            {item.currency.toUpperCase() === 'INR' 
+                            {item.currency.toUpperCase() === 'INR'
                               ? formatCurrency(item.instructorAmount / 83, 'USD')
                               : formatCurrency(item.instructorAmount * 83, 'INR')}
                           </span>

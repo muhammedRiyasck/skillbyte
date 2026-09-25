@@ -1,4 +1,4 @@
-import ThemeToggle from "@shared/ui/ThemeToggle";
+import ThemeToggle from "@/shared/components/ThemeToggle";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@core/store/Index";

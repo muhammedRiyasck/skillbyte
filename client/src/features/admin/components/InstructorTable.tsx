@@ -2,8 +2,8 @@ import React, { useState, useMemo, useCallback } from "react";
 import default_profile from "@assets/default_profile.svg";
 import { CheckCircle, XCircle, UserX, RotateCcw, Trash2, Eye } from "lucide-react";
 
-import Table from "@shared/ui/Table";
-import Modal from "@shared/ui/Modal";
+import Table from "@/shared/components/Table";
+import Modal from "@/shared/components/Modal";
 import type { Instructor } from "../types/IInstructor";
 import api from "@/shared/utils/AxiosInstance";
 import { InstructorAccountStatus } from "@shared/enums/InstructorAccountStatus";

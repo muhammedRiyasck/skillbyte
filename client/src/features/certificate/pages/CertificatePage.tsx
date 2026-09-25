@@ -9,7 +9,7 @@ import {
   Loader2,
   ShieldCheck,
 } from "lucide-react";
-import ErrorPage from "@shared/ui/ErrorPage";
+import ErrorPage from "@/shared/components/ErrorPage";
 import skillbyteLogo from "@assets/OrginalLogo.png";
 import { getCertificate } from "../services/CertificateService";
 import { useCertificateDownload } from "../hooks/useCertificateDownload";

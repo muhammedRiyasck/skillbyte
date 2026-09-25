@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { getInstructorEnrollments } from '../../enrollment/services/EnrollmentService';
 import { toast } from 'sonner';
-import Spiner from '@shared/ui/Spiner';
+import Spiner from '@/shared/components/Spiner';
 import { RefreshCw, Search } from 'lucide-react';
-import { DebouncedInput } from '@/shared/ui';
+import { DebouncedInput } from '@/shared/components';
 import { EnrollmentStatus } from '@shared/enums/EnrollmentStatus';
 
 interface StudentEnrollment {

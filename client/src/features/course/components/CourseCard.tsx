@@ -6,8 +6,8 @@ import { Award } from "lucide-react";
 import { toast } from "sonner";
 import { ROUTES } from "@core/router/paths";
 import { cn } from "@shared/utils/cn";
-import ToggleSwitch from "@/shared/ui/ToggleSwitch";
-import Modal from "@/shared/ui/Modal";
+import ToggleSwitch from "@/shared/components/ToggleSwitch";
+import Modal from "@/shared/components/Modal";
 import {
   updateCourseStatus,
   blockCourse,
@@ -199,7 +199,7 @@ const CourseCard = memo<CourseCardProps>(
             {course.isEnrolled &&
               course.progress !== undefined && (
                 <div className="mt-4 space-y-1.5">
-                  <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{duration:1}} className="flex items-center justify-between text-xs font-medium text-gray-500 dark:text-gray-400">
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} className="flex items-center justify-between text-xs font-medium text-gray-500 dark:text-gray-400">
                     <span>Progress</span>
 
                     <span>
@@ -472,8 +472,8 @@ const CourseCard = memo<CourseCardProps>(
                 duration-300
               `,
               role === "instructor" &&
-                course.isBlocked &&
-                "opacity-50 cursor-not-allowed"
+              course.isBlocked &&
+              "opacity-50 cursor-not-allowed"
             )}
           >
             {/* ========================= */}
@@ -621,9 +621,9 @@ const CourseCard = memo<CourseCardProps>(
               {/* Title + Toggle */}
               <div className="flex items-start justify-between gap-3">
                 <motion.h2
-                initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }} 
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15 }}
                   className="
                     min-w-0
                     text-lg
@@ -638,7 +638,7 @@ const CourseCard = memo<CourseCardProps>(
                 </motion.h2>
 
                 {role === UserRole.INSTRUCTOR &&
-                course.isBlocked === false ? (
+                  course.isBlocked === false ? (
                   <div className="shrink-0">
                     <ToggleSwitch
                       checked={
@@ -748,16 +748,14 @@ const CourseCard = memo<CourseCardProps>(
           onClose={cancelStatusChange}
           title={
             confirmModal.action === "block"
-              ? `Confirm ${
-                  confirmModal.isBlocked
-                    ? "Block"
-                    : "Unblock"
-                } Course`
-              : `Confirm ${
-                  confirmModal.newStatus === CourseStatus.LIST
-                    ? "List"
-                    : "Unlist"
-                } Course`
+              ? `Confirm ${confirmModal.isBlocked
+                ? "Block"
+                : "Unblock"
+              } Course`
+              : `Confirm ${confirmModal.newStatus === CourseStatus.LIST
+                ? "List"
+                : "Unlist"
+              } Course`
           }
           onConfirm={confirmStatusChange}
           confirmLabel="Confirm"
@@ -765,16 +763,14 @@ const CourseCard = memo<CourseCardProps>(
         >
           <p className="text-gray-700 dark:text-gray-300">
             {confirmModal.action === "block"
-              ? `Are you sure you want to ${
-                  confirmModal.isBlocked
-                    ? "block"
-                    : "unblock"
-                } this course?`
-              : `Are you sure you want to ${
-                  confirmModal.newStatus === CourseStatus.LIST
-                    ? "list"
-                    : "unlist"
-                } this course?`}
+              ? `Are you sure you want to ${confirmModal.isBlocked
+                ? "block"
+                : "unblock"
+              } this course?`
+              : `Are you sure you want to ${confirmModal.newStatus === CourseStatus.LIST
+                ? "list"
+                : "unlist"
+              } this course?`}
           </p>
         </Modal>
       </div>

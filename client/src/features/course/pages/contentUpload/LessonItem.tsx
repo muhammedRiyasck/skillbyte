@@ -4,15 +4,15 @@ import { useForm } from "react-hook-form";
 import type { ModuleType } from "../../types/IModule";
 import type { LessonType } from "../../types/ILesson";
 import UploadProgressBar from "../../components/UploadProgressBar";
-import TextInput from "@shared/ui/TextInput";
+import TextInput from "@/shared/components/TextInput";
 import DynamicField from "../../components/DynamicField";
 import { validateLesson } from "../../validation/LessonValidation";
-import ErrorMessage from "@shared/ui/ErrorMessage";
+import ErrorMessage from "@/shared/components/ErrorMessage";
 import { createLesson, getPresignedUrl, uploadFile, updateLesson, deleteLesson } from "../../services/CourseLesson";
 import { getVideoDuration } from "../../utility/GetVideoDuration";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import Modal from "@shared/ui/Modal";
+import Modal from "@/shared/components/Modal";
 import { ContentType } from "@shared/enums/ContentType";
 
 interface Props {

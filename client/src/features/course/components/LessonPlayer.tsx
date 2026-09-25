@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getLessonPlayUrl } from "@/features/course/services/PlayUrlService";
 import { updateLessonProgress } from "@/features/course/services/LessonProgress";
 import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Loader2, X, WifiOff, Flag } from "lucide-react";
-import ErrorPage from "@shared/ui/ErrorPage";
+import ErrorPage from "@/shared/components/ErrorPage";
 import { toast } from "sonner";
 import ReportModal from '@/shared/components/ReportModal';
 import { submitReport } from '@features/review/services/ReviewService';
@@ -380,15 +380,15 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     }
   };
 
-type ScreenOrientationLock =
-  | 'any' | 'natural' | 'landscape' | 'portrait'
-  | 'portrait-primary' | 'portrait-secondary'
-  | 'landscape-primary' | 'landscape-secondary';
+  type ScreenOrientationLock =
+    | 'any' | 'natural' | 'landscape' | 'portrait'
+    | 'portrait-primary' | 'portrait-secondary'
+    | 'landscape-primary' | 'landscape-secondary';
 
-interface OrientationWithLock extends ScreenOrientation {
-  lock(orientation: ScreenOrientationLock): Promise<void>;
-  unlock(): void;
-}
+  interface OrientationWithLock extends ScreenOrientation {
+    lock(orientation: ScreenOrientationLock): Promise<void>;
+    unlock(): void;
+  }
 
   const toggleFullscreen = async () => {
     if (!containerRef.current) return;
@@ -509,7 +509,7 @@ interface OrientationWithLock extends ScreenOrientation {
         tabIndex={0}
         onKeyDown={handleKeyDown}
       >
-        {isProcessing && ( 
+        {isProcessing && (
           <div className="absolute top-4 left-4 z-[60] bg-black/70 backdrop-blur-md px-3 py-1.5 rounded-md border border-white/10 text-white text-xs flex items-center gap-2">
             <Loader2 className="w-3 h-3 animate-spin text-indigo-400" />
             <span>Processing HD qualities... Playing original video</span>

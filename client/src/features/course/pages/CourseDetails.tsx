@@ -13,7 +13,7 @@ import ReportModal from '@/shared/components/ReportModal';
 import { submitReport } from '@features/review/services/ReviewService';
 import { ChatService } from '@/features/chat/services/ChatService';
 
-import ErrorPage from '@shared/ui/ErrorPage';
+import ErrorPage from '@/shared/components/ErrorPage';
 import type { ModuleType } from '../types/IModule';
 import type { LessonType } from '../types/ILesson';
 import { useSelector } from 'react-redux';
@@ -294,8 +294,8 @@ const CourseDetails: React.FC = () => {
 
   const currentLesson = currentLessonId
     ? course.modules
-        ?.flatMap((m: ModuleType) => m.lessons || [])
-        .find((l: LessonType) => l.id === currentLessonId)
+      ?.flatMap((m: ModuleType) => m.lessons || [])
+      .find((l: LessonType) => l.id === currentLessonId)
     : null;
 
   const currentLessonProgress =
@@ -335,98 +335,98 @@ const CourseDetails: React.FC = () => {
           </div>
         </div>
       ) : (
-          <CourseHero
-            course={course}
+        <CourseHero
+          course={course}
+          role={role}
+          isEnrolled={isEnrolled}
+          isLoading={isLoading}
+          enrollmentData={enrollmentData}
+          isClaimingCertificate={isClaimingCertificate}
+          onRefresh={() => {
+            refetch();
+            toast.success('Course details refreshed!');
+          }}
+          onOpenInstructorModal={() => setIsInstructorModalOpen(true)}
+          onContinueLearning={handleContinueLearning}
+          onEnroll={handleEnroll}
+          onClaimCertificate={handleClaimCertificate}
+          onTakeQuiz={handleTakeQuiz}
+        />
+      )}
+
+      {/* MAIN CONTENT */}
+      <main className="mx-auto max-w-[1500px] px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
+        <div className="grid grid-cols-1 gap-14 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-16">
+          {/* MAIN COLUMN */}
+          <div className="min-w-0">
+            {/* COURSE OVERVIEW */}
+            <CourseOverview
+              modulesCount={course.modules?.length || 0}
+              totalLessons={totalLessons}
+              totalDurationSeconds={totalDurationSeconds}
+              isQuizEnabled={course.isQuizEnabled}
+              formatDuration={formatDuration}
+            />
+
+            {/* COURSE CONTENT */}
+            <CourseCurriculum
+              modules={course.modules}
+              totalLessons={totalLessons}
+              totalDurationSeconds={totalDurationSeconds}
+              expandedModuleId={expandedModuleId}
+              onToggleModule={toggleModule}
+              role={role}
+              isEnrolled={isEnrolled}
+              blockedLessons={blockedLessons}
+              onBlockLesson={handleBlockLesson}
+              onSelectLesson={(lessonId) => {
+                setCurrentLessonId(lessonId);
+                window.scrollTo({
+                  top: 0,
+                  behavior: 'smooth',
+                });
+              }}
+              enrollmentData={enrollmentData}
+              formatDuration={formatDuration}
+            />
+
+            {/* DESCRIPTION */}
+            <CourseDescription description={course.description} />
+
+            {/* REVIEWS */}
+            <CourseReviewsSection
+              courseId={id!}
+              userId={userId}
+              role={role}
+              isEnrolled={isEnrolled}
+              showReviewForm={showReviewForm}
+              hasAlreadyReviewed={hasAlreadyReviewed}
+              onOpenReviewForm={() => setShowReviewForm(true)}
+              onCloseReviewForm={() => setShowReviewForm(false)}
+              onReviewSuccess={() => {
+                setShowReviewForm(false);
+                refetch();
+              }}
+              onHasReview={(has) => setHasAlreadyReviewed(has)}
+              onReviewSubmitted={() => {
+                refetch();
+              }}
+            />
+          </div>
+
+          {/* SIDEBAR */}
+          <CourseSidebar
+            totalDurationSeconds={totalDurationSeconds}
+            tags={course.tags}
             role={role}
             isEnrolled={isEnrolled}
-            isLoading={isLoading}
-            enrollmentData={enrollmentData}
-            isClaimingCertificate={isClaimingCertificate}
-            onRefresh={() => {
-              refetch();
-              toast.success('Course details refreshed!');
-            }}
-            onOpenInstructorModal={() => setIsInstructorModalOpen(true)}
-            onContinueLearning={handleContinueLearning}
-            onEnroll={handleEnroll}
-            onClaimCertificate={handleClaimCertificate}
-            onTakeQuiz={handleTakeQuiz}
+            onOpenReportModal={() => setIsReportModalOpen(true)}
+            formatDuration={formatDuration}
           />
-          )}
- 
-          {/* MAIN CONTENT */}
-          <main className="mx-auto max-w-[1500px] px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
-            <div className="grid grid-cols-1 gap-14 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-16">
-              {/* MAIN COLUMN */}
-              <div className="min-w-0">
-                {/* COURSE OVERVIEW */}
-                <CourseOverview
-                  modulesCount={course.modules?.length || 0}
-                  totalLessons={totalLessons}
-                  totalDurationSeconds={totalDurationSeconds}
-                  isQuizEnabled={course.isQuizEnabled}
-                  formatDuration={formatDuration}
-                />
+        </div>
+      </main>
+      {/* </> */}
 
-                {/* COURSE CONTENT */}
-                <CourseCurriculum
-                  modules={course.modules}
-                  totalLessons={totalLessons}
-                  totalDurationSeconds={totalDurationSeconds}
-                  expandedModuleId={expandedModuleId}
-                  onToggleModule={toggleModule}
-                  role={role}
-                  isEnrolled={isEnrolled}
-                  blockedLessons={blockedLessons}
-                  onBlockLesson={handleBlockLesson}
-                  onSelectLesson={(lessonId) => {
-                    setCurrentLessonId(lessonId);
-                    window.scrollTo({
-                      top: 0,
-                      behavior: 'smooth',
-                    });
-                  }}
-                  enrollmentData={enrollmentData}
-                  formatDuration={formatDuration}
-                />
-
-                {/* DESCRIPTION */}
-                <CourseDescription description={course.description} />
-
-                {/* REVIEWS */}
-                <CourseReviewsSection
-                  courseId={id!}
-                  userId={userId}
-                  role={role}
-                  isEnrolled={isEnrolled}
-                  showReviewForm={showReviewForm}
-                  hasAlreadyReviewed={hasAlreadyReviewed}
-                  onOpenReviewForm={() => setShowReviewForm(true)}
-                  onCloseReviewForm={() => setShowReviewForm(false)}
-                  onReviewSuccess={() => {
-                    setShowReviewForm(false);
-                    refetch();
-                  }}
-                  onHasReview={(has) => setHasAlreadyReviewed(has)}
-                  onReviewSubmitted={() => {
-                    refetch();
-                  }}
-                />
-              </div>
-
-              {/* SIDEBAR */}
-              <CourseSidebar
-                totalDurationSeconds={totalDurationSeconds}
-                tags={course.tags}
-                role={role}
-                isEnrolled={isEnrolled}
-                onOpenReportModal={() => setIsReportModalOpen(true)}
-                formatDuration={formatDuration}
-              />
-            </div>
-          </main>
-        {/* </> */}
-      
 
       {/* INSTRUCTOR PROFILE MODAL */}
       <InstructorProfileModal

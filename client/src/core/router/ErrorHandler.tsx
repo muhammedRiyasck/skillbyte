@@ -1,5 +1,5 @@
 import { useRouteError } from 'react-router-dom';
-import ErrorPage from '@shared/ui/ErrorPage';
+import ErrorPage from '@/shared/components/ErrorPage';
 import { HttpStatusCode } from '@shared/constants/HttpStatusCode';
 
 interface RouteError {

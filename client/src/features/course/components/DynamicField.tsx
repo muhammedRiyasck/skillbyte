@@ -1,5 +1,5 @@
 import { Trash2, Plus } from "lucide-react";
-import TextInput from "@shared/ui/TextInput";
+import TextInput from "@/shared/components/TextInput";
 import { useFieldArray, Controller } from "react-hook-form";
 import type { Control } from "react-hook-form";
 
@@ -11,7 +11,7 @@ type DynamicFieldProps = {
   isDisabled?: boolean;
 };
 
-export default function DynamicField({ control, name, placeholder,isDisabled }: DynamicFieldProps) {
+export default function DynamicField({ control, name, placeholder, isDisabled }: DynamicFieldProps) {
   const { fields, append, remove } = useFieldArray({
     control,
     name

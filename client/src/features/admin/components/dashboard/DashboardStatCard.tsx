@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
-import Pulse from '@/shared/ui/Pulse';
+import Pulse from '@/shared/components/Pulse';
 
 export interface StatCardProps {
     label: string;

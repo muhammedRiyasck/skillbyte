@@ -1,4 +1,4 @@
-import ThemeToggle from "@shared/ui/ThemeToggle";
+import ThemeToggle from "@/shared/components/ThemeToggle";
 import logo from "../../assets/OrginalLogo.png"
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
@@ -13,29 +13,29 @@ const Header = () => {
       <div className=" bg-gray-50 border-b border-gray-200 px-4 md:px-8 dark:bg-gray-900 shadow-2xl dark:border-b dark:border-gray-700 dark:text-white">
         <div className="container min-w-full flex justify-between items-center ">
           <div className="flex items-center ">
-          <Link to={ROUTES.root} className="text-gray-600 dark:text-white text-lg font-bold">
-            <img className="w-30 h-20 " src={logo} alt="logo" />
-          </Link>
+            <Link to={ROUTES.root} className="text-gray-600 dark:text-white text-lg font-bold">
+              <img className="w-30 h-20 " src={logo} alt="logo" />
+            </Link>
             <nav className="hidden md:flex gap-6 text-sm font-medium px-8">
-            <NavLink to={ROUTES.root} className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold " : "text-[16px]"}>
-              Home
-            </NavLink>
-            <NavLink to={ROUTES.student.courses} className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Courses</NavLink>
-            {/* mentorship */}
-            <NavLink to={ROUTES.student.mentorship.bookings} className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Mentorship</NavLink>
-            <NavLink to={ROUTES.home.about} className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>About</NavLink>
-            <NavLink to={ROUTES.home.support} className={({isActive}) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Support</NavLink>
-          </nav>
+              <NavLink to={ROUTES.root} className={({ isActive }) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold " : "text-[16px]"}>
+                Home
+              </NavLink>
+              <NavLink to={ROUTES.student.courses} className={({ isActive }) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Courses</NavLink>
+              {/* mentorship */}
+              <NavLink to={ROUTES.student.mentorship.bookings} className={({ isActive }) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Mentorship</NavLink>
+              <NavLink to={ROUTES.home.about} className={({ isActive }) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>About</NavLink>
+              <NavLink to={ROUTES.home.support} className={({ isActive }) => isActive ? "text-indigo-600 text-[16px] dark:text-indigo-400 font-semibold" : "text-[16px]"}>Support</NavLink>
+            </nav>
           </div>
           <div className="flex gap-4">
-            
-           <Link to={ROUTES.auth.signIn}  className=" hidden lg:block border border-gray-400 dark:border-gray-500 text-sm lg:text-lg px-5 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
-                Sign In
+
+            <Link to={ROUTES.auth.signIn} className=" hidden lg:block border border-gray-400 dark:border-gray-500 text-sm lg:text-lg px-5 py-2.5 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
+              Sign In
             </Link>
-              <ThemeToggle />
-           <button className="md:hidden focus:outline-none dark:text-white " onClick={() => setIsOpen(!isOpen)}>
-            {isOpen  ? <X size={24} /> : <Menu size={24} />}
-          </button>
+            <ThemeToggle />
+            <button className="md:hidden focus:outline-none dark:text-white " onClick={() => setIsOpen(!isOpen)}>
+              {isOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
         </div>
       </div>
@@ -53,19 +53,19 @@ const Header = () => {
                 </button>
               </div>
               <nav className="space-y-2">
-                <NavLink to={ROUTES.root} className={({isActive}) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
+                <NavLink to={ROUTES.root} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
                   <Home size={20} className="text-indigo-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Home</span>
                 </NavLink>
-                <NavLink to={ROUTES.student.courses} className={({isActive}) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
+                <NavLink to={ROUTES.student.courses} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
                   <BookOpen size={20} className="text-green-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Courses</span>
                 </NavLink>
-                <NavLink to={ROUTES.home.about} className={({isActive}) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
+                <NavLink to={ROUTES.home.about} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
                   <Info size={20} className="text-blue-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">About</span>
                 </NavLink>
-                <NavLink to={ROUTES.home.support} className={({isActive}) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
+                <NavLink to={ROUTES.home.support} className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 dark:text-gray-200 hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 group backdrop-blur-sm ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''}`} onClick={() => setIsOpen(false)}>
                   <HelpCircle size={20} className="text-purple-600 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">Support</span>
                 </NavLink>

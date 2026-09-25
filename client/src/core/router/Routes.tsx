@@ -3,7 +3,7 @@ import { lazy } from "react";
 import Fallback from "./Fallback";
 import { ROUTES } from "./paths";
 import ErrorHandler from "./ErrorHandler";
-import ErrorPage from "@shared/ui/ErrorPage";
+import ErrorPage from "@/shared/components/ErrorPage.tsx";
 
 
 import PublicLayout from "@layouts/auth/PublicLayout.tsx";

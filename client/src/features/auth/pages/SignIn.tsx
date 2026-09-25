@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { Spiner, TextInput, ErrorMessage } from "@shared/ui";
+import { Spiner, TextInput, ErrorMessage } from "@/shared/components";
 import { toast } from "sonner";
 
 import { login } from "../services/AuthService";
@@ -10,7 +10,7 @@ import { ShowPassword } from "../";
 import { useDispatch } from "react-redux";
 import { setUser } from "../";
 import type { AppDispatch } from "@core/store/Index";
-import MotionDiv from "@shared/ui/MotionDiv";
+import MotionDiv from "@/shared/components/MotionDiv";
 import { ROUTES } from "@core/router/paths";
 
 interface FormData {
@@ -55,14 +55,14 @@ const Login: React.FC = () => {
     try {
       setLoading(true);
       const response = await login(data);
-      if(response.data.userData.accountStatus !== 'rejected') dispatch(setUser(response.data.userData));
+      if (response.data.userData.accountStatus !== 'rejected') dispatch(setUser(response.data.userData));
       if (data.role === 'instructor') {
         const userData = response.data.userData;
         if (userData.accountStatus === 'rejected') {
           toast.error('Your application was rejected. Please update your details.');
           setTimeout(() => {
-            navigate(ROUTES.auth.reapply, { 
-              state: { reapplyData: userData } 
+            navigate(ROUTES.auth.reapply, {
+              state: { reapplyData: userData }
             });
           }, 0);
         } else {
@@ -86,7 +86,7 @@ const Login: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50  px-4  dark:bg-gray-900 ">
-      {loading && <Spiner/>}
+      {loading && <Spiner />}
       <MotionDiv
         className="w-full max-w-xl bg-white p-10 rounded-lg shadow-2xl dark:bg-gray-800 my-8 dark:text-white"
       >
@@ -204,7 +204,7 @@ const Login: React.FC = () => {
             <Link to={ROUTES.auth.instructorRegister} className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
               Create an account
             </Link>
-          
+
           </p>
         </div>
       </MotionDiv>

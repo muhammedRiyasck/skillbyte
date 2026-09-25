@@ -5,7 +5,7 @@ import { ROUTES } from "@core/router/paths";
 
 import { studentRegister } from "../services/AuthService";
 
-import { TextInput, Spiner, MotionDiv, ErrorMessage } from "@shared/ui";
+import { TextInput, Spiner, MotionDiv, ErrorMessage } from "@/shared/components";
 
 import { toast } from "sonner";
 
@@ -23,10 +23,10 @@ interface FormData {
  * Student Registration Page.
  * Handles the collection of basic details and initiates the student signup flow.
  */
-export default function StudentSignUp () {
+export default function StudentSignUp() {
 
-  const [loading,setLoading] = useState(false)
-  const [showPassword,setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const navigate = useNavigate()
 
@@ -78,7 +78,7 @@ export default function StudentSignUp () {
         <p className="text-center text-gray-500 mb-6 text-sm">
           Fill out the form below to start as a member on skillbyte
         </p>
-        {loading&&<Spiner/>}
+        {loading && <Spiner />}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
             <label className="block text-sm font-medium mb-1">Full Name</label>
@@ -115,14 +115,14 @@ export default function StudentSignUp () {
           <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-4 sm:space-y-0">
             <div className="w-full ">
               <div className="flex  text-center">
-              <label className="block text-sm font-medium mb-1">Password</label>
+                <label className="block text-sm font-medium mb-1">Password</label>
               </div>
               <TextInput
                 id="password"
                 type="password"
                 placeholder="Password"
                 showPassword={showPassword}
-                icon={<ShowPassword  showPassword={showPassword} setShowPassword={(value:boolean)=>setShowPassword(value)} />}
+                icon={<ShowPassword showPassword={showPassword} setShowPassword={(value: boolean) => setShowPassword(value)} />}
                 {...register("password", {
                   required: "Password is required",
                   minLength: { value: 8, message: "Password must be at least 8 characters" },
@@ -136,7 +136,7 @@ export default function StudentSignUp () {
             </div>
             <div className="w-full">
               <div className="flex justify-between text-center">
-              <label className="block text-sm font-medium mb-1">Confirm Password</label>
+                <label className="block text-sm font-medium mb-1">Confirm Password</label>
               </div>
               <TextInput
                 id="confirmPassword"
@@ -173,14 +173,13 @@ export default function StudentSignUp () {
           </div>
 
 
-            <button
+          <button
             type="submit"
             disabled={loading || !watchedValues.agree}
-            className={`w-full  text-white rounded-md py-2 font-medium transition disabled:opacity-50 ${
-              watchedValues.agree
+            className={`w-full  text-white rounded-md py-2 font-medium transition disabled:opacity-50 ${watchedValues.agree
                 ? "bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
                 : "bg-gray-400 cursor-not-allowed text-gray-200"
-            } `}
+              } `}
           >
             {loading ? "Signing Up..." : "Sign Up"}
           </button>
@@ -193,12 +192,12 @@ export default function StudentSignUp () {
             Sign in
           </Link>
         </p>
-          <p className="text-center text-sm text-gray-400 mt-2">
-            Want to become an Instructor? &nbsp;
-            <Link to={ROUTES.auth.instructorRegister} className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
-              Create an account
-            </Link>
-           </p>
+        <p className="text-center text-sm text-gray-400 mt-2">
+          Want to become an Instructor? &nbsp;
+          <Link to={ROUTES.auth.instructorRegister} className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
+            Create an account
+          </Link>
+        </p>
       </MotionDiv>
     </div>
   );

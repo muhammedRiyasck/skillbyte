@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getReports, dismissReport, actionReport, type ReportFilters } from '../services/AdminReportService';
 import { toast } from 'sonner';
-import { 
-  AlertTriangle, 
-  CheckCircle, 
-  Shield, 
-  Trash2, 
-  RefreshCw, 
-  MessageSquare, 
-  BookOpen, 
-  Video, 
-  Filter, 
-  Search, 
-  Calendar, 
+import {
+  AlertTriangle,
+  CheckCircle,
+  Shield,
+  Trash2,
+  RefreshCw,
+  MessageSquare,
+  BookOpen,
+  Video,
+  Filter,
+  Search,
+  Calendar,
   ChevronDown,
   X,
   SortAsc,
@@ -22,7 +22,7 @@ import {
   GraduationCap,
   User
 } from 'lucide-react';
-import { AdminConfirmModal, Pagination } from '@/shared/ui';
+import { AdminConfirmModal, Pagination } from '@/shared/components';
 import type { IReport } from '../types/IReport';
 
 type ReporterTab = 'all' | 'student' | 'instructor';
@@ -50,9 +50,9 @@ const ReportedContent: React.FC = () => {
   const [actionType, setActionType] = useState<'dismiss' | 'action' | null>(null);
   const [searchInput, setSearchInput] = useState('');
 
-  useEffect(()=>{
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  },[filters.page]) 
+  }, [filters.page])
 
   const handleTabChange = (tab: ReporterTab) => {
     setActiveTab(tab);
@@ -105,10 +105,10 @@ const ReportedContent: React.FC = () => {
   };
 
   const handleFilterChange = (key: keyof ReportFilters, value: string | number) => {
-    setFilters(prev => ({ 
-      ...prev, 
-      [key]: value, 
-      page: key === 'page' ? value as number : 1 
+    setFilters(prev => ({
+      ...prev,
+      [key]: value,
+      page: key === 'page' ? value as number : 1
     }));
   };
 
@@ -127,7 +127,7 @@ const ReportedContent: React.FC = () => {
   };
 
   const renderTargetIcon = (type: string) => {
-    switch(type) {
+    switch (type) {
       case 'course': return <BookOpen className="w-4 h-4 mr-1 text-blue-500" />;
       case 'lesson': return <Video className="w-4 h-4 mr-1 text-purple-500" />;
       case 'review': return <MessageSquare className="w-4 h-4 mr-1 text-orange-500" />;
@@ -136,7 +136,7 @@ const ReportedContent: React.FC = () => {
   };
 
   const getStatusColor = (status: string) => {
-    switch(status) {
+    switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-900/50';
       case 'dismissed': return 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-900/50';
       case 'actioned': return 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-900/50';
@@ -161,9 +161,9 @@ const ReportedContent: React.FC = () => {
       <div className="flex items-center gap-3">
         <div className="relative w-10 h-10">
           {avatar ? (
-            <img 
-              src={avatar} 
-              alt="" 
+            <img
+              src={avatar}
+              alt=""
               className="w-10 h-10 rounded-xl object-cover ring-2 ring-white dark:ring-gray-800"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = 'none';
@@ -172,7 +172,7 @@ const ReportedContent: React.FC = () => {
               }}
             />
           ) : null}
-          <div 
+          <div
             className={`w-10 h-10 rounded-xl ${avatarBg} flex items-center justify-center text-white text-sm font-black shadow-lg`}
             style={{ display: avatar ? 'none' : 'flex' }}
           >
@@ -227,21 +227,20 @@ const ReportedContent: React.FC = () => {
             Manage platform integrity and process reported content
           </p>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className={`flex items-center cursor-pointer gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 border ${
-              isFilterOpen 
-                ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-500/30' 
+            className={`flex items-center cursor-pointer gap-2 px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 border ${isFilterOpen
+                ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-500/30'
                 : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:border-indigo-400'
-            }`}
+              }`}
           >
             <Filter size={18} />
             Advanced Filters
             {isFilterOpen ? <X size={16} className="ml-1" /> : <ChevronDown size={16} className="ml-1" />}
           </button>
-          
+
           <button
             onClick={() => { refetch(); toast.success("Refreshed"); }}
             className="p-2.5 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 shadow-sm border border-gray-200 dark:border-gray-700 transition-all cursor-pointer active:scale-95"
@@ -290,7 +289,7 @@ const ReportedContent: React.FC = () => {
                 <Search size={14} /> Search Reason
               </label>
               <div className="relative">
-                <input 
+                <input
                   type="text"
                   placeholder="Search report reasons..."
                   className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 pr-10 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all dark:text-white"
@@ -312,7 +311,7 @@ const ReportedContent: React.FC = () => {
             {/* Status Filter */}
             <div className="space-y-2">
               <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Status</label>
-              <select 
+              <select
                 className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
                 value={filters.status}
                 onChange={(e) => handleFilterChange('status', e.target.value)}
@@ -327,7 +326,7 @@ const ReportedContent: React.FC = () => {
             {/* Target Type Filter */}
             <div className="space-y-2">
               <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Content Type</label>
-              <select 
+              <select
                 className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
                 value={filters.targetType}
                 onChange={(e) => handleFilterChange('targetType', e.target.value)}
@@ -345,14 +344,14 @@ const ReportedContent: React.FC = () => {
                 <Calendar size={14} /> Date Range
               </label>
               <div className="flex items-center gap-2">
-                <input 
+                <input
                   type="date"
                   className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
                   value={filters.dateFrom || ''}
                   onChange={(e) => handleFilterChange('dateFrom', e.target.value)}
                 />
                 <span className="text-gray-400">-</span>
-                <input 
+                <input
                   type="date"
                   className="w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
                   value={filters.dateTo || ''}
@@ -367,7 +366,7 @@ const ReportedContent: React.FC = () => {
               {/* Sort By */}
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-500 dark:text-gray-400">Sort by:</span>
-                <select 
+                <select
                   className="bg-transparent border-none text-sm font-semibold text-gray-700 dark:text-gray-200 focus:ring-0 cursor-pointer outline-none"
                   value={filters.sortBy}
                   onChange={(e) => handleFilterChange('sortBy', e.target.value)}
@@ -378,7 +377,7 @@ const ReportedContent: React.FC = () => {
                 </select>
               </div>
 
-              <button 
+              <button
                 onClick={() => handleFilterChange('sortOrder', filters.sortOrder === 'asc' ? 'desc' : 'asc')}
                 className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex items-center gap-1 text-sm font-medium text-gray-600 dark:text-gray-300"
               >
@@ -387,7 +386,7 @@ const ReportedContent: React.FC = () => {
               </button>
             </div>
 
-            <button 
+            <button
               onClick={clearFilters}
               className="text-sm font-bold cursor-pointer hover:border-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-700 p-1.5 rounded-xl text-red-500 hover:text-red-600 flex items-center gap-1 transition-colors"
             >
@@ -404,11 +403,10 @@ const ReportedContent: React.FC = () => {
             {totalReports} Total Reports Found
           </div>
           {activeTab !== 'all' && (
-            <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
-              activeTab === 'instructor'
+            <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${activeTab === 'instructor'
                 ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-900/50'
                 : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900/50'
-            }`}>
+              }`}>
               {activeTab === 'instructor' ? (
                 <span className="flex items-center gap-1"><GraduationCap size={12} /> Instructor Feedback</span>
               ) : (
@@ -443,7 +441,7 @@ const ReportedContent: React.FC = () => {
           <p className="text-gray-500 dark:text-gray-400 text-lg leading-relaxed">
             There are no {activeTab !== 'all' ? `${activeTab} ` : ''}reports matching your current filter criteria.
           </p>
-          <button 
+          <button
             onClick={clearFilters}
             className="mt-8 px-8 py-3 cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/40 active:scale-95"
           >
@@ -453,13 +451,12 @@ const ReportedContent: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {reports.map((report) => (
-            <div 
-              key={report._id} 
-              className={`group bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl border overflow-hidden flex flex-col transition-all duration-500 hover:-translate-y-2 relative ${
-                report.reporterRole === 'instructor'
+            <div
+              key={report._id}
+              className={`group bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl border overflow-hidden flex flex-col transition-all duration-500 hover:-translate-y-2 relative ${report.reporterRole === 'instructor'
                   ? 'border-purple-100 dark:border-purple-900/30 hover:border-purple-200 dark:hover:border-purple-800'
                   : 'border-gray-100 dark:border-gray-700'
-              }`}
+                }`}
             >
               {/* Report Badge Overlay */}
               <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border z-10 ${getStatusColor(report.status)}`}>
@@ -489,7 +486,7 @@ const ReportedContent: React.FC = () => {
                     </span>
                   </div>
                 </div>
-                
+
                 <div className="h-px bg-gradient-to-r from-transparent via-gray-100 dark:via-gray-700 to-transparent mb-4" />
               </div>
 
@@ -572,7 +569,7 @@ const ReportedContent: React.FC = () => {
                   </button>
                 </div>
               )}
-              
+
               {/* View History Button for handled reports */}
               {report.status !== 'pending' && (
                 <div className="p-4 bg-gray-50 dark:bg-gray-800/90 border-t border-gray-100 dark:border-gray-700 flex mt-auto">
@@ -588,10 +585,10 @@ const ReportedContent: React.FC = () => {
 
       {/* Modern Pagination */}
       {totalPages > 1 && (
-        <Pagination 
-          page={filters.page || 1} 
-          totalPages={totalPages} 
-          onPageChange={(p) => handleFilterChange('page', p)} 
+        <Pagination
+          page={filters.page || 1}
+          totalPages={totalPages}
+          onPageChange={(p) => handleFilterChange('page', p)}
         />
       )}
 
@@ -602,7 +599,7 @@ const ReportedContent: React.FC = () => {
         onConfirm={handleConfirm}
         title={actionType === 'dismiss' ? 'Dismiss Report?' : 'Process Action?'}
         description={
-          actionType === 'dismiss' 
+          actionType === 'dismiss'
             ? "Are you sure you want to dismiss this report? The content will remain active on the platform and this report will be moved to archives."
             : `Are you sure you want to take action? This will ${selectedReport?.targetType === 'review' ? 'permanently delete the review' : `block the ${selectedReport?.targetType}`}. This action is irreversible.`
         }

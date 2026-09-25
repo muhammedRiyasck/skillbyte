@@ -2,25 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getAdminReviews, toggleHideReview, deleteReview, type AdminReviewFilters } from '../services/AdminReviewService';
 import { toast } from 'sonner';
-import { 
-  MessageSquare, 
-  Search, 
-  Filter, 
-  ChevronDown, 
-  X, 
-  RotateCw, 
-  Eye, 
-  EyeOff, 
-  Trash2, 
-  Star, 
-  Calendar, 
-  BookOpen, 
+import {
+  MessageSquare,
+  Search,
+  Filter,
+  ChevronDown,
+  X,
+  RotateCw,
+  Eye,
+  EyeOff,
+  Trash2,
+  Star,
+  Calendar,
+  BookOpen,
   User,
   ArrowUpAz,
   ArrowDownAz,
   CircleAlert
 } from 'lucide-react';
-import { Pagination, AdminConfirmModal } from '@/shared/ui';
+import { Pagination, AdminConfirmModal } from '@/shared/components';
 import { motion, AnimatePresence } from 'framer-motion';
 
 /**
@@ -79,10 +79,10 @@ const ReviewManagement: React.FC = () => {
   });
 
   const handleFilterChange = <K extends keyof AdminReviewFilters>(key: K, value: AdminReviewFilters[K]) => {
-    setFilters(prev => ({ 
-      ...prev, 
-      [key]: value, 
-      page: key === 'page' ? (value as number) : 1 
+    setFilters(prev => ({
+      ...prev,
+      [key]: value,
+      page: key === 'page' ? (value as number) : 1
     }));
   };
 
@@ -106,7 +106,7 @@ const ReviewManagement: React.FC = () => {
     <div className="p-6 min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 dark:from-slate-900 dark:to-slate-800 transition-colors duration-500">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
         >
@@ -120,21 +120,20 @@ const ReviewManagement: React.FC = () => {
             Monitor and moderate all course and mentorship session reviews.
           </p>
         </motion.div>
-        
+
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsFilterOpen(!isFilterOpen)}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all duration-300 border cursor-pointer ${
-              isFilterOpen 
-                ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-500/30' 
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all duration-300 border cursor-pointer ${isFilterOpen
+                ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-500/30'
                 : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-indigo-400'
-            }`}
+              }`}
           >
             <Filter size={18} />
             Filters
             {isFilterOpen ? <X size={16} /> : <ChevronDown size={16} />}
           </button>
-          
+
           <button
             onClick={() => refetch()}
             className="p-2.5 bg-white cursor-pointer dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-700 transition-all active:scale-95"
@@ -148,7 +147,7 @@ const ReviewManagement: React.FC = () => {
       {/* Filters Panel */}
       <AnimatePresence>
         {isFilterOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
@@ -159,7 +158,7 @@ const ReviewManagement: React.FC = () => {
                 <label className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
                   <Search size={14} /> Search Comment
                 </label>
-                <input 
+                <input
                   type="text"
                   placeholder="Search reviews..."
                   className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-all dark:text-white"
@@ -170,7 +169,7 @@ const ReviewManagement: React.FC = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Target Type</label>
-                <select 
+                <select
                   className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
                   value={filters.targetType}
                   onChange={(e) => handleFilterChange('targetType', e.target.value as 'course' | 'session' | 'all')}
@@ -183,7 +182,7 @@ const ReviewManagement: React.FC = () => {
 
               <div className="space-y-2">
                 <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Visibility</label>
-                <select 
+                <select
                   className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white cursor-pointer"
                   value={String(filters.isHidden)}
                   onChange={(e) => {
@@ -200,7 +199,7 @@ const ReviewManagement: React.FC = () => {
               <div className="space-y-2">
                 <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Sort By</label>
                 <div className="flex gap-2">
-                  <select 
+                  <select
                     className="flex-grow bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 dark:text-white"
                     value={filters.sortBy}
                     onChange={(e) => handleFilterChange('sortBy', e.target.value as AdminReviewFilters['sortBy'])}
@@ -209,7 +208,7 @@ const ReviewManagement: React.FC = () => {
                     <option value="rating">Rating</option>
                     <option value="helpfulCount">Helpful Count</option>
                   </select>
-                  <button 
+                  <button
                     onClick={() => handleFilterChange('sortOrder', filters.sortOrder === 'asc' ? 'desc' : 'asc')}
                     className="p-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all dark:text-white"
                   >
@@ -220,7 +219,7 @@ const ReviewManagement: React.FC = () => {
             </div>
 
             <div className="mt-6 flex justify-end">
-              <button 
+              <button
                 onClick={clearFilters}
                 className="text-sm font-bold text-red-500 hover:text-red-600 flex items-center gap-2 transition-colors cursor-pointer"
               >
@@ -275,9 +274,9 @@ const ReviewManagement: React.FC = () => {
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 relative bg-indigo-100 dark:bg-indigo-900/50 rounded-xl flex items-center justify-center overflow-hidden">
                           {review.studentProfilePic ? (
-                            <img 
-                              src={review.studentProfilePic} 
-                              className="w-full h-full object-cover" 
+                            <img
+                              src={review.studentProfilePic}
+                              className="w-full h-full object-cover"
                               alt={review.studentName}
                               onError={(e) => {
                                 (e.target as HTMLImageElement).src = ''; // Clear src on error to trigger fallback text
@@ -341,19 +340,18 @@ const ReviewManagement: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
-                        <button 
+                        <button
                           onClick={() => hideMutation.mutate({ reviewId: review.reviewId, hide: !review.isHidden })}
                           disabled={hideMutation.isPending}
-                          className={`p-2 rounded-xl transition-all cursor-pointer ${
-                            review.isHidden 
-                              ? 'bg-green-100 dark:bg-green-900/30 text-green-600 hover:bg-green-200' 
+                          className={`p-2 rounded-xl transition-all cursor-pointer ${review.isHidden
+                              ? 'bg-green-100 dark:bg-green-900/30 text-green-600 hover:bg-green-200'
                               : 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 hover:bg-amber-200'
-                          }`}
+                            }`}
                           title={review.isHidden ? "Show Review" : "Hide Review"}
                         >
                           {review.isHidden ? <Eye size={18} /> : <EyeOff size={18} />}
                         </button>
-                        <button 
+                        <button
                           onClick={() => setDeleteId(review.reviewId)}
                           disabled={deleteMutation.isPending}
                           className="p-2 bg-red-100 cursor-pointer dark:bg-red-900/30 text-red-600 rounded-xl hover:bg-red-200 transition-all"
@@ -372,12 +370,12 @@ const ReviewManagement: React.FC = () => {
 
         {/* Footer / Pagination */}
         <div className="px-6 py-4 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:row justify-between items-center gap-4">
-        
+
           {totalPages > 1 && (
-            <Pagination 
-              page={filters.page || 1} 
-              totalPages={totalPages} 
-              onPageChange={(p) => handleFilterChange('page', p)} 
+            <Pagination
+              page={filters.page || 1}
+              totalPages={totalPages}
+              onPageChange={(p) => handleFilterChange('page', p)}
             />
           )}
         </div>

@@ -4,10 +4,10 @@ import { useForm, FormProvider } from "react-hook-form";
 import { ROUTES } from "@core/router/paths";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import { MotionDiv } from "@shared/ui";
+import { MotionDiv } from "@/shared/components";
 import { instructorRegister, reapplyInstructor } from "../";
 import { toast } from "sonner";
-import { Spiner } from "@shared/ui";
+import { Spiner } from "@/shared/components";
 
 import ProgressBar from "../components/ProgressBar";
 import PersonalDetailsStep from "../components/PersonalDetailsStep";
@@ -63,7 +63,7 @@ export default function InstructorSignup() {
       customSubject: "",
       agree: false,
     },
-     shouldUnregister: false 
+    shouldUnregister: false
   });
 
   const { handleSubmit, watch, trigger, reset } = methods;
@@ -92,7 +92,7 @@ export default function InstructorSignup() {
         socialMediaLink: data.socialProfile || "",
         portfolioLink: data.portfolio || "",
         bio: data.bio || "",
-        resume: null, 
+        resume: null,
         password: "",
         confirmPassword: "",
         agree: false,
@@ -107,7 +107,7 @@ export default function InstructorSignup() {
         currentStep === 1
           ? (isReapply ? ["fullName", "email", "phoneNumber"] : ["fullName", "email", "password", "confirmPassword", "phoneNumber"])
           : ["subject", "jobTitle", "experience", "socialMediaLink", "portfolioLink", "bio", "resume"];
-      
+
       const isValid = await trigger(fieldsToValidate as (keyof FormData)[]);
       if (isValid) {
         setCurrentStep(currentStep + 1);
@@ -137,7 +137,7 @@ export default function InstructorSignup() {
       if (isReapply) {
         const response = await reapplyInstructor(payload);
         toast.success(response.message || "Application updated successfully.");
-        navigate(ROUTES.auth.signIn); 
+        navigate(ROUTES.auth.signIn);
       } else {
         const response = await instructorRegister(payload);
         sessionStorage.setItem("emailForOtp", data.email);
@@ -166,16 +166,16 @@ export default function InstructorSignup() {
           {isReapply ? "Update Your Application" : "Create Your Instructor Account"}
         </h2>
         <p className="mt-2 text-sm text-center text-gray-600 dark:text-gray-400">
-          {isReapply 
+          {isReapply
             ? "Your previous application was rejected. Please update your details below to resubmit."
             : "Fill out the form below to start building and sharing your courses with students across the globe!"}
         </p>
 
         {isReapply && reapplyUserData && (
-             <div className="mt-4 p-3 bg-indigo-50 dark:bg-gray-700 rounded-md text-sm text-center">
-                <span className="font-semibold text-indigo-700 dark:text-indigo-300">Application for:</span> {reapplyUserData.fullName || ('name' in reapplyUserData ? reapplyUserData.name as string : '')} <br/>
-                <span className="text-gray-500 dark:text-gray-400">({reapplyUserData.email})</span>
-             </div>
+          <div className="mt-4 p-3 bg-indigo-50 dark:bg-gray-700 rounded-md text-sm text-center">
+            <span className="font-semibold text-indigo-700 dark:text-indigo-300">Application for:</span> {reapplyUserData.fullName || ('name' in reapplyUserData ? reapplyUserData.name as string : '')} <br />
+            <span className="text-gray-500 dark:text-gray-400">({reapplyUserData.email})</span>
+          </div>
         )}
 
         {!isReapply && <ProgressBar currentStep={currentStep} />}
@@ -192,21 +192,20 @@ export default function InstructorSignup() {
             {/* Navigation Buttons */}
             <div className="flex justify-between mt-6">
               {!isReapply && (
-                  <button
-                    type="button"
-                    onClick={prevStep}
-                    disabled={currentStep === 1}
-                    className={`px-4 py-2 border border-gray-300 text-gray-700 rounded-md transition flex items-center gap-2 ${
-                      currentStep === 1
-                        ? "opacity-50 cursor-not-allowed"
-                        : "hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 cursor-pointer"
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  disabled={currentStep === 1}
+                  className={`px-4 py-2 border border-gray-300 text-gray-700 rounded-md transition flex items-center gap-2 ${currentStep === 1
+                      ? "opacity-50 cursor-not-allowed"
+                      : "hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 cursor-pointer"
                     }`}
-                  >
-                    <ChevronLeft size={16} />
-                    Previous
-                  </button>
+                >
+                  <ChevronLeft size={16} />
+                  Previous
+                </button>
               )}
-              
+
               {currentStep < 2 ? (
                 <button
                   type="button"
@@ -220,11 +219,10 @@ export default function InstructorSignup() {
                 <button
                   type="submit"
                   disabled={loading || !watchedValues.agree}
-                  className={`w-1/2 text-white ml-auto rounded-md py-2 px-4 font-medium transition disabled:opacity-50 ${
-                    watchedValues.agree
+                  className={`w-1/2 text-white ml-auto rounded-md py-2 px-4 font-medium transition disabled:opacity-50 ${watchedValues.agree
                       ? "bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer"
                       : "bg-gray-400 cursor-not-allowed text-gray-200"
-                  } ${isReapply ? "" : "ml-auto w-auto"}`} 
+                    } ${isReapply ? "" : "ml-auto w-auto"}`}
                 >
                   {loading ? (isReapply ? "Updating..." : "Signing Up...") : (isReapply ? "Resubmit Application" : "Sign Up")}
                 </button>
@@ -235,22 +233,22 @@ export default function InstructorSignup() {
 
 
         {/* Sign in link - only show if not reapplying (or show generic footer) */}
-         
-          <>
-            <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-              Already have an account? &nbsp;
-              <Link to={ROUTES.auth.signIn} className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500 ">
-                Sign in
-              </Link>
-            </p>
-            <p className="text-center text-sm text-gray-400 mt-2">
-              Want to become an Learner? &nbsp;
-              <Link to={ROUTES.auth.learnerRegister} className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
-                Create an account
-              </Link>
-            </p>
-          </>
-        
+
+        <>
+          <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+            Already have an account? &nbsp;
+            <Link to={ROUTES.auth.signIn} className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500 ">
+              Sign in
+            </Link>
+          </p>
+          <p className="text-center text-sm text-gray-400 mt-2">
+            Want to become an Learner? &nbsp;
+            <Link to={ROUTES.auth.learnerRegister} className="text-indigo-600 dark:text-indigo-400  hover:text-indigo-500">
+              Create an account
+            </Link>
+          </p>
+        </>
+
       </MotionDiv>
     </div>
   );

@@ -4,7 +4,7 @@ import { useInView } from 'react-intersection-observer';
 import { getInstructorReviews } from '@features/review/services/ReviewService';
 import ReviewCard from '@features/review/components/ReviewCard';
 import { MessageSquare, BookOpen, Users, RotateCw, Star, Filter, ArrowUpDown, ChevronDown, X } from 'lucide-react';
-import Spiner from '@shared/ui/Spiner';
+import Spiner from '@/shared/components/Spiner';
 
 const InstructorReviews = () => {
   const { ref, inView } = useInView({
@@ -28,14 +28,14 @@ const InstructorReviews = () => {
     isFetchingNextPage
   } = useInfiniteQuery({
     queryKey: ['instructor-reviews', activeTab, rating, status, sortBy, sortOrder],
-    queryFn: ({ pageParam = 1 }) => getInstructorReviews({ 
-      targetType: activeTab, 
-      rating, 
-      status, 
-      sortBy, 
-      sortOrder, 
-      page: pageParam, 
-      limit 
+    queryFn: ({ pageParam = 1 }) => getInstructorReviews({
+      targetType: activeTab,
+      rating,
+      status,
+      sortBy,
+      sortOrder,
+      page: pageParam,
+      limit
     }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
@@ -77,7 +77,7 @@ const InstructorReviews = () => {
           </div>
           <div className="flex items-center gap-3">
             {isFiltered && (
-              <button 
+              <button
                 onClick={resetFilters}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-500 hover:text-indigo-600 transition-colors cursor-pointer"
               >
@@ -85,7 +85,7 @@ const InstructorReviews = () => {
                 Reset
               </button>
             )}
-            <button 
+            <button
               onClick={() => refetch()}
               className={`p-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all shadow-sm cursor-pointer ${isRefetching ? 'animate-spin' : ''}`}
               title="Refresh reviews"
@@ -101,11 +101,10 @@ const InstructorReviews = () => {
               onClick={() => {
                 setActiveTab('course');
               }}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl cursor-pointer font-bold transition-all ${
-                activeTab === 'course'
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl cursor-pointer font-bold transition-all ${activeTab === 'course'
                   ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none'
                   : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
-              }`}
+                }`}
             >
               <BookOpen className="w-5 h-5" />
               Course Reviews
@@ -114,11 +113,10 @@ const InstructorReviews = () => {
               onClick={() => {
                 setActiveTab('session');
               }}
-              className={`flex items-center gap-2 px-6 py-3 rounded-xl cursor-pointer font-bold transition-all ${
-                activeTab === 'session'
+              className={`flex items-center gap-2 px-6 py-3 rounded-xl cursor-pointer font-bold transition-all ${activeTab === 'session'
                   ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200 dark:shadow-none'
                   : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-100 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
-              }`}
+                }`}
             >
               <Users className="w-5 h-5" />
               Mentorship Feedback
@@ -131,7 +129,7 @@ const InstructorReviews = () => {
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-indigo-500 transition-colors pointer-events-none">
                 <Star size={16} />
               </div>
-              <select 
+              <select
                 value={rating || ''}
                 onChange={(e) => setRating(e.target.value ? Number(e.target.value) : undefined)}
                 className="w-full pl-9 pr-10 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all appearance-none cursor-pointer"
@@ -153,7 +151,7 @@ const InstructorReviews = () => {
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-indigo-500 transition-colors pointer-events-none">
                 <Filter size={16} />
               </div>
-              <select 
+              <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-full pl-9 pr-10 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-bold text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all appearance-none cursor-pointer"
@@ -172,7 +170,7 @@ const InstructorReviews = () => {
               <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-indigo-500 transition-colors pointer-events-none">
                 <ArrowUpDown size={16} />
               </div>
-              <select 
+              <select
                 value={`${sortBy}-${sortOrder}`}
                 onChange={(e) => {
                   const [field, order] = e.target.value.split('-');
@@ -231,7 +229,7 @@ const InstructorReviews = () => {
               {isFiltered ? (
                 <>
                   <p className="text-sm mb-4">Try adjusting your filters to find what you're looking for.</p>
-                  <button 
+                  <button
                     onClick={resetFilters}
                     className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold hover:bg-indigo-700 transition-colors cursor-pointer"
                   >

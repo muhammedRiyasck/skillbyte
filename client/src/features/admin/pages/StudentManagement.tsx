@@ -5,7 +5,7 @@ import api from "@shared/utils/AxiosInstance";
 import { toast } from "sonner";
 import { RefreshCw, Search } from "lucide-react";
 import StudentTable from "../components/StudentTable";
-import { DebouncedInput } from "@/shared/ui";
+import { DebouncedInput } from "@/shared/components";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -50,7 +50,7 @@ const StudentManagement: React.FC = () => {
                 placeholder="Search name or email..."
                 value={search}
                 setValue={setSearch}
-                icon={()=><Search className="w-5 h-5 text-gray-400" />}
+                icon={() => <Search className="w-5 h-5 text-gray-400" />}
               />
             </div>
             <button

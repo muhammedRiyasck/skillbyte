@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import Spiner from '@shared/ui/Spiner';
+import Spiner from '@/shared/components/Spiner';
 import { useInstructorDashboard } from '../hooks/useInstructorDashboard';
 
 import DashboardHeader from '../components/dashboard/DashboardHeader';
@@ -82,7 +82,7 @@ const InstructorDashboard: React.FC = () => {
             <div className="max-w-7xl mx-auto">
                 <DashboardHeader itemVariants={itemVariants} />
 
-                <StripeBanners 
+                <StripeBanners
                     itemVariants={itemVariants}
                     instructor={instructor}
                     isOnboarding={isOnboarding}
@@ -91,19 +91,19 @@ const InstructorDashboard: React.FC = () => {
                     handleRefreshStatus={handleRefreshStatus}
                 />
 
-                <DashboardStats 
+                <DashboardStats
                     itemVariants={itemVariants}
                     stats={stats}
                 />
 
                 <div className="flex flex-col gap-10 mb-10">
-                    <EarningsChart 
+                    <EarningsChart
                         itemVariants={itemVariants}
                         chartData={chartData}
                         USD_TO_INR={USD_TO_INR}
                     />
 
-                    <ProfileBalanceCard 
+                    <ProfileBalanceCard
                         itemVariants={itemVariants}
                         instructor={instructor}
                         availableBalance={availableBalance}
@@ -114,13 +114,13 @@ const InstructorDashboard: React.FC = () => {
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-                    <RecentEarnings 
+                    <RecentEarnings
                         itemVariants={itemVariants}
                         earnings={earnings}
                         USD_TO_INR={USD_TO_INR}
                     />
 
-                    <WithdrawalsHistory 
+                    <WithdrawalsHistory
                         itemVariants={itemVariants}
                         withdrawals={withdrawals}
                         withdrawalsFetching={withdrawalsFetching}
@@ -134,12 +134,12 @@ const InstructorDashboard: React.FC = () => {
                     />
                 </div>
 
-                <UpcomingSessions 
+                <UpcomingSessions
                     itemVariants={itemVariants}
                     bookings={bookings}
                 />
 
-                <EnrolledCourses 
+                <EnrolledCourses
                     itemVariants={itemVariants}
                     courses={courses}
                 />

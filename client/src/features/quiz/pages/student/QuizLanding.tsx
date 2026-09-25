@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { quizService } from '../../services/quizService';
 import { AlertCircle, Clock, BrainCircuit, Sparkles, RefreshCw, ChevronRight } from 'lucide-react';
 import { ROUTES } from '../../../../core/router/paths';
-import Spiner from '@shared/ui/Spiner';
+import Spiner from '@/shared/components/Spiner';
 import type { IQuizConfig } from '../../types/quiz.types';
 
 const QuizLanding: React.FC = () => {
@@ -52,9 +52,9 @@ const QuizLanding: React.FC = () => {
   const questionsToPass = config ? Math.ceil((config.passPercentage / 100) * config.questionCount) : 0;
   const isCurrentlyInProgress = previousResult && previousResult.status === 'in_progress';
 
-  useEffect(()=>{
-    window.scrollTo({top:0,behavior:'smooth'});
-  },[])
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [])
 
   useEffect(() => {
     if (isPoolPreparing) {
@@ -76,7 +76,7 @@ const QuizLanding: React.FC = () => {
           <AlertCircle className="w-16 h-16 text-orange-400 mx-auto mb-6" />
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Quiz Unavailable</h2>
           <p className="text-gray-500 dark:text-gray-400 mt-2">The instructor has not enabled a quiz for this course yet.</p>
-          <button 
+          <button
             onClick={() => navigate(-1)}
             className="mt-8 px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 cursor-pointer"
           >
@@ -94,13 +94,13 @@ const QuizLanding: React.FC = () => {
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/10 dark:bg-purple-600/20 rounded-full blur-[120px] animate-pulse" />
 
       <div className="max-w-4xl w-full grid lg:grid-cols-5 gap-0 bg-white dark:bg-gray-900/40 backdrop-blur-xl rounded-[2.5rem] shadow-2xl overflow-hidden border border-slate-200 dark:border-white/10 relative z-10">
-        
+
         {/* Left Side: Hero & Branding */}
         <div className="lg:col-span-2 bg-gradient-to-br from-indigo-600 to-purple-700 p-8 md:p-12 flex flex-col justify-center items-center text-center relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
             <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }} />
           </div>
-          
+
           <div className="relative">
             <div className="w-24 h-24 bg-white/20 backdrop-blur-xl rounded-[2rem] flex items-center justify-center mb-8 shadow-2xl border border-white/30 transform hover:rotate-6 transition-transform duration-500">
               <BrainCircuit className="w-12 h-12 text-white" />
@@ -118,19 +118,19 @@ const QuizLanding: React.FC = () => {
           </p>
 
           <div className="mt-12 flex flex-col gap-3 w-full max-w-[200px]">
-             <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/10">
-                <p className="text-[10px] uppercase font-bold text-indigo-200 mb-1 text-center">Pass Requirement</p>
-                <div className="flex flex-col items-center">
-                  <p className="text-xl font-black text-white">{config.passPercentage}%</p>
-                  <p className="text-[9px] font-bold text-indigo-100 opacity-70 uppercase tracking-tighter">({questionsToPass} Correct Answers)</p>
-                </div>
-             </div>
-             <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/10">
-                <p className="text-[10px] uppercase font-bold text-indigo-200 mb-1 text-center">Time Limit</p>
-                <p className="text-xl font-black text-white text-center">
-                  {config.timeLimit ? `${config.timeLimit} Mins` : `~${config.questionCount * 2} Mins`}
-                </p>
-             </div>
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/10">
+              <p className="text-[10px] uppercase font-bold text-indigo-200 mb-1 text-center">Pass Requirement</p>
+              <div className="flex flex-col items-center">
+                <p className="text-xl font-black text-white">{config.passPercentage}%</p>
+                <p className="text-[9px] font-bold text-indigo-100 opacity-70 uppercase tracking-tighter">({questionsToPass} Correct Answers)</p>
+              </div>
+            </div>
+            <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/10">
+              <p className="text-[10px] uppercase font-bold text-indigo-200 mb-1 text-center">Time Limit</p>
+              <p className="text-xl font-black text-white text-center">
+                {config.timeLimit ? `${config.timeLimit} Mins` : `~${config.questionCount * 2} Mins`}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -149,17 +149,17 @@ const QuizLanding: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-               <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4 border border-slate-100 dark:border-white/5">
-                  <p className="text-[10px] font-bold text-slate-400 dark:text-gray-500 uppercase mb-1">Questions</p>
-                  <div className="flex items-baseline gap-1.5">
-                    <p className="text-lg font-black text-slate-900 dark:text-white">{config.questionCount} Items</p>
-                    <p className="text-[10px] font-bold text-indigo-500 dark:text-indigo-400 uppercase">({questionsToPass} to pass)</p>
-                  </div>
-               </div>
-               <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4 border border-slate-100 dark:border-white/5">
-                  <p className="text-[10px] font-bold text-slate-400 dark:text-gray-500 uppercase mb-1">Complexity</p>
-                  <p className="text-lg font-black text-slate-900 dark:text-white capitalize">{config.difficulty}</p>
-               </div>
+              <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4 border border-slate-100 dark:border-white/5">
+                <p className="text-[10px] font-bold text-slate-400 dark:text-gray-500 uppercase mb-1">Questions</p>
+                <div className="flex items-baseline gap-1.5">
+                  <p className="text-lg font-black text-slate-900 dark:text-white">{config.questionCount} Items</p>
+                  <p className="text-[10px] font-bold text-indigo-500 dark:text-indigo-400 uppercase">({questionsToPass} to pass)</p>
+                </div>
+              </div>
+              <div className="bg-slate-50 dark:bg-white/5 rounded-2xl p-4 border border-slate-100 dark:border-white/5">
+                <p className="text-[10px] font-bold text-slate-400 dark:text-gray-500 uppercase mb-1">Complexity</p>
+                <p className="text-lg font-black text-slate-900 dark:text-white capitalize">{config.difficulty}</p>
+              </div>
             </div>
 
             {/* Focus Topics Section */}
@@ -167,7 +167,7 @@ const QuizLanding: React.FC = () => {
               <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Focus Topics</p>
               <div className="flex flex-wrap gap-2">
                 {config.topics.map((topic, index) => (
-                  <span 
+                  <span
                     key={index}
                     className="px-4 py-2 bg-slate-50 dark:bg-white/5 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold border border-slate-100 dark:border-white/10 flex items-center gap-2"
                   >
@@ -183,7 +183,7 @@ const QuizLanding: React.FC = () => {
                 <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full" />
                 Examination Protocols
               </h3>
-              
+
               <div className="space-y-3">
                 <div className="group flex gap-4 p-4 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 rounded-2xl border border-slate-100 dark:border-white/5 transition-colors">
                   <div className="w-10 h-10 rounded-xl bg-indigo-500/10 dark:bg-indigo-500/20 flex items-center justify-center shrink-0">
@@ -273,7 +273,7 @@ const QuizLanding: React.FC = () => {
                   <p className="text-gray-500 text-xs mt-1">if you have any concerns, contact your instructor</p>
                 </div>
               )}
-              
+
               {previousResult && (
                 <button
                   onClick={() => navigate(ROUTES.student.quiz.result.replace(':courseId', courseId!))}

@@ -1,4 +1,4 @@
-import ThemeToggle from "@shared/ui/ThemeToggle";
+import ThemeToggle from "@/shared/components/ThemeToggle";
 import logo from "../../assets/OrginalLogo.png";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";

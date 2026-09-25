@@ -4,7 +4,7 @@ import { ROUTES } from "@core/router/paths";
 import { isEmailValid } from "@shared/validation";
 import { forgotPassword } from "../services/AuthService";
 import { toast } from "sonner";
-import { ErrorMessage, Spiner, MotionDiv } from "@shared/ui";
+import { ErrorMessage, Spiner, MotionDiv } from "@/shared/components";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -19,7 +19,7 @@ const ForgotPassword = () => {
       email: emailValid.message,
       role: role ? "" : "role is required",
     });
-    if (emailValid.success && role){
+    if (emailValid.success && role) {
       try {
         setLoading(true);
         const response = await forgotPassword({ email, role });

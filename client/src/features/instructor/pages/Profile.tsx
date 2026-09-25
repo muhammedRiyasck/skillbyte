@@ -4,13 +4,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@shared/utils/AxiosInstance";
 import { getInstructorProfile } from "../services/InstructorDashboardService";
 import { toast } from "sonner";
-import CropImageModal from "@shared/ui/CropImageModal";
-import Modal from "@shared/ui/Modal";
+import CropImageModal from "@/shared/components/CropImageModal";
+import Modal from "@/shared/components/Modal";
 import getCroppedImg from "@shared/utils/GetCroppedImg";
-import Spiner from "@shared/ui/Spiner";
-import ErrorPage from "@shared/ui/ErrorPage";
+import Spiner from "@/shared/components/Spiner";
+import ErrorPage from "@/shared/components/ErrorPage";
 import default_profile from "@assets/default_profile.svg";
-import TextInput from "@shared/ui/TextInput";
+import TextInput from "@/shared/components/TextInput";
 import ChangePasswordModal from "../components/dashboard/ChangePasswordModal";
 
 interface FormData {
@@ -435,7 +435,7 @@ const Profile: React.FC = () => {
                   await api.delete('/instructor/profile-image');
                   toast.success('Profile image removed');
                   queryClient.invalidateQueries({ queryKey: ["instructor-profile"] });
-                }finally {
+                } finally {
                   setLoading(false);
                 }
               }
@@ -450,7 +450,7 @@ const Profile: React.FC = () => {
         </div>
       </Modal>
 
-      <ChangePasswordModal 
+      <ChangePasswordModal
         isOpen={isChangePasswordOpen}
         onClose={() => setIsChangePasswordOpen(false)}
       />

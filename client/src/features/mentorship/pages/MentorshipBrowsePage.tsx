@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Modal from "@shared/ui/Modal";
+import Modal from "@/shared/components/Modal";
 import { toast } from "sonner";
 import { getResumePaymentSecret } from "../services/BookingServices";
 import { Elements } from "@stripe/react-stripe-js";
@@ -392,11 +392,10 @@ const MentorshipBrowsePage = () => {
               <motion.button
                 whileTap={{ scale: 0.97 }}
                 onClick={() => setShowFilters(!showFilters)}
-                className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border px-3.5 text-sm font-semibold transition-all ${
-                  showFilters
+                className={`inline-flex h-11 shrink-0 items-center gap-2 rounded-xl border px-3.5 text-sm font-semibold transition-all ${showFilters
                     ? "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-400"
                     : "border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-[#0b1220] dark:text-gray-300 dark:hover:border-gray-700 dark:hover:bg-[#101827]"
-                }`}
+                  }`}
               >
                 <SlidersHorizontal className="h-4 w-4" />
                 <span className="hidden sm:inline">Filters</span>
@@ -496,44 +495,42 @@ const MentorshipBrowsePage = () => {
             >
               {tagsLoading
                 ? Array.from({ length: 7 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="h-9 w-20 shrink-0 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-800"
-                    />
-                  ))
+                  <div
+                    key={i}
+                    className="h-9 w-20 shrink-0 animate-pulse rounded-lg bg-gray-200 dark:bg-gray-800"
+                  />
+                ))
                 : categories.map((cat) => {
-                    const isActive =
-                      cat === "All"
-                        ? selectedTags.length === 0
-                        : selectedTags.includes(cat);
+                  const isActive =
+                    cat === "All"
+                      ? selectedTags.length === 0
+                      : selectedTags.includes(cat);
 
-                    return (
-                      <motion.button
-                        key={cat}
-                        whileTap={{ scale: 0.96 }}
-                        onClick={() => toggleTag(cat)}
-                        className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3.5 py-2 text-xs font-semibold transition-all ${
-                          isActive
-                            ? "border-blue-600 bg-blue-600 text-white shadow-sm shadow-blue-600/20"
-                            : "border-gray-200 bg-white text-gray-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 dark:border-gray-800 dark:bg-[#0b1220] dark:text-gray-400 dark:hover:border-blue-500/30 dark:hover:bg-blue-500/10 dark:hover:text-blue-400"
+                  return (
+                    <motion.button
+                      key={cat}
+                      whileTap={{ scale: 0.96 }}
+                      onClick={() => toggleTag(cat)}
+                      className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3.5 py-2 text-xs font-semibold transition-all ${isActive
+                          ? "border-blue-600 bg-blue-600 text-white shadow-sm shadow-blue-600/20"
+                          : "border-gray-200 bg-white text-gray-600 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 dark:border-gray-800 dark:bg-[#0b1220] dark:text-gray-400 dark:hover:border-blue-500/30 dark:hover:bg-blue-500/10 dark:hover:text-blue-400"
                         }`}
-                      >
-                        {cat === "All" ? (
-                          <Filter className="h-3.5 w-3.5" />
-                        ) : (
-                          <Tag
-                            className={`h-3.5 w-3.5 ${
-                              isActive
-                                ? "text-blue-100"
-                                : "text-blue-500"
+                    >
+                      {cat === "All" ? (
+                        <Filter className="h-3.5 w-3.5" />
+                      ) : (
+                        <Tag
+                          className={`h-3.5 w-3.5 ${isActive
+                              ? "text-blue-100"
+                              : "text-blue-500"
                             }`}
-                          />
-                        )}
+                        />
+                      )}
 
-                        {cat}
-                      </motion.button>
-                    );
-                  })}
+                      {cat}
+                    </motion.button>
+                  );
+                })}
             </div>
 
             {showRightArrow && (
@@ -666,23 +663,23 @@ const MentorshipBrowsePage = () => {
 
                               {data.instructor.averageRating !==
                                 undefined && (
-                                <div className="inline-flex items-center gap-1 rounded-md border border-yellow-200 bg-yellow-50 px-2 py-1 dark:border-yellow-800/40 dark:bg-yellow-500/10">
-                                  <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                                  <div className="inline-flex items-center gap-1 rounded-md border border-yellow-200 bg-yellow-50 px-2 py-1 dark:border-yellow-800/40 dark:bg-yellow-500/10">
+                                    <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
 
-                                  <span className="text-[11px] font-bold text-yellow-700 dark:text-yellow-400">
-                                    {data.instructor.averageRating.toFixed(
-                                      1,
-                                    )}
-                                  </span>
+                                    <span className="text-[11px] font-bold text-yellow-700 dark:text-yellow-400">
+                                      {data.instructor.averageRating.toFixed(
+                                        1,
+                                      )}
+                                    </span>
 
-                                  <span className="text-[10px] text-yellow-600/70 dark:text-yellow-500/70">
-                                    (
-                                    {data.instructor
-                                      .totalReviews || 0}
-                                    )
-                                  </span>
-                                </div>
-                              )}
+                                    <span className="text-[10px] text-yellow-600/70 dark:text-yellow-500/70">
+                                      (
+                                      {data.instructor
+                                        .totalReviews || 0}
+                                      )
+                                    </span>
+                                  </div>
+                                )}
                             </div>
 
                             <p className="mt-0.5 truncate text-sm font-medium text-blue-600 dark:text-blue-400">

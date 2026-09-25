@@ -2,8 +2,8 @@ import React, { useState, useMemo, useCallback } from "react";
 import default_profile from "@assets/default_profile.svg";
 import { CheckCircle, UserX, } from "lucide-react";
 
-import Table from "@shared/ui/Table";
-import Modal from "@shared/ui/Modal";
+import Table from "@/shared/components/Table";
+import Modal from "@/shared/components/Modal";
 import { changeStudentStatus } from "../services/StudentService";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";

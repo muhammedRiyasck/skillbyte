@@ -2,24 +2,24 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { quizService } from '../../services/quizService';
-import { 
-  Users, 
-  BarChart2, 
-  ArrowLeft, 
-  BrainCircuit, 
-  TrendingUp, 
-  RotateCcw, 
-  ShieldCheck, 
+import {
+  Users,
+  BarChart2,
+  ArrowLeft,
+  BrainCircuit,
+  TrendingUp,
+  RotateCcw,
+  ShieldCheck,
   ChevronDown,
   ChevronUp,
   Clock,
   XCircle
 } from 'lucide-react';
-import Spiner from '@shared/ui/Spiner';
+import Spiner from '@/shared/components/Spiner';
 import { toast } from 'sonner';
 import type { IStudentQuizSummary, IAttemptDetail } from '../../types/quiz.types';
-import Pagination from '@shared/ui/Pagination';
-import AdminConfirmModal from '@shared/ui/AdminConfirmModal';
+import Pagination from '@/shared/components/Pagination';
+import AdminConfirmModal from '@/shared/components/AdminConfirmModal';
 
 interface StatCardProps {
   icon: React.ElementType;
@@ -88,10 +88,10 @@ const QuizAnalytics: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-12">
       <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
-        
+
         {/* Breadcrumbs */}
         <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-          <button 
+          <button
             onClick={() => navigate('/instructor/myCourses')}
             className="flex items-center gap-1 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer"
           >
@@ -128,7 +128,7 @@ const QuizAnalytics: React.FC = () => {
             <p className="text-gray-500 dark:text-gray-400 mt-2 max-w-sm mx-auto">
               Once students start completing your course and taking the quiz, their performance data will appear here.
             </p>
-            <button 
+            <button
               onClick={() => navigate(`/instructor/quiz-config/${courseId}`)}
               className="mt-8 px-8 py-3 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 cursor-pointer"
             >
@@ -194,7 +194,7 @@ const QuizAnalytics: React.FC = () => {
                         <tr className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
-                              <button 
+                              <button
                                 onClick={() => setExpandedStudentId(expandedStudentId === student.userId ? null : student.userId)}
                                 className="p-1.5 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors text-gray-500 dark:text-gray-400 cursor-pointer"
                               >
@@ -298,10 +298,10 @@ const QuizAnalytics: React.FC = () => {
               {/* Pagination Controls */}
               {totalPages > 1 && (
                 <div className="p-4 border-t border-gray-100 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-800/30">
-                  <Pagination 
-                    page={currentPage} 
-                    totalPages={totalPages} 
-                    onPageChange={setCurrentPage} 
+                  <Pagination
+                    page={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
                   />
                   <p className="text-center text-xs text-gray-500 dark:text-gray-400 mt-2">
                     Showing students <span className="font-bold">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-bold">{Math.min(currentPage * itemsPerPage, analytics!.totalStudents)}</span> of <span className="font-bold">{analytics!.totalStudents}</span>
@@ -311,7 +311,7 @@ const QuizAnalytics: React.FC = () => {
             </div>
           </>
         )}
-        
+
         {/* Decorative background element */}
         <div className="fixed -bottom-24 -right-24 w-96 h-96 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="fixed -top-24 -left-24 w-96 h-96 rounded-full blur-3xl pointer-events-none" />

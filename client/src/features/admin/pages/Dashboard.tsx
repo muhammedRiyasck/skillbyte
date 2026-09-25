@@ -1,10 +1,10 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { 
-    Users, 
-    BookOpen, 
-    DollarSign, 
-    TrendingUp, 
+import {
+    Users,
+    BookOpen,
+    DollarSign,
+    TrendingUp,
     Calendar,
     Clock,
     UserPlus,
@@ -24,7 +24,7 @@ import {
 } from 'recharts';
 import { ROUTES } from '@/core/router/paths';
 import { getAdminDashboardData } from '../services/DashboardService';
-import Spiner from '@shared/ui/Spiner';
+import Spiner from '@/shared/components/Spiner';
 import type { AdminDashboardData } from '../types/IDashboard';
 import DashboardStatCard from '../components/dashboard/DashboardStatCard';
 import RevenueTrendChart from '../components/dashboard/RevenueTrendChart';
@@ -131,7 +131,7 @@ const AdminDashboard: React.FC = () => {
     ];
 
     return (
-        <motion.div 
+        <motion.div
             initial="hidden"
             animate="visible"
             variants={containerVariants}
@@ -146,10 +146,10 @@ const AdminDashboard: React.FC = () => {
                     <p className="text-slate-500 dark:text-slate-400 font-medium">Control center for all platform operations and growth metrics.</p>
                 </div>
                 <div className="flex gap-3">
-                   <div className="bg-white dark:bg-slate-800 p-2 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-2">
-                     <Calendar className="w-5 h-5 text-indigo-500" />
-                     <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{new Date().toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                   </div>
+                    <div className="bg-white dark:bg-slate-800 p-2 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-2">
+                        <Calendar className="w-5 h-5 text-indigo-500" />
+                        <span className="text-sm font-bold text-slate-700 dark:text-slate-300">{new Date().toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                    </div>
                 </div>
             </header>
 
@@ -166,7 +166,7 @@ const AdminDashboard: React.FC = () => {
                 <RevenueTrendChart data={data?.revenueTrend} itemVariants={itemVariants} />
 
                 {/* Pending Actions - 1/3 Width */}
-                <motion.div 
+                <motion.div
                     variants={itemVariants}
                     className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700/50 flex flex-col"
                 >
@@ -249,7 +249,7 @@ const AdminDashboard: React.FC = () => {
             {/* Third Row: Distribution & Health */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Category Pie Chart */}
-                <motion.div 
+                <motion.div
                     variants={itemVariants}
                     className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-sm border border-slate-100 dark:border-slate-700/50"
                 >
@@ -278,7 +278,7 @@ const AdminDashboard: React.FC = () => {
                                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
-                                    <Tooltip 
+                                    <Tooltip
                                         contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.1)' }}
                                     />
                                 </PieChart>
