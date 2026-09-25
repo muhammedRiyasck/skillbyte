@@ -7,6 +7,10 @@ import { studentVerifyOtp, instructorVerifyOtp, resendOtp } from "../services/Au
 import { toast } from "sonner";
 import { Spiner } from "@shared/ui";
 
+/**
+ * OTP Verification Page.
+ * Handles verifying email OTPs for both student and instructor registration flows.
+ */
 function Otp() {
   const [otpArr, setOtp] = useState(Array(4).fill(""));
   const [email, setEmail] = useState("");

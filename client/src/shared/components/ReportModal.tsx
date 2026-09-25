@@ -47,7 +47,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, onSubmit, ta
     try {
       await onSubmit(reason, description);
       onClose();
-      // Reset form
+
       setReason('');
       setDescription('');
     } finally {

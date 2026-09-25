@@ -1,7 +1,7 @@
 import api from "@shared/utils/AxiosInstance";
 import type { Ibase } from "../types/IBase";
 
-export type CreateCoursePayload = Omit<Ibase, "id" | "thumbnailUrl">;
+export type CreateCoursePayload = Omit<Ibase, "id" | "thumbnailUrl" | "status">;
 
 export const createBase = async (data: CreateCoursePayload) => {
   const response = await api.post("/course/createbase", data);

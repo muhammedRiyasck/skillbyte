@@ -18,7 +18,6 @@ export default function Pagination({ page, totalPages, onPageChange }: Props) {
       if (2 < page - delta) pages.push('...');
     }
 
-    // Show pages around current page
     for (let i = Math.max(1, page - delta); i <= Math.min(totalPages, page + delta); i++) {
       pages.push(i);
     }

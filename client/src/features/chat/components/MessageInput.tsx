@@ -4,7 +4,6 @@ import { toast } from 'sonner';
 import EmojiPicker from "emoji-picker-react";
 import type { MessageInputProps } from '../types/IMessageInputProps';
 
-
 const MessageInput: React.FC<MessageInputProps> = ({
   onSendMessage,
   onTyping,
@@ -22,12 +21,10 @@ const MessageInput: React.FC<MessageInputProps> = ({
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Focus on mount
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
-  // Close emoji picker on outside click or Escape
   useEffect(() => {
     if (!showEmojiPicker) return;
 
@@ -73,7 +70,6 @@ const MessageInput: React.FC<MessageInputProps> = ({
 
   setContent(newContent);
 
-  // Restore cursor position after the inserted emoji
   requestAnimationFrame(() => {
     const newCursor = start + emoji.length;
 

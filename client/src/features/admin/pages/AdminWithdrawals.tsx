@@ -52,7 +52,6 @@ const AdminWithdrawals: React.FC = () => {
     const [processingId, setProcessingId] = useState<string | null>(null);
     const [adminNotes, setAdminNotes] = useState<Record<string, string>>({});
 
-    // Debounce search query
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(searchQuery);

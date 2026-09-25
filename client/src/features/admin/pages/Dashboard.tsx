@@ -57,7 +57,6 @@ const AdminDashboard: React.FC = () => {
         visible: { opacity: 1, y: 0 }
     };
 
-    // Process category distribution: Top 5 + Others
     const processedCategoryData = React.useMemo(() => {
         const rawCategories = data?.categoryDistribution || [];
         if (rawCategories.length <= 6) return rawCategories;

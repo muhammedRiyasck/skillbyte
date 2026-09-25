@@ -14,6 +14,7 @@ interface RemoteVideoProps {
   onRetry?: () => void;
 }
 
+
 export const RemoteVideo = ({
   stream,
   participantName,
@@ -35,8 +36,7 @@ export const RemoteVideo = ({
         try {
           await element.play();
         } catch (error) {
-          // Browsers can reject unmuted autoplay. The native controls are not
-          // shown, so retain this diagnostic rather than failing silently.
+
           console.warn('Remote media playback was blocked:', error);
         }
       }
@@ -46,7 +46,6 @@ export const RemoteVideo = ({
     void attachStream(videoRef.current);
   }, [stream, connectionState, isVideoEnabled]);
 
-  // Only show video if stream exists, video is enabled, connection is good, AND there is actually a video track
   const showVideo = stream && isVideoEnabled && connectionState === VideoConnectionState.CONNECTED && stream.getVideoTracks().length > 0;
   const isConnected = connectionState === VideoConnectionState.CONNECTED;
 

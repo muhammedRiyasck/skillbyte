@@ -16,6 +16,7 @@ interface CourseFiltersProps {
   categories: string[];
 }
 
+
 const CourseFilters: React.FC<CourseFiltersProps> = ({
   filters,
   setFilters,

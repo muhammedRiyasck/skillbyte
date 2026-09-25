@@ -18,10 +18,8 @@ const ContentUploadPage = () => {
   const { data, isLoading, isError, error } = useCourse(id, "modules,lessons");
   const [modules, setModules] = useState<ModuleType[]>([]);
 
-  // Memoize data.modules to prevent unnecessary re-renders
   const courseModules = useMemo(() => data?.modules || [], [data]);
 
-  // Memoize file names to avoid recalculating
   const fileNames = useMemo(() => {
     if (!courseModules.length) return [];
     return courseModules
@@ -29,7 +27,6 @@ const ContentUploadPage = () => {
       .filter((fileName: string) => fileName !== "");
   }, [courseModules]);
 
-  // Use useQuery for signed URLs with caching
   const { data: signedUrlsData } = useQuery({
     queryKey: ["signedUrls", id, fileNames.sort().join(",")],
     queryFn: async () => {
@@ -40,22 +37,18 @@ const ContentUploadPage = () => {
     enabled: !!id && fileNames.length > 0,
   });
 
-  // 1. Initial Data Loading: Only runs when data first arrives or id changes
   useEffect(() => {
     if (!data) return;
 
-    // Only initialize if we don't have modules yet, or if the course ID changed
     const hasOnlyDrafts = modules.length === 0 || modules.every(m => /^\d{13,}$/.test(m.id));
 
     if (courseModules.length > 0 && hasOnlyDrafts) {
       setModules(courseModules);
     } else if (modules.length === 0) {
-      // Default empty module if nothing exists at all
       setModules([{ id: Date.now().toString(), title: "", description: "", lessons: [] }]);
     }
   }, [id, courseModules, data, modules]);
 
-  // 2. Signed URL Syncing: Updates existing state without overwriting local edits
   useEffect(() => {
     if (!signedUrlsData || !signedUrlsData.length) return;
 

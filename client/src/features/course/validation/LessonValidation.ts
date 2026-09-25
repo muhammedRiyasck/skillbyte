@@ -40,7 +40,6 @@ export const validateLesson = (data: LessonData): Record<string, ValidationRespo
 
 if (data?.resources.length > 0 && data?.resources[0].trim() !== "") {
   for (const val of data.resources) {
-    // 1. Empty check
     if (!val.trim()) {
       errors.resources = {
         success: false,
@@ -49,7 +48,6 @@ if (data?.resources.length > 0 && data?.resources[0].trim() !== "") {
       break;
     }
 
-    // 2. Validate full http/https link
     try {
       const url = new URL(val); // safe inside try
       if (!["http:", "https:"].includes(url.protocol)) {

@@ -1,5 +1,4 @@
 
-// ProtectedRoute.tsx
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 import type { RootState } from "../store/Index";
@@ -11,6 +10,9 @@ interface ProtectedRouteProps {
   roles?: string[]; 
 }
 
+/**
+ * Higher-order component to restrict route access based on user authentication and role.
+ */
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, roles }) => {
   const user = useSelector((state: RootState) => state.auth.user);
 

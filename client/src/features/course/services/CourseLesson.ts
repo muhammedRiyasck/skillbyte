@@ -1,11 +1,9 @@
 import api from "@shared/utils/AxiosInstance";
-// import type { uploadToB2Props } from "../types/ILesson";
 import axios from "axios";
 import type { LessonType } from "../types/ILesson";
 
 export const getPresignedUrl = async (file: File): Promise<Record<string, string>> => {
 
-  // The content type must match the one used to sign the direct-to-storage upload.
   const response = await api.post("/course/presign", {
     fileName: file.name,
     contentType: file.type || "application/octet-stream",

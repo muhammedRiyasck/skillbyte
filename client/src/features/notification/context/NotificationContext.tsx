@@ -91,7 +91,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
                 setNotifications(prev => [newNotification, ...prev]);
             }
             
-            // Show toast
+
             const message = newNotification.message;
             const description = newNotification.title;
             

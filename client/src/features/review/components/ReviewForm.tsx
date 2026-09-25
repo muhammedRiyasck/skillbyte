@@ -44,7 +44,6 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
     onSuccess: (newReview: IReview) => {
       toast.success(reviewId ? 'Review updated successfully' : 'Review submitted successfully');
       
-      // Ensure student info is populated for newly submitted reviews in the UI cache
       const studentData = newReview.student || (currentUser ? {
           name: currentUser.name,
           profileImageUrl: currentUser.profilePicture
@@ -57,13 +56,11 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
           reviewWithStudent.student = studentData;
       }
 
-      // Manual Cache Update for reviews list
       queryClient.setQueriesData<InfiniteData<ReviewResponse>>(
         { queryKey: ['reviews', targetType, targetId] },
         (oldData) => {
             if (!oldData) return oldData;
             
-            // If editing, find and replace
             if (reviewId) {
                 return {
                     ...oldData,
@@ -74,7 +71,6 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
                 };
             }
             
-            // If adding new, prepend to page 1 recent 
             const newPages = [...oldData.pages];
             if (newPages.length > 0) {
                 newPages[0] = {
@@ -90,7 +86,6 @@ const ReviewForm: React.FC<ReviewFormProps> = ({
         }
       );
 
-      // Invalidate rating summary to fetch fresh average/distribution
       queryClient.invalidateQueries({ queryKey: ['ratingSummary', targetType, targetId] });
       
       onSuccess(newReview.rating);

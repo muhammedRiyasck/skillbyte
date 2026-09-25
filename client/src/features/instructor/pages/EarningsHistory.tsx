@@ -56,7 +56,6 @@ const EarningsHistory: React.FC = () => {
       
       const withdrawals = withdrawalsRes?.data || [];
       const pending = withdrawals
-      // dont use any type
         .filter((w: { status: string; amount: number; }) => w?.status === 'PENDING')
         .reduce((sum: number, w: { status: string; amount: number; }) => sum + w?.amount, 0);
       setPendingAmount(pending);
@@ -67,7 +66,6 @@ const EarningsHistory: React.FC = () => {
     }
   }, [itemsPerPage]);
 
-  // Debounce search input — only fires the API call 500ms after the user stops typing
   useEffect(() => {
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
     debounceTimer.current = setTimeout(() => {

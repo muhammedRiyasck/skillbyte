@@ -15,6 +15,7 @@ import type { RootState } from "@core/store/Index";
 
 import { ChatContext } from "./ChatContext";
 
+
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -27,7 +28,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const processedMessageIds = useRef<Set<string>>(new Set());
 
-  // Global query for conversations
   const { data: conversationsResponse, isLoading } = useQuery({
     queryKey: ["conversations", currentUser?.id],
     queryFn: async () => {
@@ -54,7 +54,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     return [];
   }, [conversationsResponse]);
 
-  // Calculate total unread count
+
   const totalUnreadCount = useMemo(() => {
     if (!currentUser || !Array.isArray(conversations)) return 0;
     return conversations.reduce((total: number, conv: IConversation) => {
@@ -81,7 +81,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     [socket],
   );
 
-  // Check online status for all users in conversations on load
   useEffect(() => {
     if (conversations.length > 0 && socket && currentUser) {
       const userIds = conversations
@@ -104,18 +103,16 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     const handleNewMessage = (message: IMessage) => {
       const messageId = message.messageId as string;
 
-      // Deduplicate events (server sends to both room and user)
       if (processedMessageIds.current.has(messageId)) {
         return;
       }
       processedMessageIds.current.add(messageId);
 
-      // Clear from set after 5 seconds to keep memory low
+
       setTimeout(() => {
         processedMessageIds.current.delete(messageId);
       }, 5000);
 
-      // 1. Manually update the conversations list cache to show the new snippet and unread count
       queryClient.setQueryData(
         ["conversations", currentUser.id],
         (oldData: { data: IConversation[] }) => {
@@ -152,7 +149,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
             },
           );
 
-          // Optional: Move the updated conversation to the top
           const sortedConversations = [...updatedConversations].sort(
             (a, b) =>
               new Date(b.updatedAt || 0).getTime() -
@@ -163,7 +159,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         },
       );
 
-      // 2. Manually update the messages cache if it exists (for the specific conversation)
       queryClient.setQueryData(
         ["messages", currentUser.id, message.conversationId],
         (oldData: { pages: { data: IMessage[] }[] }) => {
@@ -172,13 +167,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
           const pages = [...oldData.pages];
           if (pages.length === 0) return oldData;
 
-          // Add message to the first page (newest)
+
           const newestPage = { ...pages[0] };
           const currentMessages = Array.isArray(newestPage.data)
             ? newestPage.data
             : [];
 
-          // Prevent duplicate messages
           if (
             currentMessages.some(
               (m: IMessage) => m.messageId === message.messageId,
@@ -194,7 +188,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         },
       );
 
-      // 3. Still invalidate as a background sync/fallback
       queryClient.invalidateQueries({
         queryKey: ["conversations", currentUser.id],
       });
@@ -202,14 +195,11 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         queryKey: ["messages", currentUser.id, message.conversationId],
       });
 
-      // Don't show toast for own messages
       if (message.senderId === currentUser.id) return;
 
-      // Check if we are currently viewing this conversation
       const currentUrlParams = new URLSearchParams(window.location.search);
       const currentConversationId = currentUrlParams.get("conversationId");
 
-      // If we are on the chat page and viewing this conversation, don't show toast
       if (
         window.location.pathname === "/chat" &&
         currentConversationId === message.conversationId
@@ -234,7 +224,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
       userId: string;
       timestamp: Date;
     }) => {
-      // 1. Update conversations list
       queryClient.setQueryData(
         ["conversations", currentUser.id],
         (oldData: { data: IConversation[] }) => {
@@ -248,7 +237,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
                   ...(conv.unreadCount || { student: 0, instructor: 0 }),
                 };
 
-                // If WE read the messages, reset our unread count
                 if (userId === currentUser.id) {
                   if (isStudent) newUnreadCount.student = 0;
                   else newUnreadCount.instructor = 0;
@@ -263,8 +251,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         },
       );
 
-      // 2. Update messages list
-      // If the OTHER person read it, mark all messages as read (visually for us)
       if (userId !== currentUser.id) {
         queryClient.setQueryData(
           ["messages", currentUser.id, conversationId],
@@ -284,7 +270,6 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         );
       }
 
-      // Fallback
       queryClient.invalidateQueries({
         queryKey: ["conversations", currentUser.id],
       });
@@ -319,15 +304,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     };
   }, [socket, currentUser, queryClient]);
 
-  // Handle user sessions (login/logout)
+
   useEffect(() => {
     if (currentUser?.id) {
-      // User just logged in - refresh chat data
       queryClient.invalidateQueries({
         queryKey: ["conversations", currentUser.id],
       });
     } else if (!currentUser) {
-      // User logged out - clear all cache for security and consistency
       queryClient.clear();
       setOnlineUsers(new Set());
     }

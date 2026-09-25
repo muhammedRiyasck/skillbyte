@@ -19,6 +19,10 @@ interface FormData {
   agree: boolean;
 }
 
+/**
+ * Student Registration Page.
+ * Handles the collection of basic details and initiates the student signup flow.
+ */
 export default function StudentSignUp () {
 
   const [loading,setLoading] = useState(false)

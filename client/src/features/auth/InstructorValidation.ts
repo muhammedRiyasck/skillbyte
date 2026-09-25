@@ -1,3 +1,8 @@
+/**
+ * Validates the selected subject and custom subject input.
+ * @param subject - The primary subject selected.
+ * @param otherSubject - The custom subject input if 'Other' is selected.
+ */
 export const isValidSubject = (subject: string,otherSubject:string) => {
   if (!subject) {
 
@@ -10,7 +15,12 @@ export const isValidSubject = (subject: string,otherSubject:string) => {
   return {success:true,message:''}
 }
 
-  export const isValidJobTitle = (jobTitle: string,otherJobTitle:string) => {
+/**
+ * Validates the selected job title and custom job title input.
+ * @param jobTitle - The primary job title selected.
+ * @param otherJobTitle - The custom job title input if 'Other' is selected.
+ */
+export const isValidJobTitle = (jobTitle: string,otherJobTitle:string) => {
   if (!jobTitle) {
     return { success: false, message: "Please select your job title."};
   } else if (jobTitle === "Other" && !otherJobTitle?.trim()) {
@@ -19,7 +29,11 @@ export const isValidSubject = (subject: string,otherSubject:string) => {
     return {success:true,message:''}
 }
 
-  // ✅ Experience validation
+/**
+ * Validates the years of experience input.
+ * Ensures the value is a valid positive number representing at least 1 year.
+ * @param number - The experience input string.
+ */
 export const isValidExperience = (number: string) => {
   if (!number || number.trim() === '') {
     return { success: false, message: "Experience is required" };
@@ -37,7 +51,11 @@ export const isValidExperience = (number: string) => {
   return { success: true, message: '' };
 }
 
-  export const isValidSocialMedia = (url: string) => {
+/**
+ * Validates a professional social media URL (LinkedIn, Twitter, X).
+ * @param url - The social media URL string.
+ */
+export const isValidSocialMedia = (url: string) => {
     if(!url&&!url?.trim())return { success: false, message: "A professional social media profile is required to evaluate you!"};
 
   if (url && !/^https?:\/\/(www\.)?(linkedin\.com|twitter\.com|x\.com)\/.*$/.test(url)) {
@@ -46,6 +64,10 @@ export const isValidExperience = (number: string) => {
     return {success:true,message:''}
 }
 
+/**
+ * Validates a generic portfolio URL.
+ * @param portfolioUrl - The portfolio URL string.
+ */
 export const isValidPortfolio = (portfolioUrl: string) => {
   if (portfolioUrl && !/^https?:\/\/[^\s$.?#].[^\s]*$/.test(portfolioUrl)) {
     return { success: false, message: "Please enter a valid portfolio URL."};
@@ -53,6 +75,10 @@ export const isValidPortfolio = (portfolioUrl: string) => {
   return { success: true, message: "" };
 }
 
+/**
+ * Validates the instructor bio length constraints (50 - 500 characters).
+ * @param bio - The bio input string.
+ */
 export const isValidBio = (bio: string) => {
   if (!bio || !bio.trim()) {
     return { success: false, message: "Bio is required." };
@@ -64,6 +90,10 @@ export const isValidBio = (bio: string) => {
   return { success: true, message: "" };
 }
 
+/**
+ * Validates the uploaded resume file format (PDF/DOC) and size (10MB limit).
+ * @param resume - The File object representing the resume.
+ */
 export const isValidResume = (resume: File | null) => {
   if (!resume) {
     return { success: false, message: "Resume is required." };

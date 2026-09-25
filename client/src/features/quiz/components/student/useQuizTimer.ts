@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
-// --- Audio Utility for Timer Sounds ---
 let audioCtx: AudioContext | null = null;
 
 const getAudioContext = () => {
@@ -80,7 +79,6 @@ export function useQuizTimer({
     computeRemaining
   );
 
-  // Use a ref so the interval always reads the latest value
   const timeLimitRef = useRef(timeLimitMinutes);
   timeLimitRef.current = timeLimitMinutes;
 
@@ -90,27 +88,22 @@ export function useQuizTimer({
       return;
     }
 
-    // Set correct value immediately on mount (handles page refresh)
+
     setTimeRemaining(computeRemaining());
 
     const interval = setInterval(() => {
       const remaining = computeRemaining();
 
       setTimeRemaining((prevRemaining) => {
-        // Only trigger sounds exactly when the second changes
         if (prevRemaining !== remaining && remaining !== null) {
           if (remaining === 300) {
-            // Warning chime at exactly 5 minutes remaining
             playBeep(440, 0.5, 0.4);
           } else if (remaining === 60) {
-            // Chime at exactly 1 minute remaining
             playBeep(523.25, 0.4, 0.5);
             setTimeout(() => playBeep(659.25, 0.6, 0.5), 150);
           } else if (remaining <= 10 && remaining > 0) {
-            // Ticking for the last 10 seconds (louder)
             playBeep(880, 0.1, 0.3);
           } else if (remaining === 0 && prevRemaining !== 0) {
-            // Long beep when time expires
             playBeep(440, 1.2, 0.6);
           }
         }

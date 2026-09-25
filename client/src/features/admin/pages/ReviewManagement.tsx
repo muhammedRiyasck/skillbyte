@@ -23,6 +23,10 @@ import {
 import { Pagination, AdminConfirmModal } from '@/shared/ui';
 import { motion, AnimatePresence } from 'framer-motion';
 
+/**
+ * Admin page for managing all reviews on the platform.
+ * Allows filtering, hiding/unhiding, and permanently deleting inappropriate reviews.
+ */
 const ReviewManagement: React.FC = () => {
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<AdminReviewFilters>({
@@ -39,7 +43,6 @@ const ReviewManagement: React.FC = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchInput, setSearchInput] = useState('');
 
-  // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
       setFilters(prev => ({ ...prev, search: searchInput, page: 1 }));

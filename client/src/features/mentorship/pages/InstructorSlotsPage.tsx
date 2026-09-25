@@ -35,7 +35,6 @@ const InstructorSlotsPage = () => {
     const [deleteScope, setDeleteScope] = useState<'single' | 'series'>('single');
     const [isDeleting, setIsDeleting] = useState(false);
 
-    // Filter & Pagination State
     const [filters, setFilters] = useState<InstructorSlotFilters>({
         page: 1,
         limit: 12,
@@ -118,7 +117,6 @@ const InstructorSlotsPage = () => {
         try {
             setIsSaving(true);
             if (editingSlot) {
-                // Update
                 const updateData: UpdateSlotRequest = {
                     ...data,
                 };

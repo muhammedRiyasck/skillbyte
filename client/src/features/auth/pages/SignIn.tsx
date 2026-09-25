@@ -19,6 +19,10 @@ interface FormData {
   role: string;
 }
 
+/**
+ * Unified Sign In Page.
+ * Authenticates users and redirects them to appropriate dashboards based on their role.
+ */
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -39,7 +43,6 @@ const Login: React.FC = () => {
     formState: { errors },
   } = methods;
 
-  // take the error from url if any and show it as toast
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const error = params.get("error");
@@ -72,8 +75,6 @@ const Login: React.FC = () => {
         navigate(ROUTES.root);
         toast.success(response.message);
       }
-    } catch {
-      // toast is handled inside service; optional: toast.error('Login failed')
     } finally {
       setLoading(false);
     }

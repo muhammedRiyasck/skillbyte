@@ -84,6 +84,7 @@ interface StudentProfile {
   longestStreak?: number | undefined;
 }
 
+
 const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ isOpen, onClose }) => {
   const queryClient = useQueryClient();
   const dispatch = useDispatch<AppDispatch>();
@@ -98,7 +99,6 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ isOpen, onClo
   const [imageUploading, setImageUploading] = useState(false);
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
-  // ── Queries ──────────────────────────────────────────────────────────────────
   const { data: profileData, isLoading } = useQuery({
     queryKey: ['student-profile'],
     queryFn: async () => {
@@ -117,7 +117,6 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ isOpen, onClo
     enabled: isOpen,
   });
 
-  // ── Form ──────────────────────────────────────────────────────────────────────
   const { register, handleSubmit, reset, formState: { errors } } = useForm<ProfileFormData>({
     mode: 'onChange',
     values: {
@@ -135,7 +134,6 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ isOpen, onClo
     },
   });
 
-  // ── Mutations ─────────────────────────────────────────────────────────────────
   const updateMutation = useMutation({
     mutationFn: updateStudentProfile,
     onSuccess: () => {
@@ -159,7 +157,6 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ isOpen, onClo
     onError: () => toast.error('Failed to remove profile picture'),
   });
 
-  // ── Handlers ──────────────────────────────────────────────────────────────────
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -233,7 +230,6 @@ const StudentProfileModal: React.FC<StudentProfileModalProps> = ({ isOpen, onClo
     updateMutation.mutate(payload);
   };
 
-  // ── Helpers ───────────────────────────────────────────────────────────────────
   const avatarSrc = croppedPreview || profileData?.profilePicture || default_profile;
 
   const formatDate = (dateStr?: string) => {

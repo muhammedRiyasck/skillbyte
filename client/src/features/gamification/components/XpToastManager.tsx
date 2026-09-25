@@ -31,7 +31,7 @@ const XpToastManager: React.FC = () => {
       const id = Math.random().toString(36).substring(2, 9);
       setToasts((prev) => [...prev, { id, xpEarned: data.xpEarned }]);
 
-      // Remove the toast after the animation duration (e.g., 2.5s)
+
       setTimeout(() => {
         setToasts((prev) => prev.filter((t) => t.id !== id));
       }, 5000);

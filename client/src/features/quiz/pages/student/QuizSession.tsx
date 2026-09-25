@@ -54,10 +54,9 @@ const QuizSession: React.FC = () => {
   const submitMutation = useMutation({
     mutationFn: () => quizService.submitAttempt(attemptId!, answers),
     onSuccess: (data) => {
-      // Update the cache immediately so QuizResult doesn't see stale 'IN_PROGRESS' data
       queryClient.setQueryData(['quizResult', courseId], data);
 
-      // Clear local storage on success
+
       localStorage.removeItem(`quiz_answers_${attemptId}`);
 
       toast.success('Quiz submitted successfully!');
@@ -69,29 +68,25 @@ const QuizSession: React.FC = () => {
       toast.error(errorMessage);
     }
   });
-  // Scroll to top when navigating questions
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [currentQuestionIndex]);
 
-  // Save answers to local storage whenever they change
+
   useEffect(() => {
     if (attemptId && answers.length > 0) {
       localStorage.setItem(`quiz_answers_${attemptId}`, JSON.stringify(answers));
     }
   }, [answers, attemptId]);
 
-  // Redirect if already completed or timed out
   useEffect(() => {
     if (attempt && (attempt.status === 'completed' || attempt.status === 'timed_out')) {
       navigate(ROUTES.student.quiz.result.replace(':courseId', courseId!));
     }
   }, [attempt, courseId, navigate]);
 
-  // Track whether auto-submit has already fired (prevent double-submit)
   const autoSubmittedRef = useRef(false);
 
-  // Auto-submit when timer expires
   useEffect(() => {
     if (isExpired && !submitMutation.isPending && !autoSubmittedRef.current) {
       autoSubmittedRef.current = true;

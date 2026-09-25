@@ -75,7 +75,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
 
             const isOnline = onlineUsers.has(oppositeUser.id);
             const unreadCount = isStudent ? conversation.unreadCount?.student : conversation.unreadCount?.instructor;
-            // Format time
+
             const timeDisplay = conversation.lastMessage
               ? format(new Date(conversation.lastMessage.timestamp), 'MMM d, h:mm a')
               : format(new Date(conversation.updatedAt), 'MMM d');

@@ -17,6 +17,10 @@ import { setUser } from "../../auth/AuthSlice";
 import type { AppDispatch } from "@core/store/Index";
 import MotionDiv from "@shared/ui/MotionDiv";
 
+/**
+ * Admin sign-in page component.
+ * Handles authentication for administrative accounts.
+ */
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -51,9 +55,6 @@ const Login: React.FC = () => {
     }
   };
 
-  // const handleGoogleLogin = async () => {
-  //   window.location.href = "http://localhost:4000/api/auth/google";
-  // };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50  px-4  dark:dark:bg-gray-800 ">

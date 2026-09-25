@@ -435,9 +435,7 @@ const Profile: React.FC = () => {
                   await api.delete('/instructor/profile-image');
                   toast.success('Profile image removed');
                   queryClient.invalidateQueries({ queryKey: ["instructor-profile"] });
-                } catch {
-                  // Global toast handles this
-                } finally {
+                }finally {
                   setLoading(false);
                 }
               }

@@ -14,6 +14,7 @@ interface LobbyProps {
     onBack: () => void;
 }
 
+
 export const Lobby = ({
     stream,
     isVideoEnabled,
@@ -27,10 +28,7 @@ export const Lobby = ({
     const [alwaysJoinDirectly, setAlwaysJoinDirectly] = useState(false);
 
     useEffect(() => {
-        // Check initial setting
         const storedSetting = localStorage.getItem('video-call-lobby-enabled');
-        // If setting is 'false', it means lobby is DISABLED (so we join directly).
-        // So "Always join directly" checkbox should be checked if setting is 'false'.
         if (storedSetting === 'false') {
             setAlwaysJoinDirectly(true);
         }
@@ -63,7 +61,7 @@ export const Lobby = ({
                             isVideoEnabled={isVideoEnabled}
                             onToggleAudio={onToggleAudio}
                             onToggleVideo={onToggleVideo}
-                            // Hide end call button in lobby
+
                             onEndCall={() => { }}
                             showEndCall={false}
                         />

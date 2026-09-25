@@ -16,19 +16,20 @@ import XpToastManager from "../features/gamification/components/XpToastManager";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
       refetchOnWindowFocus: false,
       retry: (failureCount, error) => {
         const axiosError = error as AxiosError;
-        // Don't retry for 404 errors
         if (axiosError?.response?.status === 404) return false;
-        // Otherwise use default retry (2 times)
         return failureCount < 2;
       },
     },
   },
 });
 
+/**
+ * Main application component that initializes providers, routing, and global state.
+ */
 function App() {
   const dispatch = useDispatch<AppDispatch>();
   const { loading } = useSelector((state: RootState) => state.auth);

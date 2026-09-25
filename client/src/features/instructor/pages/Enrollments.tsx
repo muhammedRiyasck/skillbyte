@@ -6,7 +6,6 @@ import { RefreshCw, Search } from 'lucide-react';
 import { DebouncedInput } from '@/shared/ui';
 import { EnrollmentStatus } from '@shared/enums/EnrollmentStatus';
 
-// Types for the enrollment data
 interface StudentEnrollment {
   studentId: string;
   studentName: string;

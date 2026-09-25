@@ -25,7 +25,6 @@ interface FAQItem {
 }
 
 const faqs: FAQItem[] = [
-    // General
     {
         category: "General",
         question: "What is Skillbyte?",
@@ -44,7 +43,6 @@ const faqs: FAQItem[] = [
         answer:
             "Browsing the platform is free. Individual courses are paid — pricing is set by instructors. Mentorship sessions are also paid per booking. All payments are processed securely via Stripe and PayPal.",
     },
-    // Courses
     {
         category: "Courses",
         question: "How do I enroll in a course?",
@@ -63,7 +61,6 @@ const faqs: FAQItem[] = [
         answer:
             "Yes. After enrolling in a course, you can leave a rating and written review. All reviews are moderated by admins to maintain quality. Instructors can see their course reviews from their dashboard.",
     },
-    // Mentorship
     {
         category: "Mentorship",
         question: "How does mentorship work on Skillbyte?",
@@ -76,7 +73,6 @@ const faqs: FAQItem[] = [
         answer:
             "When your booked session time arrives, go to your bookings page. You'll see a 'Join Call' option for active sessions. Both the student and instructor need to be online to start the session.",
     },
-    // Quizzes & Certificates
     {
         category: "Quizzes & Certificates",
         question: "Are there quizzes in Skillbyte courses?",
@@ -95,7 +91,6 @@ const faqs: FAQItem[] = [
         answer:
             "Yes. Every Skillbyte certificate includes a unique verification code. Anyone can go to the public certificate verification page and enter the code (or open the verification link) to confirm the certificate's authenticity.",
     },
-    // Payments
     {
         category: "Payments",
         question: "What payment methods does Skillbyte accept?",
@@ -108,7 +103,6 @@ const faqs: FAQItem[] = [
         answer:
             "Yes. Students can view all past course enrollments and payments in the 'Purchase History' section from the student navigation menu.",
     },
-    // Technical
     {
         category: "Technical",
         question: "Is the video call system secure?",
@@ -127,7 +121,6 @@ const faqs: FAQItem[] = [
         answer:
             "Click 'Forgot Password' on the sign-in page. Enter your registered email address and you'll receive an OTP. Verify the OTP and set a new password to regain access to your account.",
     },
-    // Instructors
     {
         category: "Instructors",
         question: "How do I become an instructor on Skillbyte?",

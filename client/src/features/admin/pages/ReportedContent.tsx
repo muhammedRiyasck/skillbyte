@@ -27,6 +27,10 @@ import type { IReport } from '../types/IReport';
 
 type ReporterTab = 'all' | 'student' | 'instructor';
 
+/**
+ * Moderation center page for admins to view and manage reported content.
+ * Handles displaying reports, filtering by type/status, and taking action (dismiss or penalize).
+ */
 const ReportedContent: React.FC = () => {
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<ReporterTab>('all');
@@ -50,7 +54,6 @@ const ReportedContent: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   },[filters.page]) 
 
-  // Sync tab to reporterRole filter
   const handleTabChange = (tab: ReporterTab) => {
     setActiveTab(tab);
     setFilters(prev => ({
@@ -60,7 +63,6 @@ const ReportedContent: React.FC = () => {
     }));
   };
 
-  // Debounce: only update filters.reason 500ms after the user stops typing
   useEffect(() => {
     const timer = setTimeout(() => {
       setFilters(prev => ({ ...prev, reason: searchInput, page: 1 }));

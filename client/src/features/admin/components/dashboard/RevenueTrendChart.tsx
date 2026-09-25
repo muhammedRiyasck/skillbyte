@@ -24,20 +24,19 @@ interface Props {
     itemVariants?: Variants;
 }
 
+
 const RevenueTrendChart: React.FC<Props> = ({ data: initialData, itemVariants }) => {
     const currentYear = new Date().getFullYear();
     const [selectedYear, setSelectedYear] = useState<number>(currentYear);
     const [chartData, setChartData] = useState<TrendData[]>(initialData || []);
     const [loading, setLoading] = useState(false);
 
-    // Available years: from 2023 up to current year
     const availableYears = Array.from(
         { length: currentYear - 2022 },
         (_, i) => 2023 + i
     );
 
     useEffect(() => {
-        // On first load, if selected year is current, use the initial data from the dashboard payload
         if (selectedYear === currentYear && initialData && initialData.length > 0) {
             setChartData(initialData);
             return;

@@ -34,7 +34,6 @@ const QuizLanding: React.FC = () => {
   const startMutation = useMutation({
     mutationFn: () => quizService.startAttempt(courseId!),
     onSuccess: (data) => {
-      // Overwrite the cache so the session page sees the new IN_PROGRESS attempt immediately
       queryClient.setQueryData(['quizResult', courseId], data);
       toast.success('Quiz started! Good luck.');
       const id = (data.attemptId || data._id || data.id) as string;
@@ -57,7 +56,6 @@ const QuizLanding: React.FC = () => {
     window.scrollTo({top:0,behavior:'smooth'});
   },[])
 
-  // Safety: If it takes too long (e.g. background task failed), let them start anyway
   useEffect(() => {
     if (isPoolPreparing) {
       const timer = setTimeout(() => setShowSafetyStart(true), 20000); // 20s safety window

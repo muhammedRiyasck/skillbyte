@@ -13,7 +13,7 @@ import CropImageModal from "@shared/ui/CropImageModal";
 import getCroppedImg from "@shared/utils/GetCroppedImg";
 import useCreateCourse from "../hooks/useCreateCourse";
 import { getCourseDetails } from "../services/CourseDetails";
-import { updateBase, uploadThumbnail, deleteCourse } from "../services/CourseBase";
+import { updateBase, uploadThumbnail, deleteCourse, type CreateCoursePayload } from "../services/CourseBase";
 import { CourseCategory } from "@shared/enums/CourseCategory";
 import { CourseLevel } from "@shared/enums/CourseLevel";
 import { CourseDuration } from "@shared/enums/CourseDuration";
@@ -21,6 +21,7 @@ import { CourseDuration } from "@shared/enums/CourseDuration";
 import { QueryClient } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/core/store/Index";
+import type { Ibase } from "../types/IBase";
 const queryClient = new QueryClient();
 
 type FormData = {
@@ -183,7 +184,8 @@ const CreateCourse = () => {
     if (croppedBlob && thumbnailFile) {
       try {
         setSpining(true);
-        const id = await createCourse({ formData: data, croppedBlob, thumbnailFile });
+        const payload = { ...data, duration: data.access } as unknown as CreateCoursePayload;
+        const id = await createCourse({ formData: payload, croppedBlob, thumbnailFile });
         navigate(ROUTES.instructor.uploadCourseContent, { state: { id, page } });
         toast.success("Course created successfully!");
       } catch (error: unknown) {
@@ -210,7 +212,11 @@ const CreateCourse = () => {
       setSpining(true);
       // Strip thumbnailFile (File object) and thumbnailUrl — not part of the PATCH body
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { thumbnailFile: _file, thumbnailUrl: _url, ...updatePayload } = data;
+      const { thumbnailFile: _file, thumbnailUrl: _url, ...rest } = data;
+      const updatePayload = {
+        ...rest,
+        duration: rest.access,
+      } as unknown as Partial<Ibase>;
       await updateBase(id, updatePayload);
       if (croppedBlob && thumbnailFile) {
         await uploadThumbnail({

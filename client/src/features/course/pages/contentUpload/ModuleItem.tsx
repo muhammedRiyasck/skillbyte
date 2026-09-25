@@ -73,7 +73,6 @@ export default function ModuleItem({ id, module, order, moduleLength, setModules
               : []),
           ],
         });
-        // Invalidate the queries to refetch fresh data
         queryClient.invalidateQueries({ queryKey: ["modulesAndLesson", id, "modules,lessons"] });
       } catch (error) {
         console.error("Failed to add lesson:", error);
@@ -107,7 +106,6 @@ export default function ModuleItem({ id, module, order, moduleLength, setModules
           description: module.description,
         });
         setEditModule({ disable: true, prevState: { moduleTitle: "", moduleDescription: "" } });
-        // Invalidate the queries to refetch fresh data
         queryClient.invalidateQueries({ queryKey: ["modulesAndLesson", id, "modules,lessons"] });
         toast.success("Module updated successfully");
       } catch (error) {

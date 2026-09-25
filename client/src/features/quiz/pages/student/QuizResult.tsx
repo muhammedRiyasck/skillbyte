@@ -43,14 +43,12 @@ const QuizResult: React.FC = () => {
 
   useEffect(() => {
     if (allAttempts && allAttempts.length > 0) {
-      // Favor the latest terminal attempt (completed or timed_out) for initial view
       const latestTerminalIdx = [...allAttempts].reverse().findIndex(
         (a) => a.status === 'completed' || a.status === 'timed_out'
       );
       if (latestTerminalIdx !== -1) {
         setSelectedAttemptIndex(allAttempts.length - 1 - latestTerminalIdx);
       } else {
-        // Fallback to latest attempt (likely in-progress)
         setSelectedAttemptIndex(allAttempts.length - 1);
       }
     }
@@ -91,7 +89,6 @@ const QuizResult: React.FC = () => {
   }, [inView, result, displayedCount]);
   if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-800"><Spiner /></div>;
 
-  // If no attempts found at all
   if (!allAttempts || allAttempts.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-800 flex-col gap-6 p-6">
@@ -110,7 +107,6 @@ const QuizResult: React.FC = () => {
     );
   }
 
-  // If the selected attempt is still in-progress (not yet a terminal state)
   if (result && result.status === 'in_progress') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-800 flex-col gap-6 p-6">

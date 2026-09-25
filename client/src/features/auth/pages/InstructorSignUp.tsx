@@ -31,6 +31,10 @@ interface FormData {
   agree: boolean;
 }
 
+/**
+ * Instructor Sign Up Page.
+ * Manages the multi-step registration flow for new instructors, including re-applying after rejection.
+ */
 export default function InstructorSignup() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -93,7 +97,6 @@ export default function InstructorSignup() {
         confirmPassword: "",
         agree: false,
       });
-      // Explicitly set step to 2 for reapply
       setCurrentStep(2);
     }
   }, [location.state, reset]);
@@ -132,13 +135,10 @@ export default function InstructorSignup() {
       };
 
       if (isReapply) {
-        // Reapply Flow
         const response = await reapplyInstructor(payload);
         toast.success(response.message || "Application updated successfully.");
-        // Redirect to login or show success message
         navigate(ROUTES.auth.signIn); 
       } else {
-        // Registration Flow
         const response = await instructorRegister(payload);
         sessionStorage.setItem("emailForOtp", data.email);
         const expiryTime = Date.now() + 2 * 60 * 1000; // 2 minutes from now
@@ -154,7 +154,6 @@ export default function InstructorSignup() {
     }
   };
 
-  // Constants for options
   const jobTitleOptions = ["Software Engineer", "Designer", "Instructor", "Student", "Other"];
   const subjectOptions = ["Marketing", "Programming", "Designing", "Business", "Other"];
 

@@ -14,6 +14,7 @@ interface LocalPreviewProps {
   isDraggable?: boolean;
 }
 
+
 export const LocalPreview = ({
   stream,
   isVideoEnabled,

@@ -17,7 +17,6 @@ interface SlotCardProps {
 export const SlotCard = ({ slot, onEdit, onDelete, onBook, onResumePayment, variant = 'instructor' }: SlotCardProps) => {
     const [showTags, setShowTags] = useState(false);
     
-    // Treat as unavailable if booked, UNLESS it's pending for this specific user
     const isBooked = slot.status === SlotStatus.BOOKED;
     const isPendingForUser = !!slot.isPendingForUser;
     

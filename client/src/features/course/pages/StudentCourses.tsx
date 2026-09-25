@@ -28,7 +28,7 @@ const StudentCourses: React.FC = () => {
     search: '',
   });
 
-  // Reset page to 1 when filters change
+
   useEffect(() => {
     setPage(1);
   }, [filters.category, filters.level, filters.priceRange, filters.sort, filters.search]);

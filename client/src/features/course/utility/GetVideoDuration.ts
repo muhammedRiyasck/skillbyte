@@ -4,7 +4,6 @@ export function getVideoDuration(file: File): Promise<number> {
     video.preload = "metadata";
     video.onloadedmetadata = () => {
       window.URL.revokeObjectURL(video.src);
-      // Return duration in seconds, rounded to nearest whole second
       const durationInSeconds = Math.round(video.duration);
       resolve(durationInSeconds);
     };

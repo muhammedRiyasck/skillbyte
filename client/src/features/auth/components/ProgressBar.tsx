@@ -4,6 +4,7 @@ interface ProgressBarProps {
   currentStep: number;
 }
 
+
 export default function ProgressBar({ currentStep }: ProgressBarProps) {
   const steps = [
     { title: "Personal Details", icon: User },

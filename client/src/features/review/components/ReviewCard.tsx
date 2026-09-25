@@ -28,7 +28,6 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
   const [imgError, setImgError] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  // Optimistic local state for helpful
   const [isUpvoted, setIsUpvoted] = useState(review.isUpvotedByCurrentUser);
   const [helpfulCount, setHelpfulCount] = useState(review.helpfulCount);
 
@@ -42,7 +41,6 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
         toast.error('Please log in to vote');
         return;
     }
-    // Optimistic update
     const prevUpvoted = isUpvoted;
     const prevCount = helpfulCount;
     setIsUpvoted(!prevUpvoted);
@@ -51,9 +49,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
     try {
       setIsHelpfulLoading(true);
       await toggleHelpful(review.reviewId);
-      // Update cache manually if we want to be thorough, but local state is enough for this toggle
     } catch {
-      // Revert on failure
       setIsUpvoted(prevUpvoted);
       setHelpfulCount(prevCount);
       toast.error('Failed to update helpful status');
@@ -92,7 +88,6 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
       await deleteReview(review.reviewId);
       toast.success('Review deleted');
 
-      // Manual Cache Update for all pages of reviews for this target
       queryClient.setQueriesData<InfiniteData<ReviewResponse>>(
         { queryKey: ['reviews', review.targetType, review.targetId] },
         (oldData) => {
@@ -108,8 +103,6 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
         }
       );
 
-      // Also invalidate summary so it stays in sync eventually, 
-      // but we could manually update it too if we want "UI cache only"
       queryClient.invalidateQueries({ queryKey: ['ratingSummary', review.targetType, review.targetId] });
       
       onUpdate(); 
@@ -122,13 +115,10 @@ const ReviewCard: React.FC<ReviewCardProps> = ({ review, currentUserId, onUpdate
     mutationFn: ({ reviewId, reply }: { reviewId: string; reply: string }) => 
       import('../services/ReviewService').then(m => m.replyToReview(reviewId, reply)),
     onMutate: async ({ reviewId, reply }) => {
-      // Cancel any outgoing refetches
       await queryClient.cancelQueries({ queryKey: ['instructor-reviews'] });
 
-      // Snapshot the previous value
       const previousReviews = queryClient.getQueryData(['instructor-reviews']);
 
-      // Optimistically update the cache
       queryClient.setQueriesData<InfiniteData<ReviewResponse>>({ queryKey: ['instructor-reviews'] }, (old) => {
         if (!old) return old;
         return {

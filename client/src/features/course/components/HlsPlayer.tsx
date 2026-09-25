@@ -9,7 +9,6 @@ import type Player from 'video.js/dist/types/player';
 
 import 'video.js/dist/video-js.css';
 
-// Internal Video.js tech interface (not exposed in public typings)
 interface VideoJsVhs {
   mediaSource?: MediaSource;
 }
@@ -17,8 +16,6 @@ interface VideoJsTech {
   vhs?: VideoJsVhs;
   hls?: VideoJsVhs; // legacy alias
 }
-// Standalone — intentionally does NOT extend Player to avoid return-type conflict
-// with Player's own tech() declaration in video.js typings.
 interface VideoJsPlayerWithTech {
   tech(safety: boolean): VideoJsTech;
 }
@@ -36,7 +33,6 @@ interface QualityOption {
   label: string;
 }
 
-// Interface for videojs-contrib-quality-levels plugin
 interface VideoJsQualityLevel {
   id: string;
   width?: number;
@@ -56,6 +52,7 @@ interface VideoJsQualityLevelList {
 type PlayerWithQualityLevels = Player & {
   qualityLevels?: () => VideoJsQualityLevelList;
 };
+
 
 const HlsPlayer: React.FC<HlsPlayerProps> = ({
   src,
@@ -81,12 +78,8 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
   useEffect(() => {
     if (!videoRef.current) return;
 
-    // Reset seek flag so the new src's initialTime is applied correctly.
-    // Without this, switching to a new lesson with initialTime > 0 would be
-    // skipped because the ref was still true from the previous lesson.
-    initialSeekDone.current = false;
 
-    // Create the video element dynamically
+    initialSeekDone.current = false;
     const videoElement = document.createElement('video');
     videoElement.classList.add('video-js', 'vjs-big-play-centered', 'vjs-theme-city');
     videoElement.setAttribute('playsInline', 'true');
@@ -95,32 +88,21 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
     const player = videojs(videoElement, {
       controls: true,
       fill: true,
-      // Eagerly load metadata so we know duration / can resume before play
       preload: 'metadata',
       html5: {
         vhs: {
-          // Start with the lowest rendition so first frames appear ASAP,
-          // then ABR ramps up quality as bandwidth is measured.
           enableLowInitialPlaylist: true,
 
-          // Only buffer 2 s ahead at the start so first segment loads fast.
-          // VHS will grow this automatically once playback is stable.
           bufferGoal: 2,
 
-          // Keep 60 s of already-played video in memory so seeking backward
-          // is instant (no re-download).
           backBufferLength: 60,
 
-          // Allow segments to redirect (needed for the 302 signed-URL trick).
           handlePartialData: true,
 
-          // Disable the initial bandwidth guess – let VHS measure it live.
           useNetworkInformationApi: true,
           
-          // Disable internal downscaling limit so it respects user selection even on small screens
           limitRenditionByPlayerDimensions: false,
           
-          // Force immediate quality switch when manually selected
           smoothQualityChange: false,
         },
         nativeVideoTracks: false,
@@ -159,15 +141,10 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
     const qualityLevels = p.qualityLevels?.();
     qualityLevels?.on('addqualitylevel', updateQualities);
 
-    // Helper: find the VHS segment-metadata text track and ensure it's active.
-    // VHS populates one cue per downloaded segment; each cue's time range spans
-    // exactly the segment's position in the media timeline, so reading activeCues[0]
-    // at the current playhead gives the resolution of the frame being DECODED NOW.
     const getSegmentMetadataTrack = (): TextTrack | null => {
       const tl = player.textTracks() as unknown as TextTrack[];
       for (let i = 0; i < tl.length; i++) {
         if (tl[i].label === 'segment-metadata') {
-          // mode must be 'hidden' (not 'disabled') for activeCues to be populated.
           if (tl[i].mode === 'disabled') tl[i].mode = 'hidden';
           return tl[i];
         }
@@ -189,7 +166,6 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
       } catch { /* ignore */ }
     };
 
-    // Seed the label immediately when ABR decides a rendition (before first segment plays).
     const handleQualityChange = () => {
       if (!qualityLevels) return;
       const idx = qualityLevels.selectedIndex ?? -1;
@@ -235,7 +211,7 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
       setIsInitialLoading(false);
     });
 
-    // Show a subtle seeking indicator so the user knows something is happening.
+
     player.on('seeking', () => setIsSeeking(true));
     player.on('seeked', () => {
       setIsSeeking(false);
@@ -244,7 +220,6 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
     player.on('waiting', () => setIsSeeking(true));
     player.on('playing', () => setIsSeeking(false));
 
-    // Poll segment-metadata and emit timeupdate directly so progress is tracked live during playback
     player.on('timeupdate', () => {
       readCurrentSegmentQuality();
       emitTimeUpdate();
@@ -266,9 +241,7 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
       }
     });
 
-    // --- Keyboard Shortcuts ---
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't intercept shortcuts if the user is typing in an input field (e.g. comments/notes)
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName)) return;
       
       const p = playerRef.current;
@@ -308,7 +281,6 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
           if (p.isFullscreen()) p.exitFullscreen();
           else p.requestFullscreen();
           break;
-        // shift + > to jump to next playback speed
         case '>': {
           e.preventDefault();
           const currentSpeed = p.playbackRate() || 1;
@@ -344,7 +316,6 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
   }, [src]); // Re-initialize when src changes
 
 
-  // Also respond if initialTime arrives or updates after mount
   useEffect(() => {
     if (initialTime > 0 && !initialSeekDone.current && playerRef.current) {
       const p = playerRef.current;
@@ -382,10 +353,6 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
     const currentTime = playerRef.current.currentTime() ?? 0;
     const duration = playerRef.current.duration() ?? 0;
 
-    // ── 1. Evict back-buffer (already-played segments at old quality) ──────────
-    // VHS keeps up to backBufferLength seconds of played segments in the
-    // SourceBuffer. If we don't remove them, seeking backward will serve those
-    // old low-quality frames instead of re-downloading at the new rendition.
     try {
       const tech = (playerRef.current as unknown as VideoJsPlayerWithTech).tech(true);
       const vhs = tech?.vhs ?? tech?.hls; // 'hls' is the legacy alias
@@ -403,9 +370,6 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
       }
     } catch { /* silently ignore if internal API unavailable */ }
 
-    // ── 2. Flush forward buffer so VHS immediately fetches the new rendition ───
-    // Seeking to the exact same time is a no-op in VHS when the buffer is
-    // already filled, so we add a tiny epsilon to force a real seek.
     const seekTarget = Math.min(currentTime + 0.001, duration);
     playerRef.current.currentTime(seekTarget);
   };

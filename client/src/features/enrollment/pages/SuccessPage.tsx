@@ -4,8 +4,10 @@ import ConfettiExplosion from 'react-confetti-explosion';
 import { CheckCircle } from 'lucide-react';
 import gpayEffect from '@assets/gpay.mp3';
 import { ROUTES } from '@/core/router/paths';
-// import partyPopper from '@assets/partypopper.mp3';
 
+/**
+ * SuccessPage component.
+ */
 const SuccessPage: React.FC = () => {
   const navigate = useNavigate();
 
@@ -17,11 +19,10 @@ const SuccessPage: React.FC = () => {
   };
 
   useEffect(() => {
-    // Check for the recorded flag and play audio immediately
     const paymentClicked = localStorage.getItem('paymentClicked');
     if (paymentClicked === 'true') {
       playSuccessSound();
-      // Clear the flag after playing
+
       localStorage.removeItem('paymentClicked');
     }
   }, []);

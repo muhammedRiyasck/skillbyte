@@ -22,9 +22,6 @@ export const validateModule = (data: ModuleData): Record<string, ValidationRespo
   }else if(data.description.length < 10 || data.description.length > 500) {
     errors.description = { success: false, message: 'Description must be between 10 and 500 characters.'};
   }
-  // else if(!/^[a-zA-Z0-9\s]+$/.test(data.description)){
-  //   errors.description = { success: false, message: 'Only letters, numbers, and spaces allowed.' };
-  // }
   return errors
 
 }

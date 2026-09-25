@@ -14,7 +14,6 @@ export const useChatSocket = (userId?: string, conversationId?: string) => {
   const [newMessage, setNewMessage] = useState<IMessage | null>(null);
   const [lastReadEvent, setLastReadEvent] = useState<{ conversationId: string; userId: string; timestamp: Date } | null>(null);
  
-  // Join/leave conversation room
   useEffect(() => {
     if (!socket || !conversationId || !isConnected) return;
 
@@ -25,7 +24,6 @@ export const useChatSocket = (userId?: string, conversationId?: string) => {
     };
   }, [socket, conversationId, isConnected]);
 
-  // Listen for new messages
   useEffect(() => {
     if (!socket) return;
 
@@ -46,7 +44,6 @@ export const useChatSocket = (userId?: string, conversationId?: string) => {
     };
   }, [socket]);
 
-  // Listen for unread messages count
   useEffect(() => {
     if (!socket || !conversationId) return;
 
@@ -61,7 +58,6 @@ export const useChatSocket = (userId?: string, conversationId?: string) => {
     };
   }, [socket, conversationId]);
 
-  // Listen for typing indicators
   useEffect(() => {
     if (!socket || !conversationId) return;
 
@@ -87,7 +83,6 @@ export const useChatSocket = (userId?: string, conversationId?: string) => {
     };
   }, [socket, conversationId]);
 
-  // Send typing indicator
   const sendTypingIndicator = useCallback(
     (isTyping: boolean) => {
       if (socket && conversationId && userId) {

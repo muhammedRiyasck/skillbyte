@@ -7,6 +7,10 @@ import { useDispatch } from "react-redux";
 import { setUser } from "..";
 import { ROUTES } from "@core/router/paths";
 import { Home } from '@shared/shimmer'
+/**
+ * Component to handle the OAuth success redirect.
+ * Fetches the user data and sets it in the Redux store upon successful OAuth login.
+ */
 const OAuthSuccess = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch()
@@ -25,15 +29,6 @@ const OAuthSuccess = () => {
 
   return <Home />
 
-  // (
-  //   <div className="flex items-center justify-center h-screen dark:bg-gray-900 bg-white text-gray-800">
-  //     <div className="text-center">
-  //       <h1 className="text-2xl font-bold mb-4">OAuth Success</h1>
-  //       <p className="text-lg">You have successfully logged in!</p>
-  //       <p className="text-gray-500">Redirecting...</p>
-  //       </div>
-  //     <Spiner />
-  //   </div>)
 
 }
 

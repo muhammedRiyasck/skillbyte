@@ -28,8 +28,6 @@ const ChatWindow: React.FC<IChatWindowProps> = ({ currentUser, conversation, onB
     currentUser.id,
     conversation.conversationId
   );
-
-  // Fetch messages with infinite query
   const { 
     data: infiniteData, 
     isLoading, 
@@ -53,7 +51,7 @@ const ChatWindow: React.FC<IChatWindowProps> = ({ currentUser, conversation, onB
     return infiniteData.pages.slice().reverse().flatMap(page => page.data || []);
   }, [infiniteData]);
 
-  // Load more when scrolling to top
+
   useEffect(() => {
     if (isAtTop && hasNextPage && !isFetchingNextPage) {
       if (messagesContainerRef.current) {
@@ -63,7 +61,6 @@ const ChatWindow: React.FC<IChatWindowProps> = ({ currentUser, conversation, onB
     }
   }, [isAtTop, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Scroll preservation when loading older messages
   useEffect(() => {
     if (!isFetchingNextPage && scrollHeightRef.current > 0 && messagesContainerRef.current) {
       const newScrollHeight = messagesContainerRef.current.scrollHeight;
@@ -75,7 +72,6 @@ const ChatWindow: React.FC<IChatWindowProps> = ({ currentUser, conversation, onB
     }
   }, [messages, isFetchingNextPage]);
 
-  // Initial scroll to bottom
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   useEffect(() => {
     if (!isLoading && messages.length > 0 && isInitialLoad) {
@@ -84,7 +80,7 @@ const ChatWindow: React.FC<IChatWindowProps> = ({ currentUser, conversation, onB
     }
   }, [isLoading, messages.length, isInitialLoad]);
 
-  // Handle new real-time message
+
   useEffect(() => {
     if (newMessage && newMessage.conversationId === conversation.conversationId) {
       queryClient.setQueryData(
@@ -124,7 +120,6 @@ const ChatWindow: React.FC<IChatWindowProps> = ({ currentUser, conversation, onB
     }
   }, [newMessage, conversation.conversationId, currentUser.id, queryClient]);
 
-  // Mark messages as read on mount or when conversation changes
   useEffect(() => {
     if (conversation.conversationId && currentUser.id) {
        ChatService.markAsRead(conversation.conversationId);
@@ -133,7 +128,7 @@ const ChatWindow: React.FC<IChatWindowProps> = ({ currentUser, conversation, onB
 
   
 
-  // Handle read receipts
+
   useEffect(() => {
     if (lastReadEvent && lastReadEvent.conversationId === conversation.conversationId) {
        if (lastReadEvent.userId !== currentUser.id) {
@@ -196,17 +191,15 @@ const ChatWindow: React.FC<IChatWindowProps> = ({ currentUser, conversation, onB
     }
   };
 
-  // Unread marker state
   const [unreadMarkerId, setUnreadMarkerId] = useState<string | null>(null);
   const markerSetRef = useRef(false);
 
-  // Reset marker when conversation changes
+
   useEffect(() => {
     setUnreadMarkerId(null);
     markerSetRef.current = false;
   }, [conversation.conversationId]);
 
-  // Determine unread marker position on initial load
   useEffect(() => {
     if (messages.length > 0 && !markerSetRef.current) {
       const firstUnread = messages.find((m: IMessage) => !m.isRead && m.senderId !== currentUser.id);

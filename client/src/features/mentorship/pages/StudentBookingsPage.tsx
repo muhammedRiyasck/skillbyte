@@ -29,7 +29,7 @@ const StudentBookingsPage = () => {
     const [hasMore, setHasMore] = useState(true);
     const [statusFilter, setStatusFilter] = useState<string>('all');
     
-    // Load persisted ratings from localStorage
+
     const [userRatings, setUserRatings] = useState<Record<string, number | ISessionReview>>(() => {
         try {
             const saved = localStorage.getItem('student_session_ratings');
@@ -41,17 +41,14 @@ const StudentBookingsPage = () => {
     
     const observer = useRef<IntersectionObserver | null>(null);
 
-    // Confirmation Modal State
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
     const [isCancelling, setIsCancelling] = useState(false);
     const [cantRefund, setCantRefund] = useState(false)
 
-    // Review Modal State
     const [isReviewOpen, setIsReviewOpen] = useState(false);
     const [bookingToReview, setBookingToReview] = useState<string | null>(null);
 
-    // Resume payment modal state
     const [resumeClientSecret, setResumeClientSecret] = useState<string | null>(null);
     const [isResumingPayment, setIsResumingPayment] = useState(false);
 
@@ -124,7 +121,6 @@ const StudentBookingsPage = () => {
             if (result.success) {
                 toast.success("Mentorship booking confirmed!");
                 refreshBookings();
-                // Clean up URL
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         } catch (error) {
@@ -132,8 +128,6 @@ const StudentBookingsPage = () => {
             console.error(error);
         }
     }, [refreshBookings]);
-    
-    // Fetch ratings from server on mount
     useEffect(() => {
         const fetchRatings = async () => {
             try {
@@ -150,7 +144,7 @@ const StudentBookingsPage = () => {
         fetchRatings();
     }, []);
 
-    // Handle initial PayPal capture if redirected back
+
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get('token');
@@ -212,7 +206,6 @@ const StudentBookingsPage = () => {
         if (!booking) return;
 
         try {
-            // Generate video room if not exists
             if (!booking.videoRoomUrl) {
                 toast.loading("Preparing video room...");
                 const { roomUrl, roomId } = await generateVideoRoom(bookingId);
@@ -220,7 +213,6 @@ const StudentBookingsPage = () => {
                 setBookings(prev => prev.map(b => b.bookingId === bookingId ? { ...b, videoRoomUrl: roomUrl, videoRoomId: roomId } : b));
             }
 
-            // Extract roomId from videoRoomUrl (format: /video-call/{roomId})
             const roomId = booking.videoRoomId || booking.videoRoomUrl?.split('/').pop();
             if (roomId) {
                 navigate(ROUTES.videoCall.replace(':roomId', roomId));

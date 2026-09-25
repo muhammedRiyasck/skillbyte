@@ -18,6 +18,7 @@ interface Props {
     itemVariants?: Variants;
 }
 
+
 const RecentPaymentsList: React.FC<Props> = ({ payments, itemVariants }) => {
     return (
         <motion.div 

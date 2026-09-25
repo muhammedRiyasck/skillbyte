@@ -36,7 +36,6 @@ export const SlotForm = ({
   const isEditMode = !!initialData;
   const [slotType, setSlotType] = useState<'single' | 'recurring'>('single');
 
-  // Recurring state
   const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const defaultEndStr = useMemo(() => {
     const d = new Date();
@@ -70,7 +69,7 @@ export const SlotForm = ({
   const [tagInput, setTagInput] = useState('');
   const currentTags = watch('tags') || [];
 
-  // Handle Date conversion for input type="datetime-local"
+
   useEffect(() => {
     if (initialData?.scheduledAt) {
       const date = new Date(initialData.scheduledAt);
@@ -115,7 +114,6 @@ export const SlotForm = ({
     }
   };
 
-  // Estimate total occurrences
   const estimatedSlotCount = useMemo(() => {
     if (!startDate || !endDate || !recurringTime) return 0;
     const start = new Date(startDate);

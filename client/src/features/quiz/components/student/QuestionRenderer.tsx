@@ -4,11 +4,9 @@ import { InlineText, SyntaxHighlight } from './QuestionRenderer.components';
 import { formatCode } from './QuestionRenderer.utils';
 
 export const QuestionRenderer: React.FC<{ text: string }> = ({ text }) => {
-  // Normalize triple backticks and single backticks that look like code blocks.
   let normalizedText = text.replace(/```(?:\w+)?\s*\n?([\s\S]*?)\n?\s*```/g, '\n```\n$1\n```\n');
   
-  // Handle single backticks containing obvious JS/TS code or very long content
-  // e.g. `javascript async function...` or ` jsfunction... `
+
   normalizedText = normalizedText.replace(/`\s*(?:javascript|js|typescript|ts)?\s*(function|async|const|let|var|class|console\.|import\s|export\s)[\s\S]*?`/gi, (match) => {
     const inner = match.slice(1, -1).trim();
     const cleanInner = inner.replace(/^(?:javascript|js|typescript|ts)\s*/i, '');
@@ -20,7 +18,6 @@ export const QuestionRenderer: React.FC<{ text: string }> = ({ text }) => {
   let lastIndex = 0;
   let match;
   
-  // ensure we have enough padding for splitting
   const paddedText = '\n' + normalizedText + '\n';
 
   while ((match = codeBlockSplitter.exec(paddedText)) !== null) {
@@ -71,9 +68,6 @@ export const QuestionRenderer: React.FC<{ text: string }> = ({ text }) => {
     );
   }
 
-  // 4. Robust Fallback for Unformatted AI Text
-  // Try to find an intro, code, and a question.
-  // Pattern: [Intro] [Code] [Question]
   const introRegex = /^(Given the following code:|Look at this snippet:|Consider the following.*?snippet:|Consider this code:|Analyze the following code:)\s*/i;
   const introMatch = text.match(introRegex);
   
@@ -85,14 +79,12 @@ export const QuestionRenderer: React.FC<{ text: string }> = ({ text }) => {
     remainingText = text.substring(introMatch[0].length);
   }
 
-  // Look for the actual question part (usually starts with What, Which, How, etc.)
   const questionStartRegex = /\b(What|Which|How|Identify|Evaluate|Choose|True or False)\b/i;
   
   const textMatches = Array.from(remainingText.matchAll(new RegExp(questionStartRegex, 'gi')));
   let questionIndex = -1;
   
   if (textMatches.length > 0) {
-    // Prioritize the FIRST occurrence for splitting to avoid cutting the question in half
     questionIndex = textMatches[0].index!;
   }
 
@@ -100,8 +92,6 @@ export const QuestionRenderer: React.FC<{ text: string }> = ({ text }) => {
     const rawCode = remainingText.substring(0, questionIndex).trim();
     const question = remainingText.substring(questionIndex).trim();
 
-    // Stricter code detection for non-backticked blocks
-    // Must have structural markers AND not start like a prose sentence
     const hasStructure = /({|}|=>|\bfunction\s*\(|\bconst\s+\w+\s*=|\blet\s+\w+\s*=|\bvar\s+\w+\s*=|\bclass\s+\w+|;\s*(\n|$))/.test(rawCode);
     const looksLikeProse = /^(Given|Consider|Look at|Analyze|The)\s+[a-z]+/i.test(rawCode);
     
@@ -139,7 +129,6 @@ export const QuestionRenderer: React.FC<{ text: string }> = ({ text }) => {
     }
   }
 
-  // Final Fallback: Just render the text nicely with inline code support
   return (
     <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-relaxed tracking-tight">
       <InlineText text={text} />

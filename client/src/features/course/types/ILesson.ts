@@ -15,10 +15,5 @@ export interface LessonType {
   isBlocked?: boolean | undefined;
 }
 
-// export interface uploadToB2Props {
-//     uploadUrl:string;
-//     uploadAuthToken:string;
-//     file:File
-//     setVideoURL: (url: string) => void;
-//     setUploadProgress:(percent: number) => void;
-// }
+
+

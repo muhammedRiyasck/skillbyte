@@ -44,8 +44,6 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
   const isSaving = useRef(false);
   const pendingSave = useRef<{ time: number; total: number; completed: boolean } | null>(null);
   const hasCompleted = useRef(false);
-  // Refs mirroring state so event handlers (beforeunload, visibilitychange)
-  // can read the latest values synchronously without stale closures.
   const currentTimeRef = useRef(0);
   const durationRef = useRef(0);
 
@@ -56,7 +54,6 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
       hasCompleted.current = true;
     }
 
-    // If a save request is already in flight, queue this request so it's not lost
     if (isSaving.current) {
       pendingSave.current = {
         time,
@@ -77,14 +74,12 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
         isCompleted: isDone,
       });
 
-      // Refetch enrollment data when the lesson is marked complete
       if (isDone) {
         queryClient.invalidateQueries({ queryKey: ["enrollmentStatus"] });
         queryClient.invalidateQueries({ queryKey: ["enrolled-courses"] });
       }
     } catch (err) {
       console.warn("Progress save failed, retrying in 2s…", err);
-      // One automatic retry after a short delay
       setTimeout(async () => {
         try {
           const isDone = completed || hasCompleted.current;
@@ -105,7 +100,6 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
       }, 2000);
     } finally {
       isSaving.current = false;
-      // Process queued save if one was requested during in-flight save
       if (pendingSave.current) {
         const next = pendingSave.current;
         pendingSave.current = null;
@@ -118,11 +112,8 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     queryKey: ["lessonPlayUrl", id],
     queryFn: () => getLessonPlayUrl(id),
     enabled: !!id,
-    // Signed URLs are valid for hours — avoid re-fetching on every render.
-    // Still refetch when processing, and when the cache expires after 5 min.
     staleTime: 5 * 60 * 1000,
     refetchInterval: (query) => {
-      // If it's still processing, refetch every 10 seconds to check if it's done
       return query.state.data?.data?.isProcessing ? 10000 : false;
     }
   });
@@ -131,7 +122,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
   const hlsUrl = data?.data?.hlsUrl;
   const isProcessing = data?.data?.isProcessing;
 
-  // Reset state when lessonId changes
+
   useEffect(() => {
     setIsPlaying(false);
     setCurrentTime(0);
@@ -149,18 +140,14 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     }
   }, [id]);
 
-  // Lock the signed URL so it doesn't change on background refetches
   useEffect(() => {
     if (signedUrl && !initialSignedUrl) {
       setInitialSignedUrl(signedUrl);
     }
   }, [signedUrl, initialSignedUrl]);
 
-  // Handle online/offline status
+
   useEffect(() => {
-    // Named handlers are required so removeEventListener can match the exact
-    // same function reference — inline arrows would create new functions each
-    // time and the listeners would never actually be removed (memory leak).
     const handleOnline = () => setIsOffline(false);
     const handleOffline = () => setIsOffline(true);
 
@@ -173,7 +160,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     };
   }, []);
 
-  // Handle buffering timeout for slow connection detection
+
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     if (buffering && !isOffline) {
@@ -186,7 +173,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     return () => clearTimeout(timeoutId);
   }, [buffering, isOffline]);
 
-  // Handle time update and progress saving
+
   const handleTimeUpdate = () => {
     const video = videoRef.current;
     if (!video) return;
@@ -198,8 +185,6 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     if (dur > 0) {
       durationRef.current = dur;
     }
-
-    // Check near-completion threshold (95% watched or within 1s of end)
     const isNearEnd = dur > 0 && (time / dur >= 0.95 || time >= dur - 1);
     if (isNearEnd && !hasCompleted.current) {
       hasCompleted.current = true;
@@ -218,12 +203,11 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
       setDuration(videoRef.current.duration);
       durationRef.current = videoRef.current.duration;
 
-      // Seek to initial progress if provided and not yet done
       if (initialProgress > 0 && !initialSeekDone.current) {
         videoRef.current.currentTime = initialProgress;
         setCurrentTime(initialProgress);
         initialSeekDone.current = true;
-        // Show toast notification
+
         toast.custom(() => (
           <div className="text-black dark:bg-gray-800 dark:text-white px-4 py-2 rounded-lg flex items-center gap-2">
             <Play className="w-5 h-5" />
@@ -260,9 +244,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     return () => document.removeEventListener("fullscreenchange", handleFullscreenChange);
   }, []);
 
-  // Save progress when the user hides the tab, navigates away, or closes the browser.
-  // These events fire synchronously so we use sendBeacon (fire-and-forget) for
-  // beforeunload, and the normal async saveProgress for visibilitychange.
+
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
@@ -279,7 +261,6 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
       const total = durationRef.current;
       if (!enrollmentId || time <= 0) return;
       const apiUrl = import.meta.env.VITE_API_URL || '/api/v1';
-      // sendBeacon keeps the request alive even as the page tears down.
       const payload = JSON.stringify({
         lessonId: id,
         lastWatchedSecond: time,
@@ -299,7 +280,7 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('beforeunload', handleBeforeUnload);
 
-      // Save progress on player unmount (e.g. user clicked Close Player or switched lessons)
+
       const time = currentTimeRef.current;
       const total = durationRef.current;
       if (enrollmentId && time > 0) {
@@ -399,8 +380,6 @@ const LessonPlayer: React.FC<LessonPlayerProps> = ({ id, onClose, title, enrollm
     }
   };
 
-// ScreenOrientation.lock/unlock are experimental — not present in all DOM lib versions.
-// OrientationLockType is also absent from older lib targets, so we inline the W3C spec union.
 type ScreenOrientationLock =
   | 'any' | 'natural' | 'landscape' | 'portrait'
   | 'portrait-primary' | 'portrait-secondary'
@@ -543,8 +522,6 @@ interface OrientationWithLock extends ScreenOrientation {
             onTimeUpdate={(time, dur) => {
               setCurrentTime(time);
               setDuration(dur);
-              // Keep refs in sync so visibilitychange/beforeunload handlers
-              // have the latest values without stale closures.
               currentTimeRef.current = time;
               durationRef.current = dur;
 

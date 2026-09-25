@@ -9,7 +9,6 @@ import type {
   InstructorSlotFilters,
 } from "../types/mentorshipTypes";
 
-// ==================== Slots ====================
 
 export const createSlot = async (data: CreateSlotRequest): Promise<IMentorshipSlot> => {
   const response = await api.post('/mentorship/slots', data);

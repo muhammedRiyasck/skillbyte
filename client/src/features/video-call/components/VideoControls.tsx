@@ -10,6 +10,7 @@ interface VideoControlsProps {
   showEndCall?: boolean;
 }
 
+
 export const VideoControls = ({
   isAudioEnabled,
   isVideoEnabled,

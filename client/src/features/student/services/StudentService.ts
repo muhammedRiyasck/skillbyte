@@ -22,10 +22,12 @@ export interface UpdateStudentProfileData {
   learningGoals?: string[] | undefined;
 }
 
+
 export const updateStudentProfile = async (data: UpdateStudentProfileData) => {
   const response = await api.put('/student/profile', data);
   return response.data;
 };
+
 
 export const uploadStudentProfileImage = async (blob: Blob) => {
   const formData = new FormData();
@@ -36,10 +38,12 @@ export const uploadStudentProfileImage = async (blob: Blob) => {
   return response.data;
 };
 
+
 export const removeStudentProfileImage = async () => {
   const response = await api.delete('/student/profile-image');
   return response.data;
 };
+
 
 export const changeStudentPassword = async (data: {
   currentPassword: string;

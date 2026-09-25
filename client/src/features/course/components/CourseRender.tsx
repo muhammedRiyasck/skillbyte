@@ -10,6 +10,7 @@ interface CourseRenderProps {
   role?: string ;
 }
 
+
 const CourseRender = ({data,page,totalPages,setPage , role='student'} :CourseRenderProps) => {
     
  return (

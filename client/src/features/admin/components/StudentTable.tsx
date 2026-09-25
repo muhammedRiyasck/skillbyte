@@ -29,6 +29,7 @@ interface StudentTableProps {
 }
 
 
+
 const StudentTable: React.FC<StudentTableProps> = ({
   students,
   isLoading,
@@ -61,7 +62,6 @@ const StudentTable: React.FC<StudentTableProps> = ({
       toast.success(`User ${variables.status === UserAccountStatus.ACTIVE ? "Unblocked" : "Blocked"} Successfully`);
     },
     onError: () => {
-      // Global toast handles this
     }
   });
 

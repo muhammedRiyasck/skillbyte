@@ -1,5 +1,6 @@
-// Centralized route constants
-
+/**
+ * Centralized application route constants.
+ */
 export const ROUTES = {
   root: '/',
   notFound: '/404',

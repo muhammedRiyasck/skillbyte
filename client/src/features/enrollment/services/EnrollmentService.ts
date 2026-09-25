@@ -20,6 +20,7 @@ export const checkEnrollmentStatus = async (id: string) => {
   return response.data;
 };
 
+
 export const getInstructorEnrollments = async (
   page: number = 1,
   limit: number = 12,
@@ -42,7 +43,7 @@ export const getStudentPurchases = async (page: number = 1, limit: number = 10, 
   });
   const response = await api.get(`/payment/purchases?${params}`);
   return response.data;
-};
+}
 
 export const getInstructorEarnings = async (
   page: number = 1,

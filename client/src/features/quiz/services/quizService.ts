@@ -4,7 +4,6 @@ import type { IQuizConfig, IQuizAnalytics, IQuizAttempt, IAnswer } from '../type
 const API_URL = '/quiz';
 
 export const quizService = {
-  // Instructor methods
   getConfig: async (courseId: string): Promise<IQuizConfig> => {
     const response = await api.get(`${API_URL}/config/${courseId}`);
     return response.data.data;
@@ -31,7 +30,6 @@ export const quizService = {
     await api.delete(`${API_URL}/course/${courseId}/attempts/${userId}`);
   },
 
-  // Student methods
   startAttempt: async (courseId: string): Promise<IQuizAttempt> => {
     const response = await api.post(`${API_URL}/start/${courseId}`);
     return response.data.data;

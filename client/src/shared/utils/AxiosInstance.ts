@@ -39,14 +39,11 @@ api.interceptors.response.use(
 
     if (error.response?.data) {
       const errorData = error.response.data as ApiResponse;
-      // Prioritize 'error' field then 'message'
       error.message = typeof errorData === 'string' 
         ? errorData 
         : errorData.error || errorData.message || 'An error occurred';
       
-      // Handle global toast logic
-      // We skip global toast for 401s generally (to avoid spamming on token expiry)
-      // BUT we want to show them for explicit auth actions (like login failure)
+
       const skipToast = originalRequest?._skipGlobalToast || 
         (error.response.status === HttpStatusCode.UNAUTHORIZED && !isAuth);
       
@@ -54,13 +51,13 @@ api.interceptors.response.use(
         toast.error(error.message);
       }
     } else if (!originalRequest?._skipGlobalToast) {
-      // Handle cases with no response data (e.g., timeout, network error)
+
       toast.error(error.message || 'Network error occurred');
     }
 
     if (error.response?.status === HttpStatusCode.UNAUTHORIZED && !originalRequest?._retry) {
       if (isAuth) {
-        // For auth paths, we want the 401 to propagate to the caller 
+        // For auth paths, 401 to propagate to the caller 
         // (to show "Invalid credentials" error) instead of attempting a refresh.
         if (url.includes('/auth/refresh-token')) {
           store.dispatch(clearUser());
@@ -82,7 +79,7 @@ api.interceptors.response.use(
       }
     }
 
-    // Handle other HTTP errors (logging)
+
     if (typeof error.response?.status === "number" && error.response.status >= HttpStatusCode.INTERNAL_SERVER_ERROR) {
       console.error('Critical server error:', error.message);
     }

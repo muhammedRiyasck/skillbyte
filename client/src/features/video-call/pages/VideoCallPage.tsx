@@ -55,7 +55,7 @@ export const VideoCallPage = () => {
 
   const userProfileImage = user?.profilePicture;
 
-  // Validate access to video room
+
   useEffect(() => {
     const validateAccess = async () => {
       if (!roomId) {
@@ -80,19 +80,15 @@ export const VideoCallPage = () => {
     validateAccess();
   }, [roomId, navigate]);
 
-  // Determine if we should show the lobby
   const [showLobby, setShowLobby] = useState(true);
   const [hasJoined, setHasJoined] = useState(false);
-  // Ref so the unmount-only leave-room cleanup always sees the latest value
   const hasJoinedRef = useRef(false);
 
   useEffect(() => {
-    // If setting is 'false', lobby is disabled (stored as string 'false')
     const lobbyEnabled = localStorage.getItem('video-call-lobby-enabled') !== 'false';
     setShowLobby(lobbyEnabled);
   }, []);
 
-  // START MEDIA STREAM (Independent of joining)
   useEffect(() => {
     const initMedia = async () => {
       if (!isValidating && !mediaState.stream && !mediaState.error) {
@@ -102,7 +98,6 @@ export const VideoCallPage = () => {
     initMedia();
   }, [isValidating, startMediaStream, mediaState.stream, mediaState.error]);
 
-  // Logic to actually join the socket room
   const joinVideoRoom = useCallback(async () => {
     if (
       !roomId ||
@@ -176,28 +171,21 @@ export const VideoCallPage = () => {
     hasJoined
   ]);
 
-  // Auto-join effect (only if lobby is disabled)
-  // Wait for media stream or error to be ready before joining
   useEffect(() => {
     if (!isValidating && bookingId && socket && !hasJoined && !isJoining) {
-      // Logic: If lobby is disabled, we must wait until we have a stream OR an error confirms no stream is coming
       if (!showLobby && (mediaState.stream || mediaState.error)) {
         joinVideoRoom();
       }
     }
   }, [isValidating, bookingId, socket, showLobby, hasJoined, isJoining, joinVideoRoom, mediaState.stream, mediaState.error]);
 
-  // Cleanup on unmount - Stop Stream
   useEffect(() => {
     return () => {
       stopMediaStream();
     };
   }, [stopMediaStream]);
 
-  // Handle leaving room on unmount only.
-  // Using refs (socket via useRef equivalent, hasJoinedRef) means this effect
-  // runs ONLY on true component unmount, not whenever socket or hasJoined
-  // changes — which would emit video:leave-room while the call is still live.
+
   const socketRef = useRef(socket);
   useEffect(() => { socketRef.current = socket; }, [socket]);
 
@@ -220,9 +208,8 @@ export const VideoCallPage = () => {
         userId: user.id,
       });
     }
-    // stopMediaStream(); // Handled by cleanup effect
     toast.success('Call ended');
-    // Show rating modal for students after call ends if completed
+
     if (user?.role === UserRole.STUDENT && bookingId) {
       if (bookingStatus === BookingStatus.COMPLETED) {
         setShowRatingModal(true);
@@ -385,7 +372,7 @@ export const VideoCallPage = () => {
                   ratings[bookingId] = rating;
                   localStorage.setItem('student_session_ratings', JSON.stringify(ratings));
                 } catch {
-                  // ignore
+                  toast.error("Failed to save rating");
                 }
                 setShowRatingModal(false);
                 navigate(-1);

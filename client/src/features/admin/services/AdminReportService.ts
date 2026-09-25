@@ -14,6 +14,12 @@ export interface ReportFilters {
   sortOrder?: 'asc' | 'desc';
 }
 
+/**
+ * Fetches a paginated list of reports from the server.
+ *
+ * @param filters - The filter criteria to apply (status, targetType, role, etc.)
+ * @returns A promise that resolves to the paginated report response.
+ */
 export const getReports = async (filters: ReportFilters = {}): Promise<ReportResponse> => {
   const params: Record<string, string | number | undefined> = {
     page: filters.page ?? 1,
@@ -41,10 +47,20 @@ export const getPendingReports = async (
   return getReports({ page, limit, status: 'pending' });
 };
 
+/**
+ * Dismisses a report, marking it as ignored/resolved without penalizing the target.
+ *
+ * @param reportId - The ID of the report to dismiss.
+ */
 export const dismissReport = async (reportId: string): Promise<void> => {
   await api.patch(`/reports/admin/${reportId}/dismiss`);
 };
 
+/**
+ * Applies the corresponding penalization action for a valid report (e.g., blocking content).
+ *
+ * @param reportId - The ID of the report to action upon.
+ */
 export const actionReport = async (reportId: string): Promise<void> => {
   await api.post(`/reports/admin/${reportId}/action`);
 };

@@ -66,8 +66,6 @@ const QuizConfig: React.FC = () => {
       if (config?.configId) {
         return quizService.updateConfig(courseId!, data);
       }
-      // If no config exists, we must provide the minimum required fields for creation
-      // We will merge current formData so it passes validation (e.g. topics)
       const submitData = { ...formData, isEnabled };
       if (!submitData.topics || submitData.topics.length === 0) {
           throw new Error('Please add at least one topic before enabling');
@@ -82,7 +80,6 @@ const QuizConfig: React.FC = () => {
       const err = error as { response?: { data?: { message?: string } }; message?: string };
       const errorMessage = err.response?.data?.message || err.message || 'Failed to toggle status';
       toast.error(errorMessage);
-      // Revert the local state if toggle failed
       setFormData(prev => ({ ...prev, isEnabled: !prev.isEnabled }));
     },
   });

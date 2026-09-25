@@ -18,53 +18,44 @@ interface CreateCourseData {
 export const validateCreateCourse = (data: CreateCourseData): Record<string, ValidationResponse> => {
   const errors: Record<string, ValidationResponse> = {};
 
-  // Thumbnail
   if (!data.thumbnailFile) {
     errors.thumbnailFile = { success: false, message: "Thumbnail is required" };
   } else if (data.thumbnailFile.size > 2 * 1024 * 1024) {
     errors.thumbnailFile = { success: false, message: "Thumbnail must be less than 2 MB"};
   }
 
-  // Course Title
   if (!data.title.trim()) {
     errors.title = { success: false, message: "Course title is required" };
   } else if (data.title.length < 5) {
     errors.title = { success: false, message: "Course title must be at least 5 characters" };
   }
 
-  // Short Sentence
   if (!data.subText.trim()) {
     errors.subText = { success: false, message: "Short sentence is required" };
   } else if (data.subText.length > 120) {
     errors.subText = { success: false, message: "Short sentence cannot exceed 120 characters" };
   }
 
-  // Category
   if (!data.category) {
     errors.category = { success: false, message: "Please select a category" };
   }
 
-  // Custom Category (if Other is selected)
   if (data.category === "Other" && (!data.customCategory || !data.customCategory.trim())) {
     errors.customCategory = { success: false, message: "Custom category is required" };
   }
 
-  // Course Level
   if (!data.courseLevel) {
     errors.courseLevel = { success: false, message: "Please select a course level" };
   }
 
-  // Language
   if (!data.language) {
     errors.language = { success: false, message: "Please select a language" };
   }
 
-  // Access
   if (!data.access) {
     errors.access = { success: false, message: "Please select access duration" };
   }
 
-  // Price
   if (!data.price.trim()) {
     errors.price = { success: false, message: "Course price is required" };
   } else {
@@ -78,7 +69,6 @@ export const validateCreateCourse = (data: CreateCourseData): Record<string, Val
     }
   }
 
-  // Tags
   if (!data.tags || data.tags.length === 0 || !data.tags[0].trim()) {
     errors.tags = { success: false, message: "At least one tag is required" };
   } else {
@@ -99,7 +89,6 @@ export const validateCreateCourse = (data: CreateCourseData): Record<string, Val
     }
   }
 
-  // Description
   if (!data.description.trim()) {
     errors.description = { success: false, message: "Course description is required" };
   } else if (data.description.length < 20) {

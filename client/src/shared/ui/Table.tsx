@@ -29,7 +29,7 @@ function Table<T>({
   totalPages,
   onPageChange,
 }: TableProps<T>) {
-  // Show full shimmer only on initial load (no existing data yet)
+
   if (isLoading && (!data || data.length === 0)) {
     return <TableShimmer />;
   }

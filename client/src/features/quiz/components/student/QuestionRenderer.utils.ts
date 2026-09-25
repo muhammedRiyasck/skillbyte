@@ -1,4 +1,3 @@
-// ── Zero-dependency JavaScript syntax highlighter ──────────────────────────
 export type Token = { type: string; value: string };
 
 export const tokenize = (code: string): Token[] => {
@@ -46,29 +45,24 @@ export const tokenColor: Record<string, string> = {
   space:   'inherit',
 };
 
-// Auto-formatter: adds line breaks and indentation to flat AI-generated code strings
 export const formatCode = (code: string): string => {
-  // If the code is wrapped in single backticks, strip them (AI marker mistake)
   let cleanCode = code.trim();
   if (cleanCode.startsWith('`') && cleanCode.endsWith('`') && (cleanCode.match(/`/g) || []).length === 2) {
     cleanCode = cleanCode.slice(1, -1).trim();
   }
 
-  // If the code already has newlines, it's already formatted — return as-is
   if (cleanCode.includes('\n')) return cleanCode;
 
   let result = '';
   let indent = 0;
   const INDENT = '  '; // 2 spaces
 
-  // Tokenize character by character
   let i = 0;
   const targetCode = cleanCode;
   while (i < targetCode.length) {
     const ch = targetCode[i];
     const next = targetCode[i + 1] || '';
 
-    // Skip leading spaces only right after a newline (we handle indentation ourselves)
     if (ch === ' ' && result.endsWith('\n')) {
       i++;
       continue;
@@ -79,12 +73,12 @@ export const formatCode = (code: string): string => {
       indent++;
       result += INDENT.repeat(indent);
     } else if (ch === '}') {
-      // Remove trailing spaces before closing brace
+
       result = result.trimEnd();
       result += '\n';
       indent = Math.max(0, indent - 1);
       result += INDENT.repeat(indent) + '}';
-      // Add newline after } unless it's followed by more closing or end
+
       if (next && next !== ')' && next !== ';' && next !== ',') {
         result += '\n' + INDENT.repeat(indent);
       }
@@ -99,7 +93,6 @@ export const formatCode = (code: string): string => {
     i++;
   }
 
-  // Clean up: remove consecutive blank lines and trailing whitespace on each line
   return result
     .split('\n')
     .map(line => line.trimEnd())

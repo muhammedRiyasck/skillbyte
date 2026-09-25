@@ -49,7 +49,6 @@ const MentorshipBrowsePage = () => {
   const [selectedSlot, setSelectedSlot] =
     useState<IMentorshipSlot | null>(null);
 
-  // Resume payment state
   const [resumeClientSecret, setResumeClientSecret] = useState<string | null>(
     null,
   );
@@ -122,8 +121,6 @@ const MentorshipBrowsePage = () => {
       });
     }
   };
-
-  // Fetch unique tags
   useEffect(() => {
     const fetchTags = async () => {
       try {
@@ -222,7 +219,6 @@ const MentorshipBrowsePage = () => {
     ],
   );
 
-  // Debounce search
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);
@@ -286,7 +282,6 @@ const MentorshipBrowsePage = () => {
     }
   };
 
-  // Group slots by instructor
   const groupedSlots = slots.reduce(
     (acc, slot) => {
       const mentorId = slot.instructorId;

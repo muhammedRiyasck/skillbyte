@@ -12,22 +12,19 @@ export const useCertificateDownload = (data?: CertificateDetails) => {
 
     setIsDownloading(true);
     try {
-      // Check if document is in dark mode
+
       const isDarkMode = document.documentElement.classList.contains("dark") || 
                          document.body.classList.contains("dark");
 
-      // html-to-image converts the DOM node directly to a high-fidelity PNG!
       const dataUrl = await toPng(element, {
         quality: 1.0,
         pixelRatio: 3, // Premium high-resolution print crispness
       });
 
-      // Get natural dimensions from element to calculate aspect ratio
       const elWidth = element.offsetWidth;
       const elHeight = element.offsetHeight;
       const certRatio = elWidth / elHeight;
 
-      // Create a standard Landscape A4 PDF page (297mm x 210mm)
       const pdf = new jsPDF({
         orientation: "landscape",
         unit: "mm",
@@ -38,9 +35,7 @@ export const useCertificateDownload = (data?: CertificateDetails) => {
       const a4Height = 210;
       const a4Ratio = a4Width / a4Height;
 
-      // Fill the entire PDF page background to match the active theme
       if (isDarkMode) {
-        // Match Tailwind's bg-gray-950 / #030712
         pdf.setFillColor(3, 7, 18);
         pdf.rect(0, 0, a4Width, a4Height, "F");
       } else {
@@ -53,15 +48,12 @@ export const useCertificateDownload = (data?: CertificateDetails) => {
       let xOffset = 0;
       let yOffset = 0;
 
-      // Fit the certificate preserving its exact aspect ratio centered on A4 landscape
       if (certRatio > a4Ratio) {
-        // Certificate is wider than A4 landscape (relative to height)
         pdfWidth = a4Width - 20; // 10mm margins on sides
         pdfHeight = pdfWidth / certRatio;
         xOffset = 10;
         yOffset = (a4Height - pdfHeight) / 2;
       } else {
-        // Certificate is taller than A4 landscape (relative to width)
         pdfHeight = a4Height - 20; // 10mm margins on top/bottom
         pdfWidth = pdfHeight * certRatio;
         yOffset = 10;

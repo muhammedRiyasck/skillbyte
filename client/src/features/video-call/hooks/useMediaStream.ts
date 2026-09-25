@@ -7,6 +7,7 @@ export interface MediaStreamState {
   error: string | null;
 }
 
+
 export const useMediaStream = () => {
   const [mediaState, setMediaState] = useState<MediaStreamState>({
     stream: null,
@@ -27,7 +28,7 @@ export const useMediaStream = () => {
 
   const startMediaStream = useCallback(async () => {
     try {
-      // Clear previous error state
+
       setMediaState((prev) => ({ ...prev, error: null }));
 
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -104,14 +105,12 @@ export const useMediaStream = () => {
 
   const toggleVideo = useCallback(async () => {
     if (mediaState.isVideoEnabled) {
-      // Turn OFF video: Stop the track to turn off hardware light
       if (streamRef.current) {
         const videoTrack = streamRef.current.getVideoTracks()[0];
         if (videoTrack) {
           videoTrack.stop(); // Completely stop the track
           streamRef.current.removeTrack(videoTrack);
           
-          // Force new reference string to trigger effects
           const updatedStream = new MediaStream(streamRef.current.getTracks());
           streamRef.current = updatedStream;
           setMediaState((prev) => ({ ...prev, isVideoEnabled: false, stream: updatedStream }));
@@ -120,7 +119,6 @@ export const useMediaStream = () => {
          setMediaState((prev) => ({ ...prev, isVideoEnabled: false }));
       }
     } else {
-      // Turn ON video: Request new video track
       try {
         const newStream = await navigator.mediaDevices.getUserMedia({
           video: {
@@ -133,12 +131,10 @@ export const useMediaStream = () => {
         
         if (streamRef.current) {
           streamRef.current.addTrack(newVideoTrack);
-           // Force new reference string to trigger effects
           const updatedStream = new MediaStream(streamRef.current.getTracks());
           streamRef.current = updatedStream;
           setMediaState((prev) => ({ ...prev, isVideoEnabled: true, stream: updatedStream }));
         } else {
-            // Re-initialize if stream is missing
             streamRef.current = newStream;
             setMediaState((prev) => ({ ...prev, isVideoEnabled: true, stream: newStream }));
         }

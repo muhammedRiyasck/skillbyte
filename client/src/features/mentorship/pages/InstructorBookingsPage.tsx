@@ -15,19 +15,16 @@ const InstructorBookingsPage = () => {
     const [bookings, setBookings] = useState<IMentorshipBooking[]>([]);
     const [loading, setLoading] = useState(true);
 
-    // Filter & Pagination State
     const [filters, setFilters] = useState<InstructorBookingFilters>({
         page: 1,
         limit: 10,
     });
     const [hasMore, setHasMore] = useState(true);
 
-    // Confirmation Modal State
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [bookingToCancel, setBookingToCancel] = useState<string | null>(null);
     const [isCancelling, setIsCancelling] = useState(false);
 
-    // Reschedule Modal State
     const [isRescheduleOpen, setIsRescheduleOpen] = useState(false);
     const [bookingToReschedule, setBookingToReschedule] = useState<IMentorshipBooking | null>(null);
     const [newDateTime, setNewDateTime] = useState('');
@@ -40,7 +37,6 @@ const InstructorBookingsPage = () => {
             const data = await getInstructorBookings(filters);
             setBookings(data);
 
-            // Simple check for pagination end
             if (data.length < (filters.limit || 10)) {
                 setHasMore(false);
             } else {
@@ -155,7 +151,6 @@ const InstructorBookingsPage = () => {
         if (!booking) return;
 
         try {
-            // Generate video room if not exists
             if (!booking.videoRoomUrl) {
                 toast.loading("Generating your secure video room...");
                 const { roomUrl, roomId } = await generateVideoRoom(bookingId);
@@ -164,7 +159,6 @@ const InstructorBookingsPage = () => {
                 setBookings(prev => prev.map(b => b.bookingId === bookingId ? { ...b, videoRoomUrl: roomUrl, videoRoomId: roomId } : b));
             }
 
-            // Extract roomId from videoRoomUrl (format: /video-call/{roomId})
             const roomId = booking.videoRoomId || booking.videoRoomUrl?.split('/').pop();
             if (roomId) {
                 navigate(ROUTES.videoCall.replace(':roomId', roomId));

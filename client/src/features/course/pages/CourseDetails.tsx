@@ -61,7 +61,6 @@ const CourseDetails: React.FC = () => {
         courseId: course.id,
       });
 
-      // Invalidate conversations query
       queryClient.invalidateQueries({ queryKey: ['conversations', userId] });
 
       navigate(ROUTES.chat);
@@ -86,7 +85,6 @@ const CourseDetails: React.FC = () => {
     staleTime: role === UserRole.STUDENT ? 0 : 5 * 60 * 1000,
   });
 
-  // Check enrollment status for students
   const { data: enrollmentData } = useQuery({
     queryKey: ['enrollmentStatus', id, userId],
     queryFn: () => checkEnrollmentStatus(id!),
@@ -123,7 +121,6 @@ const CourseDetails: React.FC = () => {
       return;
     }
 
-    // If the course is free, enroll directly without going through payment
     if (course && course.price === 0) {
       try {
         await enrollFreeCourse(id!);
@@ -259,7 +256,6 @@ const CourseDetails: React.FC = () => {
     );
   }
 
-  // Helper function to format duration from seconds to readable format
   const formatDuration = (seconds: number): string => {
     if (seconds < 60) {
       return `${seconds}s`;
@@ -339,7 +335,6 @@ const CourseDetails: React.FC = () => {
           </div>
         </div>
       ) : (
-        // <>
           <CourseHero
             course={course}
             role={role}

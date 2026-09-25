@@ -1,7 +1,6 @@
 import api from "@shared/utils/AxiosInstance";
 import type { BookSlotResponse, IMentorshipBooking, InstructorBookingFilters, StudentBookingFilters } from "../types/mentorshipTypes";
 
-// ==================== Bookings ====================
 
 export const getInstructorBookings = async (filters: InstructorBookingFilters = {}): Promise<IMentorshipBooking[]> => {
   const response = await api.get('/mentorship/bookings/instructor', { params: filters });

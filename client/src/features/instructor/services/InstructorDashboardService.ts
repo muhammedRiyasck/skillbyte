@@ -1,5 +1,4 @@
 import api from "@shared/utils/AxiosInstance";
-
 export const getDashboardEarnings = async () => {
     const response = await api.get(`/payment/earnings?page=1&limit=5&trendDays=30`);
     return response.data?.data;
@@ -8,7 +7,7 @@ export const getDashboardEarnings = async () => {
 export const getDashboardEnrollments = async () => {
     const response = await api.get(`/enrollment/instructor-enrollments?page=1&limit=100`);
     return response.data?.data;
-};
+}; 
 
 export const getDashboardCourses = async () => {
     const response = await api.get(`/course/instructor-courses?page=1&limit=100`);
@@ -27,7 +26,7 @@ export const getInstructorProfile = async () => {
 
 export const createStripeOnboardingLink = async () => {
     const response = await api.post(`/instructor/stripe-onboarding`);
-    return response.data;
+    return response.data
 };
 
 export const getMyWithdrawals = async (page: number = 1, limit: number = 5) => {
@@ -36,7 +35,6 @@ export const getMyWithdrawals = async (page: number = 1, limit: number = 5) => {
 };
 
 export const requestWithdrawal = async (amount: number) => {
-    // Server Zod schema (RequestWithdrawalSchema) requires payoutMethod: 'STRIPE'
     const response = await api.post(`/payment/withdrawals/request`, { amount, payoutMethod: 'STRIPE' });
     return response.data;
 };

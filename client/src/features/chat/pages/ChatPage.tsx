@@ -17,7 +17,7 @@ const ChatPage: React.FC = () => {
 
   const { conversations } = useChat();
 
-  // Handle URL-based conversation selection
+
   useEffect(() => {
     if (conversationIdFromUrl && conversations.length > 0) {
       const found = conversations.find((c: IConversation) => c.conversationId === conversationIdFromUrl);
@@ -27,12 +27,11 @@ const ChatPage: React.FC = () => {
     }
   }, [conversationIdFromUrl, conversations]);
 
-  // Reset selection when user changes (login/logout)
+
   useEffect(() => {
     setSelectedConversation(null);
   }, [user?.id]);
 
-  // Mobile view state: if selectedConversation is null, show list. if not null, show window.
   
   if (!user) {
     return (

@@ -1,4 +1,3 @@
-// Video Call Type Definitions
 
 export interface Participant {
   userId: string;

@@ -169,7 +169,6 @@ export default function LessonItem({ lesson, id, moduleId, order, setModules }: 
         resources: watchedResources,
       });
       setEditLesson({ disable: true, initial: false, prevState: { lessonTitle: "", lessonDescription: "" } });
-      // Invalidate the queries to refetch fresh data
       queryClient.invalidateQueries({ queryKey: ["modulesAndLesson", id, "modules,lessons"] });
     }
   }, [lesson, watchedResources, queryClient, id]);
@@ -232,7 +231,6 @@ export default function LessonItem({ lesson, id, moduleId, order, setModules }: 
                 <input
                   type="file"
                   accept="video/*"
-                  // accept="video/*,application/pdf"
                   className="hidden"
                   onChange={(e) => {
                     if (e.target.files?.[0]) showVideoPrev(e.target.files[0]);
