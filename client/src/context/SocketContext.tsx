@@ -28,7 +28,8 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     if (user) {
       let hasRetriedAuth = false;
-      const newSocket = io(import.meta.env.VITE_API_BASE_URL, {
+      const socketUrl = import.meta.env.PROD ? '/' : import.meta.env.VITE_API_BASE_URL;
+      const newSocket = io(socketUrl, {
         withCredentials: true,
       });
 
