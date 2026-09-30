@@ -188,6 +188,11 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+  // Standalone error pages
+  {
+    path: ROUTES.forbidden,
+    element: <ErrorPage statusCode={403} message="Access Forbidden" />,
+  },
   // student routes
   {
     path: ROUTES.root,

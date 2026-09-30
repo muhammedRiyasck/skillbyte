@@ -4,6 +4,7 @@
 export const ROUTES = {
   root: '/',
   notFound: '/404',
+  forbidden: '/403',
   notifications: '/notifications',
   chat: '/chat',
   videoCall: '/video-call/:roomId',

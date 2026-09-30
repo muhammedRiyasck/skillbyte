@@ -2,31 +2,29 @@
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 import type { RootState } from "../store/Index";
-import { toast } from "sonner";
 import { ROUTES } from "./paths";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  roles?: string[]; 
+  roles?: string[];
 }
 
 /**
  * Higher-order component to restrict route access based on user authentication and role.
+ * Redirects unauthenticated users to the sign-in page and unauthorized users to the
+ * dedicated 403 Forbidden page — no toasts, clean full-page error handling.
  */
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, roles }) => {
   const user = useSelector((state: RootState) => state.auth.user);
 
   if (!user) {
-    toast.info('You Should Login To Access This Page')
-    return <Navigate to={ROUTES.root} replace />;
+    return <Navigate to={ROUTES.auth.signIn} replace />;
   }
-
 
   if (roles && !roles.includes(user.role)) {
-    toast.error('You Do Not Have Permission To Access This Page')
-    return <Navigate to={ROUTES.root} replace />;
+    return <Navigate to={ROUTES.forbidden} replace />;
   }
-  
+
   return <>{children}</>;
 };
 
