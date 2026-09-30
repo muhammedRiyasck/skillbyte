@@ -4,7 +4,7 @@ name: SkillByte CI/CD
 on:
   push:
     branches:
-      - main
+      - dev
   workflow_dispatch:
 
 permissions:
