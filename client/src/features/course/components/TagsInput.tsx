@@ -45,7 +45,20 @@ const TagsInput: React.FC<TagsInputProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (disabled) return;
-    setInputValue(e.target.value);
+    const val = e.target.value;
+    
+    // Check for comma or space to create tag (handles mobile predictive text better)
+    if (val.endsWith(',') || val.endsWith(' ')) {
+      addTag(val.slice(0, -1));
+    } else {
+      setInputValue(val);
+    }
+  };
+
+  const handleBlur = () => {
+    if (inputValue.trim()) {
+      addTag(inputValue);
+    }
   };
 
   return (
@@ -73,6 +86,7 @@ const TagsInput: React.FC<TagsInputProps> = ({
           value={inputValue}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
+          onBlur={handleBlur}
           placeholder={value.length === 0 ? placeholder : ""}
           className="flex-1 min-w-0 bg-transparent outline-none text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
           disabled={disabled}
