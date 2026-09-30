@@ -39,7 +39,7 @@ const NotificationDropdown = () => {
     const toggleDropdown = () => setIsOpen(!isOpen);
 
     return (
-        <div className="relative sm:static md:relative" ref={dropdownRef}>
+        <div className="relative" ref={dropdownRef}>
             <button
                 onClick={toggleDropdown}
                 className={`relative p-2 cursor-pointer text-gray-600 hover:bg-gray-100 rounded-full dark:text-gray-300 dark:hover:bg-gray-800 transition-colors ${unreadCount > 0 ? 'bg-indigo-50/50 dark:bg-indigo-900/20 animate-bounce' : ''}`}
@@ -55,9 +55,10 @@ const NotificationDropdown = () => {
 
             {isOpen && (
                 <div className="
-                    absolute right-[5vw] sm:right-0 mt-2 w-[90vw] max-w-[340px] sm:w-80 md:w-96 
+                    fixed right-2 top-16 sm:absolute sm:top-auto sm:right-0 sm:mt-2
+                    w-[calc(100vw-1rem)] max-w-[340px] sm:w-80 md:w-96
                     bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 
-                    rounded-lg shadow-xl z-[100] overflow-hidden origin-top-right
+                    rounded-lg shadow-xl z-[200] overflow-hidden origin-top-right
                 ">
                     <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800">
                         <h3 className="font-semibold text-gray-800 dark:text-white">Notifications</h3>
