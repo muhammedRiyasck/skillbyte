@@ -36,6 +36,15 @@ api.interceptors.response.use(
 
     const url = originalRequest.url || '';
     const isAuth = isAuthPath(url);
+    const status = error.response?.status;
+
+    // 403 Forbidden on non-auth paths: redirect to dedicated forbidden page,
+    // no toast (covers signed-out-in-other-tab and role-change scenarios).
+    if (status === HttpStatusCode.FORBIDDEN && !isAuth) {
+      store.dispatch(clearUser());
+      window.location.replace('/403');
+      return Promise.reject(error);
+    }
 
     if (error.response?.data) {
       const errorData = error.response.data as ApiResponse;
@@ -45,7 +54,7 @@ api.interceptors.response.use(
       
 
       const skipToast = originalRequest?._skipGlobalToast || 
-        (error.response.status === HttpStatusCode.UNAUTHORIZED && !isAuth);
+        (status === HttpStatusCode.UNAUTHORIZED && !isAuth);
       
       if (!skipToast) {
         toast.error(error.message);
@@ -55,7 +64,7 @@ api.interceptors.response.use(
       toast.error(error.message || 'Network error occurred');
     }
 
-    if (error.response?.status === HttpStatusCode.UNAUTHORIZED && !originalRequest?._retry) {
+    if (status === HttpStatusCode.UNAUTHORIZED && !originalRequest?._retry) {
       if (isAuth) {
         // For auth paths, 401 to propagate to the caller 
         // (to show "Invalid credentials" error) instead of attempting a refresh.
@@ -80,7 +89,7 @@ api.interceptors.response.use(
     }
 
 
-    if (typeof error.response?.status === "number" && error.response.status >= HttpStatusCode.INTERNAL_SERVER_ERROR) {
+    if (typeof status === "number" && status >= HttpStatusCode.INTERNAL_SERVER_ERROR) {
       console.error('Critical server error:', error.message);
     }
 
