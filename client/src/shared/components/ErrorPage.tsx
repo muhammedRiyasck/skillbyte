@@ -6,6 +6,14 @@ interface ErrorProps  {
     statusCode:number
 }
 
+const getSubtitle = (code: number): string => {
+  if (code === 404) return "The page you're looking for doesn't exist or has been moved."
+  if (code === 403) return "You don't have permission to access this page."
+  if (code === 401) return "You need to be logged in to view this page."
+  if (code >= 500) return "Something went wrong on our end. Please try again later."
+  return "An unexpected error occurred."
+}
+
 const ErrorPage = ({message,statusCode}:ErrorProps) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-4 text-center relative overflow-hidden">
@@ -25,7 +33,7 @@ const ErrorPage = ({message,statusCode}:ErrorProps) => {
           {message}
         </h2>
         <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-lg mx-auto leading-relaxed">
-          We're sorry for the inconvenience. Please try again later or contact support if the problem persists.
+          {getSubtitle(statusCode)}
         </p>
 
         {/* Back to Home Button */}
