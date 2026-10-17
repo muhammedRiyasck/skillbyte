@@ -230,40 +230,61 @@ client/src/
 
 ---
 
-## 🖼️ Screenshots (some)
+## 🖼️ Screenshots
 
+### 👨‍🎓 Student Experience & Learning
 
-| Home Page(light mode)| Home Page(dark mode) | Course Detail | Student Dashboard |
-|---|---|---|---|
-| <img width="1883" height="918" alt="Image" src="https://github.com/user-attachments/assets/561539ab-1f2b-40a3-a9a7-1bb0f462d2b0" /> | <img width="1882" height="910" alt="Image" src="https://github.com/user-attachments/assets/4a620ae4-bf20-4535-a553-785f49fc8e6e" /> | <img width="1882" height="905" alt="Image" src="https://github.com/user-attachments/assets/2d10c5fd-cad7-497f-8da8-c03fadb0c182" /> | <img width="1887" height="912" alt="Image" src="https://github.com/user-attachments/assets/1ec8a743-3949-4442-b0f0-06bbf12ae4d4" /> |
+| Home Page (Light Mode) | Home Page (Dark Mode) |
+|:---:|:---:|
+| <img src="https://github.com/user-attachments/assets/561539ab-1f2b-40a3-a9a7-1bb0f462d2b0" width="100%" alt="Home Page Light Mode" /> | <img src="https://github.com/user-attachments/assets/4a620ae4-bf20-4535-a553-785f49fc8e6e" width="100%" alt="Home Page Dark Mode" /> |
 
-| Instructor Dashboard | course creation base info | Ai Quiz |
-|---|---|---|
-| <img width="436" height="878" alt="Image" src="https://github.com/user-attachments/assets/2db6e9a6-2848-48d9-a739-9db8f9651838" />
- | <img width="1883" height="903" alt="Image" src="https://github.com/user-attachments/assets/f1db439d-f036-4598-8eea-5b7c578bac2c" />
- | <img width="1883" height="906" alt="Image" src="https://github.com/user-attachments/assets/dbde36b8-7d56-4b38-a20e-76b13e5f48bc" />
- |
+| Course Overview | Interactive Video Lesson Player |
+|:---:|:---:|
+| <img src="https://github.com/user-attachments/assets/2d10c5fd-cad7-497f-8da8-c03fadb0c182" width="100%" alt="Course Overview" /> | <img src="https://github.com/user-attachments/assets/a85c70bd-bc20-405d-a1e3-41f600c185e7" width="100%" alt="Course Player" /> |
 
-| Admin Dashboard | Admin Menu | Moderation Center | Withdrawal Management |
-|---|---|---|---|
-| <img width="1872" height="903" alt="Image" src="https://github.com/user-attachments/assets/35aac153-6868-438e-aa86-31c1deeda55b" /> | 
-| <img width="1880" height="882" alt="Image" src="https://github.com/user-attachments/assets/fb05ff38-e619-4e3a-847b-45a2e2bcb29f" />|
-| <img width="1892" height="906" alt="Image" src="https://github.com/user-attachments/assets/5d150a88-e5f9-4446-8f12-e70d1c0fa914" />|
-<img width="1887" height="906" alt="Image" src="https://github.com/user-attachments/assets/9b44d4af-56ad-4698-bb66-44ee8aa095a4" />|
+| Student Learning Dashboard | Verified Completion Certificate |
+|:---:|:---:|
+| <img src="https://github.com/user-attachments/assets/1ec8a743-3949-4442-b0f0-06bbf12ae4d4" width="100%" alt="Student Dashboard" /> | <img src="https://github.com/user-attachments/assets/53aa395b-5cef-44b8-a6c3-e8c083039cca" width="100%" alt="Certificate" /> |
 
-| Course Detail | Course Player | Certificate |
-|---|---|---|
-<img width="1480" height="900" alt="Image" src="https://github.com/user-attachments/assets/beeb15ff-c1a3-4e65-a180-ae18d556ee1a" /> |
-<img width="1877" height="901" alt="Image" src="https://github.com/user-attachments/assets/a85c70bd-bc20-405d-a1e3-41f600c185e7" /> |
-<img width="1886" height="897" alt="Image" src="https://github.com/user-attachments/assets/53aa395b-5cef-44b8-a6c3-e8c083039cca" /> |
+---
 
-| Lobby | video call  | slot booking | my bookings | Chat |
-|---|---|---|---|---|
-<img width="1896" height="907" alt="Image" src="https://github.com/user-attachments/assets/08812515-edc7-441e-a765-ea6b93257dfa" /> |
-<img width="1895" height="910" alt="Image" src="https://github.com/user-attachments/assets/bfc9b0ed-bf12-4c20-9dea-50e3e0a9d03a" /> | 
-<img width="1895" height="915" alt="Image" src="https://github.com/user-attachments/assets/b55dc7db-5797-44a5-88e0-2f2fc34c00a9" /> | 
-<img width="1886" height="902" alt="Image" src="https://github.com/user-attachments/assets/be12af6f-6acf-4433-959e-11fae6679671" />|
-<img width="1897" height="908" alt="Image" src="https://github.com/user-attachments/assets/9dbb549f-358c-42af-b502-ef2c1d52493f" />|
+### 🤝 Mentorship & Real-Time Communication
+
+| Mentorship Slot Booking | Student Booking Management |
+|:---:|:---:|
+| <img src="https://github.com/user-attachments/assets/b55dc7db-5797-44a5-88e0-2f2fc34c00a9" width="100%" alt="Slot Booking" /> | <img src="https://github.com/user-attachments/assets/be12af6f-6acf-4433-959e-11fae6679671" width="100%" alt="My Bookings" /> |
+
+| Session Waiting Lobby | Real-Time Messaging & Chat |
+|:---:|:---:|
+| <img src="https://github.com/user-attachments/assets/08812515-edc7-441e-a765-ea6b93257dfa" width="100%" alt="Session Lobby" /> | <img src="https://github.com/user-attachments/assets/9dbb549f-358c-42af-b502-ef2c1d52493f" width="100%" alt="Real-time Chat" /> |
+
+| Live 1-on-1 Video Call (WebRTC) |
+|:---:|
+| <img src="https://github.com/user-attachments/assets/bfc9b0ed-bf12-4c20-9dea-50e3e0a9d03a" width="100%" alt="Live Video Call" /> |
+
+---
+
+### 👨‍🏫 Instructor Studio & AI Assessments
+
+| Instructor Studio Dashboard | Course Creation & Builder |
+|:---:|:---:|
+| <img src="https://github.com/user-attachments/assets/2db6e9a6-2848-48d9-a739-9db8f9651838" width="100%" alt="Instructor Dashboard" /> | <img src="https://github.com/user-attachments/assets/f1db439d-f036-4598-8eea-5b7c578bac2c" width="100%" alt="Course Creation" /> |
+
+| Google Gemini AI Quiz Configuration | Course Curriculum & Management |
+|:---:|:---:|
+| <img src="https://github.com/user-attachments/assets/dbde36b8-7d56-4b38-a20e-76b13e5f48bc" width="100%" alt="AI Quiz Configuration" /> | <img src="https://github.com/user-attachments/assets/beeb15ff-c1a3-4e65-a180-ae18d556ee1a" width="100%" alt="Course Curriculum" /> |
+
+---
+
+### 🛡️ Admin Portal & Platform Governance
+
+| Platform Analytics Dashboard | Course Moderation Center |
+|:---:|:---:|
+| <img src="https://github.com/user-attachments/assets/35aac153-6868-438e-aa86-31c1deeda55b" width="100%" alt="Admin Dashboard" /> | <img src="https://github.com/user-attachments/assets/5d150a88-e5f9-4446-8f12-e70d1c0fa914" width="100%" alt="Moderation Center" /> |
+
+| Admin Navigation & Menu | Instructor Withdrawal Management |
+|:---:|:---:|
+| <img src="https://github.com/user-attachments/assets/fb05ff38-e619-4e3a-847b-45a2e2bcb29f" width="100%" alt="Admin Menu" /> | <img src="https://github.com/user-attachments/assets/9b44d4af-56ad-4698-bb66-44ee8aa095a4" width="100%" alt="Withdrawal Management" /> |
 
 ---
 
